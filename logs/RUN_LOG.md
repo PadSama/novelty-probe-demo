@@ -786,3 +786,189 @@ exit code: 1
 - `doi.org` 被本环境的网络策略拒绝（代理 403），10 个 DOI 均未能核验。需要研究者在环境设置中放行 `doi.org`；跟随跳转还会访问各出版商网站，这些域名也需放行或调宽网络访问级别。放行后重跑命令 6 即可覆盖 verified 列。
 - 标注只依据摘要；rank 1 无摘要，仅研究问题与数据与方法两面依据题目标注，其余为 unknown。
 - 本步未判断新颖性。
+
+---
+
+## [2026-10-31 15:37 UTC] Step 8 — 放行 doi.org / api.crossref.org，verify.py 增加 Crossref 元数据核验并重跑
+
+**研究者决定（本轮）**
+
+- 已在 Network Access 中放行 `doi.org` 与 `api.crossref.org`。
+- 同意增加 Crossref 元数据核验（经 doi.org 内容协商取登记元数据），重跑 verify.py。
+
+**命令 1：连通性与接口测试**
+
+```bash
+curl -sS -m 30 -o /dev/null -w "HTTP %{http_code} -> %{redirect_url}\n" "https://doi.org/10.1126/sciadv.adn5290"
+curl -sS -m 30 -L -o /dev/null -w "HTTP %{http_code} final=%{url_effective}\n" "https://doi.org/10.1126/sciadv.adn5290"
+curl -sS -m 30 -L -H "Accept: application/vnd.citationstyles.csl+json" "https://doi.org/10.1126/sciadv.adn5290"
+curl -sS -m 30 -D - "https://api.crossref.org/works/10.1126/sciadv.adn5290"     # 以及间隔重试
+```
+
+输出（摘要）：
+
+```
+doi.org: HTTP 302 -> https://www.science.org/doi/10.1126/sciadv.adn5290
+landing: curl: (56) CONNECT tunnel failed, response 403   (www.science.org 未放行)
+Crossref（内容协商与 REST 接口）: HTTP 429，无 Retry-After、无响应体
+间隔重试：15:33:11 try 1: HTTP 200
+内容协商再试：HTTP 200 final=https://api.crossref.org/v1/works/10.1126%2Fsciadv.adn5290/transform
+              type=application/vnd.citationstyles.csl+json；返回 title / container-title / issued / author 等字段
+```
+
+**命令 2：改写 scripts/verify.py**
+
+```
+# 每个 DOI 两项检查（均从 doi.org 出发并跟随跳转）：
+#   Crossref：Accept: application/vnd.citationstyles.csl+json，取登记元数据，与表中题目对照；429/5xx 退避重试
+#   落地页：Accept: text/html，记录 HTTP 状态与页面标题
+# verified 列写成 "Crossref <结果>；落地页 <结果>"；同时更新 evidence_table.md 开头对 verified 列的说明
+```
+
+**命令 3：本地测试（127.0.0.1 测试服务器，按 Accept 头分别返回元数据或网页）**
+
+结果：ALL PASSED（题目一致 / 不一致、Crossref 两次 429 后成功、DOI 不存在、元数据请求返回 HTML、出版商 403、跳转后连接失败、无 DOI）。
+
+**命令 4：第一次真实运行**
+
+```bash
+python3 -B scripts/verify.py
+```
+
+输出：
+
+```
+verify run at 2026-10-31T15:35:22+00:00  table=/home/user/novelty-probe-demo/evidence/evidence_table.md
+[1] doi:10.1038/s41586-025-09640-5
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · A multimodal robotic platform for multi-element electrocatalyst discovery
+                 registered: Nature | 2025 | journal-article | authors: Zhang; Ren; Hsu
+      landing:   302 www.nature.com  -> 落地页 BLOCKED at www.nature.com (network policy, proxy 403)
+[2] doi:10.1126/sciadv.adn5290
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · Generative AI enhances individual creativity but reduces the collective diversity of novel content
+                 registered: Science Advances | 2024 | journal-article | authors: Doshi; Hauser
+      landing:   302 www.science.org  -> 落地页 BLOCKED at www.science.org (network policy, proxy 403)
+[3] doi:10.1016/j.ecolmodel.2018.04.020
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Bibliometric review of ecological network analysis: 2010–2016
+                 registered: Ecological Modelling | 2018 | journal-article | authors: Borrett; Sheble; Moody
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[4] doi:10.1145/3635636.3656204
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Homogenization Effects of Large Language Models on Human Creative Ideation
+                 registered: Creativity and Cognition | 2024 | proceedings-article | authors: Anderson; Shah; Kreminski
+      landing:   302 dl.acm.org  -> 落地页 BLOCKED at dl.acm.org (network policy, proxy 403)
+[5] doi:10.1016/j.caeai.2025.100456
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliome…
+                 registered: Computers and Education: Artificial Intelligence | 2025 | journal-article | authors: Aldreabi; Alhur; Al-Okaily
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[6] doi:10.1108/ijssp-06-2021-0145
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Work–life balance: a systematic literature review and bibliometric analysis
+                 registered: International Journal of Sociology and Social Policy | 2021 | journal-article | authors: Rashmi; Kataria
+      landing:   302 www.emerald.com  -> 落地页 ERROR at www.emerald.com: [Errno -2] Name or service not known
+[7] doi:10.1080/08911762.2020.1765444
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · A Systematic Literature Review and Bibliometric Analysis of Recycling Behavior
+                 registered: Journal of Global Marketing | 2020 | journal-article | authors: Phulwani; Kumar; Goyal
+      landing:   302 www.tandfonline.com  -> 落地页 BLOCKED at www.tandfonline.com (network policy, proxy 403)
+[8] doi:10.1109/hicss.1993.270676
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Drug design using inductive logic programming
+                 registered: [1993] Proceedings of the Twenty-sixth Hawaii International Conference on System Sciences | None | proceedings-article | authors: King; Srinivasan; Muggleton
+      landing:   302 ieeexplore.ieee.org  -> 落地页 ERROR at ieeexplore.ieee.org: [Errno -2] Name or service not known
+[9] doi:10.1038/s41598-026-54348-9
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目不一致 · A temporal adaptive dictionary-constrained LDA and Bi-calibrated dual granularity DTM framework for dynamic topic evolut…
+                 registered: Scientific Reports | 2026 | journal-article | authors: Yin
+      landing:   302 www.nature.com  -> 落地页 BLOCKED at www.nature.com (network policy, proxy 403)
+[10] doi:10.18559/ebr.2023.2.732
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · The rise of generative AI and possible effects on the economy
+                 registered: Economics and Business Review | 2023 | journal-article | authors: Orchard; Tasiemski
+      landing:   302 journals.ue.poznan.pl  -> 落地页 BLOCKED at journals.ue.poznan.pl (network policy, proxy 403)
+
+summary crossref: 题目一致: 9 | 题目不一致: 1
+summary landing:  落地页 BLOCKED at dl.acm.org: 1 | 落地页 BLOCKED at journals.ue.poznan.pl: 1 | 落地页 BLOCKED at linkinghub.elsevier.com: 2 | 落地页 BLOCKED at www.nature.com: 2 | 落地页 BLOCKED at www.science.org: 1 | 落地页 BLOCKED at www.tandfonline.com: 1 | 落地页 ERROR at ieeexplore.ieee.org: [Errno -2] Name or service not known: 1 | 落地页 ERROR at www.emerald.com: [Errno -2] Name or service not known: 1
+written: verified column in /home/user/novelty-probe-demo/evidence/evidence_table.md
+exit code: 0
+```
+
+核对输出时发现两处问题：
+
+1. rank 9 的"题目不一致"是脚本 bug：比对前先把登记题目截短到 120 字符，长题目结尾的词被截掉，导致词重合率低于八成。
+2. emerald.com 与 ieeexplore.ieee.org 报的是域名解析失败。查看跳转链确认：doi.org 把这两个 DOI 转到了 `http://` 地址，而本环境只经代理访问 HTTPS。
+
+```
+10.1108/ijssp-06-2021-0145 | chain: [(302, 'http://www.emerald.com/ijssp/article/42/11-12/1028-1065/159262')] | error: [Errno -2] Name or service not known
+10.1109/hicss.1993.270676 | chain: [(302, 'http://ieeexplore.ieee.org/document/270676/')] | error: [Errno -2] Name or service not known
+```
+
+**命令 5：修正并回归测试**
+
+```
+# 比对用完整登记题目，只在写入表格时截短；非 HTTPS 地址的失败信息带上 http:// 前缀
+python3 -I -B - <<'PY'   # 回归测试：长题目判为一致；跳到 http:// 地址时信息带前缀 —— PASSED
+PY
+```
+
+**命令 6：第二次真实运行**
+
+```bash
+python3 -B scripts/verify.py
+```
+
+输出：
+
+```
+verify run at 2026-10-31T15:36:54+00:00  table=/home/user/novelty-probe-demo/evidence/evidence_table.md
+[1] doi:10.1038/s41586-025-09640-5
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · A multimodal robotic platform for multi-element electrocatalyst discovery
+                 registered: Nature | 2025 | journal-article | authors: Zhang; Ren; Hsu
+      landing:   302 www.nature.com  -> 落地页 BLOCKED at www.nature.com (network policy, proxy 403)
+[2] doi:10.1126/sciadv.adn5290
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Generative AI enhances individual creativity but reduces the collective diversity of novel content
+                 registered: Science Advances | 2024 | journal-article | authors: Doshi; Hauser
+      landing:   302 www.science.org  -> 落地页 BLOCKED at www.science.org (network policy, proxy 403)
+[3] doi:10.1016/j.ecolmodel.2018.04.020
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Bibliometric review of ecological network analysis: 2010–2016
+                 registered: Ecological Modelling | 2018 | journal-article | authors: Borrett; Sheble; Moody
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[4] doi:10.1145/3635636.3656204
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Homogenization Effects of Large Language Models on Human Creative Ideation
+                 registered: Creativity and Cognition | 2024 | proceedings-article | authors: Anderson; Shah; Kreminski
+      landing:   302 dl.acm.org  -> 落地页 BLOCKED at dl.acm.org (network policy, proxy 403)
+[5] doi:10.1016/j.caeai.2025.100456
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliome…
+                 registered: Computers and Education: Artificial Intelligence | 2025 | journal-article | authors: Aldreabi; Alhur; Al-Okaily
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[6] doi:10.1108/ijssp-06-2021-0145
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Work–life balance: a systematic literature review and bibliometric analysis
+                 registered: International Journal of Sociology and Social Policy | 2021 | journal-article | authors: Rashmi; Kataria
+      landing:   302 www.emerald.com  -> 落地页 ERROR at http://www.emerald.com: [Errno -2] Name or service not known
+[7] doi:10.1080/08911762.2020.1765444
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · A Systematic Literature Review and Bibliometric Analysis of Recycling Behavior
+                 registered: Journal of Global Marketing | 2020 | journal-article | authors: Phulwani; Kumar; Goyal
+      landing:   302 www.tandfonline.com  -> 落地页 BLOCKED at www.tandfonline.com (network policy, proxy 403)
+[8] doi:10.1109/hicss.1993.270676
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Drug design using inductive logic programming
+                 registered: [1993] Proceedings of the Twenty-sixth Hawaii International Conference on System Sciences | None | proceedings-article | authors: King; Srinivasan; Muggleton
+      landing:   302 ieeexplore.ieee.org  -> 落地页 ERROR at http://ieeexplore.ieee.org: [Errno -2] Name or service not known
+[9] doi:10.1038/s41598-026-54348-9
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · A temporal adaptive dictionary-constrained LDA and Bi-calibrated dual granularity DTM framework for dynamic topic evolut…
+                 registered: Scientific Reports | 2026 | journal-article | authors: Yin
+      landing:   302 www.nature.com  -> 落地页 BLOCKED at www.nature.com (network policy, proxy 403)
+[10] doi:10.18559/ebr.2023.2.732
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · The rise of generative AI and possible effects on the economy
+                 registered: Economics and Business Review | 2023 | journal-article | authors: Orchard; Tasiemski
+      landing:   302 journals.ue.poznan.pl  -> 落地页 BLOCKED at journals.ue.poznan.pl (network policy, proxy 403)
+
+summary crossref: 题目一致: 10
+summary landing:  落地页 BLOCKED at dl.acm.org: 1 | 落地页 BLOCKED at journals.ue.poznan.pl: 1 | 落地页 BLOCKED at linkinghub.elsevier.com: 2 | 落地页 BLOCKED at www.nature.com: 2 | 落地页 BLOCKED at www.science.org: 1 | 落地页 BLOCKED at www.tandfonline.com: 1 | 落地页 ERROR at http://ieeexplore.ieee.org: [Errno -2] Name or service not known: 1 | 落地页 ERROR at http://www.emerald.com: [Errno -2] Name or service not known: 1
+written: verified column in /home/user/novelty-probe-demo/evidence/evidence_table.md
+exit code: 0
+```
+
+**产出文件**
+
+- `scripts/verify.py` — 改写：Crossref 元数据核验 + 落地页检查
+- `evidence/evidence_table.md` — verified 列已更新；开头补充 verified 列的格式说明
+
+**备注**
+
+- Crossref：10/10 返回 200，登记题目与表中题目全部一致；登记的期刊、年份、作者见上方输出。
+- 落地页：10 个 DOI 都解析到了出版商页面，但页面本身未能访问。8 个出版商 HTTPS 域名未放行（www.nature.com、www.science.org、linkinghub.elsevier.com、dl.acm.org、www.tandfonline.com、journals.ue.poznan.pl）；2 个 DOI 登记的是 `http://` 地址（www.emerald.com、ieeexplore.ieee.org），本环境无法访问。
+- 第一次运行中 rank 9 的"题目不一致"由脚本 bug 造成，已修正并重跑；以第二次运行结果为准。
+- 本步未判断新颖性。
