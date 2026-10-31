@@ -1556,3 +1556,59 @@ LICENSE: MIT header: True | copyright line: Copyright (c) 2026 Alston-Y | canoni
 **产出文件**：`LICENSE`、`CITATION.cff`（新增）；`README.md`（修改）
 
 **备注**：自本步起，提交信息不再附 Claude 会话链接（研究者要求）。
+
+---
+
+## [2026-10-31 17:56 UTC] Step 20 — 改写提交历史：删除提交信息中的 Claude 会话链接（待研究者确认替换 main）
+
+**研究者要求（本轮）**：删除每个提交信息末尾的 Claude 会话链接（`Claude-Session: https://claude.ai/code/session_…`）。
+
+**命令 1：本地改写**
+
+```bash
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --msg-filter "sed '/^Claude-Session: https:\/\/claude\.ai\/code\/session_/d'" -- claude/vigilant-faraday-odzwe4
+```
+
+**命令 2：核对（python3 内联脚本：逐个比较改写前后的提交）**
+
+```
+commits: old 20, new 20 | trees, authors, committers, dates identical; messages differ only by the removed line: True 
+messages still containing a session link: 0
+old -> new:
+  a3b3030 -> 025de7e  Initialize novelty-probe project skeleton
+  92dbdea -> 2153ec9  Add facet decomposition and six search queries
+  6ff04f7 -> 693e490  Add search script; record generative-AI scope decision
+  7dfda92 -> 1421842  Retry searches after network allowlist; partial results
+  e4ae9ea -> 697b3f9  Switch S2 to bulk search; full search run succeeds
+  5962e7c -> 7d6a5f8  Match OpenAlex on title+abstract; merge and dedupe results
+  91d9d65 -> 3c35c08  Add hit statistics and top-20 candidates to merge.py
+  32223cf -> 41e6676  Add evidence table for top 10 candidates and DOI verifier
+  bec567e -> ac95654  Verify DOIs against Crossref metadata; fix title-match truncation
+  b1de997 -> 955d6a6  Add blank difference-statement template
+  6f6af38 -> bca6088  Fill section 1 of the difference statement with the closest three
+  f237436 -> 4172c21  Enhance difference statement with detailed analysis
+  372a9a4 -> 37be7bd  v2: management/economics context; facets and queries (T2)
+  fd61c14 -> f5db846  v2: version suffix support in scripts; run v2 searches (T3)
+  1a8aa64 -> 31e9ffb  v2: merge and dedupe; top-20 candidates (T4)
+  6ee89cf -> f187558  v2: evidence table for top 10 candidates with DOI checks (T5)
+  4495da6 -> e4b04f0  Add HOWTO.md, search.py --dry-run and scripts/logrun.py
+  f65f32d -> 046360c  Add English README
+  1b7dac7 -> c93b2c5  Make HOWTO bilingual (Chinese/English, paragraph by paragraph)
+  2a5b5d5 -> 3943d3a  Add MIT license and CITATION.cff
+```
+
+**命令 3：推送**
+
+```bash
+git push --force-with-lease=main:1b7dac7… origin HEAD:main   # 被本环境的安全检查拒绝（Git Destructive），未执行
+git push -u origin claude/vigilant-faraday-odzwe4             # 改为把改写后的历史推成新分支，不覆盖 main
+```
+
+**说明**
+
+- 改写前已确认：会话链接只出现在提交信息中，从未出现在任何历史版本的文件内容里。
+- 改写后所有提交的哈希都已改变（见上表）。本日志只追加、不改写，此前条目中的旧哈希保持原样，请按上表对照。例如 Step 4 提到的 7dfda92 现为 1421842。
+- 研究者本人在 GitHub 网页上的提交（f237436 → 4172c21）因父提交改变而重写，GitHub 为网页提交加的签名随之失效。
+- 远端 main 仍是改写前的历史（1b7dac7，带会话链接）。是否用新分支替换 main，由研究者决定。
+
+**产出**：分支 `claude/vigilant-faraday-odzwe4`（改写后的完整历史，含 Step 19 的 LICENSE 与 CITATION.cff）
