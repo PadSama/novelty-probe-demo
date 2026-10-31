@@ -999,3 +999,51 @@ fill-in fields: 5 | all end with '：' (nothing filled): True
 - `evidence/difference_statement.md` — 差异陈述模板（未填写任何内容）
 
 **备注**：本步未选择文献、未填写内容、未判断新颖性。
+
+---
+
+## [2026-10-31 15:52 UTC] Step 10 — 差异陈述第 1 节：从证据表选出并复制最接近的三篇
+
+**研究者要求（本轮）**：第 1 节"最接近的三篇（从证据表复制）"由检索助手完成；第 2、3 节仍由研究者填写。
+
+**命令 1：按证据表标注排序并检查并列（python3 内联脚本）**
+
+```
+step 1 — overlap count per row:
+  rank  2: 2 overlap ['作用机制', '预期发现']
+  rank  4: 2 overlap ['作用机制', '预期发现']
+  rank  3: 1 overlap ['数据与方法']
+  rank  5: 1 overlap ['数据与方法']
+  rank  6: 1 overlap ['数据与方法']
+  rank  7: 1 overlap ['数据与方法']
+  rank  9: 1 overlap ['数据与方法']
+  rank  1: 0 overlap []
+  rank  8: 0 overlap []
+  rank 10: 0 overlap []
+
+step 2 — top by overlap count: ranks ['2', '4']; third slot tied at 1 overlap: ranks ['3', '5', '6', '7', '9']
+  rank  3: generative-AI keywords in title/abstract: none
+  rank  5: generative-AI keywords in title/abstract: ['generative ai', 'generative artificial intelligence']
+  rank  6: generative-AI keywords in title/abstract: none
+  rank  7: generative-AI keywords in title/abstract: none
+  rank  9: generative-AI keywords in title/abstract: ['generative ai', 'large language models']
+```
+
+选择规则（已写入 `evidence/difference_statement.md` 第 1 节表下）：
+
+1. 按标为 overlap 的面数排序：rank 2、rank 4 各 2 个面，入选。
+2. 第三篇在 rank 3、5、6、7、9 的并列中选出：先保留标题或摘要涉及生成式 AI 的（剩 rank 5、9）；再比较"数据与方法"面覆盖 facets.md 所列内容的多少。rank 9 的摘要写明数据为 WoS 2014–2023 年 AI 论文，并追踪主题随时间的变化；rank 5 未说明数据规模与时间跨度。取 rank 9。
+
+**命令 2：更新说明文字；用脚本把 rank 2、4、9 三行原样复制进第 1 节的空表**
+
+```
+copied rows identical to evidence_table.md: [True, True, True]
+rows copied: ['2', '4', '9']
+sections 2-3 fields still blank: True (5 fields)
+```
+
+**产出文件**
+
+- `evidence/difference_statement.md` — 第 1 节已填（rank 2、4、9，附选择规则）；第 2、3 节仍为空白
+
+**备注**："最接近"只表示在证据表中的相对位置，依据是证据表的标注与摘要；本步未判断新颖性，未填写第 2、3 节。
