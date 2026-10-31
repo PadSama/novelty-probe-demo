@@ -1136,3 +1136,85 @@ reference preprint (arXiv 2412.07727) vs v2 queries: {'Q1': False, 'Q2': False, 
 **产出文件**：`facets/facets_v2.md`、`queries/queries_v2.json`
 
 **备注**：本步未判断新颖性。
+
+---
+
+## [2026-10-31 16:59 UTC] Step 13 — T3 v2：脚本支持版本后缀；v2 检索
+
+**命令 1：修改脚本（v1 默认行为不变）**
+
+```
+# scripts/search.py：新增 --queries、--suffix（输出 results/raw/{source}_{query_id}{suffix}.json）；
+#                    meta 记录 queries_file；截断词表补充 economist* -> economists
+# scripts/merge.py： 新增 --suffix，只读取后缀完全相同的文件（v1 与 v2 不会混在一起）；
+#                    出处 raw_refs 带后缀；输出 merged{suffix}.json、candidates{suffix}.csv
+# scripts/authors.py：新增 --candidates、--out
+```
+
+**命令 2：回归测试（确认 v1 结果可原样复现）**
+
+```bash
+python3 -I -B - <<'PY'   # 文件名匹配：v1 / v2 互不包含
+PY
+python3 -B scripts/merge.py   # 用修改后的脚本重跑 v1，与已提交版本逐项比较，比较后恢复原文件
+```
+
+输出：
+
+```
+suffix ''     matches: ['openalex_Q1.json', 'semanticscholar_Q6.json']
+suffix '_v2'  matches: ['openalex_Q1_v2.json', 'semanticscholar_Q6_v2.json']
+v1 raw files selected: 12 | records: 217
+v1 re-run with modified merge.py: records identical=True | meta identical (except created_at)=True | candidates.csv identical=True
+```
+
+**命令 3：v2 检索**
+
+```bash
+python3 -B scripts/search.py --queries queries/queries_v2.json --suffix _v2
+```
+
+输出：
+
+```
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   openalex               782    25     0  results/raw/openalex_Q1_v2.json
+Q1    component   semanticscholar        392    25     0  results/raw/semanticscholar_Q1_v2.json
+Q2    component   openalex              2759    25     5  results/raw/openalex_Q2_v2.json
+Q2    component   semanticscholar       2161    25     6  results/raw/semanticscholar_Q2_v2.json
+Q3    application openalex               299    25     0  results/raw/openalex_Q3_v2.json
+Q3    application semanticscholar        123    25     3  results/raw/semanticscholar_Q3_v2.json
+Q4    application openalex                 3     3     0  results/raw/openalex_Q4_v2.json
+Q4    application semanticscholar          0     0     0  results/raw/semanticscholar_Q4_v2.json
+Q5    method      openalex                50    25     0  results/raw/openalex_Q5_v2.json
+Q5    method      semanticscholar         45    25     1  results/raw/semanticscholar_Q5_v2.json
+Q6    concurrent  openalex                42    25     1  results/raw/openalex_Q6_v2.json  [year>=2023]
+Q6    concurrent  semanticscholar          7     7     0  results/raw/semanticscholar_Q6_v2.json  [year>=2023]
+
+12/12 requests succeeded. total_hits = API-reported matches; saved = records kept (top 25: OpenAlex by relevance, S2 by citation count); no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).
+exit code: 0
+```
+
+**命令 4：质量检查（符合度用 Porter 词干还原；并查找参考文献）**
+
+```
+file                     n  doi arXiv neither abstract  conform(stemmed,all)  conform(with abstract)
+openalex_Q1_v2          25   25     4       0       19          25/25                19/19
+openalex_Q2_v2          25   20     0       5       20          22/25                20/20
+openalex_Q3_v2          25   25     4       0       20          20/25                20/20
+openalex_Q4_v2           3    3     0       0        3           3/3                  3/3
+openalex_Q5_v2          25   25     2       0       21          21/25                21/21
+openalex_Q6_v2          25   24     1       1       18          18/25                18/18
+semantic_Q1_v2          25   24    16       0       23          24/25                23/23
+semantic_Q2_v2          25   19     0       6        2           3/25                 2/2
+semantic_Q3_v2          25   22     2       3       16          16/25                16/16
+semantic_Q4_v2           0    0     0       0        0           0/0                  0/0
+semantic_Q5_v2          25   23     2       1       21          22/25                21/21
+semantic_Q6_v2           7    7     1       0        7           7/7                  7/7
+
+reference paper (Hao et al.; Nature DOI or arXiv 2412.07727) in v2 raw results: ['openalex_Q3_v2#2 (doi=10.1038/s41586-025-09922-y, arXiv=None)', 'openalex_Q3_v2#5 (doi=10.48550/arxiv.2412.07727, arXiv=2412.07727)', 'semanticscholar_Q3_v2#1 (doi=10.1038/s41586-025-09922-y, arXiv=None)']
+```
+
+**产出文件**：`results/raw/openalex_Q1_v2.json` … `semanticscholar_Q6_v2.json`（12 个；S2 Q4 为 0 条）；`scripts/search.py`、`scripts/merge.py`、`scripts/authors.py`（修改）
+
+**备注**：参考文献在 Q3 中被检索到（OpenAlex Nature 版第 2 名、预印本第 5 名；S2 Nature 版第 1 名）。本步未判断新颖性。

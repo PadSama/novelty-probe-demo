@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """novelty-probe 合并去重脚本。
 
-读取 results/raw/*.json（scripts/search.py 的输出），合并去重，统计每篇的命中情况，输出：
-  results/merged/merged.json     去重后的全部文献（含命中统计）
-  results/merged/candidates.csv  按命中次数降序的前 20 篇
+读取 results/raw/ 中 scripts/search.py 的输出（{source}_{query_id}{suffix}.json），合并去重，
+统计每篇的命中情况，输出：
+  results/merged/merged{suffix}.json     去重后的全部文献（含命中统计）
+  results/merged/candidates{suffix}.csv  按命中次数降序的前 20 篇
+只读取后缀与 --suffix 完全相同的文件（默认无后缀即 v1；--suffix _v2 只读 v2），不同版本不会混在一起。
 
 判定为同一篇的规则（满足任一条即可，用并查集传递）：
   1. DOI 相同（不区分大小写；预印本平台 OSF / TechRxiv / Research Square 的版本后缀 _vN、/vN 忽略不计，
@@ -34,11 +36,12 @@ merged.json 中每篇记录的字段：
   title_linked  true 表示这一组只靠标题相同才并到一起，建议人工核对
   sources, query_ids                     命中的来源、检索式
   n_queries, n_sources, hits, mean_rank  见上
-  raw_refs      出处 {source}_{query_id}#{名次}，可回查 results/raw/ 中的原始记录
+  raw_refs      出处 {source}_{query_id}{suffix}#{名次}，可回查 results/raw/ 中的原始记录
 所有值都取自 results/raw/，不补写、不改写；规范化只用于比较。
 
-用法：python3 scripts/merge.py
+用法：python3 scripts/merge.py [--suffix _v2]
 """
+import argparse
 import csv
 import json
 import re
@@ -49,8 +52,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "results" / "raw"
-OUT_FILE = ROOT / "results" / "merged" / "merged.json"
-CANDIDATES_FILE = ROOT / "results" / "merged" / "candidates.csv"
+OUT_DIR = ROOT / "results" / "merged"
 TOP_K = 20
 SOURCE_ORDER = ["openalex", "semanticscholar"]
 MIN_TITLE_WORDS = 5
@@ -91,16 +93,22 @@ def list_ranks(raw_refs):
     return best
 
 
-def load_raw():
+def raw_files(suffix=""):
+    """results/raw/ 中后缀与 suffix 完全相同的 search.py 输出文件。"""
+    pattern = re.compile(rf"^(?:{'|'.join(SOURCE_ORDER)})_Q\d+{re.escape(suffix)}\.json$")
+    return [p for p in sorted(RAW_DIR.glob("*.json")) if pattern.match(p.name)]
+
+
+def load_raw(suffix=""):
     recs, inputs = [], []
-    for path in sorted(RAW_DIR.glob("*.json")):
+    for path in raw_files(suffix):
         d = json.loads(path.read_text(encoding="utf-8"))
         m = d["meta"]
         inputs.append({"file": str(path.relative_to(ROOT)),
                        **{k: m.get(k) for k in ("source_api", "query_id", "conversion", "sort",
                                                  "total_hits", "returned", "retrieved_at")}})
         for rank, r in enumerate(d["records"], 1):
-            recs.append({**r, "_ref": f"{m['source_api']}_{m['query_id']}#{rank}",
+            recs.append({**r, "_ref": f"{m['source_api']}_{m['query_id']}{suffix}#{rank}",
                          "_order": (SOURCE_ORDER.index(m["source_api"]), qnum(m["query_id"]), rank)})
     return recs, inputs
 
@@ -190,8 +198,8 @@ def candidate_key(x):
     return (-x["hits"], -x["n_queries"], -x["n_sources"], sum(best.values()) / len(best), x["merged_id"])
 
 
-def write_candidates(candidates):
-    with CANDIDATES_FILE.open("w", encoding="utf-8-sig", newline="") as f:
+def write_candidates(candidates, path):
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
         w.writeheader()
         for rank, x in enumerate(candidates, 1):
@@ -207,9 +215,15 @@ def write_candidates(candidates):
 
 
 def main():
-    recs, inputs = load_raw()
+    ap = argparse.ArgumentParser(description="Merge and dedupe search results; write top candidates.")
+    ap.add_argument("--suffix", default="", help="只处理这个后缀的结果文件，如 _v2（默认无后缀，即 v1）")
+    args = ap.parse_args()
+    out_file = OUT_DIR / f"merged{args.suffix}.json"
+    cand_file = OUT_DIR / f"candidates{args.suffix}.csv"
+
+    recs, inputs = load_raw(args.suffix)
     if not recs:
-        sys.exit("results/raw/ 中没有记录")
+        sys.exit(f"results/raw/ 中没有后缀为 '{args.suffix}' 的记录")
     methods = {}
     for inp in inputs:
         methods.setdefault(inp["source_api"], set()).add(inp["conversion"])
@@ -257,7 +271,7 @@ def main():
         "inputs": inputs,
         "counts": counts,
         "candidates": {
-            "file": str(CANDIDATES_FILE.relative_to(ROOT)),
+            "file": str(cand_file.relative_to(ROOT)),
             "top_k": TOP_K,
             "sort": "hits desc, n_queries desc, n_sources desc, mean_rank asc, merged_id",
             "cutoff_hits": cutoff,
@@ -266,10 +280,10 @@ def main():
             "per_query": {q: cand_per_query[q] for q in qids},
         },
     }
-    OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    OUT_FILE.write_text(json.dumps({"meta": meta, "records": merged}, ensure_ascii=False, indent=2) + "\n",
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    out_file.write_text(json.dumps({"meta": meta, "records": merged}, ensure_ascii=False, indent=2) + "\n",
                         encoding="utf-8")
-    write_candidates(candidates)
+    write_candidates(candidates, cand_file)
 
     st, src = counts["id_status"], counts["sources"]
     print(f"inputs:     {len(inputs)} files, {counts['raw_records']} raw records")
@@ -282,7 +296,7 @@ def main():
           + f"   (works hit by more than one query: {counts['in_multiple_queries']})")
     print("hits:       " + " | ".join(f"{h} hit(s): {n} works" for h, n in counts["hits_distribution"].items())
           + "   (hits = number of query x source result lists containing the work)")
-    print(f"written:    {OUT_FILE.relative_to(ROOT)}, {CANDIDATES_FILE.relative_to(ROOT)} (top {len(candidates)})")
+    print(f"written:    {out_file.relative_to(ROOT)}, {cand_file.relative_to(ROOT)} (top {len(candidates)})")
     if len(ranked) > TOP_K:
         print(f"cutoff:     #{len(candidates)} has hits={cutoff}; {tied_total} works have hits={cutoff}, "
               f"{tied_out} of them fall outside the top {TOP_K} (decided by n_queries, n_sources, mean_rank)")

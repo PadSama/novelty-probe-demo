@@ -6,6 +6,7 @@ search.py 保存的字段不含作者，所以这里按 DOI 逐条查询 OpenAle
 作者只取自 API 返回，不补写。同时记下 OpenAlex 返回的题目，便于核对查到的是同一篇。
 
 用法：python3 scripts/authors.py [--top 10]
+      python3 scripts/authors.py --candidates results/merged/candidates_v2.csv --out evidence/authors_v2.json
 """
 import argparse
 import csv
@@ -29,8 +30,11 @@ def norm(t):
 def main():
     ap = argparse.ArgumentParser(description="Fetch authors from OpenAlex for the top candidates.")
     ap.add_argument("--top", type=int, default=10)
+    ap.add_argument("--candidates", type=Path, default=CANDIDATES_FILE)
+    ap.add_argument("--out", type=Path, default=OUT_FILE)
     args = ap.parse_args()
-    rows = list(csv.DictReader(CANDIDATES_FILE.open(encoding="utf-8-sig", newline="")))[:args.top]
+    cand_file, out_file = args.candidates.resolve(), args.out.resolve()
+    rows = list(csv.DictReader(cand_file.open(encoding="utf-8-sig", newline="")))[:args.top]
     out = []
     for r in rows:
         rec = {"rank": int(r["rank"]), "merged_id": r["merged_id"], "doi": r["doi"] or None,
@@ -55,12 +59,12 @@ def main():
         print(f"{rec['rank']:>3} {rec['merged_id']:<5} n_authors={rec['n_authors']!s:<4} "
               f"title_matches={rec['title_matches']!s:<5} first={first}  {rec['error'] or ''}")
     meta = {"source": "OpenAlex /works/doi:<doi>", "script": "scripts/authors.py",
-            "input": str(CANDIDATES_FILE.relative_to(ROOT)), "top": args.top,
+            "input": str(cand_file.relative_to(ROOT)), "top": args.top,
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-    OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    OUT_FILE.write_text(json.dumps({"meta": meta, "records": out}, ensure_ascii=False, indent=2) + "\n",
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    out_file.write_text(json.dumps({"meta": meta, "records": out}, ensure_ascii=False, indent=2) + "\n",
                         encoding="utf-8")
-    print(f"written: {OUT_FILE.relative_to(ROOT)}")
+    print(f"written: {out_file.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

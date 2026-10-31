@@ -4,8 +4,8 @@
 对 queries/queries.json 中的每条检索式，分别查询
   - OpenAlex          GET https://api.openalex.org/works?filter=title_and_abstract.search:...
   - Semantic Scholar  GET https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=...
-各取前 25 条（OpenAlex 按相关度，S2 按被引次数），原样存到 results/raw/{source}_{query_id}.json，
-并在终端打印命中数。
+各取前 25 条（OpenAlex 按相关度，S2 按被引次数），原样存到 results/raw/{source}_{query_id}{suffix}.json
+（suffix 默认为空；v2 用 --queries queries/queries_v2.json --suffix _v2），并在终端打印命中数。
 
 输出文件结构：{"meta": {...}, "records": [...]}
   meta    实际发送的检索串、请求地址、排序方式、API 报告的总命中数、检索时间等。
@@ -33,6 +33,7 @@
 用法：
   python3 scripts/search.py                                  # 全部检索式 × 两个来源
   python3 scripts/search.py --ids Q1,Q3 --sources semanticscholar
+  python3 scripts/search.py --queries queries/queries_v2.json --suffix _v2
 """
 import argparse
 import json
@@ -64,6 +65,7 @@ MAX_RETRY_WAIT = 60  # 服务端要求等待超过这么多秒（如 OpenAlex �
 # 截断词 → 完整词（只用于 OpenAlex）。遇到未登记的截断词就报错，避免悄悄改变检索含义。
 TRUNCATION = {
     "bibliometric*": "bibliometrics",
+    "economist*": "economists",
     "scientist*": "scientists",
     "homogeniz*": "homogenization",
     "homogenis*": "homogenisation",
@@ -299,9 +301,13 @@ def main():
     ap = argparse.ArgumentParser(description="Run queries/queries.json against OpenAlex and Semantic Scholar.")
     ap.add_argument("--ids", help="只跑这些检索式，逗号分隔，如 Q1,Q3")
     ap.add_argument("--sources", default=",".join(SEARCHERS), help="逗号分隔：openalex,semanticscholar")
+    ap.add_argument("--queries", type=Path, default=QUERIES_FILE, help="检索式文件，默认 queries/queries.json")
+    ap.add_argument("--suffix", default="", help="输出文件名后缀，如 _v2")
     args = ap.parse_args()
 
-    queries = json.loads(QUERIES_FILE.read_text(encoding="utf-8"))
+    queries = json.loads(args.queries.read_text(encoding="utf-8"))
+    qfile = args.queries.resolve()
+    qfile = str(qfile.relative_to(ROOT)) if qfile.is_relative_to(ROOT) else str(qfile)
     if args.ids:
         wanted = set(args.ids.split(","))
         queries = [q for q in queries if q["id"] in wanted]
@@ -326,9 +332,10 @@ def main():
                 row(q["id"], q["purpose"], src, "-", "-", "-", f"FAILED: {e}")
                 continue
             meta = {"source_api": src, "query_id": q["id"], "purpose": q["purpose"],
+                    "queries_file": qfile,
                     "query_original": q["query"], "year_from": year_from, **meta,
                     "returned": len(records), "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-            path = RAW_DIR / f"{src}_{q['id']}.json"
+            path = RAW_DIR / f"{src}_{q['id']}{args.suffix}.json"
             path.write_text(json.dumps({"meta": meta, "records": records}, ensure_ascii=False, indent=2) + "\n",
                             encoding="utf-8")
             no_id = sum(1 for r in records if not r["doi"] and not r["arxiv_id"])

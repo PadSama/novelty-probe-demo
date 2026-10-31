@@ -1,0 +1,269 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q2",
+    "purpose": "component",
+    "queries_file": "queries/queries_v2.json",
+    "query_original": "(narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"research diversification\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |); phrases and prefix * kept",
+    "query_sent": "(narrowing | \"topic diversity\" | \"topic concentration\" | \"research diversification\") + (economist* | \"economic research\" | \"management research\" | \"business research\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28narrowing+%7C+%22topic+diversity%22+%7C+%22topic+concentration%22+%7C+%22research+diversification%22%29+%2B+%28economist%2A+%7C+%22economic+research%22+%7C+%22management+research%22+%7C+%22business+research%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract&sort=citationCount%3Adesc",
+    "sort": "citationCount:desc",
+    "total_hits": 2161,
+    "returned": 25,
+    "retrieved_at": "2026-10-31T16:54:19+00:00"
+  },
+  "records": [
+    {
+      "title": "Capitalism, Socialism and Democracy",
+      "year": 1942,
+      "doi": "10.4324/9780203857090",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "CRITICAL QUESTIONS FOR BIG DATA",
+      "year": 2012,
+      "doi": "10.1080/1369118X.2012.678878",
+      "arxiv_id": null,
+      "venue": "Information, Communication & Society",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Deception : The Role of Consequences",
+      "year": 2005,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "The energy-efficiency gap What does it mean?",
+      "year": 1994,
+      "doi": "10.1016/0301-4215(94)90138-4",
+      "arxiv_id": null,
+      "venue": "Energy Policy",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Psychological foundations of incentives",
+      "year": 2001,
+      "doi": "10.1016/S0014-2921(01)00208-2",
+      "arxiv_id": null,
+      "venue": "European Economic Review",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Bridging the Relevance Gap: Aligning Stakeholders in the Future of Management Research",
+      "year": 2001,
+      "doi": "10.1111/1467-8551.12.S1.2",
+      "arxiv_id": null,
+      "venue": "British Journal of Management",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "The Rational Peasant",
+      "year": 2023,
+      "doi": "10.2307/jj.8501243",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "I have made assumptions about individual behavior diverging from those of the moral economists. These assumptions have drawn attention to different features of villages and patron-client ties and have led to questions about the quality of welfare and insurance embedded in both villages and vertical patron-client ties. This, in turn, has demonstrated that there is more potential value to markets, relative to the actual performance level of these other institutions. Commercialization of agriculture and the development of strong central authorities are not wholly deleterious to peasant society. This is not because capitalism and/or colonialism are necessarily more benevolent than moral economists assume, but because traditional institutions are harsher and work less well than is often believed. Depending on the specific conditions, commercialization can be good or bad for peasants. In many cases the shift to narrow contractual ties with landlords increases both peasant security and his opportunity to benefit from markets. In Latin America, “the patron held life-or-death judicial authority over his dependent serfs, and the murder of peasants or the violation of their wives and daughters was not uncommon.” Paige, , p. 167.\n As long ago as the fifth century, a monk described the transformation that overcame freemen who became part of estates: “all these people who settled on the big estates underwent a strange transformation as if they had drunk of Circe's cup, for the rich began to treat as their own property these strangers.”\n Hilton, , quoting J. LeGeof, p. 58.\n Single-stranded relationships may be far more secure for the peasant because there may be less coercion, an absence of monopolies, competition among landlords, and less need for submission of self. The development of an independent trading class can give small peasants easy low-risk access to international markets and a way of escaping the domination of large lords who use coercion to control the economy despite inefficient practices. Independent small traders like the Chinese in Vietnam, for example, are opposed not by peasants, but by large landowners. In particular, erosion of the “traditional” terms of exchange between landlord and tenant is not the only way for peasants to turn against large lords. It is not the case that if the patron guarantees the traditional subsistence level, peasants will cede him continuous legitimacy; peasants can and do fight for autonomy when better alternatives exist in the market. There are often better opportunities for peasants in markets than under lords, and markets can reduce the bargaining power of the lords.\n See, for example, Blum, “The Rise of Serfdom in Eastern Europe,” p. 816; Breman, , p. 75; Hilton, , p. 214.\n Indeed, it was not uncommon in Europe for men to buy their way out of clientage for the security and freedom of markets.\n Rodney Hilton, “Peasant Society, Peasant Movements and Feudalism in Medieval Europe.” in Henry Landsberger, (Barnes and Noble, 1973), pp. 67-94, 81; Blum, et al., , p. 23.\n One need only note the land rush in the new areas of Cochinchina after the French made it habitable to see that markets can be an enormous opportunity for the poor. Throughout the world, peasants have fought for access to markets when they were secure enough to want to raise their economic level and “redefine” cultural standards! In medieval England, when peasant conditions were comparatively secure. The essential quarrel between the peasantry and the aristocracy was about access to the market. It was not that the peasants were worried about the impact of the market in a disintegrating sense upon their community; what they wanted was to be able to put their produce on the market and to have a freer market in land which would enable them to take advantage of the benefits of the market.\n Hilton. “Medieval Peasants - Any Lesson?,” p. 217.\n The rise of strong central states and the growth of a market economy, then, even in the guise of colonialism and capitalism cannot always be directly equated with a decline in peasant welfare due to the destruction of traditional villages and/or elite bonds. In the short-run, local village elites with the skills to ally with outside powers may reap the most benefits from new institutional arrangements, but, in the long-run, new elites emerge which ally with the peasantry against both feudalism and colonialism.\n As Weisser notes for Spain, “anarchism sought to sweep away the remnants of that old system by joining with those elements in the outside world that had begun a similar attack.” , p. 117.\n Indirectly, peasants clearly benefit from the growth of law and order and the resulting stability, as well as the vast improvements in communications. The numerous and onerous taxes of the colonial period - as applied by village elites - increased stratification in the majority of countries, but the colonial infrastructure also led to wider systems of trade, credit, and communications that helped keep peasants alive during local famines. As Day has noted of Java, local crop failures were so serious in precolonial times before there was a developed communications and trade network “because it was impossible to supply a deficit in one part of the country by drawing on the surplus which might exist in another.”\n Day. , p. 25.\n Colonialism is ugly, but the quality of the minimum subsistence floor improved in most countries.\n Geertz, , p. 80; Tom Kessinger, (University of California Press, 1974), p. 87; Charles Robequain, (Oxford University Press, 1941), p. 328.\n By stressing the common investment logic of intra-village patron-client and market relations I have attempted to show that given the actual performance levels of patrons and villages, neither decline nor decay of peasant institutions is necessary for peasants to enter markets. Further, peasant support for revolutions and protests may represent not decline and decay, but political competence.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Does Marriage Really Make Men More Productive",
+      "year": 1988,
+      "doi": "10.2307/145924",
+      "arxiv_id": null,
+      "venue": "Journal of Human Resources",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Crime, Punishment, and the Market for Offenses",
+      "year": 1996,
+      "doi": "10.1257/JEP.10.1.43",
+      "arxiv_id": null,
+      "venue": "Journal of Economic Perspectives",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Economic Analysis of Legal Disputes and Their Resolution",
+      "year": 1989,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "Journal of Economic Literature",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "The moral mind : How five sets of innate intuitions guide the development of many culture-specific virtues , and perhaps even modules",
+      "year": 2007,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "From the Editors Beyond Contextualization: Using Context Theories to Narrow the Micro-Macro Gap in Management Research",
+      "year": 2008,
+      "doi": "10.5465/AMJ.2008.34789630",
+      "arxiv_id": null,
+      "venue": "Academy of Management Journal",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Six Provocations for Big Data",
+      "year": 2011,
+      "doi": "10.2139/SSRN.1926431",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "The era of Big Data has begun. Computer scientists, physicists, economists, mathematicians, political scientists, bio-informaticists, sociologists, and many others are clamoring for access to the massive quantities of information produced by and about people, things, and their interactions. Diverse groups argue about the potential benefits and costs of analyzing information from Twitter, Google, Verizon, 23andMe, Facebook, Wikipedia, and every space where large groups of people leave digital traces and deposit data. Significant questions emerge. Will large-scale analysis of DNA help cure diseases? Or will it usher in a new wave of medical inequality? Will data analytics help make people’s access to information more efficient and effective? Or will it be used to track protesters in the streets of major cities? Will it transform how we study human communication and culture, or narrow the palette of research options and alter what ‘research’ means? Some or all of the above?This essay offers six provocations that we hope can spark conversations about the issues of Big Data. Given the rise of Big Data as both a phenomenon and a methodological persuasion, we believe that it is time to start critically interrogating this phenomenon, its assumptions, and its biases.(This paper was presented at Oxford Internet Institute’s “A Decade in Internet Time: Symposium on the Dynamics of the Internet and Society” on September 21, 2011.)",
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Accuracy of the Papanicolaou Test in Screening for and Follow-up of Cervical Cytologic Abnormalities",
+      "year": 2000,
+      "doi": "10.7326/0003-4819-132-10-200005160-00009",
+      "arxiv_id": null,
+      "venue": "Annals of Internal Medicine",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "The Expanding Domain of Economics",
+      "year": 1985,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "The American Economic Review",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "What makes basic research economically useful",
+      "year": 1991,
+      "doi": "10.1016/0048-7333(91)90074-Z",
+      "arxiv_id": null,
+      "venue": "Research Policy",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Adaptive Behavior and Economic Theory",
+      "year": 1986,
+      "doi": "10.1086/296377",
+      "arxiv_id": null,
+      "venue": "The Journal of Business",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Money and Business Cycles",
+      "year": 1963,
+      "doi": "10.2307/1927148",
+      "arxiv_id": null,
+      "venue": "The Review of Economics and Statistics",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "The rational peasant",
+      "year": 1980,
+      "doi": "10.1007/bf00158397",
+      "arxiv_id": null,
+      "venue": "Theory and Society",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "The Break-Up of Britain",
+      "year": 1978,
+      "doi": "10.1177/030981687800500109",
+      "arxiv_id": null,
+      "venue": "Capital & Class",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "THE NEW DEVELOPMENT ECONOMICS: WE SHALL EXPERIMENT, BUT HOW SHALL WE LEARN?*",
+      "year": 2008,
+      "doi": "10.2139/SSRN.1296115",
+      "arxiv_id": null,
+      "venue": "Social Science Research Network",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Internationalization of Small and Medium-Sized Technology-Based Firms: An Exploratory Study",
+      "year": 1998,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "Journal of Small Business Management",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "The Routledge Companion to Alternative Organization",
+      "year": 2013,
+      "doi": "10.4324/9780203725351",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Economists' Views about Parameters, Values, and Policies: Survey Results in Labor and Public Economics",
+      "year": 1998,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "Journal of Economic Literature",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Trade and search generated unemployment",
+      "year": 1999,
+      "doi": "10.1016/S0022-1996(98)00040-3",
+      "arxiv_id": null,
+      "venue": "Journal of International Economics",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2"
+    }
+  ]
+}
