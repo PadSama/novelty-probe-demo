@@ -1530,3 +1530,29 @@ verify.py with English 'Title' header -> Crossref HTTP 200 · 题目一致 · An
 **产出文件**：`HOWTO.md`（改写）、`scripts/verify.py`、`README.md`（修改）
 
 **备注**：命令只有两处有意改动（export 示例中的占位文字）。本步未检索新文献，未判断新颖性。
+
+---
+
+## [2026-10-31 17:54 UTC] Step 19 — MIT 许可证与 CITATION.cff
+
+**研究者要求（本轮）**：加 MIT 许可证和 CITATION.cff，重新打包；删除每个提交信息末尾的 Claude 会话链接。研究者告知：已开启 2FA，默认分支已改名为 main。
+
+**命令 1：新增与修改**
+
+```
+# LICENSE：标准 MIT 文本，版权人为研究者提交记录中的公开署名 Alston-Y（不含邮箱）
+# CITATION.cff：CFF 1.2.0，type software，license MIT，repository-code 为本仓库地址
+# README.md：新增 License、How to cite 两节（注明 results/、evidence/ 中第三方摘要的版权不在 MIT 范围内）；目录结构补充两个文件
+```
+
+**命令 2：校验（PyYAML 装在临时目录，不进仓库）**
+
+```
+CITATION.cff parses as YAML: True | required keys present: True
+  cff-version: 1.2.0 | type: software | license: MIT | authors: [{'name': 'Alston-Y'}] | repository-code: https://github.com/PadSama/novelty-probe-demo
+LICENSE: MIT header: True | copyright line: Copyright (c) 2026 Alston-Y | canonical clauses present: True
+```
+
+**产出文件**：`LICENSE`、`CITATION.cff`（新增）；`README.md`（修改）
+
+**备注**：自本步起，提交信息不再附 Claude 会话链接（研究者要求）。

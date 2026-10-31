@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use novelty-probe, please cite it as below."
+title: "novelty-probe: a logged, AI-assisted workflow for probing the literature around a research idea"
+type: software
+authors:
+  - name: "Alston-Y"
+repository-code: "https://github.com/PadSama/novelty-probe-demo"
+abstract: >-
+  A tutorial workflow that breaks a research idea into facets, builds Boolean
+  queries, searches OpenAlex and Semantic Scholar, merges and deduplicates the
+  results, maps the top candidates to each facet of the idea, and verifies
+  DOIs against Crossref. It collects evidence and does not judge novelty.
+keywords:
+  - literature search
+  - research workflow
+  - OpenAlex
+  - Semantic Scholar
+  - Crossref
+  - science of science
+license: MIT

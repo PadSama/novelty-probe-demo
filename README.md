@@ -118,6 +118,14 @@ Every decision, command and output is in `logs/RUN_LOG.md`, including mistakes a
 - Facet labels are produced by an AI assistant from abstracts and need human review.
 - In the cloud environment used for this run, publisher landing pages were not reachable, so verification relies on Crossref metadata.
 
+## License
+
+The code and documentation in this repository are released under the [MIT License](LICENSE). The search results in `results/` and `evidence/` include metadata and abstracts retrieved from OpenAlex and Semantic Scholar. Those abstracts remain under the copyright of their publishers or authors, and this license does not cover them.
+
+## How to cite
+
+If you use novelty-probe, please cite it using the metadata in [`CITATION.cff`](CITATION.cff). GitHub shows it under "Cite this repository".
+
 ## Repository layout
 
 ```
@@ -131,4 +139,6 @@ logs/RUN_LOG.md  append-only log of every step
 scripts/         search.py, merge.py, authors.py, verify.py, logrun.py
 PROJECT.md       the assistant's role and rules (Chinese)
 HOWTO.md         step-by-step guide with commands and prompts (Chinese / English)
+LICENSE          MIT License
+CITATION.cff     citation metadata
 ```
