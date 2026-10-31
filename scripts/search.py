@@ -3,27 +3,30 @@
 
 对 queries/queries.json 中的每条检索式，分别查询
   - OpenAlex          GET https://api.openalex.org/works?search=...
-  - Semantic Scholar  GET https://api.semanticscholar.org/graph/v1/paper/search?query=...
-各取前 25 条，原样存到 results/raw/{source}_{query_id}.json，并在终端打印命中数。
+  - Semantic Scholar  GET https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=...
+各取前 25 条（OpenAlex 按相关度，S2 按被引次数），原样存到 results/raw/{source}_{query_id}.json，
+并在终端打印命中数。
 
 输出文件结构：{"meta": {...}, "records": [...]}
-  meta    实际发送的检索串、请求地址、API 报告的总命中数、检索时间等。
+  meta    实际发送的检索串、请求地址、排序方式、API 报告的总命中数、检索时间等。
   records 每条只有 title, year, doi, arxiv_id, venue, abstract, source_api, query_id，
           按 API 返回顺序保存，不去重、不筛选。值直接取自 API 返回，只做格式整理：
           DOI 去掉 https://doi.org/ 前缀；arXiv ID 去掉版本号；OpenAlex 摘要由倒排索引还原；
           OpenAlex 没有 arXiv 字段，arxiv_id 取自 arXiv DOI（10.48550/arXiv.*）或 arxiv.org 链接。
 
-检索式转换（queries.json 是通用布尔写法）：
-  OpenAlex          支持 AND / OR、括号和引号短语，照原样发送；截断词（*）换成完整词，
-                    词形变化交给 OpenAlex 的词干还原。
-  Semantic Scholar  该接口不支持任何检索语法，带连字符的词会零命中（见其 API 文档）。
-                    先发送压平后的全部检索词（去掉运算符、括号、引号，连字符换空格）；
-                    若零命中，再发送"每个 AND 组取第一个词"的核心词版本。两次尝试都记在 meta 里。
+检索式转换（queries.json 是通用布尔写法；以下行为均于 2026-10-31 实测）：
+  OpenAlex          search= 匹配标题、摘要和全文，支持 AND / OR、括号和引号短语，照原样发送。
+                    它不支持通配符（返回 400，要求改用不做词干还原的 search.exact），
+                    所以截断词（*）换成完整词，词形变化交给默认的词干还原。
+                    meta 中记录 OpenAlex 对检索式的解析结果（x_query.oql），便于核对。
+  Semantic Scholar  bulk 接口只匹配标题和摘要，支持布尔语法：AND 换成 +，OR 换成 |，
+                    括号、引号短语和截断词（*）原样保留。该接口不按相关度排序，
+                    "前 25 条"按被引次数从高到低取（sort=citationCount:desc）。
   purpose 为 concurrent 的检索式只取 2023 年起的文献（facets/facets.md 中的约定）。
 
-可选环境变量（不会写进输出文件）：OPENALEX_API_KEY、S2_API_KEY。
-  不设也能运行，但 OpenAlex 无 key 时与同一出口 IP 的所有人共用每日免费额度，
-  S2 无 key 时与所有匿名用户共用限流池，云环境里两者都很容易返回 429。
+可选环境变量（不会写进输出文件）：
+  OPENALEX_API_KEY  本云环境中 key 已由 Network secrets 在代理层注入，无需设置；在本机运行时才需要。
+  S2_API_KEY        不设也能运行，但匿名请求共用限流池，容易返回 429。
 
 用法：
   python3 scripts/search.py                                  # 全部检索式 × 两个来源
@@ -49,12 +52,13 @@ TOP_N = 25
 CONCURRENT_FROM_YEAR = 2023
 USER_AGENT = "novelty-probe/0.1 (literature search script)"
 OPENALEX_URL = "https://api.openalex.org/works"
-S2_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
+S2_URL = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
 S2_FIELDS = "title,year,externalIds,venue,journal,abstract"
+S2_SORT = "citationCount:desc"
 S2_PAUSE = 1.1  # 不带 API key 时 S2 限流较严，请求之间留间隔
 MAX_RETRY_WAIT = 60  # 服务端要求等待超过这么多秒（如 OpenAlex 每日额度用完）就不重试，直接报错
 
-# 截断词 → 完整词。遇到未登记的截断词就报错，避免悄悄改变检索含义。
+# 截断词 → 完整词（只用于 OpenAlex）。遇到未登记的截断词就报错，避免悄悄改变检索含义。
 TRUNCATION = {
     "bibliometric*": "bibliometrics",
     "scientist*": "scientists",
@@ -107,24 +111,26 @@ def and_groups(query):
     return groups
 
 
-def plain(term):
-    return expand_truncation(term.strip('"')).replace("-", " ")
-
-
 def to_openalex(query):
     and_groups(query)  # 只做语法检查
     return expand_truncation(query)
 
 
-def to_s2(query):
-    """返回按尝试顺序排列的 [(转换方式, 检索串), ...]。"""
-    groups = and_groups(query)
-    all_terms = " ".join(plain(t) for g in groups for t in g)
-    core_terms = " ".join(plain(g[0]) for g in groups)
-    tries = [("plain text: all terms", all_terms)]
-    if core_terms != all_terms:
-        tries.append(("plain text: first term of each AND group (fallback)", core_terms))
-    return tries
+def to_s2_bulk(query):
+    """通用布尔式 → S2 bulk 语法：AND → +，OR → |；括号、引号短语、截断词原样保留。"""
+    and_groups(query)  # 只做语法检查
+    out = []
+    for tok in TOKEN_RE.findall(query):
+        if tok == "AND":
+            out.append("+")
+        elif tok == "OR":
+            out.append("|")
+        elif "-" in tok and not tok.startswith('"'):
+            # 未加引号的连字符词在 S2 语法里会被当成"排除"，改写成短语
+            out.append('"' + tok.replace("-", " ") + '"')
+        else:
+            out.append(tok)
+    return " ".join(out).replace("( ", "(").replace(" )", ")")
 
 
 # ---------- HTTP ----------
@@ -244,12 +250,15 @@ def search_openalex(q, year_from):
     url = f"{OPENALEX_URL}?{urllib.parse.urlencode(params)}"
     data = get_json(url, headers)
     time.sleep(0.2)
+    api_meta = data.get("meta") or {}
     records = [openalex_record(w, q["id"]) for w in (data.get("results") or [])[:TOP_N]]
     meta = {
         "conversion": "boolean kept; truncated words -> full words",
         "query_sent": params["search"],
+        "api_interpretation": (api_meta.get("x_query") or {}).get("oql"),
         "request_url": url,
-        "total_hits": (data.get("meta") or {}).get("count"),
+        "sort": "relevance (API default for search=)",
+        "total_hits": api_meta.get("count"),
     }
     return meta, records
 
@@ -257,20 +266,21 @@ def search_openalex(q, year_from):
 def search_s2(q, year_from):
     key = os.environ.get("S2_API_KEY")
     headers = {"x-api-key": key} if key else {}
-    attempts = []
-    for conversion, text in to_s2(q["query"]):
-        params = {"query": text, "offset": 0, "limit": TOP_N, "fields": S2_FIELDS}
-        if year_from:
-            params["year"] = f"{year_from}-"
-        url = f"{S2_URL}?{urllib.parse.urlencode(params)}"
-        data = get_json(url, headers)
-        time.sleep(S2_PAUSE)
-        attempts.append({"conversion": conversion, "query_sent": text,
-                         "request_url": url, "total_hits": data.get("total", 0)})
-        if data.get("total"):
-            break
+    params = {"query": to_s2_bulk(q["query"]), "fields": S2_FIELDS, "sort": S2_SORT}
+    if year_from:
+        params["year"] = f"{year_from}-"
+    url = f"{S2_URL}?{urllib.parse.urlencode(params)}"
+    data = get_json(url, headers)
+    time.sleep(S2_PAUSE)
     records = [s2_record(p, q["id"]) for p in (data.get("data") or [])[:TOP_N]]
-    return {**attempts[-1], "attempts": attempts}, records
+    meta = {
+        "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |); phrases and prefix * kept",
+        "query_sent": params["query"],
+        "request_url": url,
+        "sort": S2_SORT,
+        "total_hits": data.get("total"),
+    }
+    return meta, records
 
 
 SEARCHERS = {"openalex": search_openalex, "semanticscholar": search_s2}
@@ -318,14 +328,12 @@ def main():
             note = str(path.relative_to(ROOT))
             if year_from:
                 note += f"  [year>={year_from}]"
-            if len(meta.get("attempts", [])) > 1:
-                note += "  [S2 fallback: core terms]"
             row(q["id"], q["purpose"], src, meta["total_hits"], len(records), no_id, note)
 
     total = len(queries) * len(sources)
-    print(f"\n{total - failed}/{total} requests succeeded. "
-          "total_hits = API-reported matches; saved = records kept (top {}); "
-          "no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).".format(TOP_N))
+    print(f"\n{total - failed}/{total} requests succeeded. total_hits = API-reported matches; "
+          f"saved = records kept (top {TOP_N}: OpenAlex by relevance, S2 by citation count); "
+          "no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).")
     return 1 if failed else 0
 
 

@@ -1,0 +1,269 @@
+{
+  "meta": {
+    "source_api": "openalex",
+    "query_id": "Q4",
+    "purpose": "application",
+    "query_original": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"AI for science\" OR \"large language models\" OR \"generative AI\") AND scientist*",
+    "year_from": null,
+    "conversion": "boolean kept; truncated words -> full words",
+    "query_sent": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"AI for science\" OR \"large language models\" OR \"generative AI\") AND scientists",
+    "api_interpretation": "get works with (scientists AND (stemmed \"AI for science\" OR stemmed \"generative AI\" OR stemmed \"large language models\") AND (stemmed \"Matthew effect\" OR stemmed \"exploration-exploitation\" OR stemmed \"streetlight effect\")) in the full text",
+    "request_url": "https://api.openalex.org/works?search=%28%22streetlight+effect%22+OR+%22Matthew+effect%22+OR+%22exploration-exploitation%22%29+AND+%28%22AI+for+science%22+OR+%22large+language+models%22+OR+%22generative+AI%22%29+AND+scientists&per-page=25&page=1",
+    "sort": "relevance (API default for search=)",
+    "total_hits": 678,
+    "returned": 25,
+    "retrieved_at": "2026-10-31T10:57:49+00:00"
+  },
+  "records": [
+    {
+      "title": "ChatGPT and a new academic reality: Artificial Intelligence‐written research papers and the ethics of the large language models in scholarly publishing",
+      "year": 2023,
+      "doi": "10.1002/asi.24750",
+      "arxiv_id": "2303.13367",
+      "venue": "Journal of the Association for Information Science and Technology",
+      "abstract": "Abstract This article discusses OpenAI's ChatGPT, a generative pre‐trained transformer, which uses natural language processing to fulfill text‐based user requests (i.e., a “chatbot”). The history and principles behind ChatGPT and similar models are discussed. This technology is then discussed in relation to its potential impact on academia and scholarly research and publishing. ChatGPT is seen as a potential model for the automated preparation of essays and other types of scholarly manuscripts. Potential ethical issues that could arise with the emergence of large language models like GPT‐3, the underlying technology behind ChatGPT, and its usage by academics and researchers, are discussed and situated within the context of broader advancements in artificial intelligence, machine learning, and natural language processing for research and scholarly publishing.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "AI in Science: Early Insights *",
+      "year": 2026,
+      "doi": "10.2139/ssrn.7465898",
+      "arxiv_id": "2609.28504",
+      "venue": "SSRN Electronic Journal",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Generative AI and Stratified Advantage in Science and Technology",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "Journal of Multidisciplinary Research and Innovation",
+      "abstract": "We propose a constrained distribution model to explain how generative AI and transnational digital platform ecosystems reshape authority, governance, and value in science and technology. Our multi method comparative design integrates qualitative thematic analysis of journal policies from Science, Nature, PNAS, and JMIR Publications, quantitative patentometric modeling using PATSTAT and DOCDB families, bibliometric analysis of Web of Science and Derwent Innovations Index data, and document based institutional analysis of Japan’s Integrated Innovation Strategy 2020–2025 and the European Union Digital Decade Programme. We also examine university industry research centers at Fraunhofer Gesellschaft, Chinese Academy of Sciences, and Stanford Bio X, and construct a stratified scientist sample using ORCID and Google Scholar. The results reveal five convergent patterns: authorship authority remains reserved for humans despite AI’s productive role; interpretive flexibility positions AI alternately as writing aid, integrity risk, and discovery accelerator; institutional responses shift from exclusion toward conditional allowance with disclosure; authority stabilization anchors in human accountability; and the strongest disruption occurs in authorship and review norms while upstream technical workflows accept AI most readily. Furthermore, transnational platforms reconfigure national innovation systems into multi scalar governance arrangements rather than displacing them entirely. Patentometric and bibliometric analyses indicate a highly uneven distribution of patent citation visibility across institutions, with higher impact activity concentrated among institutionally advantaged actors. The observed temporal patterns further suggest that scientific recognition tends to precede patent visibility, whereas subsequent market related value appears associated with accumulated citation recognition; these relationships are interpreted as patterned associations rather than definitive causal effects. Analysis of the stratified scientist sample likewise suggests heterogeneous translation efficiencies associated with AI use, with comparatively greater gains observed among higher performing scientists and more limited gains among lower performing groups. Rather than establishing a uniform amplification effect, these findings provide evidence consistent with cumulative advantage dynamics that may reinforce pre existing disparities in scientific and institutional resources. Our contribution is a constrained distribution model that challenges both utopian democratization narratives and dystopian displacement accounts, demonstrating that generative AI expands participation in principle but actual authority, value capture, and innovation translation remain stratified by institutional position, symbolic capital, and access to complementary assets.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Large Language Models Reflect Human Citation Patterns with a Heightened Citation Bias",
+      "year": 2025,
+      "doi": "10.18653/v1/2025.findings-naacl.381",
+      "arxiv_id": "2405.15739",
+      "venue": "Findings of the Association for Computational Linguistics: NAACL",
+      "abstract": "Citation practices are crucial in shaping the structure of scientific knowledge, yet they are often influenced by contemporary norms and biases.The emergence of Large Language Models (LLMs) introduces a new dynamic to these practices.Interestingly, the characteristics and potential biases of references recommended by LLMs that entirely rely on their parametric knowledge, and not on search or retrieval-augmented generation, remain unexplored.Here, we analyze these characteristics in an experiment using a dataset from AAAI, NeurIPS, ICML, and ICLR, published after GPT-4's knowledge cut-off date.In our experiment, LLMs are tasked with suggesting scholarly references for the anonymized in-text citations within these papers.Our findings reveal a remarkable similarity between human and LLM citation patterns, but with a more pronounced high citation bias, which persists even after controlling for publication year, title length, number of authors, and venue.The results hold for both GPT-4, and the more capable models GPT-4o and Claude 3.5 where the papers are part of the training data.Additionally, we observe a large consistency between the characteristics of LLM's existing and non-existent generated references, indicating the model's internalization of citation patterns.By analyzing citation graphs, we show that the references recommended are embedded in the relevant citation context, suggesting an even deeper conceptual internalization of the citation networks.While LLMs can aid in citation generation, they may also amplify existing biases, such as the Matthew effect, and introduce new ones, potentially skewing scientific knowledge dissemination.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Generative AI for Healthcare and Education",
+      "year": 2026,
+      "doi": "10.1007/978-3-031-61050-9_41-1",
+      "arxiv_id": null,
+      "venue": "Springer eBooks",
+      "abstract": "Abstract This chapter offers a sociological interpretation of the main consequences of Generative Artificial Intelligence and Large Language Models (LLM) in the fields of healthcare and education, two areas where technological innovation has traditionally had room for experimentation and application. We aim to outline both positive (the good) and negative (the bad) social implications, while also highlighting a gray area (the unknown) where outcomes are ambiguous.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "How deep do large language models internalize scientific literature and citation practices?",
+      "year": 2026,
+      "doi": "10.1162/qss.a.502",
+      "arxiv_id": "2504.02767",
+      "venue": "Quantitative Science Studies",
+      "abstract": "Abstract The spread of scientific knowledge depends on how researchers discover and cite prior work. Large language models (LLMs) now add a new layer to this process, but their alignment with human citation practices across domains remains unclear. Here, we compare human citations with GPT-4o-generated reference suggestions produced from paper metadata and abstracts. Analyzing 274,951 generated references for 10,000 focal papers, we find that LLMs systematically reinforce the Matthew effect by favoring highly cited papers, with field-specific variation in the rate at which generated references match real papers in bibliometric databases. Generated references diverge from ground-truth reference lists by favoring more recent papers, shorter titles, and smaller author teams. Yet they remain semantically aligned with focal-paper content at levels comparable to human references, reproduce similar local citation network structure, and reduce author self-citations. These results show that LLMs can generate content-relevant bibliographic suggestions from parametric knowledge alone, but that they also amplify dominant citation patterns. As such tools become routine in research workflows, they may reshape how scientific communities discover, prioritize, and build on prior work.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Incorporating generative AI into a writing-intensive undergraduate course without off-loading learning",
+      "year": 2025,
+      "doi": "10.1007/s10791-025-09563-9",
+      "arxiv_id": null,
+      "venue": "Discover Computing",
+      "abstract": "Abstract As generative AI becomes ubiquitous, writers must decide if, when, and how to incorporate generative AI into their writing process. Educators must sort through their role in preparing students to make these decisions in a quickly evolving technological landscape. We created an AI-enabled writing tool that provides scaffolded use of a large language model as part of a research study on integrating generative AI into an upper division STEM writing-intensive course. Drawing on decades of research on integrating digital tools into instruction and writing research, we discuss the framework that drove our initial design considerations and instructional resources. We then share our findings from a year of design-based implementation research during the 2023–2024 academic year. Our original instruction framework identified the need for students to understand, access, prompt, corroborate, and incorporate the generative AI use effectively. In this paper, we explain the need for students to think first, before using AI, move through good enough prompting to agentic iterative prompting, and reflect on their use at the end. We also provide emerging best practices for instructors, beginning with identifying learning objectives, determining the appropriate AI role, revising the content, reflecting on the revised curriculum, and reintroducing learning as needed. We end with an indication of our future directions.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Fluent but Not Factual: A Comparative Analysis of ChatGPT and Other AI Chatbots’ Proficiency and Originality in Scientific Writing for Humanities",
+      "year": 2023,
+      "doi": "10.3390/fi15100336",
+      "arxiv_id": "2309.08636",
+      "venue": "Future Internet",
+      "abstract": "Historically, mastery of writing was deemed essential to human progress. However, recent advances in generative AI have marked an inflection point in this narrative, including for scientific writing. This article provides a comprehensive analysis of the capabilities and limitations of six AI chatbots in scholarly writing in the humanities and archaeology. The methodology was based on tagging AI-generated content for quantitative accuracy and qualitative precision by human experts. Quantitative accuracy assessed the factual correctness in a manner similar to grading students, while qualitative precision gauged the scientific contribution similar to reviewing a scientific article. In the quantitative test, ChatGPT-4 scored near the passing grade (−5) whereas ChatGPT-3.5 (−18), Bing (−21) and Bard (−31) were not far behind. Claude 2 (−75) and Aria (−80) scored much lower. In the qualitative test, all AI chatbots, but especially ChatGPT-4, demonstrated proficiency in recombining existing knowledge, but all failed to generate original scientific content. As a side note, our results suggest that with ChatGPT-4, the size of large language models has reached a plateau. Furthermore, this paper underscores the intricate and recursive nature of human research. This process of transforming raw data into refined knowledge is computationally irreducible, highlighting the challenges AI chatbots face in emulating human originality in scientific writing. Our results apply to the state of affairs in the third quarter of 2023. In conclusion, while large language models have revolutionised content generation, their ability to produce original scientific contributions in the humanities remains limited. We expect this to change in the near future as current large language model-based AI chatbots evolve into large language model-powered software.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "LLM-Metrics: Measuring Research Impact Through Large Language Model Memory",
+      "year": 2026,
+      "doi": "10.48550/arxiv.2605.22176",
+      "arxiv_id": "2605.22176",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "Citation counts remain the dominant metric for assessing research impact, yet they suffer from well-documented limitations: temporal lag, disciplinary bias, and Matthew effects. Here we propose LLM-Metrics, a research-impact assessment metric derived from the parametric memory of large language models (LLMs). The central hypothesis is that high-impact papers receive greater exposure in the academic community, that this exposure enters LLM training data in textual form, and that models consequently form stronger parametric memory of these papers. We designed four types of multiple-choice probes, covering title recognition, author recognition, method recognition, and venue recognition, and evaluated 549 computer science papers published in 2023-2024 across 17 LLMs spanning 0.5B to 72B parameters from six vendors. Of the 17 models, 15 produced positive predictions, 9 of which were significant at p less than 0.05, with an overall Spearman correlation of rho = 0.1495 and p = 0.0004 against citation counts. Three additional findings support the proposed mechanism. First, the predictive signal was stronger for 2024 papers, rho = 0.1880, whose citation counts were near zero at model-training time, reducing the plausibility of a simple reverse-causality explanation. Second, author-recognition probes showed the strongest discriminative power, consistent with an exposure-driven memory mechanism. Third, model scale and predictive power were non-monotonic: a 3B-parameter model, Llama-3.2-3B-Instruct, with rho = 0.1829, outperformed most larger models, supporting a selective-memory hypothesis in which the limited capacity of smaller models can serve as an effective information filter. LLM-Metrics offers a real-time, cross-disciplinary, citation-independent paradigm for research assessment.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "The Bot Delusion. Large language models and anticipated consequences for academics’ publication and citation behavior",
+      "year": 2023,
+      "doi": "10.31235/osf.io/493qg",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "The reproduction of social inequalities through artificial intelligence and large language models (LLMs) has been demonstrated empirically in various areas of society, for example in policing and personnel hiring decisions. Yet, a broader discussion is missing to what extent LLMs may affect the scientific enterprise, reinforce or mitigate existing structural inequalities, and introduce a “bot delusion” in academia. Focusing on publications and citations behavior, we devise a thought experiment regarding the impact of LLMs. These differentiate between the reproduction of preexisting structurally conditioned inequalities in science (socio-cognitive stasis), or to a catharsis, that may counteract structural inequalities and Matthew Effects. We develop three scenarios of the consequences of using LLMs for citations: The LLM anticipated consequences are reproducing content and status quo (scenario 1), enabling content coherence evaluation (scenario 2) and content evaluation (scenario 3). In face of the fast-paced evolution of LLMs, to attribute meaning to anticipated consequences on citations from a sociological perspective, we discuss the normative significance of LLM-use for selecting citations. Considered as ideal types, Merton’s CUDOS norms of communalism, universalism, disinterestedness, and organized skepticism capture the catharsis opportunity offered by LLM, and stasis is reflected in the Mitroff’s SPIOD counter-norms of secrecy, particularism, self-interestedness and organized dogmatism. As SPIOD only captures individual counter-norms, we introduce communal counter-norms to capture academics’ loyal citation behavior. The latter insinuates a status quo future of science (scenario 1), while the mixed-access (scenario 2) and open science (scenario 3) futures suggest a more cognitively and less socially structured scientific endeavor.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Autonomous chemical research with large language models",
+      "year": 2023,
+      "doi": "10.1038/s41586-023-06792-0",
+      "arxiv_id": null,
+      "venue": "Nature",
+      "abstract": "Abstract Transformer-based large language models are making significant strides in various fields, such as natural language processing 1–5 , biology 6,7 , chemistry 8–10 and computer programming 11,12 . Here, we show the development and capabilities of Coscientist, an artificial intelligence system driven by GPT-4 that autonomously designs, plans and performs complex experiments by incorporating large language models empowered by tools such as internet and documentation search, code execution and experimental automation. Coscientist showcases its potential for accelerating research across six diverse tasks, including the successful reaction optimization of palladium-catalysed cross-couplings, while exhibiting advanced capabilities for (semi-)autonomous experimental design and execution. Our findings demonstrate the versatility, efficacy and explainability of artificial intelligence systems like Coscientist in advancing research.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Scientific Progress in the Age of AI",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "PhilSci-Archive (University of Pittsburgh)",
+      "abstract": "What role does artificial intelligence (AI), and large language models (LLMs) in particular, play in the progress of science? How might such AI systems help speed up scientific progress, and even make progress possible on topics that would otherwise be beyond our grasp? Conversely, how might they undermine scientific progress, e.g. because of the opacity of LLMs and the hallucinations they regularly produce? Are these technologies best understood as tools for accelerating the scientific progress made by human researchers, or might autonomous AI agents be capable of making scientific progress in their own right? Focusing primarily on LLM-based systems, this Element explores the relationship between AI and scientific progress. Throughout, we consider both how the use of AI in science aligns with or challenges existing accounts of progress, and how the philosophical debate about these accounts sheds light on the promise and pitfalls of AI in science.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Theorizing with Large Language Models",
+      "year": 2024,
+      "doi": "10.3386/w33033",
+      "arxiv_id": null,
+      "venue": "National Bureau of Economic Research",
+      "abstract": "Large Language Models (LLMs) are proving to be a powerful toolkit for management and organizational research.While early work has largely focused on the value of these tools for data processing and replicating survey-based research, the potential of LLMs for theory building is yet to be recognized.We argue that LLMs can accelerate the pace at which researchers can develop, validate, and extend strategic management theory.We propose a novel framework called Generative AI-Based Experimentation (GABE) that enables researchers to conduct exploratory in silico experiments that can mirror the complexities of real-world organizational settings, featuring multiple agents and strategic interdependencies.This approach is unique because it allows researchers to unpack the mechanisms behind results by directly modifying agents' roles, preferences, and capabilities, and asking them to reveal the explanations behind decisions.We apply this framework to a novel theory studying strategic exploration under uncertainty.We show how our framework can not only replicate the results from experiments with human subjects at a much lower cost, but can also be used to extend theory by clarifying boundary conditions and uncovering mechanisms.We conclude that LLMs possess tremendous potential to complement existing methods for theorizing in strategy and, more broadly, the social sciences.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Artificial Intelligence in Science: Returns, Reallocation, and Reorganization",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": "2603.27956",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "Investment in artificial intelligence (AI) has grown rapidly, yet its returns to scientific research remain poorly understood. We study how AI reshapes the production of science using a comprehensive dataset of research proposals submitted to a large international funding agency, including both funded and unfunded projects. Combining keyword extraction with large language model classification, we identify the presence, type, and functional role of AI within each proposal and link these measures to detailed budget allocations, team structure, and subsequent publication outcomes. We find that, in the short run, AI adoption is associated with modest improvements in scientific outcomes concentrated in the upper tail. Instead, its primary effects arise in the organization of research: AI-enabled projects reallocate resources toward human capital, involve larger teams, and undertake a broader set of tasks. These patterns are consistent with a reorganization of the scientific production process rather than immediate efficiency gains, in line with theories of general-purpose technologies. Task-level analyses further show that activities expanded in AI-enabled projects, particularly ideation and experimentation, are increasingly compatible with large language model capabilities, suggesting potential for future productivity gains as these technologies mature.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Engineering Education in the Era of ChatGPT: Promise and Pitfalls of Generative AI for Education",
+      "year": 2022,
+      "doi": "10.36227/techrxiv.21789434.v1",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Engineering education is constantly evolving to keep up with the latest technological developments and meet the changing needs of the engineering industry. One promising development in this field is the use of generative artificial intelligence technology, such as the ChatGPT conversational agent. ChatGPT has the potential to offer personalized and effective learning experiences by providing students with customized feedback and explanations, as well as creating realistic virtual simulations for hands-on learning. However, it is important to also consider the limitations of this technology. ChatGPT and other generative AI systems are only as good as their training data and may perpetuate biases or even generate and spread misinformation. Additionally, the use of generative AI in education raises ethical concerns such as the potential for unethical or dishonest use by students and the potential unemployment of humans who are made redundant by technology. While the current state of generative AI technology represented by ChatGPT is impressive but flawed, it is only a preview of what is to come. It is important for engineering educators to understand the implications of this technology and study how to adapt the engineering education ecosystem to ensure that the next generation of engineers can take advantage of the benefits offered by generative AI while minimizing any negative consequences.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Large Language Models Are Biased Because They Are Large Language Models",
+      "year": 2025,
+      "doi": "10.1162/coli_a_00558",
+      "arxiv_id": "2406.13138",
+      "venue": "Computational Linguistics",
+      "abstract": "Abstract This position paper’s primary goal is to provoke thoughtful discussion about the relationship between bias and fundamental properties of large language models (LLMs). I do this by seeking to convince the reader that harmful biases are an inevitable consequence arising from the design of any large language model as LLMs are currently formulated. To the extent that this is true, it suggests that the problem of harmful bias cannot be properly addressed without a serious reconsideration of AI driven by LLMs, going back to the foundational assumptions underlying their design.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "AI-qualizing Science",
+      "year": 2026,
+      "doi": "10.21203/rs.3.rs-7520439/v1",
+      "arxiv_id": null,
+      "venue": "Research Square",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Large Language Models: A Deep Dive",
+      "year": 2024,
+      "doi": "10.1007/978-3-031-65647-7",
+      "arxiv_id": null,
+      "venue": "Springer eBooks",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "AI-qualizing Science",
+      "year": 2025,
+      "doi": "10.1101/2025.02.11.637417",
+      "arxiv_id": null,
+      "venue": "bioRxiv (Cold Spring Harbor Laboratory)",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "The Strong Get Stronger: The Matthew Effect in Academic Publishing",
+      "year": 2026,
+      "doi": "10.4274/balkanmedj.galenos.2026.2026.150426",
+      "arxiv_id": null,
+      "venue": "Balkan Medical Journal",
+      "abstract": "The Matthew Effect is Merton's term for the pattern by which initial advantage builds into further advantage, as the saying goes, to those who have, more shall be given.1 Originally applied to individual scientists, it now operates across journals and institutions, producing paths for well-resourced and under-resourced journals over time (Figure 1).Reputation builds through impact metrics and citation networks.Prestigious journals attract higher-quality submissions, receive more citations, and further elevate their status.In contrast, independent or university-based journals, often equal in rigor but lacking commercial backing, struggle to sustain operations and visibility.This asymmetry transforms academic publishing into a highly concentrated market dominated by a handful of large publishers.Research from high-income, English-speaking countries receives more citations than comparable work from other nations, reflecting structural advantage rather than content differences.2 This citation bias deepens disparities between scientific communities.Journals emerging from public universities or regional networks, many operating under diamond open-access models which charge neither authors nor readers, are vital but fragile.3 Their sustainability depends on volunteer labour and minimal budgets, leaving them vulnerable to the pressures of global competition.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "What Is Left for Us? Second Scholarship Against the Degradation of Research by AI",
+      "year": 2026,
+      "doi": "10.1111/eulj.70031",
+      "arxiv_id": null,
+      "venue": "European Law Journal",
+      "abstract": "ABSTRACT We argue that generative AI can degrade research by eroding the very practices through which scholarly judgement is formed. As constitutive conditions for the production and validation of knowledge, these practices cannot be reduced to the outputs of research, which is what AI tools so effectively simulate. When scholars delegate central tasks of inquiry to large language models (LLMs), they may stop engaging in these practices and lose the formation they provide: The output may improve while the researcher fails to develop. Against this risk, merely keeping humans ‘in the loop’ as prompters or quality‐checkers of AI outputs is insufficient to preserve research as a site of intellectual formation. What is needed instead is a renewed commitment to research as a lived practice in which judgement is formed gradually, often through friction, and participation in a scholarly community. We defend it because it rests on four sources and warrants of research that cannot be automated: tacit knowledge, personal commitment, socialisation and deep reading. These enact what we call ‘second scholarship,’ that is, the reappropriation of scholarly craft, chosen out of a critical experience of what AI tools can and cannot do. Researchers who practise it may delegate tasks to these tools, provided that their own judgement in the delegated competence is already formed, that they can answer for the output and that they keep exercising the competence themselves. What cannot and should not be delegated becomes what research communities must value and answer for. This is what is left for us.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "What is Left for Us? Second Scholarship Against the Degradation of Research by AI",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": "2607.04049",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "We argue that generative AI can degrade research by eroding the very practices through which scholarly judgement is formed. As constitutive conditions for the production and validation of knowledge, these practices cannot be reduced to the outputs of research, which is what AI tools so effectively simulate. When scholars delegate central tasks of inquiry to Large Language Models (LLMs), they may stop engaging in these practices and lose the formation they provide: the output may improve while the researcher fails to develop. Against this risk, merely keeping humans \"in the loop\" as prompters or quality checkers of AI outputs is insufficient to preserve research as a site of intellectual formation. What is needed instead is a renewed commitment to research as a lived practice in which judgement is formed gradually, often through friction, and participation in a scholarly community. We defend it because it rests on four sources and warrants of research that cannot be automated: tacit knowledge, personal commitment, socialisation, and deep reading. These enact what we call second scholarship, i.e., the reappropriation of scholarly craft, chosen out of a critical experience of what AI tools can and cannot do. Researchers who practise it may delegate tasks to these tools, provided that their own judgement in the delegated competence is already formed, that they can answer for the output, and that they keep exercising the competence themselves. What cannot and should not be delegated becomes what research communities must value and answer for. This is what is left for us.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Can Large Language Models Provide Useful Feedback on Research Papers? A Large-Scale Empirical Analysis",
+      "year": 2024,
+      "doi": "10.1056/aioa2400196",
+      "arxiv_id": "2310.01783",
+      "venue": "NEJM AI",
+      "abstract": "BACKGROUND: Expert feedback lays the foundation of rigorous research. However, the rapid growth of scholarly production challenges the conventional scientific feedback mechanisms. High-quality peer reviews are increasingly difficult to obtain. METHODS: . Additionally, we conducted a prospective user study with 308 researchers from 110 institutions in the fields of artificial intelligence and computational biology to understand how researchers perceive feedback generated by our system on their own papers. RESULTS: portfolio show similar patterns. In our prospective user study, more than half (57.4%) of the users found GPT-4-generated feedback helpful/very helpful, and 82.4% found it more beneficial than feedback from at least some human reviewers. We also identify several limitations of large language model (LLM)-generated feedback. CONCLUSIONS: Through both retrospective and prospective evaluation, we find substantial overlap between LLM and human feedback as well as positive user perceptions regarding the usefulness of LLM feedback. Although human expert review should continue to be the foundation of the scientific process, LLM feedback could benefit researchers, especially when timely expert feedback is not available and in earlier stages of manuscript preparation. (Funded by the Chan-Zuckerberg Initiative and the Stanford Interdisciplinary Graduate Fellowship.).",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Divergent creativity in humans and large language models",
+      "year": 2026,
+      "doi": "10.1038/s41598-025-25157-3",
+      "arxiv_id": "2405.13012",
+      "venue": "Scientific Reports",
+      "abstract": "The recent surge of Large Language Models (LLMs) has led to claims that they are approaching a level of creativity akin to human capabilities. This idea has sparked a blend of excitement and apprehension. However, a critical piece that has been missing in this discourse is a systematic evaluation of LLMs' semantic diversity, particularly in comparison to human divergent thinking. To bridge this gap, we leverage recent advances in computational creativity to analyze semantic divergence in both state-of-the-art LLMs and a substantial dataset of 100,000 humans. These divergence-based measures index associative thinking-the ability to access and combine remote concepts in semantic space-an established facet of creative cognition. We benchmark performance on the Divergent Association Task (DAT) and across multiple creative-writing tasks (haiku, story synopses, and flash fiction), using identical, objective scoring. We found evidence that LLMs can surpass average human performance on the DAT, and approach human creative writing abilities, yet they remain below the mean creativity scores observed among the more creative segment of human participants. Notably, even the top performing LLMs are still largely surpassed by the aggregated top half of human participants, underscoring a ceiling that current LLMs still fail to surpass. We also systematically varied linguistic strategy prompts and temperature, observing reliable gains in semantic divergence for several models. Our human-machine benchmarking framework addresses the polemic surrounding the imminent replacement of human creative labor by AI, disentangling the quality of the respective creative linguistic outputs using established objective measures. While prompting deeper exploration of the distinctive elements of human inventive thought compared to those of AI systems, we lay out a series of techniques to improve their outputs with respect to semantic diversity, such as prompt design and hyper-parameter tuning.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    },
+    {
+      "title": "Probabilistic Obliteration and Formulaic Fabrication",
+      "year": 2026,
+      "doi": "10.18357/kula.310",
+      "arxiv_id": null,
+      "venue": "KULA knowledge creation dissemination and preservation studies",
+      "abstract": "What does it mean to cite generative AI (GenAI) tools—both in an instrumental, information retrieval sense, and in a symbolic sense that has more to do with recognition? What does it mean that GenAI tools are also able to produce plausible-looking yet false citations? This theoretical article critically explores the possibility of citational justice in the GenAI era through an analysis of two sets of examples: (1) the existing citation guidance to GenAI output as articulated by the major style guides, and (2) the issue of “hallucinated” (or fabricated) citations produced by GenAI large language model (LLM) chatbots like ChatGPT. Using ideas from Robert K. Merton, Eugene Garfield, Emily M. Bender, Robert J. Connors, and Sam Popowich, I argue that GenAI, across both sets of examples, is antithetical to citational justice. In the first set of examples, I make the case that the human authors and their works, the real source of GenAI tools’ textual output, have been “obliterated”—a term that I borrow from Merton—as part of LLM training. This renders the official style guides’ recommendations for how to cite GenAI tools—particularly APA’s guidance—deeply inadequate. In the second set of examples, I see the fabricated citations produced by GenAI as antithetical to citational justice because they decentre the human. Crucially, though, these fabricated citations are actually perfectly suited to the irrelational context of contemporary higher education transformed by neoliberalism, where commodified student outputs are made to stand as evidence of students’ internal transformation. As a closing gesture, I contend that the issues brought to the fore by GenAI and citation could present a pedagogical opportunity to radically reconceive of library instruction, focusing it on the importance of attribution and relationality in academic work if we so chose, and I offer some questions to guide that reimagined pedagogy.",
+      "source_api": "openalex",
+      "query_id": "Q4"
+    }
+  ]
+}

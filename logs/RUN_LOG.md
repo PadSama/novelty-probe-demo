@@ -269,3 +269,156 @@ Q2: satisfies original Boolean query on title+abstract: 0/25 (among records with
 - S2：Q3–Q6 两轮均失败（匿名共享限流池）。需要 S2 API key（环境变量 `S2_API_KEY`）或稍后再试。
 - 检索质量：S2 relevance search 不支持短语与布尔语法。Q2 退回核心词后的 25 条无一满足原检索式，该文件不宜直接作为 Q2 的证据来源，留待研究者决定 S2 的检索方式后重跑。
 - 本步未判断新颖性，未在日志中列出具体文献。
+
+---
+
+## [2026-10-31 11:00 UTC] Step 4 — OpenAlex 配置 key、S2 改用 bulk 接口后重跑（12/12 成功）
+
+**研究者决定（本轮）**
+
+- OpenAlex API key 已配置在环境的 Network secrets 中（由代理注入，容器内无环境变量）。
+- 同意 S2 改用 `/graph/v1/paper/search/bulk`（支持布尔语法；不按相关度排序，前 25 条按被引次数取）。
+
+**命令 1：连通性复测**
+
+```bash
+curl -sS -m 30 -D <headers> "https://api.openalex.org/works?search=bibliometrics&per-page=1&select=id,display_name"
+curl -sS -m 60 "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=bibliometrics&fields=title&sort=citationCount:desc"
+```
+
+输出（摘要）：OpenAlex HTTP 200（X-Ratelimit-Limit-Usd: 1，Remaining-Usd: 0.994）；S2 bulk HTTP 200（total 109740）。
+
+**命令 2：语法实测（python3 内联脚本，未存为文件）**
+
+```
+S2 bulk total:  bibliometric* 124248 | bibliometrics 109740 | homogeniz* 148491 | homogenization 145726
+                "exploration-exploitation" 4637 = "exploration exploitation" 4637 | "narrowing of science" 72
+                ("narrowing of science" | "topic diversity") + ("science of science" | bibliometrics) 14
+OpenAlex:       bibliometric* -> HTTP 400 "Wildcards (* or ?) require exact (no-stem) search. ... Use the
+                search.exact= parameter instead"
+                bibliometrics 475260 (oql: get works with bibliometrics in the full text)
+                ("large language models" OR "generative AI") AND (homogenization OR "collective diversity") 19321
+                (oql: ((stemmed "collective diversity" OR homogenization) AND (stemmed "generative AI" OR
+                stemmed "large language models")) in the full text)
+```
+
+结论：S2 bulk 支持截断（*）、短语和布尔组合；OpenAlex 不支持通配符（截断词换完整词的做法保留），布尔解析正确，`search=` 匹配全文。
+
+**命令 3：修改 scripts/search.py**
+
+```
+# S2 改用 /paper/search/bulk：AND -> +，OR -> |，括号、短语、截断词原样保留；sort=citationCount:desc，取前 25 条
+# 去掉纯文本压平与"退回核心词"逻辑
+# OpenAlex meta 增加 api_interpretation（x_query.oql）与 sort 字段
+```
+
+**命令 4：打印 S2 bulk 转换结果；删除旧接口产生的 S2 文件**
+
+```bash
+python3 -B -c "...to_s2_bulk(...)..."   # 6 条转换结果见各文件 meta.query_sent；转换器单测 OK
+git rm results/raw/semanticscholar_Q1.json results/raw/semanticscholar_Q2.json   # 旧接口结果，保留在提交 7dfda92 的历史中
+```
+
+**命令 5：真实运行（全量）**
+
+```bash
+python3 scripts/search.py
+```
+
+输出：
+
+```
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   openalex             21381    25     1  results/raw/openalex_Q1.json
+Q1    component   semanticscholar        391    25     0  results/raw/semanticscholar_Q1.json
+Q2    component   openalex              1217    25     1  results/raw/openalex_Q2.json
+Q2    component   semanticscholar         43    25     0  results/raw/semanticscholar_Q2.json
+Q3    application openalex               832    25     3  results/raw/openalex_Q3.json
+Q3    application semanticscholar          9     9     0  results/raw/semanticscholar_Q3.json
+Q4    application openalex               678    25     2  results/raw/openalex_Q4.json
+Q4    application semanticscholar          1     1     0  results/raw/semanticscholar_Q4.json
+Q5    method      openalex              3735    25     1  results/raw/openalex_Q5.json
+Q5    method      semanticscholar         45    25     1  results/raw/semanticscholar_Q5.json
+Q6    concurrent  openalex             31830    25     0  results/raw/openalex_Q6.json  [year>=2023]
+Q6    concurrent  semanticscholar         23    23     1  results/raw/semanticscholar_Q6.json  [year>=2023]
+
+12/12 requests succeeded. total_hits = API-reported matches; saved = records kept (top 25: OpenAlex by relevance, S2 by citation count); no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).
+exit code: 0
+```
+
+**命令 6：质量检查 A——字段覆盖与原布尔式符合度（严格匹配原词，python3 内联脚本）**
+
+```
+file                      n  doi arXiv neither abstract  bool_ok(all)  bool_ok(with abstract)
+openalex_Q1             25   24     4       1       20     21/25         18/20
+openalex_Q2             25   24     4       1       17      4/25          4/17
+openalex_Q3             25   22     8       3       23      2/25          2/23
+openalex_Q4             25   21    11       2       21      0/25          0/21
+openalex_Q5             25   24     1       1       19      4/25          4/19
+openalex_Q6             25   25     9       0       23      0/25          0/23
+semantic_Q1             25   24    16       0       23     22/25         21/23
+semantic_Q2             25   25     1       0       20     15/25         15/20
+semantic_Q3              9    9     0       0        7      4/9           4/7
+semantic_Q4              1    1     0       0        0      0/1           0/0
+semantic_Q5             25   23     2       1       21     13/25         12/21
+semantic_Q6             23   22     3       1       21      1/23          1/21
+
+total records: 258; neither DOI nor arXiv: 10; distinct DOIs across all files: 227
+
+OpenAlex query interpretation (x_query.oql):
+  Q1: get works with ((stemmed "algorithmic monoculture" OR stemmed "collective diversity" OR homogenisation OR homogenization) AND (stemmed "generative AI" OR stemmed "large language models")) in the full text
+  Q2: get works with ((stemmed "narrowing of science" OR stemmed "research diversification" OR stemmed "topic concentration" OR stemmed "topic diversity") AND (stemmed "science of science" OR bibliometrics)) in the full text
+  Q3: get works with ((stemmed "AI for science" OR stemmed "AI in science" OR stemmed "large language models" OR stemmed "machine learning") AND (stemmed "direction of science" OR stemmed "problem choice" OR stemmed "research topic selection")) in the full text
+  Q4: get works with (scientists AND (stemmed "AI for science" OR stemmed "generative AI" OR stemmed "large language models") AND (stemmed "Matthew effect" OR stemmed "exploration-exploitation" OR stemmed "streetlight effect")) in the full text
+  Q5: get works with ((stemmed "LLM-generated text" OR stemmed "difference-in-differences" OR stemmed "topic modeling") AND (stemmed "generative AI" OR stemmed "large language models") AND (stemmed "science of science" OR bibliometrics)) in the full text
+  Q6: get works since 2023-01-01 with ((stemmed "AI in science" OR stemmed "generative AI" OR stemmed "large language models") AND (stemmed "collective diversity" OR stemmed "narrowing of science" OR stemmed "research diversification" OR stemmed "topic diversity" OR disruptiveness) AND (stemmed "science of science" OR scientists)) in the full text
+```
+
+**命令 7：质量检查 B——符合度改用 Porter 词干还原（近似两个 API 的词干匹配）**
+
+```bash
+pip install -q --target <scratchpad>/pylib snowballstemmer   # 装在临时目录，不进系统环境、不进仓库
+python3 -I -B - <<'PY'   # 内联脚本，未存为文件
+PY
+```
+
+输出：
+
+```
+Boolean conformity on title+abstract, Porter-stemmed (approximates the APIs' stemmed matching)
+file                  strict->stemmed (all)   stemmed (with abstract)
+openalex_Q1             21/25 -> 21/25         18/20
+openalex_Q2              4/25 ->  4/25          4/17
+openalex_Q3              2/25 ->  2/25          2/23
+openalex_Q4              0/25 ->  0/25          0/21
+openalex_Q5              4/25 ->  7/25          7/19
+openalex_Q6              0/25 ->  1/25          1/23
+semantic_Q1             22/25 -> 24/25         23/23
+semantic_Q2             15/25 -> 18/25         18/20
+semantic_Q3               4/9 ->  4/9           4/7
+semantic_Q4               0/1 ->  0/1           0/0
+semantic_Q5             13/25 -> 22/25         21/21
+semantic_Q6              1/23 -> 18/23         18/21
+```
+
+**命令 8：对照试验——OpenAlex 改用 `filter=title_and_abstract.search`（只匹配标题+摘要；结果只存临时目录，未进 results/）**
+
+```
+Q4: title_and_abstract.search count=1 (search= gave 678); top-1 conformity (stemmed): 0/1, with abstract 0/0
+     oql: get works with (scientists AND (stemmed "AI for science" OR stemmed "generative AI" OR stemmed "large language models") AND (stemmed "Matthew effect" OR stemmed "exploration-exploitation" OR stemmed "streetlight effect")) in the title or abstract
+Q6: title_and_abstract.search count=64 (search= gave 31830); top-25 conformity (stemmed): 22/25, with abstract 22/23
+     oql: get works since 2023-01-01 with ((stemmed "AI in science" OR stemmed "generative AI" OR stemmed "large language models") AND (stemmed "collective diversity" OR stemmed "narrowing of science" OR stemmed "research diversification" OR stemmed "topic diversity" OR disruptiveness) AND (stemmed "science of science" OR scientists)) in the title or abstract
+```
+
+**产出文件**
+
+- `results/raw/openalex_Q1.json` … `openalex_Q6.json` — 各 25 条（按相关度）
+- `results/raw/semanticscholar_Q1.json` … `semanticscholar_Q6.json` — 25 / 25 / 9 / 1 / 25 / 23 条（按被引次数）
+- `scripts/search.py` — 修改（见命令 3）
+
+**备注**
+
+- 共 258 条记录，跨文件不同 DOI 227 个；既无 DOI 也无 arXiv ID 的 10 条，合并时标 `UNVERIFIED`。
+- OpenAlex `search=` 匹配全文：Q2–Q6 的前 25 条在标题+摘要层面多数不满足原检索式（词干还原后，有摘要者中满足 4/17、2/23、0/21、7/19、1/23）。对照试验中改用 `title_and_abstract.search` 后 Q6 为 22/25。是否切换由研究者决定。
+- S2 bulk 只匹配标题+摘要，词干还原后符合度高（有摘要者 Q1 23/23、Q2 18/20、Q5 21/21、Q6 18/21）；Q3、Q4 命中少（9、1）。
+- 本步未判断新颖性，未在日志中列出具体文献。

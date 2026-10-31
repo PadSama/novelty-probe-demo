@@ -1,0 +1,269 @@
+{
+  "meta": {
+    "source_api": "openalex",
+    "query_id": "Q6",
+    "purpose": "concurrent",
+    "query_original": "(\"AI in science\" OR \"large language models\" OR \"generative AI\") AND (\"topic diversity\" OR \"narrowing of science\" OR \"collective diversity\" OR disruptiveness OR \"research diversification\") AND (scientist* OR \"science of science\")",
+    "year_from": 2023,
+    "conversion": "boolean kept; truncated words -> full words",
+    "query_sent": "(\"AI in science\" OR \"large language models\" OR \"generative AI\") AND (\"topic diversity\" OR \"narrowing of science\" OR \"collective diversity\" OR disruptiveness OR \"research diversification\") AND (scientists OR \"science of science\")",
+    "api_interpretation": "get works since 2023-01-01 with ((stemmed \"AI in science\" OR stemmed \"generative AI\" OR stemmed \"large language models\") AND (stemmed \"collective diversity\" OR stemmed \"narrowing of science\" OR stemmed \"research diversification\" OR stemmed \"topic diversity\" OR disruptiveness) AND (stemmed \"science of science\" OR scientists)) in the full text",
+    "request_url": "https://api.openalex.org/works?search=%28%22AI+in+science%22+OR+%22large+language+models%22+OR+%22generative+AI%22%29+AND+%28%22topic+diversity%22+OR+%22narrowing+of+science%22+OR+%22collective+diversity%22+OR+disruptiveness+OR+%22research+diversification%22%29+AND+%28scientists+OR+%22science+of+science%22%29&per-page=25&page=1&filter=from_publication_date%3A2023-01-01",
+    "sort": "relevance (API default for search=)",
+    "total_hits": 31830,
+    "returned": 25,
+    "retrieved_at": "2026-10-31T10:57:58+00:00"
+  },
+  "records": [
+    {
+      "title": "The promise and challenges of generative AI in education",
+      "year": 2024,
+      "doi": "10.1080/0144929x.2024.2394886",
+      "arxiv_id": null,
+      "venue": "Behaviour and Information Technology",
+      "abstract": "Generative artificial intelligence (GenAI) tools, such as large language models (LLMs), generate natural language and other types of content to perform a wide range of tasks. This represents a significant technological advancement that poses opportunities and challenges to educational research and practice. This commentary brings together contributions from nine experts working in the intersection of learning and technology and presents critical reflections on the opportunities, challenges, and implications related to GenAI technologies in the context of education. In the commentary, it is acknowledged that GenAI’s capabilities can enhance some teaching and learning practices, such as learning design, regulation of learning, automated content, feedback, and assessment. Nevertheless, we also highlight its limitations, potential disruptions, ethical consequences, and potential misuses. The identified avenues for further research include the development of new insights into the roles human experts can play, strong and continuous evidence, human-centric design of technology, necessary policy, and support and competence mechanisms. Overall, we concur with the general skeptical optimism about the use of GenAI tools such as LLMs in education. Moreover, we highlight the danger of hastily adopting GenAI tools in education without deep consideration of the efficacy, ecosystem-level implications, ethics, and pedagogical soundness of such practices.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Science in the age of large language models",
+      "year": 2023,
+      "doi": "10.1038/s42254-023-00581-4",
+      "arxiv_id": null,
+      "venue": "Nature Reviews Physics",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Generative AI and the Automating of Academia",
+      "year": 2023,
+      "doi": "10.1007/s42438-023-00440-6",
+      "arxiv_id": null,
+      "venue": "Postdigital Science and Education",
+      "abstract": "Abstract The neoliberal transformation of higher education in the UK and an intertwined focus on the productive efficiency and prestige value of universities has led to an epidemic of overwork and precarity among academics. Many are found to be struggling with lofty performance expectations and an insistence that all dimensions of their work consistently achieve positional gains despite ferocious competition and the omnipresent threat of failure. Working under the current audit culture present across education, academics are thus found to overwork or commit to accelerated labour as pre-emptive compensation for the habitual inclemency of peer-review and vagaries of student evaluation, in accommodating the copiousness of ‘invisible’ tasks, and in eluding the myriad crevasses of their precarious labour. The proliferation of generative artificial intelligence (GAI) tools and more specifically, large language models (LLMs) like ChatGPT, offers potential relief for academics and a means to offset intensive demands and discover more of a work-based equilibrium. Through a recent survey of n = 284 UK academics and their use of GAI, we discover, however, that the digitalisation of higher education through GAI tools no more alleviates than extends the dysfunctions of neoliberal logic and deepens academia’s malaise. Notwithstanding, we argue that the proliferating use of GAI tools by academics may be harnessed as a source of positive disruption to the industrialisation of their labour and catalyst of (re)engagement with scholarly craftsmanship.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Attention is not all you need: the complicated case of ethically using large language models in healthcare and medicine",
+      "year": 2023,
+      "doi": "10.1016/j.ebiom.2023.104512",
+      "arxiv_id": null,
+      "venue": "EBioMedicine",
+      "abstract": "Large Language Models (LLMs) are a key component of generative artificial intelligence (AI) applications for creating new content including text, imagery, audio, code, and videos in response to textual instructions. Without human oversight, guidance and responsible design and operation, such generative AI applications will remain a party trick with substantial potential for creating and spreading misinformation or harmful and inaccurate content at unprecedented scale. However, if positioned and developed responsibly as companions to humans augmenting but not replacing their role in decision making, knowledge retrieval and other cognitive processes, they could evolve into highly efficient, trustworthy, assistive tools for information management. This perspective describes how such tools could transform data management workflows in healthcare and medicine, explains how the underlying technology works, provides an assessment of risks and limitations, and proposes an ethical, technical, and cultural framework for responsible design, development, and deployment. It seeks to incentivise users, developers, providers, and regulators of generative AI that utilises LLMs to collectively prepare for the transformational role this technology could play in evidence-based sectors.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Dual use concerns of generative AI and large language models",
+      "year": 2024,
+      "doi": "10.1080/23299460.2024.2304381",
+      "arxiv_id": "2305.07882",
+      "venue": "Journal of Responsible Innovation",
+      "abstract": "We suggest the implementation of the Dual Use Research of Concern (DURC) framework, originally designed for life sciences, to the domain of generative AI, with a specific focus on Large Language Models (LLMs).With its demonstrated advantages and drawbacks in biological research, we believe the DURC criteria can be effectively redefined for LLMs, potentially contributing to improved AI governance.Acknowledging the balance that must be struck when employing the DURC framework, we highlight its crucial political role in enhancing societal awareness of the impact of generative AI.As a final point, we offer a series of specific recommendations for applying the DURC approach to LLM research.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Scientists' Perspectives on the Potential for Generative AI in their Fields",
+      "year": 2023,
+      "doi": "10.48550/arxiv.2304.01420",
+      "arxiv_id": "2304.01420",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "Generative AI models, including large language models and multimodal models that include text and other media, are on the cusp of transforming many aspects of modern life, including entertainment, education, civic life, the arts, and a range of professions. There is potential for Generative AI to have a substantive impact on the methods and pace of discovery for a range of scientific disciplines. We interviewed twenty scientists from a range of fields (including the physical, life, and social sciences) to gain insight into whether or how Generative AI technologies might add value to the practice of their respective disciplines, including not only ways in which AI might accelerate scientific discovery (i.e., research), but also other aspects of their profession, including the education of future scholars and the communication of scientific findings. In addition to identifying opportunities for Generative AI to augment scientists' current practices, we also asked participants to reflect on concerns about AI. These findings can help guide the responsible development of models and interfaces for scientific education, inquiry, and communication.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Foundation Models, Generative AI, and Large Language Models",
+      "year": 2024,
+      "doi": "10.1097/cin.0000000000001149",
+      "arxiv_id": null,
+      "venue": "CIN Computers Informatics Nursing",
+      "abstract": "We are in a booming era of artificial intelligence, particularly with the increased availability of technologies that can help generate content, such as ChatGPT. Healthcare institutions are discussing or have started utilizing these innovative technologies within their workflow. Major electronic health record vendors have begun to leverage large language models to process and analyze vast amounts of clinical natural language text, performing a wide range of tasks in healthcare settings to help alleviate clinicians' burden. Although such technologies can be helpful in applications such as patient education, drafting responses to patient questions and emails, medical record summarization, and medical research facilitation, there are concerns about the tools' readiness for use within the healthcare domain and acceptance by the current workforce. The goal of this article is to provide nurses with an understanding of the currently available foundation models and artificial intelligence tools, enabling them to evaluate the need for such tools and assess how they can impact current clinical practice. This will help nurses efficiently assess, implement, and evaluate these tools to ensure these technologies are ethically and effectively integrated into healthcare systems, while also rigorously monitoring their performance and impact on patient care.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "The World of Generative AI: Deepfakes and Large Language Models",
+      "year": 2024,
+      "doi": "10.48550/arxiv.2402.04373",
+      "arxiv_id": "2402.04373",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "We live in the era of Generative Artificial Intelligence (GenAI). Deepfakes and Large Language Models (LLMs) are two examples of GenAI. Deepfakes, in particular, pose an alarming threat to society as they are capable of spreading misinformation and changing the truth. LLMs are powerful language models that generate general-purpose language. However due to its generative aspect, it can also be a risk for people if used with ill intentions. The ethical use of these technologies is a big concern. This short article tries to find out the interrelationship between them.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "The rise of generative AI and possible effects on the economy",
+      "year": 2023,
+      "doi": "10.18559/ebr.2023.2.732",
+      "arxiv_id": null,
+      "venue": "Economics and Business Review/The Poznań University of Economics Review",
+      "abstract": "The aim of the paper is to analyse the likely implications of Generative AI (GAI) on various aspects of business and the economy. Amid the rapid growth and maturing of Generative AI technologies such as Large Language Models (like ChatGPT by OpenAI) a rapid growth of both immediate and potential applications can be seen. The implications for the economy and industries of this technological shift will be discussed. The foreseeable scenarios for the level and types of adoption that GAI might achieve - from useful analytical tool, invaluable assistant to the white-collar workers of the world to being trusted with a wide array of business and life-critical decision making. Both disruptive and premium service opportunities are foreseen. For instance general purpose models may provide quality service – such as copywriting – to overserved customers leaving human writers as the premium option. In this context, overserved customers would be those who would be satisfied with a non-human, potentially less creative content. On the other hand highly specialized models – specifically trained in a given domain and with access to proprietary knowledge can possibly provide a premium service over that provided by human experts. It is expected that some jobs will be replaced by new AI applications. However new workplaces will emerge. Not only the obvious expert-level data scientist roles but also low grade, “model supervisors” – people training the models, assessing the quality of responses given and handling escalations. Lastly new cybercrime risks emerging from the rise of GAI are discussed.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "SciSciGPT: advancing human–AI collaboration in the science of science",
+      "year": 2025,
+      "doi": "10.1038/s43588-025-00906-6",
+      "arxiv_id": "2504.05559",
+      "venue": "Nature Computational Science",
+      "abstract": "We introduce SciSciGPT, an open-source, prototype artificial intelligence (AI) collaborator that uses the domain of science of science as a testbed to explore the potential of large language model-powered research tools. SciSciGPT automates complex workflows, supports diverse analytical approaches, accelerates research prototyping and iteration and facilitates reproducibility. Through case studies, we demonstrate its ability to streamline a wide range of empirical and analytical research tasks while highlighting its broader potential to advance research. We further propose a large language model agent capability maturity model for human-AI collaboration, envisioning a roadmap to further improve and expand upon frameworks such as SciSciGPT. As AI capabilities continue to evolve, frameworks such as SciSciGPT may play increasingly pivotal roles in scientific research and discovery. At the same time, these new advances also raise critical challenges, from ensuring transparency and ethical use to balancing human and AI contributions. Addressing these issues may shape the future of scientific inquiry and inform how we train the next generation of scientists to thrive in an increasingly AI-integrated research ecosystem.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Is ChatGPT Leading Generative AI? What is Beyond Expectations?",
+      "year": 2023,
+      "doi": "10.21541/apjess.1293702",
+      "arxiv_id": null,
+      "venue": "Academic Platform Journal of Engineering and Smart Systems",
+      "abstract": "Generative AI has the potential to change the way we do things. The chatbot is one of the most popular implementation areas. Even though companies like Google and Meta had chatbots, ChatGPT became popular as it was made publicly available. Although ChatGPT is still in the early stages of its development, it attracted the attention of people and capital groups. It has taken the public interest; people from different fields, ages, and education levels started using ChatGPT. There have been many trials with ChatGPT. It is possible to see a lot of news and shares on the Internet. The study aims to shed light on what is happening in the literature and get an insight into the user expectations of ChatGPT and Generative AI. We also give information about the competitors of ChatGPT, such as Google’s Bard AI, Claude, Meta’s Wit.ai and Tencent’s HunyuanAide. We describe technical and structural fundamentals and try to shed light on who will win the race. We also shared information about the GPT4 version of OpenAI's ChatGPT. We share the early stage due diligence and current situation analysis for all these points. We examine preprint papers and published articles. We also included striking posts on the LinkedIn platform and a compilation of various blogs and news. We also made use of ChatGPT in editing the content of these resources of this study. We can get an insight into the people's interests through their questions submitted to ChatGPT. We can also understand the capabilities of GPT3, GPT4 and also predict further enhancements.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Generative AI and Large Language Models in Industry 5.0: Shaping Smarter Sustainable Cities",
+      "year": 2025,
+      "doi": "10.3390/encyclopedia5010030",
+      "arxiv_id": null,
+      "venue": "Encyclopedia",
+      "abstract": "This review paper examines how Generative AI (GAI) and Large Language Models (LLMs) can transform smart cities in the Industry 5.0 era. Through selected case studies and portions of the literature, we analyze these technologies’ impact on industrial processes and urban management. The paper targets GAI as an enabler for industrial optimization and predictive maintenance, underlining how domain experts can work with LLMs to improve municipal services and citizen communication, while addressing the practical and ethical challenges in deploying these technologies. We also highlight promising trends, as reflected in real-world case studies ranging from factories to city-wide test-beds and identify pitfalls to avoid. Widespread adoption of GAI still faces challenges that include infrastructure and lack of specialized knowledge as a limitation of proper implementation. While LLMs enable new services for citizens in smart cities, they also expose certain privacy issues, which we aim to investigate in this study. Finally, as a way forward, the paper suggests future research directions covering new ethical AI frameworks and long-term studies on societal impacts. Our paper is a starting point for industrial pioneers and urban developers to navigate the complexity of GAI and LLM integration, balancing the demands of technological innovation on one hand and ethical responsibility on the other.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Generative AI: Implications and Applications for Education",
+      "year": 2023,
+      "doi": "10.48550/arxiv.2305.07605",
+      "arxiv_id": "2305.07605",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "The launch of ChatGPT in November 2022 precipitated a panic among some educators while prompting qualified enthusiasm from others. Under the umbrella term Generative AI, ChatGPT is an example of a range of technologies for the delivery of computer-generated text, image, and other digitized media. This paper examines the implications for education of one generative AI technology, chatbots responding from large language models, or C-LLM. It reports on an application of a C-LLM to AI review and assessment of complex student work. In a concluding discussion, the paper explores the intrinsic limits of generative AI, bound as it is to language corpora and their textual representation through binary notation. Within these limits, we suggest the range of emerging and potential applications of Generative AI in education.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Generative AI for growth hacking: How startups use generative AI in their growth strategies",
+      "year": 2025,
+      "doi": "10.1016/j.jbusres.2025.115320",
+      "arxiv_id": null,
+      "venue": "Journal of Business Research",
+      "abstract": "• GenAI-driven growth hacking powers startup product development, sales and operations. • GenAI drives product-led growth by technical and non-technical content creation. • LLMs streamline sales-led growth in content repurposing and customer personalization. • GenAI tools boost operational efficiency in market entry and customer engagement. This study explores how startups and scaleups in Europe and the US use generative AI in their go-to-market strategies across product-led, sales-led, and operational efficiency-driven growth. Through interviews with 20 cases spanning pre-seed to Series E funding stages, we 1) analyze generative AI’s role in growth strategies, 2) identify large language model use cases for tackling growth challenges such as customer churn, and 3) develop a framework for AI capabilities that guides managers in building, refining, and reflecting on their knowledge of using generative AI for growth hacking. Key findings include the implications of generative AI for technical and non-technical content creation in product-led growth, promotional content creation and repurposing, and customer experience personalization in sales-led growth, and market research, market entry strategies, and customer engagement in operational efficiency-driven growth. Findings empower managers to develop effective generative AI-driven growth hacking strategies while proactively managing unintended organizational, competitive, and societal consequences.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "AI and ethics: Investigating the first policy responses of higher education institutions to the challenge of generative AI",
+      "year": 2024,
+      "doi": "10.1057/s41599-024-03526-z",
+      "arxiv_id": null,
+      "venue": "Humanities and Social Sciences Communications",
+      "abstract": "Abstract This article addresses the ethical challenges posed by generative artificial intelligence (AI) tools in higher education and explores the first responses of universities to these challenges globally. Drawing on five key international documents from the UN, EU, and OECD, the study used content analysis to identify key ethical dimensions related to the use of generative AI in academia, such as accountability, human oversight, transparency, or inclusiveness. Empirical evidence was compiled from 30 leading universities ranked among the top 500 in the Shanghai Ranking list from May to July 2023, covering those institutions that already had publicly available responses to these dimensions in the form of policy documents or guidelines. The paper identifies the central ethical imperative that student assignments must reflect individual knowledge acquired during their education, with human individuals retaining moral and legal responsibility for AI-related wrongdoings. This top-down requirement aligns with a bottom-up approach, allowing instructors flexibility in determining how they utilize generative AI especially large language models in their own courses. Regarding human oversight, the typical response identified by the study involves a blend of preventive measures (e.g., course assessment modifications) and soft, dialogue-based sanctioning procedures. The challenge of transparency induced the good practice of clear communication of AI use in course syllabi in the first university responses examined by this study.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Large Language Models and the Future of Organization Theory",
+      "year": 2024,
+      "doi": "10.1177/26317877241239056",
+      "arxiv_id": null,
+      "venue": "Organization Theory",
+      "abstract": "In this editorial essay, we explore the potential of large language models (LLMs) for conceptual work and for developing theory papers within the field of organization and management studies. We offer a technically informed, but at the same time accessible, analysis of the generative AI technology behind tools such as Bing Chat, ChatGPT, Claude and Gemini, to name the most prominent LLMs currently in use. Our aim in this essay is to go beyond prior work and to provide a more nuanced reflection on the possible application of such technology for the different activities and reasoning processes that constitute theorizing within our domain of scholarly inquiry. Specifically, we highlight ways in which LLMs might augment our theorizing, but we also point out the fundamental constraints in how contemporary LLMs ‘reason’, setting considerable limits to what such tools might produce as ‘conceptual’ or ‘theoretical’ outputs. Given worrisome trade-offs in their use, we urge authors to be careful and reflexive when they use LLMs to assist (parts of) their theorizing, and to transparently disclose this use in their manuscripts. We conclude the essay with a statement of Organization Theory’s editorial policy on the use of LLMs.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "The dual impact of generative AI on research: structural stability and attention reallocation",
+      "year": 2026,
+      "doi": "10.47989/ir31iconf64268",
+      "arxiv_id": null,
+      "venue": "Information Research",
+      "abstract": "Introduction. We present an exploratory analysis of the short-term effects of generative AI (GenAI) on the research landscape. As GenAI becomes more deeply embedded across multiple stages of scientific work, there is an increasing need to examine its broader impact on all forms of research. Method. We retrieved 24,309,359 publications (2020–2024) from OpenAlex across 26 disciplines after excluding records with missing references or unspecified research fields. Distinct research topics were identified via graph clustering algorithms for subsequent analysis. Analysis. Using a multidimensional framework, we calculated topic diversity indices to examine temporal evolution, constructed topic networks to measure structural changes via clustering coefficients, and assessed GenAI publication proportions among hot topics. Results. The available evidence detected no significant changes in overall topic variety or network structural properties from 2020 to 2024. However, within the most prominent topics, GenAI-related publications increased significantly, indicating internal reallocation of research attention. Conclusion. Initial evidence suggests no detectable macro-structural changes coexist with micro-level attention shifts toward GenAI within established domains. This dual pattern suggests that GenAI is less a disruptive force than a catalyst that amplifies research attention within established domains.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "A world model: On the political logics of generative AI",
+      "year": 2024,
+      "doi": "10.1016/j.polgeo.2024.103134",
+      "arxiv_id": null,
+      "venue": "Political Geography",
+      "abstract": "The computational logics of large language models (LLMs) or generative AIfrom the early models of CLIP and BERT to the explosion of text and image generation via ChatGPT and DALL-Eare increasingly penetrating the social and political world.Not merely in the direct sense that generative AI models are being deployed to govern difficult problems, whether decisions on the battlefield or responses to pandemic, but also because generative AI is shaping and delimiting the political parameters of what can be known and actioned in the world.Contra the promise of a generalizable \"world model\" in computer science, the article addresses how and why generative AI gives rise to a model of the world, and with it a set of political logics and governing rationalities that have profound and enduring effects on how we live today.The article traces the genealogies of generative AI models, how they have come into being, and why some concepts and techniques that animate these models become durable forms of knowledge that actively shape the world, even long after a specific material commercial GPT model has moved on to a new iteration.Though generative AI retains significant traces of former scientific and computational regimesin statistical practices, probabilistic knowledge, and so onit is also dislocating epistemological arrangements and opening them to novel ways of perceiving, characterising, classifying, and knowing the world.Four defining aspects of the political logic of generative AI are elaborated: i) generativity as something more than the capacity to generate image or text outputs, so that a generative logic acts upon the world understood as estimates of \"underlying distributions\" in data; ii) latency as a political logic of compression in which (by contrast with claims to reduction or distortion) the thing that is hidden, unknown or latent becomes surfaced and amenable to being governed; iii) broken and parallelized sequences as the ordering device of the political logic of generative AI, where attention frameworks radically change the possibilities for governing non-linear problems; iv) pretraining and fine-tuning as a computational logic of generative AI that simultaneously shapes a \"zero shot politics\" oriented towards unencountered data and new tasks.Across each of the four aspects, the article maps the emerging contemporary political logic of generative AI.With a single, configurable world model engine, rather than a separate model for every situation, knowledge about how the world works may be shared across tasks.(LeCun, 2022: 5).Knowledge takes up residence in a new space […] What event, what law do they obey, these mutations that suddenly decide that things are no longer perceived, described, expressed, characterised, classified, and known in the same way?(Foucault, 2003: 235-6).In a 2022 essay, the Turing laureate computer scientist, Yann LeCun, set out a \"path towards intelligent machines\" in which he draws a familiar distinction between how humans and machines respond to what he calls an \"unencountered situation\" (2022: 1).Humans and animals, LeCun proposed, \"know how to act in many situations they have never encountered\".For example, they do not need to encounter all possible situations where something may be hot, or where an object might fall, in order to know and to act in advance of other future potential hot or falling objects.In machine learning, by contrast, \"even the rarest combination of situations\" must be \"encountered frequently in training\"every potentially hot or falling object has to be included in a training datasetif the system is to \"avoid making dangerous mistakes when facing an unknown situation\" (LeCun, 2022, p. 3).For LeCun, as for many other commentators, the pathway of future AI is defined by a new paradigm of knowledge under conditions of uncertainty, one where a machine learning model must be able to discover something in a data distribution, something essentially generalizable to new and unseen situations.This orientation of AI towards general discovery of \"how the world works\" and adaptation to new domains and tasks is captured by what LeCun calls a \"world model\", which would supply \"an internal model of how the world works\" so that AI becomes \"configurable\" to each new situation it encounters (2022: 2-3).The powerful claim that a flexible, reconfigurable world model could deal with all potential future unencountered situations defines much of the politics of contemporary generative AI.It is a claim that promises a general resolution of difficult problems across technical computational and political paradigms: an AI model that draws upon a structure of \"how the world works\" in order to respond to an input it had never encountered in training; and a political model that is always capable of action in the face of the unencountered",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "ChatGPT and a new academic reality: Artificial Intelligence‐written research papers and the ethics of the large language models in scholarly publishing",
+      "year": 2023,
+      "doi": "10.1002/asi.24750",
+      "arxiv_id": "2303.13367",
+      "venue": "Journal of the Association for Information Science and Technology",
+      "abstract": "Abstract This article discusses OpenAI's ChatGPT, a generative pre‐trained transformer, which uses natural language processing to fulfill text‐based user requests (i.e., a “chatbot”). The history and principles behind ChatGPT and similar models are discussed. This technology is then discussed in relation to its potential impact on academia and scholarly research and publishing. ChatGPT is seen as a potential model for the automated preparation of essays and other types of scholarly manuscripts. Potential ethical issues that could arise with the emergence of large language models like GPT‐3, the underlying technology behind ChatGPT, and its usage by academics and researchers, are discussed and situated within the context of broader advancements in artificial intelligence, machine learning, and natural language processing for research and scholarly publishing.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Advancements in Generative AI: A Comprehensive Review of GANs, GPT, Autoencoders, Diffusion Model, and Transformers",
+      "year": 2024,
+      "doi": "10.1109/access.2024.3397775",
+      "arxiv_id": "2311.10242",
+      "venue": "IEEE Access",
+      "abstract": "The launch of ChatGPT in 2022 garnered global attention, marking a significant milestone in the Generative Artificial Intelligence (GAI) field. While GAI has been in effect for the past decade, the introduction of ChatGPT sparked a new wave of research and innovation in the Artificial Intelligence (AI) domain. This surge has led to the development and release of numerous cutting-edge tools, such as Bard, Stable Diffusion, DALL-E, Make-A-Video, Runway ML, and Jukebox, among others. These tools exhibit remarkable capabilities, encompassing tasks ranging from text generation and music composition, image creation, video production, code generation, and even scientific work. They are built upon various state-of-the-art models, including Stable Diffusion, transformer models like GPT-3 (recent GPT-4), variational autoencoders, and generative adversarial networks. This advancement in GAI presents a wealth of exciting opportunities across various sectors, such as business, healthcare, education, entertainment, and media. However, concurrently, it poses unprecedented challenges such as impersonation, job displacement, privacy breaches, security vulnerabilities, and misinformation. To addressing these challenges requires a new direction for research to develop solutions and refine existing products. In our endeavor to contribute profound insights to society and advance research on GAI, we present a comprehensive journal which explores the theoretical and mathematical foundations of GAI state-of-the-art models, exploring the diverse spectrum of tasks they can perform, examining the challenges they entail, and discussing the promising prospects for the future of GAI.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "GenAI against humanity: nefarious applications of generative artificial intelligence and large language models",
+      "year": 2024,
+      "doi": "10.1007/s42001-024-00250-1",
+      "arxiv_id": "2310.00737",
+      "venue": "Journal of Computational Social Science",
+      "abstract": "Abstract Generative Artificial Intelligence (GenAI) and Large Language Models (LLMs) are marvels of technology; celebrated for their prowess in natural language processing and multimodal content generation, they promise a transformative future. But as with all powerful tools, they come with their shadows. Picture living in a world where deepfakes are indistinguishable from reality, where synthetic identities orchestrate malicious campaigns, and where targeted misinformation or scams are crafted with unparalleled precision. Welcome to the darker side of GenAI applications. This article is not just a journey through the meanders of potential misuse of GenAI and LLMs, but also a call to recognize the urgency of the challenges ahead. As we navigate the seas of misinformation campaigns, malicious content generation, and the eerie creation of sophisticated malware, we’ll uncover the societal implications that ripple through the GenAI revolution we are witnessing. From AI-powered botnets on social media platforms to the unnerving potential of AI to generate fabricated identities, or alibis made of synthetic realities, the stakes have never been higher. The lines between the virtual and the real worlds are blurring, and the consequences of potential GenAI’s nefarious applications impact us all. This article serves both as a synthesis of rigorous research presented on the risks of GenAI and misuse of LLMs and as a thought-provoking vision of the different types of harmful GenAI applications we might encounter in the near future, and some ways we can prepare for them.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "A Primer on Generative Artificial Intelligence",
+      "year": 2024,
+      "doi": "10.3390/educsci14020172",
+      "arxiv_id": null,
+      "venue": "Education Sciences",
+      "abstract": "Many educators and professionals in different industries may need to become more familiar with the basic concepts of artificial intelligence (AI) and generative artificial intelligence (Gen-AI). Therefore, this paper aims to introduce some of the basic concepts of AI and Gen-AI. The approach of this explanatory paper is first to introduce some of the underlying concepts, such as artificial intelligence, machine learning, deep learning, artificial neural networks, and large language models (LLMs), that would allow the reader to better understand generative AI. The paper also discusses some of the applications and implications of generative AI on businesses and education, followed by the current challenges associated with generative AI.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "Generative AI Degrades Online Communities",
+      "year": 2024,
+      "doi": "10.1145/3624732",
+      "arxiv_id": null,
+      "venue": "Communications of the ACM",
+      "abstract": "How large language models are influencing online communities.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "The role of generative AI in academic and scientific authorship: an autopoietic perspective",
+      "year": 2025,
+      "doi": "10.1007/s00146-024-02174-w",
+      "arxiv_id": null,
+      "venue": "AI & Society",
+      "abstract": "Abstract The integration of generative artificial intelligence (AI), particularly large language models like ChatGPT, presents new challenges as well as possibilities for scientific authorship. This paper draws on social systems theory to offer a nuanced understanding of the interplay between technology, individuals, society and scholarly authorial practices. This contrasts with orthodoxy, where individuals and technology are treated as essentialized entities. This approach offers a critique of the binary positions of sociotechnological determinism and accelerationist instrumentality while still acknowledging that generative AI presents profound challenges to existing practices and meaning making in scientific scholarship. This holistic treatment of authorship, integrity, and technology involves comprehending the historical and evolutionary entanglement of scientific individuality, scientific practices, and meaning making with technological innovation. This addresses current needs for more robust theoretical approaches to address the challenges confronted by academicians, institutions, peer review, and publication processes. Our analysis aims to contribute to a more sophisticated discourse on the ethical and practical implications of AI in scientific research.",
+      "source_api": "openalex",
+      "query_id": "Q6"
+    },
+    {
+      "title": "AI in Science: Early Insights *",
+      "year": 2026,
+      "doi": "10.2139/ssrn.7465898",
+      "arxiv_id": "2609.28504",
+      "venue": "SSRN Electronic Journal",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q6"
+    }
+  ]
+}

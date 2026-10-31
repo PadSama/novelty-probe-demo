@@ -1,0 +1,269 @@
+{
+  "meta": {
+    "source_api": "openalex",
+    "query_id": "Q2",
+    "purpose": "component",
+    "query_original": "(\"narrowing of science\" OR \"topic concentration\" OR \"topic diversity\" OR \"research diversification\") AND (\"science of science\" OR bibliometric*)",
+    "year_from": null,
+    "conversion": "boolean kept; truncated words -> full words",
+    "query_sent": "(\"narrowing of science\" OR \"topic concentration\" OR \"topic diversity\" OR \"research diversification\") AND (\"science of science\" OR bibliometrics)",
+    "api_interpretation": "get works with ((stemmed \"narrowing of science\" OR stemmed \"research diversification\" OR stemmed \"topic concentration\" OR stemmed \"topic diversity\") AND (stemmed \"science of science\" OR bibliometrics)) in the full text",
+    "request_url": "https://api.openalex.org/works?search=%28%22narrowing+of+science%22+OR+%22topic+concentration%22+OR+%22topic+diversity%22+OR+%22research+diversification%22%29+AND+%28%22science+of+science%22+OR+bibliometrics%29&per-page=25&page=1",
+    "sort": "relevance (API default for search=)",
+    "total_hits": 1217,
+    "returned": 25,
+    "retrieved_at": "2026-10-31T10:57:43+00:00"
+  },
+  "records": [
+    {
+      "title": "The rise of Network Ecology: Maps of the topic diversity and scientific collaboration",
+      "year": 2014,
+      "doi": "10.1016/j.ecolmodel.2014.02.019",
+      "arxiv_id": "1311.1785",
+      "venue": "Ecological Modelling",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "DATA AND CODE REPOSITORY for Manuscript: \"Diversifying without integrating: a bibliometric and information-theoretic analysis of ocean health metrics research, 1996–2025",
+      "year": 2026,
+      "doi": "10.6084/m9.figshare.32898428",
+      "arxiv_id": null,
+      "venue": "Figshare",
+      "abstract": "This repository provides the raw data, name-standardization thesauri, analysiscode, and intermediate data underlying every figure and table in the manuscript,so that the results can be reproduced.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Bibliometric review of ecological network analysis: 2010–2016",
+      "year": 2018,
+      "doi": "10.1016/j.ecolmodel.2018.04.020",
+      "arxiv_id": null,
+      "venue": "Ecological Modelling",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Design Thinking: from Bibliometric Analysis to Content Analysis, Current Research Trends, and Future Research Directions",
+      "year": 2022,
+      "doi": "10.1007/s13132-022-00920-3",
+      "arxiv_id": null,
+      "venue": "Journal of the Knowledge Economy",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Advanced Journal Analysis Tool: An open instrument for editorial self-assessment and external evaluation",
+      "year": 2025,
+      "doi": "10.15826/chimtech.9260",
+      "arxiv_id": null,
+      "venue": "Chimica Techno Acta",
+      "abstract": "This editorial introduces a specialized web application (Advanced Journal Analysis Tool) for comprehensive bibliometric analysis of scholar journals to address limitations in accessing commercial scientific databases. This program designed by the team of the CTA journal provides an open and free alternative for analyzing journal performance using Crossref and OpenAlex APIs through an intuitive Streamlit-based interface. Its core innovation lies in implementing a three-tier analytical framework that examines relationships between referenced sources (A), target journal publications (B), and citing works (C), enabling complete tracking of scientific communication flows. The application features sophisticated functionality for calculating diverse bibliometric indicators including traditional metrics (such as h-index and JSCR) along with advanced statistics such as citation velocity, collaboration patterns, and thematic diversity indexes. Technical implementation incorporates multithreaded data processing, adaptive rate limiting, and robust caching mechanisms to ensure reliable operation with large datasets. The interface supports multiple languages and offers interactive visualizations, while export capabilities facilitate further data analysis. Designed for researchers, journal editors, and science administrators, the program enables monitoring of journal effectiveness, comparative analysis across publications, identification of research trends, and assessment of international impact. Its development represents a significant contribution to open science initiatives by democratizing access to professional bibliometric analysis and enhancing transparency in research evaluation methodologies. The software is designed as a practical instrument for supporting evidence-based decisions in the realms of editorial policy and scientific management. It is also intended to promote reproducibility in bibliometric studies through its open architecture and standardized analytical approaches.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Figures and CSVs for figures in paper",
+      "year": 2026,
+      "doi": "10.26187/deakin.34477392",
+      "arxiv_id": null,
+      "venue": "Deakin Research Online (Deakin University)",
+      "abstract": "Research on automated assessment spans nearly five decades and is currently experiencing a surge of publications using Large Language Models (LLMs). There has not been a previous quantitative analysis of how technology trends have shaped the automated assessment field over time, or whether the current concentration on a single technology is unprecedented. I present a bibliometric study of technology trends in automated assessment to address this gap. A broad search of six literature databases returned 169,521 records, which I reduced reduced to a corpus of 9,963 on-topic publications. Technology mentions were extracted with LLM assistance, consolidated into 458 keywords, and mapped to a taxonomy of 13 categories. The taxonomy was validated computationally: held-out papers' categories were predicted from their text with high accuracy, and textually similar papers shared categories far more often than chance. I applied this taxonomy to the corpus and analysed the results using growth modelling, growth decomposition, diversity indices, burst detection, and rolling rank correlations. The results show that the field has grown near-exponentially, with doubling time falling from 2.8 years (2000–2010) to 1.4 years (2015–2025). Several growth phases were identified along with driving technologies, however the LLM trend is without precedent. LLM-related publications grew by an average of 73.6\\% per year from 2023 to 2025 and accounted for 69\\% of publications in 2025, while publications not mentioning LLMs declined. Several other categories show concurrent bursts of activity, but topic diversity is falling and LLM growth is negatively correlated with other AI and machine learning approaches, suggesting these are being displaced. The analysis is limited by the impacts of external shocks to publication rates, such as the COVID-19 pandemic, and by the inability of a keyword classifier to fully represent the context of technology use in each publication. The results are significant despite these limitations, warranting further investigation.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Status of high-impact scientific publication in nursing in Latin America",
+      "year": 2024,
+      "doi": "10.4108/eetpht.10.5705",
+      "arxiv_id": null,
+      "venue": "EAI Endorsed Transactions on Pervasive Health and Technology",
+      "abstract": "INTRODUCTION: The aim of this study was to analyze the situation of high-impact scientific publication in nursing in Latin America between 2003 and 2024 OBJECTIVES: Determine Status of high-impact scientific publishing in nursing. METHODS: The method quantified scientific productivity using bibliometric data. RESULTS: A total of 298 Scopus documents were selected for the study based on relevance and English keywords (scientific AND publishing, publication AND nursing). The largest substantial growth in scientific production occurred between 2019 and 2023 (n=112; 37.6%), with Brazil as the most prominent country (n=250 publications; 83.9%). The source Revista Brasileira de Enfermagem presented 33 publications, and Marziale, M.H.P. was the most cited author (103 citations; 4 papers). Most of these papers were scientific papers (85%) in the area of nursing (61%) and medicine (20%). It is concluded that the thematic diversity, authorship, sources and resources have increased, with respect to high impact scientific publication in nursing in Latin America, which allows a broader characterization of scientific production in the region according to its impacts, visibility and importance. CONCLUSION: Thus, this bibliometric analysis provides a framework for future research documenting a key support that aspires to transform Latin American society into a more just, free and healthy state.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "The Resurgence of Ideology under Xi Jinping and International Relations Scholarship in China",
+      "year": 2024,
+      "doi": "10.1093/isp/ekae014",
+      "arxiv_id": null,
+      "venue": "International Studies Perspectives",
+      "abstract": "Abstract This article examines how the increased emphasis on ideology under Xi Jinping has impacted Chinese IR scholarship published in Chinese- and English-language academic journals, as well as research funding awarded by the National Planning Office for Philosophy and Social Sciences. It finds that ideological concepts featured increasingly prominently in awarded research funding and published scholarship the longer Xi Jinping has been in office. Considerable decreases in thematic diversity were noticeable in funding and publications. The article finds that the resurgence of ideology further exacerbated differences between scholars who are relatively close to the state and scholars who are more distant from the state. Close scholars publish more on ideological concepts, but their scholarship is also characterized by a higher degree of thematic diversity than distant scholars’. Drawing on scholars’ biographical data, publicly available data on research funding, and bibliometric data collected from Chinese- and English-language academic journals, this article offers a systematic account of the status quo of the IR discipline in China. In addition, it offers insights into the conditions for social science scholarship under authoritarian rule by proposing a novel conceptualization and measurement of scholars’ proximity to the state, which could also be applied to other authoritarian settings.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Boredom: a comprehensive study of the state of affairs",
+      "year": 2017,
+      "doi": "10.12795/themata.2017.i56.08",
+      "arxiv_id": null,
+      "venue": "Thémata: Revista de filosofía",
+      "abstract": "Resumen: La escasez de literatura es una de las principales quejas hechas por los investigadores del aburrimiento en todos los campos de estudio.Esta afirmación pasa de un estudio a otro sin ser cuestionada, dificultando así la comprensión del verdadero estado de la cuestión.En respuesta, este trabajo demuestra que, de hecho, no es el caso que haya una escasez de literatura sobre aburrimiento; por el contrario, existe una falta de variedad temática y problemas de accesibilidad lingüística.El artículo también refuta la afirmación de que, hasta principios del 2000, había solo unos pocos estudios en aburrimiento publicados cada año.Los resultados se basan en una amplia base de datos que incluye la población total de estudios sobre el aburrimiento y los clasifica según criterios lingüísticos, temáticos y cronológicos.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Discovering related scientific literature beyond semantic similarity: a new co-citation approach",
+      "year": 2019,
+      "doi": "10.1007/s11192-019-03125-9",
+      "arxiv_id": null,
+      "venue": "Scientometrics",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Reporte de publicaciones científicas con filiación INS en revistas indizadas, junio a agosto 2025",
+      "year": 2025,
+      "doi": "10.17843/bins.2025.31n2.06",
+      "arxiv_id": null,
+      "venue": "Boletín INS/Boletín Instituto nacional de salud",
+      "abstract": "Durante los meses de junio a agosto de 2025, se identificaron 21 artículos científicos publicados por investigadores del Instituto Nacional de Salud (INS) en revistas indizadas incluidas en bases de datos como SciELO, PubMed, Scopus, Science Direct y Dimensions. Este reporte cuantifica la producción científica del INS, también permite analizar la diversidad temática de las investigaciones, evidenciando su contribución científica en el marco de las Líneas Nacionales de Investigación en Salud hasta el año 2030.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Research Diversification of Australian Universities and its Relationship with Citation-based Performance and Ranking",
+      "year": 2020,
+      "doi": "10.5530/jscires.9.3.31",
+      "arxiv_id": null,
+      "venue": "Journal of Scientometric Research",
+      "abstract": "This research aims to investigate whether universities should go for greater diversity in their research or specialise and concentrate their research and try to only excel in a few fields. To answer this question, we assess the association between universities' research diversification, measured by breadth and depth and their impact and ranking. Universities' diversification is measured based on the disciplinary ratings of universities in Excellence in Research for Australia (ERA 2018). Research output and citation impact data from In Cites database were used for the analysis. Breadth is measured by the ratio of the fields in which a university is active to the total number of fields. Depth is related to the ratings a university has received for its research fields. The results show a significant positive relationship between both university diversification indicators developed in this study and most of the university citation-based performance metrics and research ranking measures. In other words, universities which are active in more disciplines and are rated highly in ERA in terms of their research activity in those disciplines are more likely to have better citation impacts and rankings. Most universities appeared to be either in the high-breadth high-depth zone (including all Group of Eight universities) or in the low-breadth low-depth zone (mainly regional universities).",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Specialization and size of scientific activities: A bibliometric analysis of advanced countries",
+      "year": 1991,
+      "doi": "10.1007/bf02019767",
+      "arxiv_id": null,
+      "venue": "Scientometrics",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Specialization versus diversification in research activities: the extent, intensity and relatedness of field diversification by individual scientists",
+      "year": 2017,
+      "doi": "10.1007/s11192-017-2426-7",
+      "arxiv_id": "1812.10521",
+      "venue": "Scientometrics",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Distinct paths of impact: A bibliometric analysis of research trends in surgery, medicine, and biology (1980–2020)",
+      "year": 2025,
+      "doi": "10.1016/j.amjsurg.2025.116798",
+      "arxiv_id": null,
+      "venue": "The American Journal of Surgery",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "A BIBLIOMETRIC ANALYSIS ON TRENDS, DIRECTIONS AND MAJOR PLAYERS OF INTERNATIONAL RELATIONS STUDIES",
+      "year": 2023,
+      "doi": "10.32890/jis2023.19.1.8",
+      "arxiv_id": null,
+      "venue": "Journal International Studies",
+      "abstract": "As communications technology, air travel, and a complex international economy continue to make the world smaller, the importance of peaceful and cooperative relationships between nations increases. However, it is unclear to what extent research on international relations (IR) has expanded as a global discipline; narrated by balanced perspectives and provides an impact. This study conducts a bibliometric analysis of 4,986 documents related to IR as recorded in the Scopus database from 1913 to 2022. Specifically, this paper analyzes (a) the trends and developments; (b) influential documents and frequent keywords and (c) major players in terms of productive journals, authors and institutions in IR studies. This paper provides a new panoramic view through tables and science maps on the publication of IR studies. The findings show a gradual interest in the IR field before the Second World War and this accelerated during the mid-twentieth century. Political economy is gaining more importance and most publications centre on IR theories while discussing prevailing events affecting the world. However, the Western influence of IR is still primarily mainstream, where IR publications are mainly controlled by large Western publishers, influenced by Western authors affiliated with long-established Western institutions. Seemingly, the non-Western contributions to the IR field have yet to establish their own footing in the field despite much discussion about diversifying IR. This remains a challenge for non-Western scholars, journal publishers, and institutions seeking to contribute to the ongoing debate in the study of international relations.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Temporal Topic Modeling and Multi-Topic Inference- A Bibliometric Analysis of Methods and Applications",
+      "year": 2025,
+      "doi": "10.1109/iccike67021.2025.11318240",
+      "arxiv_id": null,
+      "venue": "International Conference on Computational Intelligence and Knowledge Economy (ICCIKE)",
+      "abstract": "This paper presents a Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) grounded bibliometric survey of temporal topic modeling and document-level multi-topic inference. Despite rapid method growth, the field lacks a consolidated, reproducible map with normalized evaluation and clear cross-domain comparability. Using a dual-reviewer protocol across IEEE Xplore, Scopus, Web of Science, and ACM Digital Library (last search 2025-09-14), the review conducts quality appraisal, taxonomy synthesis, science mapping, and narrative synthesis with random-effects meta-analysis when metrics align. The protocol records timeslice granularity, alignment strategies, preprocessing, and vocabulary drift handling, and normalizes evaluation nomenclature. Evidence is organized across LDA/DTM, ETM/CTM, BER Topic, and dynamic embedding families and cataloged using coherence by Normalized Pointwise Mutual Information (NPMI), topic stability, topic diversity, alignment quality, and human intruder accuracy. The synthesis indicates that reported performance and mixture reliability are sensitive to preprocessing, alignment, and evaluation choices; stability across resampling and time is as critical as coherence; contextualized models often increase coherence yet may reduce temporal smoothness without explicit alignment; and adding human judgment frequently reshuffles model rankings. Coverage spans time-stamped benchmarks such as 20 Newsgroups temporal variants, Reuters RCV1/RCV2, arXiv and PubMed abstracts, social or news streams, and parliamentary and legal texts. The review delivers a taxonomy, a science map, and a standardized reporting and replication template. These outputs help researchers and practitioners design, evaluate, and compare temporal topic models more reliably across datasets and domains.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Uncovering the identity of Electronic Markets research through text mining techniques",
+      "year": 2022,
+      "doi": "10.1007/s12525-022-00560-0",
+      "arxiv_id": null,
+      "venue": "Electronic Markets",
+      "abstract": "Abstract As an established academic journal in the e-commerce and digital platforms fields, Electronic Markets (EM) features a diverse range of topics and occupies a significant role in the information systems field. The study investigates EM’s topic diversity over the time period 2009–2020 using a text mining analysis and a bibliometric analysis and identifies 28 cluster groups. The analysis reveals that the top three topics are 1) service quality, 2) blockchain and other shared trust building solutions, their impact and credibility, as well as 3) consumer buying behavior and interactions. EM's core identity lies in a balanced set of core themes that bring technological, business or human/ social perspectives to the research of networked business and digital economy. This includes research on digital and smart services, applications, consumer behavior and business models, as well as technology and e-commerce data. Ethical and sustainability related topics are however still less present in EM.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Optimal diversification strategies in the networks of related products and of related research areas",
+      "year": 2018,
+      "doi": "10.1038/s41467-018-03740-9",
+      "arxiv_id": "1705.00232",
+      "venue": "Nature Communications",
+      "abstract": "Countries and cities are likely to enter economic activities that are related to those that are already present in them. Yet, while these path dependencies are universally acknowledged, we lack an understanding of the diversification strategies that can optimally balance the development of related and unrelated activities. Here, we develop algorithms to identify the activities that are optimal to target at each time step. We find that the strategies that minimize the total time needed to diversify an economy target highly connected activities during a narrow and specific time window. We compare the strategies suggested by our model with the strategies followed by countries in the diversification of their exports and research activities, finding that countries follow strategies that are close to the ones suggested by the model. These findings add to our understanding of economic diversification and also to our general understanding of diffusion in networks.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Scientific review of climate science: A bibliometric analysis of trends",
+      "year": 2024,
+      "doi": "10.1051/e3sconf/202454204008",
+      "arxiv_id": null,
+      "venue": "E3S Web of Conferences",
+      "abstract": "This research analyses the metadata of 15550 climatology publications indexed in the OpenAlex data catalogue of the types ‘article’ (95%), ‘book’ (3%) and ‘book-chapter’ (2%). The research covers the period from 1851 to the present. Bibliometrix and VOSviewer software tools were used for data processing and analysis, and Scimago Graphica was used to visualise the results. As a result of the research, new data on the periods of authors' publication activity by subject, supported by the systematisation of the main scientific achievements and changes of those times, were obtained. The structure of access to publications in climatology and its impact on the attention of the scientific community, thematic diversity and the most relevant current research areas were also analysed.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Data for the paper: From Potential to Practice: Modelling AI Readiness and Scholarly Integration in African Research Systems",
+      "year": 2026,
+      "doi": "10.5281/zenodo.19482670",
+      "arxiv_id": null,
+      "venue": "Zenodo (CERN European Organization for Nuclear Research)",
+      "abstract": "This repository contains the cleaned, harmonized analysis datasets supporting the empirical study of artificial intelligence (AI) readiness and realized scholarly AI integration across African research systems. The data integrates large-scale bibliometric metadata retrieved from the OpenAlex database (covering 43,578 cleaned, peer-reviewed AI-related publications affiliated with African institutions) with national policy metrics from the Oxford Insights Government AI Readiness Index (AIRI). The datasets capture longitudinal trends in publication intensity, time-normalized citation impact, topic diversity (Simpson Index), and intra-African collaboration networks. Methodological Notes: Bibliometric Source: OpenAlex API (Extraction date: November 2025). The corpus was rigorously filtered to include only peer-reviewed or editorially vetted outputs (journal articles, conference proceedings, and book chapters) from 2000 to 2025. Policy Source: Oxford Insights Government AI Readiness Index (AIRI) scores, strictly harmonized to a 100-point scale for the 2019–2024 econometric window. Counting Method: Country-level aggregations utilize a full-counting approach, whereby multi-country collaborative works are credited to all participating African research systems. File Descriptions: panel_with_readiness.csv: The primary country–year panel dataset (2019–2024) used for the Two-Way Fixed Effects (TWFE) panel regressions. It contains national AI readiness scores alongside the composite Scholarly AI Integration Score and its underlying pillars (log publication intensity, relative citation impact, and topic diversity) for 52 African nations. country_centrality.csv: The structural network metrics used for the intra-African collaboration analysis, containing eigenvector and betweenness centrality scores for each national research system. institution_flagship_highered_top20_2000_2024.csv: Aggregated institutional output and citation metrics detailing the extreme concentration of AI scholarship among Africa’s leading higher-education \"flagships.\" ai_education_top15.csv: The specific thematic subset used to analyze the highly concentrated AI-in-education research domain. Usage: Researchers are encouraged to use these datasets to replicate the core fixed-effects models, recreate the median-based readiness–integration typology, or conduct comparative scientometric analyses.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Research method usage across academic ages in library and information science: An empirical study (1990–2023)",
+      "year": 2026,
+      "doi": "10.1016/j.lisr.2026.101414",
+      "arxiv_id": "2606.21862",
+      "venue": "Library & Information Science Research",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Knowledge structure transition in library and information science: topic modeling and visualization",
+      "year": 2020,
+      "doi": "10.1007/s11192-020-03657-5",
+      "arxiv_id": null,
+      "venue": "Scientometrics",
+      "abstract": "Abstract The purpose of this research is to identify topics in library and information science (LIS) using latent Dirichlet allocation (LDA) and to visualize the knowledge structure of the field as consisting of specific topics and its transition from 2000–2002 to 2015–2017. The full text of 1648 research articles from five peer-reviewed representative LIS journals in these two periods was analyzed by using LDA. A total of 30 topics in each period were labeled based on the frequency of terms and the contents of the articles. These topics were plotted on a two-dimensional map usingLDAvisand categorized based on their location and characteristics in the plots. Although research areas in some forms were persistent with which discovered in previous studies, they were crucial to the transition of the knowledge structure in LIS and had the following three features: (1) The Internet became the premise of research in LIS in 2015–2017. (2) Theoretical approach or empirical work can be considered as a factor in the transition of the knowledge structure in some categories. (3) The topic diversity of the five core LIS journals decreased from the 2000–2002 to 2015–2017.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "Industrial Distribution of Ukrainian Science and its Projection on the International Arena",
+      "year": 2022,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "DOAJ (DOAJ: Directory of Open Access Journals)",
+      "abstract": "The planning and coordination of scientific research today must match the dynamic nature of innovation. Therefore, systematic monitoring and analysis of the state of development of national scientific potential is an appropriate and urgent task.The purpose of this work is to explore and analyze the industrial distribution of sciencein Ukraine, to consider its projection on the international arena, to determine the direction of diversification. The research methodology is based on systematic and structural approaches, methods of bibliometrics and comparative analysis. The database Bibliometrics of Ukrainian Science was chosen as the information base for thestudy - the only register of scientific declarations (bibliometric profiles) of scientists in the Google Scholar, Scopus, Publons systems. The profile database has been formed since 2014 with the direct participation of the scientific community. The obtained results are analyzed. The result is disappointing - we have a significant disproportion between the number of scientists in the industrial and non-industrial branches of science. Economic and social sciences are leading in terms of the number of scientists in Ukraine. However, their representation in the international arenais 17 and 19 times lower, respectively. The article identifies the causes of obvious disproportions, suggests ways to improve the situation. Despite many years of destruction of Ukrainian science, several high-tech industries (physics and mathematics, engineering, chemistry) are represented in the international Scopus database. The reasons for significant disagreements between the scientific heritage of Ukrainian scientists and the degree of its representation in foreign systemsare considered. It is concluded that modern developments in the field of accumulation and processing of scientific information, a deep analysis of the data obtained should become an important aspect of the scientific and innovative policy of managers to promote the economic growth of Ukraine.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    },
+    {
+      "title": "USA vs Russia in the scientific arena",
+      "year": 2023,
+      "doi": "10.1371/journal.pone.0288152",
+      "arxiv_id": null,
+      "venue": "PLoS ONE",
+      "abstract": "This work contrasts the scientific standing of the USA and Russia in 146 scientific disciplines. We consider four dimensions of competitive positioning: the contribution to global scientific advancement, the researchers' productivity, the scientific specialization indexes, and the efficiency in resource allocation across disciplines. Differently from previous literature, we use discipline-normalized output to input indicators, thus avoiding distortions due to different intensities of publication across disciplines. Results show that the USA outperforms Russia in contribution to world scholarly impact in all but four disciplines, and is more productive in all but two disciplines. The USA is less efficient in allocating resources to the disciplines where it performs better, probably due to its higher research diversification.",
+      "source_api": "openalex",
+      "query_id": "Q2"
+    }
+  ]
+}
