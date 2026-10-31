@@ -34,6 +34,7 @@
   python3 scripts/search.py                                  # 全部检索式 × 两个来源
   python3 scripts/search.py --ids Q1,Q3 --sources semanticscholar
   python3 scripts/search.py --queries queries/queries_v2.json --suffix _v2
+  python3 scripts/search.py --dry-run                        # 不联网，只检查检索式语法
 """
 import argparse
 import json
@@ -303,6 +304,7 @@ def main():
     ap.add_argument("--sources", default=",".join(SEARCHERS), help="逗号分隔：openalex,semanticscholar")
     ap.add_argument("--queries", type=Path, default=QUERIES_FILE, help="检索式文件，默认 queries/queries.json")
     ap.add_argument("--suffix", default="", help="输出文件名后缀，如 _v2")
+    ap.add_argument("--dry-run", action="store_true", help="不联网：只检查检索式语法并打印各来源实际会发送的检索串")
     args = ap.parse_args()
 
     queries = json.loads(args.queries.read_text(encoding="utf-8"))
@@ -315,6 +317,17 @@ def main():
     unknown = set(sources) - set(SEARCHERS)
     if unknown:
         ap.error(f"未知来源：{', '.join(sorted(unknown))}")
+    if args.dry_run:
+        bad = 0
+        for q in queries:
+            try:
+                print(f"{q['id']} [{q['purpose']}]\n  openalex:        {to_openalex(q['query'])}"
+                      f"\n  semanticscholar: {to_s2_bulk(q['query'])}")
+            except ValueError as e:
+                bad += 1
+                print(f"{q['id']} INVALID: {e}\n  query: {q['query']}")
+        print(f"\n{len(queries) - bad}/{len(queries)} queries valid (dry run, nothing sent)")
+        return 1 if bad else 0
     RAW_DIR.mkdir(parents=True, exist_ok=True)
 
     def row(*cells):

@@ -1411,3 +1411,63 @@ exit code: 1
 - 标签统计：研究问题 overlap 1（rank 3）；作用机制 overlap 4（rank 2、3、4、8）；研究情境 overlap 1（rank 7）；数据与方法 overlap 3（rank 3、5、9）；预期发现 overlap 4（rank 2、3、4、8）；无 unknown。
 - Crossref：9/10 题目一致；rank 9 是 arXiv 经 DataCite 登记的 DOI，doi.org 把元数据请求转到 data.crosscite.org，该域名未放行，未能核验。落地页：出版商域名均未放行。
 - 本步未判断新颖性。
+
+---
+
+## [2026-10-31 17:16 UTC] Step 16 — HOWTO.md、两个辅助工具、按 HOWTO 实测；打包 zip
+
+**研究者要求（本轮）**：把整个目录打包为 zip；生成 HOWTO.md，让新同学只改 `idea/idea.md` 就能跑完整流程，写清每一步的命令。
+
+**命令 1：新增与修改**
+
+```
+# HOWTO.md：T1–T6 每一步的命令（脚本步骤）或可粘贴的提示词（AI 助手步骤）、准备、清空示例、迭代、常见问题
+# scripts/search.py：新增 --dry-run（不联网，只检查检索式语法并打印各来源实际发送的检索串）
+# scripts/logrun.py：新增；运行一条命令，并把命令与输出追加到 logs/RUN_LOG.md，退出码与被运行命令相同
+```
+
+**命令 2：按 HOWTO 实测（在 scratchpad 中的干净副本里运行，不含 .git；T2 与 T5 的 AI 助手步骤用教程示例文件代替）**
+
+```bash
+mkdir -p examples && cp -r facets queries results evidence logs examples/
+rm -f facets/*.md queries/*.json results/raw/*.json results/merged/*.json results/merged/*.csv evidence/*.md evidence/*.json idea/idea_v*.md
+printf '# RUN_LOG\n\n> ...\n' > logs/RUN_LOG.md
+python3 scripts/search.py --dry-run
+python3 scripts/logrun.py "T3 检索" -- python3 scripts/search.py
+python3 scripts/logrun.py "T4 合并去重" -- python3 scripts/merge.py
+python3 scripts/logrun.py "T5 查作者" -- python3 scripts/authors.py --top 10
+python3 scripts/logrun.py "T5 DOI 核验" -- python3 scripts/verify.py
+python3 scripts/search.py --queries <错误示例> --dry-run              # 异常：语法错误
+python3 scripts/logrun.py "exit test" -- python3 -c "...sys.exit(3)"  # 异常：退出码透传
+python3 scripts/logrun.py "no command" --                             # 异常：用法错误
+```
+
+结果：
+
+```
+清空后只剩 idea/idea.md 与 results/merged/.gitkeep、results/raw/.gitkeep
+--dry-run：6/6 queries valid (dry run, nothing sent)；退出码 0
+T3：12/12 requests succeeded；退出码 0
+T4：12 files, 217 raw records → 161 works；退出码 0
+T5 查作者：written: evidence/authors.json；退出码 0
+T5 DOI 核验：summary crossref: 题目一致: 10；退出码 0
+错误检索式：0/2 queries valid（"不支持括号外的 OR"、"未登记的截断词 foo*"）；退出码 1
+logrun 退出码透传：3；用法错误：退出码 1
+副本的 RUN_LOG.md 中按顺序记有 T3、T4、T5 查作者、T5 DOI 核验、exit test 五条，均含命令与输出
+```
+
+**命令 3：打包（不纳入仓库）**
+
+```
+# python3 zipfile：把本目录打包为 novelty-probe.zip（顶层文件夹 novelty-probe/），
+# 排除 .git/ 与 __pycache__/；保存在会话临时目录，发送给研究者
+```
+
+**产出文件**
+
+- `HOWTO.md` — 新增
+- `scripts/logrun.py` — 新增
+- `scripts/search.py` — 新增 --dry-run
+- `novelty-probe.zip` — 发送给研究者，不纳入仓库
+
+**备注**：本步未检索新文献，未判断新颖性。
