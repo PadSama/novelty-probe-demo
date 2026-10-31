@@ -1471,3 +1471,32 @@ logrun 退出码透传：3；用法错误：退出码 1
 - `novelty-probe.zip` — 发送给研究者，不纳入仓库
 
 **备注**：本步未检索新文献，未判断新颖性。
+
+---
+
+## [2026-10-31 17:25 UTC] Step 17 — 英文 README
+
+**研究者要求（本轮）**：添加英文 README，帮助对本仓库感兴趣的人理解这个项目。
+
+**命令 1：写入 README.md**
+
+```
+# 内容：项目简介（不判断新颖性）、三条规则、T1–T6 流程、快速开始（命令与 HOWTO.md 一致）、
+#       各脚本的做法、示例运行（v1、v1 漏检诊断、v2）、局限、目录结构
+# 先用 --help 核对各脚本参数；参考文献作者取自 evidence/authors_v2.json（OpenAlex）
+```
+
+**命令 2：核对 README 中的数字与事实（python3 内联脚本，读取仓库内文件）**
+
+```
+v1 raw -> works: 217 -> 161 | v2: 235 -> 191
+reference paper (M003) rank in candidates_v2: 3
+v2 rank 3 labels: {'研究问题': 'overlap', '作用机制': 'overlap', '研究情境': 'differ', '数据与方法': 'overlap', '预期发现': 'overlap'} | overlaps: 4
+v1 table Crossref title matches: 10 / 10
+RUN_LOG states 4 of v2 top 10 matched only via narrow: True
+preprint abstract mentions '41.3 million research papers across natural science': True
+```
+
+**产出文件**：`README.md`；`novelty-probe.zip` 重新打包（含 README，不纳入仓库）
+
+**备注**：README 只描述流程与已记录的结果，不含新颖性判断，不含研究者的个人信息。
