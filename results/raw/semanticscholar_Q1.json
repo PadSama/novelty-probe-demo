@@ -1,0 +1,185 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q1",
+    "purpose": "component",
+    "query_original": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+    "year_from": null,
+    "conversion": "plain text: all terms",
+    "query_sent": "large language models generative AI homogenization homogenisation algorithmic monoculture collective diversity",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search?query=large+language+models+generative+AI+homogenization+homogenisation+algorithmic+monoculture+collective+diversity&offset=0&limit=25&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract",
+    "total_hits": 16,
+    "attempts": [
+      {
+        "conversion": "plain text: all terms",
+        "query_sent": "large language models generative AI homogenization homogenisation algorithmic monoculture collective diversity",
+        "request_url": "https://api.semanticscholar.org/graph/v1/paper/search?query=large+language+models+generative+AI+homogenization+homogenisation+algorithmic+monoculture+collective+diversity&offset=0&limit=25&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract",
+        "total_hits": 16
+      }
+    ],
+    "returned": 16,
+    "retrieved_at": "2026-10-31T10:23:31+00:00"
+  },
+  "records": [
+    {
+      "title": "Human diversity fuels collective creativity that large language models cannot simulate or sustain",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2607.26899",
+      "arxiv_id": "2607.26899",
+      "venue": "arXiv.org",
+      "abstract": "Diverse human groups produce diverse ideas, the raw material of innovation. Generative AI challenges this engine twice over: everyday AI assistance may homogenize what diverse people create, and AI-simulated diversity may replace the people altogether. We tested both challenges in a preregistered creative metaphor experiment with native (L1) and non-native (L2) English writers, who wrote without AI, with AI-generated ideas (AI ideation), or with AI refining their own ideas (AI refinement). L2 writers contributed more collective diversity than L1 writers, with native-language ideation showing the most diverse pools. AI ideation compressed collective diversity for everyone and left the L2 advantage undetectable, whereas AI refinement preserved both. We then simulated the entire writer pool using personas built from participants'real backgrounds, three model families, native-language prompting, and elevated sampling temperatures. Every simulated pool fell below every human pool, and pushing models further induced diversity only through degenerate text. However, at the individual level, AI ideation raised writers'ratings, pitting private incentives against the collective good, except when L2 writers used their native language, which benefited both. Human diversity remains a valuable creative resource that current AI cannot simulate or sustain; the design of human-AI collaborative workflows determines whether it survives.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "GENERATIVE AI AND THE FUTURE OF ENGLISH AS A LINGUA FRANCA IN GLOBAL BUSINESS COMMUNICATION",
+      "year": 2025,
+      "doi": "10.32782/folium/2025.7.29",
+      "arxiv_id": null,
+      "venue": "Folium",
+      "abstract": "The global business communication landscape is currently experiencing a profound and multifaceted transformation, largely propelled by the rapid advancement and widespread integration of generative artificial intelligence (AI). Since the end of 2022, the unprecedented emergence and accelerating adoption of large language models (LLMs) have significantly disrupted longstanding assumptions regarding the uncontested dominance of English as the principal lingua franca in international commerce. Whereas the traditional paradigm of Business English as a Lingua Franca (BELF) has historically emphasized efficiency, pragmatic adaptability, and the negotiation of meaning among speakers from diverse linguistic backgrounds, the increasing prevalence of AI introduces a new form of algorithmic mediation that fundamentally reshapes both communicative practices and expectations in professional contexts. This paper draws on a large, multi-modal dataset that includes a 5-millionword corpus of AI-generated and human-produced business texts, further enriched by ethnographic insights gathered within several multinational corporations. The combined methodology enables an in-depth examination of the complex tension between democratization and homogenization in AI-mediated business discourse. The findings highlight a paradoxical dynamic: while AI tools substantially enhance communicative access, lower cognitive barriers, and provide non-native speakers with unprecedented opportunities to participate in global exchanges, they simultaneously reinforce Anglocentric norms, standardized stylistic conventions, and a tendency toward uniformity in professional communication. The article argues that English as a Lingua Franca (ELF) theory must evolve in order to account for this new interplay between linguistic diversity, algorithmic mediation, and global business practices. By conceptualizing AI not only as a supportive tool but also as an influential actor in shaping discursive norms, the study reframes theoretical debates within applied linguistics. Broader implications are discussed for corporate strategy, the future orientation of BELF pedagogy, the ethical design of AI systems, and international policy-making concerning language use in commerce.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Who speaks for culture? Generative AI, epistemic authority, and narrative negotiation in an intercultural classroom",
+      "year": 2026,
+      "doi": "10.1007/s00146-026-03130-6",
+      "arxiv_id": null,
+      "venue": "Ai & Society",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Narrowing the Horizon: Quantifying Topic Saliency Shifts in Generative Monoculture",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": "2609.35302",
+      "venue": null,
+      "abstract": "As Large Language Models (LLMs) become central to how we access and share information, they play an increasingly powerful role in shaping global knowledge. However, as these models evolve, their outputs risk converging into a \\textit{generative monoculture}, where the diversity of perspectives they represent narrows over time. Studies at the model level often fail to pinpoint which specific topics or viewpoints are being marginalised or amplified in this process. In this paper, we introduce a method to measure shifts in topic saliency across model families, tracking what gains or loses prominence during post-training. Applying this approach to a case study of climate change discourse, we demonstrate how homogenisation affects the representation of diverse solutions across different models. We also test interventions to counter this trend, showing that specialised models can help preserve a broader range of perspectives. This underscores the importance of monitoring topic saliency to diagnose the risks of monoculture and to ensure AI systems reflect a pluralism of ideas. Data and Code are accessible \\href{https://github.com/oriane/topic_saliency_shift}{here}.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "ARTIFICIAL INTELLIGENCE AND THE ENGLISH LANGUAGE: THE IMPACT OF GENERATIVE MODELS ON WRITTEN DISCOURSE, STYLE, AND LINGUISTIC COMPETENCE",
+      "year": 2026,
+      "doi": "10.15688/jvolsu2.2026.3.12",
+      "arxiv_id": null,
+      "venue": "Vestnik Volgogradskogo gosudarstvennogo universiteta. Serija 2. Jazykoznanije",
+      "abstract": "This article examines the multifaceted impact of artificial intelligence (AI) on contemporary English written communication, with particular attention to generative models such as ChatGPT and other large language models (LLMs). The analysis centers on written discourse, addressing stylistic formation, textual categories, genre conventions, and the redefinition of linguistic competence within digital contexts. Drawing on discourse analysis, stylistics, and sociolinguistics, the research demonstrates that AI technologies, functioning as both medium and mode of communication, are transforming textual conventions, challenging traditional notions of authorship, and blurring the distinction between human and machine discourse. The central argument asserts that AI operates not only as an autonomous agent in linguistic evolution – generating texts through specific algorithms – but also as a crucial driver of linguistic standardization. This process produces texts lacking human nuance, fosters stylistic and genre hybridization, and contributes to the emergence of a homogenized global form of English. Ultimately, LLMs signify a shift from individual to distributed cognition and from socially determined genre conventions to probabilistic constructions shaped by user input and computational recombination. The study concludes that heightened critical awareness of these developments is vital for preserving linguistic diversity and promoting interpretive literacy in an era increasingly shaped by algorithmic text production.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Human-AI Interaction Mediated by Courtship Language Culture: Computational Statistics and Probabilistic Modeling",
+      "year": 2025,
+      "doi": null,
+      "arxiv_id": "2505.02879",
+      "venue": null,
+      "abstract": "Large language models are entering living cultural practices, including intimate ones. We study a collegiate courtship tradition at Dartmouth College called flitzing, the tradition of sending rhymed flirtatious emails to ask peers out, as a measurable microcosm of a culture absorbing artificial intelligence. We combine four sources of evidence: human evaluation surveys in two waves (2025 and 2026); information retrieval over 33 human-written and 5,610 AI-generated flitzes spanning 17 sampling temperatures; evaluation of the same survey by three generative language models; and simulation of a coupled multi-species bipartite spin glass model of people and texts. Four main findings emerge. First, sampling temperature induces a phase transition in diversity: below the transition, AI-generated flitzes are more homogeneous than the human, while above it they decohere, and human baselines of diversity remain stable across years, indicating persistent collective structure in human creativity. Second, human judges conflate perceived quality with human authorship, whereas AI judges detect provenance almost perfectly yet still rate human-written flitzes higher. Third, the transition window, with temperature between 1.25 and 1.38, is consistent across biased survey data, unbiased text statistics, and the mathematical model, which also reproduces the observed clustering. Fourth, detection ability generalizes beyond the local culture, with Dartmouth and non-Dartmouth respondents performing comparably, and strengthens over time, with 2026 respondents above chance at every temperature. We conclude that AI participation in a tight cultural genre is regime dependent: conformist and homogenizing below criticality, detectable and disruptive above it.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The convergence paradox: a constructivist account of perceived template convergence and originative agency under generative artificial intelligence",
+      "year": 2026,
+      "doi": "10.3389/fpsyg.2026.1924628",
+      "arxiv_id": null,
+      "venue": "Frontiers in Psychology",
+      "abstract": "Generative artificial intelligence (AI) has raised a widely shared concern that human cognitive and creative output is drifting toward common templates. The terms used to describe this drift, including algorithmic monoculture, outcome homogenization, and the loss of collective diversity, all characterize systems, populations, or model outputs. Psychology has not supplied a matching construct at the level of the individual, that is, a way to describe how a person perceives such convergence and how that perception reshapes agency. This article introduces and analyzes perceived template convergence (PTC), defined as a person’s appraisal that the construals available to her through generative AI are collapsing toward a shared template. Working from personal construct theory, the agentic strand of social cognitive theory, and research on meaningful work, the analysis argues that PTC is psychologically two-sided. The appraisal that raises a person’s confidence in producing competent output through AI can also weaken her sense of authorship and meaning, steering effort toward imitative production and away from the more demanding work of origination. We call this structure the convergence paradox, set it out as a propositional model with two mediators and two boundary conditions, distinguish PTC from neighboring constructs, and propose a measurement agenda. The contribution recasts algorithmic homogenization as a question about human construing rather than about outputs.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "BIAS IN AI ADMISSION AND HIRING",
+      "year": 2026,
+      "doi": "10.68197/3071-9658/3.1.11",
+      "arxiv_id": null,
+      "venue": "European Journal of Interdisciplinary Issues",
+      "abstract": "The integration of artificial intelligence into admission and hiring systems offers modernizing efficiency yet entails significant risks regarding the automation of inequality. This paper examines the technical sources of algorithmic bias, including proxy variables, feedback loops and data provenance, within educational and workforce pipelines. Employing a critical synthesis methodology, the study provides a theoretical analysis of the intersection of deep learning architectures, emerging Generative AI (GenAI) capabilities and evolving regulatory frameworks such as the EU AI Act and NYC Local Law 144. The analysis highlights that “fairness through unawareness” is technically insufficient and that the deployment of Large Language Models (LLM) introduces new risks of algorithmic monoculture and sociolinguistic homogenization. Addressing the mathematical impossibility of simultaneously satisfying competing fairness metrics, the paper proposes a responsible AI governance framework. This framework emphasizes Algorithmic Impact Assessments (AIA), continuous disparate impact auditing, and a transition from Human-in-the-Loop to Human-in-Command architectures. The study concludes that responsible implementation requires shifting the role of AI from a gatekeeper to a decision-support scout, ensuring that automated systems meet rigorous standards of accountability and symbiotic human oversight.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "From Imagination to Automation: How AI is Reshaping Students Creativity in the Digital Age",
+      "year": 2026,
+      "doi": "10.63671/ijsssr.v3i4.550",
+      "arxiv_id": null,
+      "venue": "International Journal of Science and Social Science Research",
+      "abstract": "The explosive diffusion of generative artificial intelligence (GenAI) and especially large language models (LLMs) such as ChatGPT has changed the ways students ideate, draft, design and iterate creative work in digitally mediated learning environments. Yet the educational implications for creativity are still being debated GenAI has the potential to raise the novelty and perceived quality of outputs, while raising the possibilities for over reliance, lower creative confidence, and lost learning by doing, and homogenization of ideas among the learners. This paper presents its own integrative conceptual synthesis of how GenAI reshapes student creativity, based during the creativity theory (componential and developmental views), socio material and distributed views of creative action, and recent empirical evidence on artificial help in ideation and writing. We propose Imagination Automation Creativity Loop (IACL), which is a model of the process outlining when GenAI can act as a catalyst of creative learning (augmentation) and when it acts as substitute and weakens creative agency automation. The model offers an emphasis on three mechanisms, that is, cognitive offloading, idea anchoring, and the amplification iteration and are accompanied by moderating condition including artificial intelligence literacy, task constraint, assessment design, and classroom norms around disclosure and authorship. We translate the framework into teachable pedagogy in the form of policy recommendations such as process oriented assessment, structured prompting with reflection and pedagogy of explicit teaching aimed at saving student voice. Finally, we discuss a research agenda for proper causal and longitudinal research that measures both the success of creativity at the individual level and the rupture of diversity at the collective level in a classroom with access to AI.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "La IA en el brainstorming creativo: entre la expansión de ideas y el riesgo de herding",
+      "year": 2026,
+      "doi": "10.55204/trc.v6i2.e696",
+      "arxiv_id": null,
+      "venue": "Tesla Revista Científica",
+      "abstract": "The incorporation of generative artificial intelligence into creative ideation has reconfigured contemporary brainstorming practices, particularly in design, communication, innovation, and higher education. Although large language models can increase ideational fluency, accelerate the production of alternatives, and reduce initial cognitive barriers, recent literature highlights an ambivalent effect: the same ability to generate fast, plausible and formally coherent ideas may induce premature convergence, cognitive fixation and collective homogenization. This article presents a critical literature review on the relationship between artificial intelligence, divergent creativity and the risk of herding in brainstorming processes. Drawing on classical research on group creativity, idea generation, fixation, divergent thinking and creativity support systems, the review connects the contributions of Osborn, Guilford, Amabile, Paulus, Nijstad, Runco, Boden, Lubart and Shneiderman with recent studies on generative models, AI-assisted creativity and reduced semantic diversity. The review argues that AI should not be understood merely as a tool for creative expansion, but as a techno-cognitive agent that intervenes in attention, semantic exploration and ideational autonomy. An interpretive model is proposed around four tensions: expansion/convergence, assistance/dependence, diversity/homogenization and autonomy/herding. The article concludes that the academic and practical value of AI in brainstorming depends less on its capacity to produce ideas and more on the pedagogical, methodological and critical protocols governing its use.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The Cost of Perfect English: Pragmatic Flattening and the Erasure of Authorial Voice in L2 Writing Supported by GenAI",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2605.13055",
+      "arxiv_id": "2605.13055",
+      "venue": "arXiv.org",
+      "abstract": "The integration of Generative AI (GenAI) into language learning offers second language (L2) writers powerful tools for text optimization. However, pursuing native-like fluency often sacrifices sociopragmatic diversity. Investigating\"pragmatic flattening\"- the systematic erasure of culturally preferred politeness and authorial stance - this study conducts a comparative analysis of argumentative essays by Chinese B2-level university students from the ICNALE corpus. The original texts were polished via the APIs of four leading Large Language Models at a zero-temperature setting for reproducibility. Findings reveal a nuanced\"dimensional divergence\"within the Semantic Preservation Paradox. While models corrected lexicogrammatical errors and retained propositional meaning, sociopragmatic interventions were bifurcated. In the interactive dimension, all models showed a drastic collapse of dialogic engagement markers, turning negotiated discourse into monologic assertions. Conversely, in the epistemic stance dimension, models showed architecture-based variability: some aggressively scrubbed epistemic markers, while others reinforced tentative hedging as decontextualized algorithmic caution. This confirms that while GenAI enhances accuracy, it systematically overwrites L2 writers'unique rhetorical identities into a homogenized Anglo-American paradigm. We argue that future instruction must move beyond error correction, advocating for Critical AI Literacy to empower multilingual writers to use GenAI for linguistic enhancement while safeguarding sociopragmatic diversity and rhetorical agency.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "A Brave New World: AI as a Nascent Regime?",
+      "year": 2023,
+      "doi": "10.54808/jsci.21.04.58",
+      "arxiv_id": null,
+      "venue": "Journal of Systemics, Cybernetics and Informatics",
+      "abstract": "This transdisciplinary discussion draws parallels between Aldous Huxley's dystopian vision in his novel 'Brave New World' and the current era dominated by Large Language Models (LLM) and Generative Artificial Intelligence, scrutinizing its significant implications and potential effects. It explores how AI can influence human behavior, reshape societal norms, and potentially lead to the homogenization of linguistic expression. Highlighting the risks of unregulated AI-driven tools, the discussion stresses their potential to standardize and diminish the richness of human language, creativity, and authentic expression. The transformative potential of AI across various domains is recognized, with a strong emphasis on ethical considerations, democratic governance, and preserving core human values. Using 'Brave New World' as a literary framework, it advocates for a transdisciplinary dialogue to critically evaluate AI's impact on social ethos, logos, and pathos. The discussion underscores a global collective responsibility to utilize AI to enrich shared human experiences without compromising the nuances that define our identity and autonomy. It addresses the consequences of uniformity and stability, the role of technology and consumerism, emotional experiences, deep relationships, personal growth, and the threat of totalitarian control, with AI emerging as a nascent regime powered by opaque algorithms implemented by transnational, global companies. Serving as both a reflection on humanity's role in an automated age and a call to action, it advocates for a technological deployment that enhances, rather than diminishes, our inherent humanity.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Artificial Intelligence and Employee Innovation: A Literature Review",
+      "year": 2026,
+      "doi": "10.3390/bs16101890",
+      "arxiv_id": null,
+      "venue": "Behavioral Science",
+      "abstract": "Artificial intelligence (AI), particularly generative AI, is increasingly embedded in knowledge work, creative work, customer service, product development, human resource management, and organizational decision systems. Although research shows that AI can raise productivity, support creative output, accelerate searching, and reorganize innovation work, the evidence remains fragmented across innovation management, organizational behavior, information systems, human resource management, economics, human–computer interaction, and behavioral sciences. This framework-based review synthesizes high-quality English-language journal articles on AI, human–AI collaboration, employee creativity, innovative work behavior, algorithmic management, and innovation management. Building on established models of individual innovation, it develops a worker-centered framework linking four innovation stages with three higher-order AI functions: task execution, knowledge support, and organizational governance. The evidence is strongest for searching, idea generation, creativity, and short-term task performance, and remains limited for idea promotion, implementation, diffusion, and realized innovation outcomes. The synthesis identifies three central tensions: performance equalization versus capability differentiation, short-term quality versus long-term capability development, and individual improvement versus collective homogenization. AI can enhance innovation-related work through cognitive expansion, search acceleration, productivity release, recombination, feedback, and learning, but it can also reduce output diversity, weaken expertise development, intensify work, increase dependence, and shift managerial control over creative labor. The review positions AI as both a cognitive resource and an innovation-governance mechanism and outlines directions for future research on mechanisms, heterogeneity, novelty, capability accumulation, and responsible governance.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Reclaiming Indigenous Knowledge Systems in the Age of Technological Modernity: A Critical Analysis of Cultural Westernization and Epistemic Erosion in India",
+      "year": 2026,
+      "doi": "10.51583/ijltemas.2026.150600203",
+      "arxiv_id": null,
+      "venue": "International Journal of Latest Technology in Engineering Management &amp; Applied Science",
+      "abstract": "This paper critically examines the relationship between technological modernity and the gradual erosion of Indigenous Knowledge Systems (IKS), with specific reference to the Indian context. It argues that contemporary digital infrastructures—while offering unprecedented global connectivity and operational efficiency—simultaneously accelerate epistemic homogenization, digital colonialism, and cultural Westernization. Drawing on decolonial theory, Science and Technology Studies (STS), and recent scholarship on data sovereignty, the study situates the marginalization of IKS within a broader socio-technical framework. Employing a critical-interpretive methodology that triangulates documentary policy analysis with three India-specific case studies—the National Education Policy (NEP) 2020 and the EdTech sector, generative artificial intelligence (AI) and linguistic marginalization, and Adivasi agricultural-data extraction—the paper demonstrates how digital systems restructure cognition, commodify cultural memory, and displace indigenous epistemologies. The analysis identifies four structural mechanisms of erosion—epistemic standardization, algorithmic bias, data dispossession, and cognitive restructuring—which together produce a condition of epistemic dependency in which interpretive authority shifts from communities to privately owned platforms. Empirical indicators are integrated throughout: India recorded 19,569 raw mother-tongue returns in the 2011 Census yet officially recognizes only 121 languages, while English constitutes roughly 46% of the most recent Common Crawl corpus and over 90% of the training data underpinning large language models. The paper advances two conceptual models—a comparative epistemological paradigm and an epistemic erosion–revitalization framework—and argues for a paradigm of technological sovereignty that critically engages digital advancement while safeguarding pluralistic knowledge ecosystems. The findings carry implications for education policy, AI governance, and indigenous data rights, suggesting that hybrid pedagogies, collective-consent data protocols, and decolonial AI design can convert digital infrastructure from a vector of erosion into an instrument of epistemic revitalization.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "ChatGPT’s Relevance for Bioethics: A Novel Challenge to the Intrinsically Relational, Critical, and Reason-Giving Aspect of Healthcare",
+      "year": 2023,
+      "doi": "10.1080/15265161.2023.2250305",
+      "arxiv_id": null,
+      "venue": "American Journal of Bioethics",
+      "abstract": "The rapid development of large language models (LLM’s) and of their associated interfaces such as ChatGPT has brought forth a wave of epistemic and moral concerns in a variety of domains of inquiry, from academia to healthcare and to bioethics (London 2019; Dur an and Jongsma 2021; Alvarado 2022). As Cohen (2023) correctly argues, while some of the issues related to the use of ChatGPT will be recognizable as similar to other medical and bioethical concerns—such as privacy, ownership, etc.—some other issues may prove to be somewhat “new-ish.” As an example of the latter, Cohen points out that bioethicists should pay additional attention to questions of informed consent and how they relate to a patient’s right to know whether they are “treated” by apps or chatbots that deploy AI technologies. The sheer novelty here comes from the fact that “informed” consent must now include information about the specific technology involved in framing medical care. For this reason, one must not conflate Large Language Models (LLMs), generative pre-trained transformer (GPT) models, and other more conventional AI applications in medical AI with the text-generating interface of chatGPT (see Xue, Lei, and Cho 2023) since they not exactly the same. When making reference to ChatGPT, one should clearly note if they are referring to the chat interface and its text-generating capabilities or to the underlying stacked deep neural networks (transformer models) for which text-based interactions are just one of their many analytical dimensions. Following similar epistemic and ethical considerations, Cohen (2023) shows that ChatGPT could easily produce “medical deepfakes” and raise the risk for medical misinformation. And, given the LLMs’ largeness in terms of data & hardware requirements, one could foresee a series of concerns related to competition law, user challenges and a misleading sense of empowering information, sheer homogenization and algorithmic monoculture, as well as environmental impacts given the carbon footprint of such technologies. Cohen’s strategy in assessing the impact of ChatGPT for bioethics consists of detailing the downstream effects of this technology, i.e. from usage to a patient population, and to identify the most credible ethical concerns that could emerge in the near future. However, that text-generating interfaces such as ChatGPT do in fact introduce genuinely new concerns in bioethics in a way that Cohen’s analysis does not seem to account for. We argue that ChatGPT-like tools, when positioned as direct or indirect intermediaries between caregivers and patients, constitute a genuine challenge to the intrinsically interpersonal, critical and reason-giving aspect of healthcare. So, how does ChatGPT short-circuit these important features of clinical care? We start from a non-controversial assumption: namely, that clinical care requires—at its core— interpersonal, critical and reason-giving exchanges between patients and healthcare providers, without which healthcare would lose its “caring” character. Although there is an asymmetrical saliency in the medical ethics literature concerning crisis care (e.g., emergency treatment or catastrophic scenarios in which lives—often many—are immediately at stake), here we focus on the more normal, everyday healthcare received in medical consultations and visits to a clinic. We believe that those situations show that",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Trustworthy AI and Mechanical Expressivism: The Systemic Risk of Ontological Hermeneutical Injustice",
+      "year": null,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    }
+  ]
+}

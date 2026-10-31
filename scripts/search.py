@@ -21,7 +21,9 @@
                     若零命中，再发送"每个 AND 组取第一个词"的核心词版本。两次尝试都记在 meta 里。
   purpose 为 concurrent 的检索式只取 2023 年起的文献（facets/facets.md 中的约定）。
 
-可选环境变量（不设也能运行，且不会写进输出文件）：S2_API_KEY、OPENALEX_API_KEY、OPENALEX_MAILTO。
+可选环境变量（不会写进输出文件）：OPENALEX_API_KEY、S2_API_KEY。
+  不设也能运行，但 OpenAlex 无 key 时与同一出口 IP 的所有人共用每日免费额度，
+  S2 无 key 时与所有匿名用户共用限流池，云环境里两者都很容易返回 429。
 
 用法：
   python3 scripts/search.py                                  # 全部检索式 × 两个来源
@@ -50,6 +52,7 @@ OPENALEX_URL = "https://api.openalex.org/works"
 S2_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
 S2_FIELDS = "title,year,externalIds,venue,journal,abstract"
 S2_PAUSE = 1.1  # 不带 API key 时 S2 限流较严，请求之间留间隔
+MAX_RETRY_WAIT = 60  # 服务端要求等待超过这么多秒（如 OpenAlex 每日额度用完）就不重试，直接报错
 
 # 截断词 → 完整词。遇到未登记的截断词就报错，避免悄悄改变检索含义。
 TRUNCATION = {
@@ -126,9 +129,22 @@ def to_s2(query):
 
 # ---------- HTTP ----------
 
+def api_error(e):
+    """从 HTTP 错误响应里取出简短说明（优先取 JSON 的 message / error 字段）。"""
+    raw = e.read(2000).decode("utf-8", "replace")
+    try:
+        body = json.loads(raw)
+        msg = body.get("message") or body.get("error") or raw
+    except (ValueError, AttributeError):
+        msg = raw
+    msg = " ".join(str(msg).split())
+    return msg[:200] + ("…" if len(msg) > 200 else "")
+
+
 def get_json(url, headers=None, retries=5):
     """GET 并解析 JSON。429、5xx、超时、连接被重置时指数退避重试；
-    其他错误直接抛出（包括代理拒绝连接：那是网络策略问题，重试没有用）。"""
+    服务端要求等待超过 MAX_RETRY_WAIT 秒时不重试。其他错误直接抛出
+    （包括代理拒绝连接：那是网络策略问题，重试没有用）。"""
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})
     for attempt in range(retries + 1):
         wait = 2 ** (attempt + 1)
@@ -136,12 +152,12 @@ def get_json(url, headers=None, retries=5):
             with urllib.request.urlopen(req, timeout=60) as resp:
                 return json.load(resp)
         except urllib.error.HTTPError as e:
-            if (e.code == 429 or e.code >= 500) and attempt < retries:
-                retry_after = e.headers.get("Retry-After", "")
-                time.sleep(min(60, max(wait, int(retry_after) if retry_after.isdigit() else 0)))
+            retry_after = e.headers.get("Retry-After", "")
+            retry_after = int(retry_after) if retry_after.isdigit() else 0
+            if (e.code == 429 or e.code >= 500) and attempt < retries and retry_after <= MAX_RETRY_WAIT:
+                time.sleep(max(wait, retry_after))
                 continue
-            body = e.read(300).decode("utf-8", "replace").strip()
-            raise RuntimeError(f"HTTP {e.code} {body}") from None
+            raise RuntimeError(f"HTTP {e.code}: {api_error(e)}") from None
         except (TimeoutError, ConnectionResetError) as e:
             if attempt < retries:
                 time.sleep(wait)
@@ -223,15 +239,16 @@ def search_openalex(q, year_from):
     params = {"search": to_openalex(q["query"]), "per-page": TOP_N, "page": 1}
     if year_from:
         params["filter"] = f"from_publication_date:{year_from}-01-01"
-    secret = {k: v for k, v in (("api_key", os.environ.get("OPENALEX_API_KEY")),
-                                 ("mailto", os.environ.get("OPENALEX_MAILTO"))) if v}
-    data = get_json(f"{OPENALEX_URL}?{urllib.parse.urlencode({**params, **secret})}")
+    key = os.environ.get("OPENALEX_API_KEY")
+    headers = {"Authorization": f"Bearer {key}"} if key else {}  # key 放请求头，不进 URL
+    url = f"{OPENALEX_URL}?{urllib.parse.urlencode(params)}"
+    data = get_json(url, headers)
     time.sleep(0.2)
     records = [openalex_record(w, q["id"]) for w in (data.get("results") or [])[:TOP_N]]
     meta = {
         "conversion": "boolean kept; truncated words -> full words",
         "query_sent": params["search"],
-        "request_url": f"{OPENALEX_URL}?{urllib.parse.urlencode(params)}",  # 不含 key / mailto
+        "request_url": url,
         "total_hits": (data.get("meta") or {}).get("count"),
     }
     return meta, records
