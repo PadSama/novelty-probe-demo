@@ -1218,3 +1218,68 @@ reference paper (Hao et al.; Nature DOI or arXiv 2412.07727) in v2 raw results: 
 **产出文件**：`results/raw/openalex_Q1_v2.json` … `semanticscholar_Q6_v2.json`（12 个；S2 Q4 为 0 条）；`scripts/search.py`、`scripts/merge.py`、`scripts/authors.py`（修改）
 
 **备注**：参考文献在 Q3 中被检索到（OpenAlex Nature 版第 2 名、预印本第 5 名；S2 Nature 版第 1 名）。本步未判断新颖性。
+
+---
+
+## [2026-10-31 16:59 UTC] Step 14 — T4 v2：合并去重与前 20 候选
+
+**命令 1：合并 v2 结果**
+
+```bash
+python3 -B scripts/merge.py --suffix _v2
+```
+
+输出：
+
+```
+inputs:     12 files, 235 raw records
+merged:     191 works (duplicates removed: 44; groups linked by title only: 7)
+id_status:  DOI 160 | arXiv 16 | UNVERIFIED 15
+sources:    openalex only 84 | semanticscholar only 76 | both 31
+per query:  Q1 37 | Q2 47 | Q3 43 | Q4 3 | Q5 38 | Q6 24   (works hit by more than one query: 1)
+hits:       2 hit(s): 32 works | 1 hit(s): 159 works   (hits = number of query x source result lists containing the work)
+written:    results/merged/merged_v2.json, results/merged/candidates_v2.csv (top 20)
+cutoff:     #20 has hits=2; 32 works have hits=2, 12 of them fall outside the top 20 (decided by n_queries, n_sources, mean_rank)
+candidates per query: Q1 5 | Q2 2 | Q3 4 | Q4 0 | Q5 3 | Q6 7
+
+rank  id    hits  nq  ns mean_rank  identifier                                 title
+   1  M001     2   2   1       8.0  doi:10.2139/ssrn.4389118                   Artificial Intelligence and the Economics of Decision-Making
+   2  M027     2   1   2       1.0  doi:10.1126/sciadv.adn5290                 Generative AI enhances individual creativity but reduces the…
+   3  M003     2   1   2       1.5  doi:10.1038/s41586-025-09922-y             Artificial intelligence tools expand scientists’ impact but …
+   4  M021     2   1   2       2.0  doi:10.1145/3635636.3656204                Homogenization Effects of Large Language Models on Human Cre…
+   5  M018     2   1   2       2.5  doi:10.1016/j.caeai.2025.100456            Unveiling the dynamics of generative AI adoption: A business…
+   6  M025     2   1   2       2.5  doi:10.1177/20563051231186353              Artificial Intelligence and Democracy: A Conceptual Framewor…
+   7  M015     2   1   2       5.0  doi:10.47309/2713-2358-2025-4-184-195      Issues of using artificial intelligence in scientific resear…
+   8  M016     2   1   2       5.5  doi:10.1016/j.tics.2026.01.003             The homogenizing effect of large language models on human ex…
+   9  M012     2   1   2       6.5  doi:10.48550/arxiv.2506.21818              A systematic review of research on large language models for…
+  10  M026     2   1   2       6.5  doi:10.3390/cancers15092573                Artificial Intelligence in CT and MR Imaging for Oncological…
+  11  M004     2   1   2       7.0  doi:10.63313/ebm.9154                      Artificial Intelligence-Embedded Restructuring of Enterprise…
+  12  M019     2   1   2       7.0  doi:10.6018/turismo.616471                 CYBERSECURITY IN TOURISM AND HOSPITALITY MANAGEMENT RESEARCH…
+  13  M030     2   1   2       7.5  doi:10.5465/amj.2008.34789630              From the Editors Beyond Contextualization: Using Context The…
+  14  M024     2   1   2       8.0  doi:10.48550/arxiv.2409.15626              Qualitative Insights Tool (QualIT): LLM Enhanced Topic Model…
+  15  M031     2   1   2       8.5  doi:10.1111/1467-8551.12.s1.2              Bridging the Relevance Gap: Aligning Stakeholders in the Fut…
+  16  M022     2   1   2       9.0  doi:10.1016/j.chbah.2025.100207            Homogenizing effect of large language models (LLMs) on creat…
+  17  M008     2   1   2       9.5  doi:10.1007/s10462-026-11543-4             Mapping the landscape of AI-empowered psychology: a topic mo…
+  18  M010     2   1   2      10.0  doi:10.1111/joes.70175                     Regulating the Artificial Intelligence Economy: A Systematic…
+  19  M011     2   1   2      12.0  doi:10.3390/computers15100689              Toward AI-Enabled Process Model Selection for IT Projects: A…
+  20  M020     2   1   2      12.5  doi:10.1177/00491241251327130              Generative AI Meets Open-Ended Survey Responses: Research Pa…
+exit code: 0
+```
+
+**命令 2：定位参考文献（python3 内联脚本，按出处精确匹配）**
+
+第一次定位用了前缀匹配（"#2" 误匹配到 "#20"–"#25"），输出有误，已改为精确匹配重查：
+
+```
+M003 | doi 10.1038/s41586-025-09922-y | arXiv None | hits 2 | refs ['openalex_Q3_v2#2', 'semanticscholar_Q3_v2#1'] | candidates_v2 rank: 3
+M106 | doi 10.48550/arxiv.2412.07727 | arXiv 2412.07727 | hits 1 | refs ['openalex_Q3_v2#5'] | candidates_v2 rank: not in top 20
+```
+
+**产出文件**：`results/merged/merged_v2.json`（191 篇）、`results/merged/candidates_v2.csv`（前 20）
+
+**备注**
+
+- 参考文献的 Nature 版（M003）两个来源都命中，在 candidates_v2 中排第 3。同一研究的 arXiv 预印本（M106）单独成了一条：其题目多了 "(Just accepted by Nature, to be online soon)"，与正式版没有共同的 DOI 或 arXiv ID，现有去重规则没有把两者并在一起。
+- UNVERIFIED 15 篇，多来自 S2 的 Q2（按被引次数排在前面的老文献缺少标识符）。
+- hits 只有 1 或 2；hits=2 的 32 篇并列，前 20 由并列规则从中选出。
+- 本步未判断新颖性。
