@@ -972,3 +972,30 @@ exit code: 0
 - 落地页：10 个 DOI 都解析到了出版商页面，但页面本身未能访问。8 个出版商 HTTPS 域名未放行（www.nature.com、www.science.org、linkinghub.elsevier.com、dl.acm.org、www.tandfonline.com、journals.ue.poznan.pl）；2 个 DOI 登记的是 `http://` 地址（www.emerald.com、ieeexplore.ieee.org），本环境无法访问。
 - 第一次运行中 rank 9 的"题目不一致"由脚本 bug 造成，已修正并重跑；以第二次运行结果为准。
 - 本步未判断新颖性。
+
+---
+
+## [2026-10-31 15:46 UTC] Step 9 — 生成差异陈述模板（未填写）
+
+**研究者要求（本轮）**：生成 `evidence/difference_statement.md` 模板，只留空白：最接近的三篇（从证据表复制）；本想法在哪一个面上不同、差多大（人填）；审稿人最可能说"已被做过"的一条理由及其文献（人填）。不要代为填写。
+
+**命令 1：写入模板**
+
+```
+# 写入 evidence/difference_statement.md：三节均为空白
+# 第 1 节为空表，列与 evidence_table.md 相同，三行留空，由研究者从证据表复制整行（选哪三篇由研究者决定）
+```
+
+**命令 2：检查模板（python3 内联脚本）**
+
+```
+header identical to evidence_table.md: True (11 columns)
+blank rows: 3 | all cells empty: True | cell counts: [11, 11, 11]
+fill-in fields: 5 | all end with '：' (nothing filled): True
+```
+
+**产出文件**
+
+- `evidence/difference_statement.md` — 差异陈述模板（未填写任何内容）
+
+**备注**：本步未选择文献、未填写内容、未判断新颖性。
