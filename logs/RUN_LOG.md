@@ -422,3 +422,132 @@ Q6: title_and_abstract.search count=64 (search= gave 31830); top-25 conformity (
 - OpenAlex `search=` 匹配全文：Q2–Q6 的前 25 条在标题+摘要层面多数不满足原检索式（词干还原后，有摘要者中满足 4/17、2/23、0/21、7/19、1/23）。对照试验中改用 `title_and_abstract.search` 后 Q6 为 22/25。是否切换由研究者决定。
 - S2 bulk 只匹配标题+摘要，词干还原后符合度高（有摘要者 Q1 23/23、Q2 18/20、Q5 21/21、Q6 18/21）；Q3、Q4 命中少（9、1）。
 - 本步未判断新颖性，未在日志中列出具体文献。
+
+---
+
+## [2026-10-31 14:58 UTC] Step 5 — OpenAlex 改为只匹配标题+摘要并重跑；合并去重
+
+**研究者决定（本轮）**
+
+- OpenAlex 改用 `filter=title_and_abstract.search`（只匹配标题+摘要，与 S2 bulk 一致），按 `relevance_score:desc` 取前 25 条。
+- 重跑 OpenAlex 后合并去重。
+
+**命令 1：修改 scripts/search.py**
+
+```
+# OpenAlex：search= 改为 filter=title_and_abstract.search:<检索式>，sort=relevance_score:desc
+# 检索式含逗号时报错（filter 用逗号分隔条件）；meta.conversion / sort 相应更新
+```
+
+**命令 2：只重跑 OpenAlex（S2 保留 Step 4 的 bulk 结果）**
+
+```bash
+python3 scripts/search.py --sources openalex
+```
+
+输出：
+
+```
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   openalex               795    25     0  results/raw/openalex_Q1.json
+Q2    component   openalex                38    25     0  results/raw/openalex_Q2.json
+Q3    application openalex                 8     8     1  results/raw/openalex_Q3.json
+Q4    application openalex                 1     1     0  results/raw/openalex_Q4.json
+Q5    method      openalex                50    25     0  results/raw/openalex_Q5.json
+Q6    concurrent  openalex                64    25     1  results/raw/openalex_Q6.json  [year>=2023]
+
+6/6 requests succeeded. total_hits = API-reported matches; saved = records kept (top 25: OpenAlex by relevance, S2 by citation count); no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).
+exit code: 0
+```
+
+OpenAlex 对 6 条检索式的解析（meta.api_interpretation）均以 "in the title or abstract" 结尾。
+
+**命令 3：质量检查（12 个文件；符合度用 Porter 词干还原，python3 内联脚本）**
+
+```
+file                  n  doi arXiv neither abstract  conform(stemmed, all)  conform(with abstract)
+openalex_Q1           25   25     4       0       19            25/25                19/19
+openalex_Q2           25   25     1       0       16            16/25                16/16
+openalex_Q3            8    7     0       1        7             7/8                  7/7
+openalex_Q4            1    1     0       0        0             0/1                  0/0
+openalex_Q5           25   25     2       0       21            21/25                21/21
+openalex_Q6           25   24     2       1       23            22/25                22/23
+semantic_Q1           25   24    16       0       23            24/25                23/23
+semantic_Q2           25   25     1       0       20            18/25                18/20
+semantic_Q3            9    9     0       0        7             4/9                  4/7
+semantic_Q4            1    1     0       0        0             0/1                  0/0
+semantic_Q5           25   23     2       1       21            22/25                21/21
+semantic_Q6           23   22     3       1       21            18/23                18/21
+```
+
+**命令 4：编写 scripts/merge.py，用合成记录单元测试（占位 ID，不进 results/）**
+
+```bash
+python3 -I -B - <<'PY'   # 内联测试：DOI 大小写、arXiv 版本、标题合并、短标题不合并、只有 arXiv DOI、两个期刊 DOI
+PY
+```
+
+结果：ALL PASSED（11 条合成记录 → 7 组）。
+
+**命令 5：第一次合并**
+
+```bash
+python3 scripts/merge.py
+```
+
+输出：
+
+```
+inputs:    12 files, 217 raw records
+merged:    163 works (duplicates removed: 54; groups linked by title only: 8)
+id_status: DOI 145 | arXiv 14 | UNVERIFIED 4
+sources:   openalex only 56 | semanticscholar only 65 | both 42
+per query: Q1 39 | Q2 35 | Q3 12 | Q4 1 | Q5 38 | Q6 38   (works hit by more than one query: 0)
+written:   results/merged/merged.json
+exit code: 0
+```
+
+完整性检查通过（217 条原始记录各出现一次；所有标识符都能回溯到原始记录）。人工核对 8 个只靠标题合并的组：7 组是同一研究的预印本与正式发表版本；M043 是 IEEE DataPort 数据集记录（DOI 前缀 10.21227）与同名 TechRxiv 预印本。另发现漏合并：同一 OSF 预印本（10.31234/osf.io/8p9wu）的不同版本 DOI（_v1…_v4）且标题措辞不同，被分成了两篇。
+
+**命令 6：补充规则——预印本平台（OSF / TechRxiv / Research Square）的版本后缀 _vN、/vN 视为同一预印本；单元测试后重跑合并**
+
+```bash
+python3 -I -B - <<'PY'   # doi_key 与 OSF 版本合并测试：ALL PASSED
+PY
+python3 scripts/merge.py
+python3 -I - <<'PY'      # 完整性检查 + 列出版本规则新合并的组
+PY
+```
+
+输出：
+
+```
+inputs:    12 files, 217 raw records
+merged:    161 works (duplicates removed: 56; groups linked by title only: 7)
+id_status: DOI 143 | arXiv 14 | UNVERIFIED 4
+sources:   openalex only 54 | semanticscholar only 65 | both 42
+per query: Q1 37 | Q2 35 | Q3 12 | Q4 1 | Q5 38 | Q6 38   (works hit by more than one query: 0)
+written:   results/merged/merged.json
+exit code: 0
+integrity: OK (217 raw refs each appear exactly once; all identifiers trace to raw records)
+title_linked: ['M019(10.1016/j.tics.2026.01.003)', 'M023(10.1177/00491241251327130)', 'M025(10.1016/j.chbah.2025.100207)', 'M028(10.1108/xjm-01-2024-0015)', 'M043(10.21227/1051-8s48)', 'M067(10.2139/ssrn.6169367)', 'M071(10.31235/osf.io/dncuf_v1)']
+UNVERIFIED:   ['M064<-openalex_Q6#10', 'M087<-openalex_Q3#1', 'M142<-semanticscholar_Q6#23', 'M161<-semanticscholar_Q5#13']
+OSF 8p9wu now in 1 merged record(s): [('M025', 7)]
+```
+
+版本规则合并的两组均核对无误：M023（OSF 4esdp 与 4esdp_v2，早期版本标题措辞不同）、M025（OSF 8p9wu 的 5 个版本 DOI 与期刊版本）。
+
+**产出文件**
+
+- `results/raw/openalex_Q1.json` … `openalex_Q6.json` — 重跑覆盖：25 / 25 / 8 / 1 / 25 / 25 条
+- `results/merged/merged.json` — 161 篇（由 217 条原始记录去重）
+- `scripts/search.py` — 修改（命令 1）
+- `scripts/merge.py` — 新增
+
+**备注**
+
+- id_status：DOI 143、arXiv 14、UNVERIFIED 4（M064、M087、M142、M161，原始记录中既无 DOI 也无 arXiv ID）。
+- 只靠标题合并的 7 组带 `title_linked: true`。其中 M043 的主 DOI 是数据集（10.21227/1051-8s48），同组预印本为 10.36227/techrxiv.177223104.47525491/v1，建议人工核对。
+- M028 的 alt_ids 中有一个 OpenAlex 原样返回的异常 DOI 字符串（带 "/full/html?utm_source=repec…" 后缀），按"不改写"原则保留。
+- 来源：仅 OpenAlex 54、仅 S2 65、两者都有 42。没有一篇同时被两条以上检索式命中。
+- 本步未判断新颖性，日志中未列出文献标题。

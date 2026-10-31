@@ -2,7 +2,7 @@
 """novelty-probe 检索脚本。
 
 对 queries/queries.json 中的每条检索式，分别查询
-  - OpenAlex          GET https://api.openalex.org/works?search=...
+  - OpenAlex          GET https://api.openalex.org/works?filter=title_and_abstract.search:...
   - Semantic Scholar  GET https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=...
 各取前 25 条（OpenAlex 按相关度，S2 按被引次数），原样存到 results/raw/{source}_{query_id}.json，
 并在终端打印命中数。
@@ -15,9 +15,11 @@
           OpenAlex 没有 arXiv 字段，arxiv_id 取自 arXiv DOI（10.48550/arXiv.*）或 arxiv.org 链接。
 
 检索式转换（queries.json 是通用布尔写法；以下行为均于 2026-10-31 实测）：
-  OpenAlex          search= 匹配标题、摘要和全文，支持 AND / OR、括号和引号短语，照原样发送。
-                    它不支持通配符（返回 400，要求改用不做词干还原的 search.exact），
-                    所以截断词（*）换成完整词，词形变化交给默认的词干还原。
+  OpenAlex          用 filter=title_and_abstract.search 只匹配标题和摘要（与 S2 bulk 一致），按 relevance_score
+                    降序取前 25 条。默认的 search= 会匹配全文，实测其前 25 条多数在标题和摘要里不满足检索式。
+                    支持 AND / OR、括号和引号短语，照原样发送；不支持通配符（返回 400，要求改用不做词干还原的
+                    search.exact），所以截断词（*）换成完整词，词形变化交给默认的词干还原。
+                    filter 用逗号分隔条件，所以检索式里不能有逗号。
                     meta 中记录 OpenAlex 对检索式的解析结果（x_query.oql），便于核对。
   Semantic Scholar  bulk 接口只匹配标题和摘要，支持布尔语法：AND 换成 +，OR 换成 |，
                     括号、引号短语和截断词（*）原样保留。该接口不按相关度排序，
@@ -52,6 +54,7 @@ TOP_N = 25
 CONCURRENT_FROM_YEAR = 2023
 USER_AGENT = "novelty-probe/0.1 (literature search script)"
 OPENALEX_URL = "https://api.openalex.org/works"
+OPENALEX_SORT = "relevance_score:desc"
 S2_URL = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
 S2_FIELDS = "title,year,externalIds,venue,journal,abstract"
 S2_SORT = "citationCount:desc"
@@ -113,6 +116,8 @@ def and_groups(query):
 
 def to_openalex(query):
     and_groups(query)  # 只做语法检查
+    if "," in query:
+        raise ValueError("OpenAlex 的 filter 用逗号分隔条件，检索式里不能有逗号")
     return expand_truncation(query)
 
 
@@ -242,9 +247,11 @@ def s2_record(paper, qid):
 # ---------- 两个来源 ----------
 
 def search_openalex(q, year_from):
-    params = {"search": to_openalex(q["query"]), "per-page": TOP_N, "page": 1}
+    query_sent = to_openalex(q["query"])
+    filters = [f"title_and_abstract.search:{query_sent}"]
     if year_from:
-        params["filter"] = f"from_publication_date:{year_from}-01-01"
+        filters.append(f"from_publication_date:{year_from}-01-01")
+    params = {"filter": ",".join(filters), "sort": OPENALEX_SORT, "per-page": TOP_N, "page": 1}
     key = os.environ.get("OPENALEX_API_KEY")
     headers = {"Authorization": f"Bearer {key}"} if key else {}  # key 放请求头，不进 URL
     url = f"{OPENALEX_URL}?{urllib.parse.urlencode(params)}"
@@ -253,11 +260,11 @@ def search_openalex(q, year_from):
     api_meta = data.get("meta") or {}
     records = [openalex_record(w, q["id"]) for w in (data.get("results") or [])[:TOP_N]]
     meta = {
-        "conversion": "boolean kept; truncated words -> full words",
-        "query_sent": params["search"],
+        "conversion": "boolean kept; truncated words -> full words; matched on title and abstract",
+        "query_sent": query_sent,
         "api_interpretation": (api_meta.get("x_query") or {}).get("oql"),
         "request_url": url,
-        "sort": "relevance (API default for search=)",
+        "sort": OPENALEX_SORT,
         "total_hits": api_meta.get("count"),
     }
     return meta, records

@@ -5,46 +5,16 @@
     "purpose": "component",
     "query_original": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
     "year_from": null,
-    "conversion": "boolean kept; truncated words -> full words",
+    "conversion": "boolean kept; truncated words -> full words; matched on title and abstract",
     "query_sent": "(\"large language models\" OR \"generative AI\") AND (homogenization OR homogenisation OR \"algorithmic monoculture\" OR \"collective diversity\")",
-    "api_interpretation": "get works with ((stemmed \"algorithmic monoculture\" OR stemmed \"collective diversity\" OR homogenisation OR homogenization) AND (stemmed \"generative AI\" OR stemmed \"large language models\")) in the full text",
-    "request_url": "https://api.openalex.org/works?search=%28%22large+language+models%22+OR+%22generative+AI%22%29+AND+%28homogenization+OR+homogenisation+OR+%22algorithmic+monoculture%22+OR+%22collective+diversity%22%29&per-page=25&page=1",
-    "sort": "relevance (API default for search=)",
-    "total_hits": 21381,
+    "api_interpretation": "get works with ((stemmed \"algorithmic monoculture\" OR stemmed \"collective diversity\" OR homogenisation OR homogenization) AND (stemmed \"generative AI\" OR stemmed \"large language models\")) in the title or abstract",
+    "request_url": "https://api.openalex.org/works?filter=title_and_abstract.search%3A%28%22large+language+models%22+OR+%22generative+AI%22%29+AND+%28homogenization+OR+homogenisation+OR+%22algorithmic+monoculture%22+OR+%22collective+diversity%22%29&sort=relevance_score%3Adesc&per-page=25&page=1",
+    "sort": "relevance_score:desc",
+    "total_hits": 795,
     "returned": 25,
-    "retrieved_at": "2026-10-31T10:57:40+00:00"
+    "retrieved_at": "2026-10-31T14:54:36+00:00"
   },
   "records": [
-    {
-      "title": "Homogenizing effect of large language models (LLMs) on creative diversity: An empirical comparison of human and ChatGPT writing",
-      "year": 2025,
-      "doi": "10.1016/j.chbah.2025.100207",
-      "arxiv_id": null,
-      "venue": "Computers in Human Behavior Artificial Humans",
-      "abstract": "Generative AI systems, especially Large Language Models (LLMs) such as ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human-created content, their widespread use risks reducing creative diversity across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMs on creative diversity, not only at the individual level but also at the collective level. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—the diversity growth rate—we showed that each additional human-written essay contributed more new ideas than did each additional GPT-4 essay. Notably, this difference became more pronounced as more essays were included in the analysis and persisted despite efforts to enhance AI-generated content through both prompt and parameter modifications. Overall, our findings suggest that, despite their potential to enhance individual creativity, the widespread use of LLMs could diminish the collective diversity of creative ideas. • We Introduce diversity growth rate to measure idea diversity added per creative output. • Each additional human-written essay contributes more new ideas than a GPT-generated essay. • Diversity gap widens with more essays, showing greater AI homogenization at scale. • Enhancing GPT's creative diversity through parameter- or prompt-modifications does not mitigate the diversity gap. • Our study suggests widespread LLM use could diminish collective diversity of creative ideas.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Dull Stable State: Recursive Training, Homogenization, and Security Risks in the Era of Large Language Models",
-      "year": 2025,
-      "doi": "10.5281/zenodo.20398445",
-      "arxiv_id": null,
-      "venue": "Zenodo (CERN European Organization for Nuclear Research)",
-      "abstract": "The rapid proliferation of large language models (LLMs) has accelerated the production of online content, yet this growth introduces a recursive dynamic: as models increasingly train on AI-generated text, the diversity and fidelity of outputs decline. Recent research identifies this phenomenon as model collapse, where recursive self-training erodes the statistical tails of language distributions, yielding homogenized and repetitive responses. Parallel studies of recommender systems highlight analogous feedback loops, including algorithmic monocultures and popularity bias, that converge toward uniformity and suppress minority content. Combined, these forces risk what may be termed a dull stable state: an equilibrium in which digital knowledge systems recycle their own outputs, losing novelty, accuracy, and epistemic richness. This state carries profound security implications. Homogenized training corpora amplify vulnerabilities to data poisoning, adversarial prompt injection, and covert manipulation, while reliance on synthetic data increases risks of privacy leakage through membership inference and undermines trust in provenance. Addressing these challenges requires robust data curation, provenance standards (e.g., watermarking, C2PA credentials), and hybrid training strategies that maintain human-authored input. The literature suggests that without such interventions, the pursuit of scale may trade diversity for stability, locking the AI ecosystem into a fragile equilibrium with degraded utility and heightened security exposure.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "The model is the museum: generative AI and the expropriation of cultural heritage",
-      "year": 2025,
-      "doi": "10.1007/s00146-025-02290-1",
-      "arxiv_id": null,
-      "venue": "AI & Society",
-      "abstract": null,
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
     {
       "title": "Generative AI enhances individual creativity but reduces the collective diversity of novel content",
       "year": 2024,
@@ -56,32 +26,12 @@
       "query_id": "Q1"
     },
     {
-      "title": "Minority-Variant Survival: A Cultural-Evolutionary Account of Rare but Valid Knowledge under AI Mediation",
-      "year": 2026,
-      "doi": "10.5281/zenodo.22096371",
-      "arxiv_id": null,
-      "venue": "Zenodo (CERN European Organization for Nuclear Research)",
-      "abstract": "Most research on generative AI diversity asks whether outputs are different at a single moment. Cultural knowledge, however, depends on which variants survive repeated transmission. This paper develops minority-variant survival as a dynamic measure of epistemic biodiversity. A minority epistemic variant is a low-frequency but defensible explanation, evidential pathway or problem framing that is not reducible to noise. The central hypothesis is that shared generative mediation can increase fidelity to dominant variants while raising the extinction hazard of rare valid alternatives, even when average individual performance improves. The paper connects transmission-chain research, machine culture, algorithmic monoculture and recent evidence on AI-driven homogenisation. It proposes survival analysis over successive human transmission generations, distinguishes selection against minority variants from simple forgetting, and identifies three mechanisms: model-frequency amplification, authority-weighted replacement and reduced re-innovation after an option disappears. The framework also predicts path dependence: once a rare valid variant is lost from a transmission chain, later increases in model accuracy may not restore it because the option space itself has narrowed. The paper specifies falsifiers, design implications and a route for testing whether diversity-preserving AI can reduce extinction risk without preserving low-quality alternatives.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Outsider Theorists, Generative AI and the Participation Threshold",
-      "year": 2025,
-      "doi": "10.5281/zenodo.17695839",
-      "arxiv_id": null,
-      "venue": "Zenodo (CERN European Organization for Nuclear Research)",
-      "abstract": "This discussion paper examines how generative AI may alter who is able to participate in theoretical work. Instead of asking whether AI will replace experts, it adopts a narrower focus: whether large language models help non academic authors cross the practical threshold from unstructured ideas to manuscripts that are coherent enough for a field to critically assess. Using a stylised comparison between an academic theorist and an outsider with the same idea and access to the same AI tools, the paper argues that AI may act as a leveller at the participation threshold without equalising expertise or institutional advantage. Outsiders gain scaffolding that was previously inaccessible, while insiders gain acceleration. The paper also explores the risks of homogenisation, the ways AI acts as a mediating translator rather than a neutral bridge, and the tension between enabling legibility and constraining originality. Finally, the paper evaluates how restrictive policies toward AI assisted writing risk disproportionately disadvantaging those who rely on AI to reach the starting line. The aim is not to resolve these issues but to prompt discussion about how AI, outsider participation and publication policy interact at the boundary of examinability.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Minority-Variant Survival: A Cultural-Evolutionary Account of Rare but Valid Knowledge under AI Mediation",
-      "year": 2026,
-      "doi": "10.5281/zenodo.22096370",
-      "arxiv_id": null,
-      "venue": "Zenodo (CERN European Organization for Nuclear Research)",
-      "abstract": "Most research on generative AI diversity asks whether outputs are different at a single moment. Cultural knowledge, however, depends on which variants survive repeated transmission. This paper develops minority-variant survival as a dynamic measure of epistemic biodiversity. A minority epistemic variant is a low-frequency but defensible explanation, evidential pathway or problem framing that is not reducible to noise. The central hypothesis is that shared generative mediation can increase fidelity to dominant variants while raising the extinction hazard of rare valid alternatives, even when average individual performance improves. The paper connects transmission-chain research, machine culture, algorithmic monoculture and recent evidence on AI-driven homogenisation. It proposes survival analysis over successive human transmission generations, distinguishes selection against minority variants from simple forgetting, and identifies three mechanisms: model-frequency amplification, authority-weighted replacement and reduced re-innovation after an option disappears. The framework also predicts path dependence: once a rare valid variant is lost from a transmission chain, later increases in model accuracy may not restore it because the option space itself has narrowed. The paper specifies falsifiers, design implications and a route for testing whether diversity-preserving AI can reduce extinction risk without preserving low-quality alternatives.",
+      "title": "Homogenization Effects of Large Language Models on Human Creative Ideation",
+      "year": 2024,
+      "doi": "10.1145/3635636.3656204",
+      "arxiv_id": "2402.01536",
+      "venue": "Creativity and Cognition",
+      "abstract": "Large language models (LLMs) are now being used in a wide variety of contexts, including as creativity support tools (CSTs) intended to help their users come up with new ideas. But do LLMs actually support user creativity? We hypothesized that the use of an LLM as a CST might make the LLM’s users feel more creative, and even broaden the range of ideas suggested by each individual user, but also homogenize the ideas suggested by different users. We conducted a 36-participant comparative user study and found, in accordance with the homogenization hypothesis, that different users tended to produce less semantically distinct ideas with ChatGPT than with an alternative CST. Additionally, ChatGPT users generated a greater number of more detailed ideas, but felt less responsible for the ideas they generated. We discuss potential implications of these findings for users, designers, and developers of LLM-based CSTs.",
       "source_api": "openalex",
       "query_id": "Q1"
     },
@@ -96,6 +46,156 @@
       "query_id": "Q1"
     },
     {
+      "title": "Generative AI and the homogenization of analyst forecasts",
+      "year": 2026,
+      "doi": "10.1016/j.frl.2026.110767",
+      "arxiv_id": null,
+      "venue": "Finance research letters",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Language ideologies and the homogenizing pull of generative AI",
+      "year": 2026,
+      "doi": "10.1016/j.jslw.2026.101375",
+      "arxiv_id": null,
+      "venue": "Journal of Second Language Writing",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI and Content Homogenization: The Case of Digital Marketing",
+      "year": 2025,
+      "doi": "10.2139/ssrn.5367123",
+      "arxiv_id": null,
+      "venue": "SSRN Electronic Journal",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Does Generative AI Stifle Creativity? Convergence and Homogenisation in Student Work",
+      "year": 2026,
+      "doi": "10.56831/psen-08-274",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Generative AI (GAI) has now been widely integrated into higher education.While its impact on cognitive abilities (cognitive offloading) has been well-documented, its influence on creativity is less well-understood.This study analysed 12 video game design projects created by 36 second-year computer science students using generative AI tools.Despite the creative power of the tools, the results reveal a strong thematic convergence, with 50-58% of projects set in post-apocalyptic worlds, 75-83% featuring male protagonists and conventional narrative structures.This article discusses the pedagogical implications of this finding and proposes ways to integrate GAI judiciously.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing effect of large language models (LLMs) on creative diversity: An empirical comparison of human and ChatGPT writing",
+      "year": 2025,
+      "doi": "10.1016/j.chbah.2025.100207",
+      "arxiv_id": null,
+      "venue": "Computers in Human Behavior Artificial Humans",
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) such as ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human-created content, their widespread use risks reducing creative diversity across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMs on creative diversity, not only at the individual level but also at the collective level. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—the diversity growth rate—we showed that each additional human-written essay contributed more new ideas than did each additional GPT-4 essay. Notably, this difference became more pronounced as more essays were included in the analysis and persisted despite efforts to enhance AI-generated content through both prompt and parameter modifications. Overall, our findings suggest that, despite their potential to enhance individual creativity, the widespread use of LLMs could diminish the collective diversity of creative ideas. • We Introduce diversity growth rate to measure idea diversity added per creative output. • Each additional human-written essay contributes more new ideas than a GPT-generated essay. • Diversity gap widens with more essays, showing greater AI homogenization at scale. • Enhancing GPT's creative diversity through parameter- or prompt-modifications does not mitigate the diversity gap. • Our study suggests widespread LLM use could diminish collective diversity of creative ideas.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The Homogenizing Effect of Large Language Models on Human Expression and Thought",
+      "year": 2025,
+      "doi": "10.48550/arxiv.2508.01491",
+      "arxiv_id": "2508.01491",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "Cognitive diversity, reflected in variations of language, perspective, and reasoning, is essential to creativity and collective intelligence. This diversity is rich and grounded in culture, history, and individual experience. Yet as large language models (LLMs) become deeply embedded in people's lives, they risk standardizing language and reasoning. We synthesize evidence across linguistics, psychology, cognitive science, and computer science to show how LLMs reflect and reinforce dominant styles while marginalizing alternative voices and reasoning strategies. We examine how their design and widespread use contribute to this effect by mirroring patterns in their training data and amplifying convergence as all people increasingly rely on the same models across contexts. Unchecked, this homogenization risks flattening the cognitive landscapes that drive collective intelligence and adaptability.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI Meets Open-Ended Survey Responses: Research Participant Use of AI and Homogenization",
+      "year": 2025,
+      "doi": "10.1177/00491241251327130",
+      "arxiv_id": null,
+      "venue": "Sociological Methods & Research",
+      "abstract": "The growing popularity of generative AI tools presents new challenges for data quality in online surveys and experiments. This study examines participants’ use of large language models to answer open-ended survey questions and describes empirical tendencies in human vs LLM-generated text responses. In an original survey of participants recruited from a popular online platform for sourcing social science research subjects, 34% reported using LLMs to help them answer open-ended survey questions. Simulations comparing human-written responses from three pre-ChatGPT studies with LLM-generated text reveal that LLM responses are more homogeneous and positive, particularly when they describe social groups in sensitive questions. These homogenization patterns may mask important underlying social variation in attitudes and beliefs among human subjects, raising concerns about data validity. Our findings shed light on the scope and potential consequences of participants’ LLM use in online research.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Delayed Ai Access: Mitigating the Homogenising Effects of Generative Ai in Collaborative Problemsolving",
+      "year": 2025,
+      "doi": "10.1109/icaite68636.2025.11442590",
+      "arxiv_id": null,
+      "venue": "International Conference on Artificial Intelligence and Teacher Education (ICAITE)",
+      "abstract": "The rapid integration of generative artificial intelligence (GenAI) into collaborative learning environments raises a critical question about its impact on team creativity and idea diversity. This study investigates whether delaying the use of AI tools in collaborative problem-solving can mitigate the “homogenising effect” associated with immediate AI access. Using a quasi-experimental design, 36 students were assigned to three conditions (immediate AI access, delayed AI access, or no AI access) to solve a real-world problem-solving task. The results show a homogenising effect in the immediate AI access group, which produced significantly more similar solutions compared to the other groups, suggesting that continuous, early reliance on AI stifles idea diversity. In contrast, the No AI group achieved the lowest homogenisation score and the highest level of creativity. The Delayed AI group also showed a significantly lower homogenisation score than the immediate access group, supporting the argument that a period of unassisted, humancentric ideation is crucial for fostering novel and diverse solutions before using AI for refinement. These findings suggest that timing is critical for AI integration in education. By delaying AI access, educators can empower students to first engage in the creative struggle and socio-cognitive conflict essential for collaborative problem-solving, ensuring that AI serves as a tool for intentional augmentation rather than a replacement for original human thought. This approach promotes higher levels of learning and preserves human agency.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Algorithmic Assistance and the Creativity Paradox: Large Language Models, Student Writing, and Cognitive Homogenisation",
+      "year": 2026,
+      "doi": "10.55737/qjss.vii-i.26481",
+      "arxiv_id": null,
+      "venue": "Qlantic journal of social sciences.",
+      "abstract": "The adoption of large language models in higher education aids brainstorming and productivity, but raises concerns about student dependence, potentially diminishing confidence in generating original ideas independently. The paper tackles these issues by carrying out a quantitative survey on a sample size of 120 undergraduate and postgraduate students of four universities in Dublin, that is, Dublin City University, University College Dublin, Trinity College Dublin, and Technological University Dublin. The respondents were varied in their academic backgrounds; some were undergraduate or post-graduate level and this was evenly split between 46 per cent female and 54 per cent male. The survey was taking the trends of using ChatGPT, the sense of creative self-efficacy, and how dissimilar students perceived academic ideas and written work. The results suggest that there is a definite conflict in the application of AI tools. A significant number of respondents referred to ChatGPT in the context of the idea development, increased productive, and assistance at the first drafting phase. Nevertheless, a large percentage of them experienced more trouble in idea generation, and thought they were beginning to resemble the work of other students using the same system. On the whole, 67.5 per cent thought that their ideas were growing closer to those who also use ChatGPT. These results imply that the positive effects of writing with AI might be accompanied by the feeling of reduced originality. The paper highlights AI’s impact on creativity, emphasizing pedagogical strategies for fostering independent thinking and intellectual diversity in education.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The Chameleon's Limit: Investigating Persona Collapse and Homogenization in Large Language Models",
+      "year": 2026,
+      "doi": "10.48550/arxiv.2604.24698",
+      "arxiv_id": "2604.24698",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "Large language models (LLMs) have powered multi-agent simulations such as survey respondents or application users. However, LLMs lack the population-level diversity required by these simulations---responses from LLMs with detailed human profiles cluster into classes, unlike human responses that uniformly fill the entire space. In this paper, we formalize this as Persona Collapse and quantify its population-level structure with three diagnostic metrics: Coverage (how much of the persona space is occupied), Uniformity (how evenly agents spread across it), and Complexity (how rich the resulting behaviors are). Across eight LLMs on personality (BFI-44), moral reasoning, and self-introduction, persona collapse is universal but task-dependent: CoSER-Llama-8B collapses the most in personality while being the most diverse in moral reasoning. Moreover, sampling more personas cannot mitigate the collapse. We further show a fidelity--diversity tradeoff: the models with the highest per-persona fidelity produce the most polarized populations. Finally, persona-targeted fine-tuning further narrows the population instead of diversifying it.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Delayed AI Access: Mitigating the Homogenising Effects of Generative AI in Collaborative Problem-Solving",
+      "year": 2025,
+      "doi": "10.5281/zenodo.18886853",
+      "arxiv_id": null,
+      "venue": "Zenodo (CERN European Organization for Nuclear Research)",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing Effect of a Large Language Model (LLM) on Creative Diversity: An Empirical Comparison of Human and ChatGPT Writing",
+      "year": 2024,
+      "doi": "10.31234/osf.io/8p9wu",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) like ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human creations, their widespread use risks reducing the diversity of creative outputs across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMS on collective creativity. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—diversity growth rate—we showed that each additional human-written essay contributed more new ideas than each additional GPT-4 essay. This homogenizing effect persisted even after a range of enhancements to the diversity of the GPT-4 writings, including prompt and parameters modifications. Overall, our findings suggest that, despite improvements in individual creativity, the widespread use of LLMs could diminish the collective diversity of ideas.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The double-edged sword of generative AI for assessment: Efficiency versus homogenization",
+      "year": 2025,
+      "doi": "10.4337/9781035337873.00012",
+      "arxiv_id": null,
+      "venue": "Edward Elgar Publishing eBooks",
+      "abstract": "Chapter 8 examines the dual impact of generative artificial intelligence (GenAI) on educational assessment, highlighting the tensions between increased efficiency and risks of homogenization. It discusses the limitations of traditional assessment methods in the GenAI era, emphasizing the need for educators to retune assessments by embracing authentic, personalized, and higher-order thinking-focused methods to cultivate critical and independent learners in the GenAI era. The concept of retuning assessments involves educators making bold moves in adapting strategies to promote higher-order thinking skills, critical analysis, and independent thought. By exploring case studies and practical approaches, the chapter advocates for the incorporation of interactive presentations, project-based learning, and personalized portfolios to enhance student engagement. Ultimately, it argues for a balanced approach in assessment practices, ensuring GenAI's advantages are harnessed while maintaining diverse and meaningful learning experiences.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI Meets Open-Ended Survey Responses: Participant Use of AI and Homogenization",
+      "year": 2024,
+      "doi": "10.31235/osf.io/4esdp",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "The growing popularity of generative AI tools presents new challenges for data quality in online surveys and experiments. This study examines participants’ use of large language models to answer open-ended survey questions and describes empirical tendencies in human vs LLM-generated text responses. In an original survey of participants recruited from a popular online platform for sourcing social science research subjects, 34% reported using LLMs to help them answer open-ended survey questions. Simulations comparing human-written responses from three pre-ChatGPT studies with LLM-generated text reveal that LLM responses are more homogeneous and positive, particularly when they describe social groups in sensitive questions. These homogenization patterns may mask important underlying social variation in attitudes and beliefs among human subjects, raising concerns about data validity. Our findings shed light on the scope and potential consequences of participants’ LLM use in online research.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Resisting Homogenization in EAL Writing Education: Translingual Practices in the Rise of Generative AI",
+      "year": 2026,
+      "doi": "10.1002/tesq.70063",
+      "arxiv_id": null,
+      "venue": "TESOL Quarterly",
+      "abstract": "Abstract This study examined how generative artificial intelligence (GenAI) shaped English as an additional language (EAL) writing from a translingual perspective. Focusing on Chinese EAL students, the study investigated how they used and perceived GenAI tools during writing, weighing the gains in efficiency against the preservation of linguistic and cultural diversity. Using a case‐study design that combined screen recordings, written drafts, and interviews, the research found that GenAI enhanced students' writing fluency and efficiency. At the same time, however, it reinforced monolingual norms and Western cultural standards, which might lead to homogenization—a narrowing of language and cultural expression toward a single, standardized style. Such tendencies risk marginalizing students' diverse linguistic and cultural resources when reliance on GenAI becomes excessive. Therefore, the findings underscore the importance of translingual practices that treat students' full linguistic repertoires and cultural backgrounds as assets. Embracing this approach is vital for fostering inclusivity and creativity in EAL writing, particularly as the influence of GenAI grows. The study thus calls for a balanced integration of GenAI—one that supports EAL writing development while addressing inherent biases and cultivating students' linguistic and cultural agency.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
       "title": "Homogenizing Effect of Large Language Models (LLMs) on Creative Diversity: An Empirical Comparison of Human and ChatGPT Writing",
       "year": 2024,
       "doi": "10.31234/osf.io/8p9wu_v1",
@@ -106,12 +206,12 @@
       "query_id": "Q1"
     },
     {
-      "title": "Leveraging Generative AI and Large Language Models: A Comprehensive Roadmap for Healthcare Integration",
-      "year": 2023,
-      "doi": "10.3390/healthcare11202776",
+      "title": "Homogenizing Effect of a Large Language Model (LLM) on Creative Diversity: An Empirical Comparison of Human and ChatGPT Writing",
+      "year": 2025,
+      "doi": "10.31234/osf.io/8p9wu_v2",
       "arxiv_id": null,
-      "venue": "Healthcare",
-      "abstract": "Generative artificial intelligence (AI) and large language models (LLMs), exemplified by ChatGPT, are promising for revolutionizing data and information management in healthcare and medicine. However, there is scant literature guiding their integration for non-AI professionals. This study conducts a scoping literature review to address the critical need for guidance on integrating generative AI and LLMs into healthcare and medical practices. It elucidates the distinct mechanisms underpinning these technologies, such as Reinforcement Learning from Human Feedback (RLFH), including few-shot learning and chain-of-thought reasoning, which differentiates them from traditional, rule-based AI systems. It requires an inclusive, collaborative co-design process that engages all pertinent stakeholders, including clinicians and consumers, to achieve these benefits. Although global research is examining both opportunities and challenges, including ethical and legal dimensions, LLMs offer promising advancements in healthcare by enhancing data management, information retrieval, and decision-making processes. Continued innovation in data acquisition, model fine-tuning, prompt strategy development, evaluation, and system implementation is imperative for realizing the full potential of these technologies. Organizations should proactively engage with these technologies to improve healthcare quality, safety, and efficiency, adhering to ethical and legal guidelines for responsible application.",
+      "venue": null,
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) like ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human creations, their widespread use risks reducing the diversity of creative outputs across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMS on collective creativity. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—diversity growth rate—we showed that each additional human-written essay contributed more new ideas than each additional GPT-4 essay. This homogenizing effect persisted even after a range of enhancements to the diversity of the GPT-4 writings, including prompt and parameters modifications. Overall, our findings suggest that, despite improvements in individual creativity, the widespread use of LLMs could diminish the collective diversity of ideas.",
       "source_api": "openalex",
       "query_id": "Q1"
     },
@@ -136,131 +236,31 @@
       "query_id": "Q1"
     },
     {
-      "title": "Generative AI and the homogenization of analyst forecasts",
-      "year": 2026,
-      "doi": "10.1016/j.frl.2026.110767",
-      "arxiv_id": null,
-      "venue": "Finance research letters",
-      "abstract": null,
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Umetna inteligenca in glasbena interpretacija",
+      "title": "Generative AI Meets Open-Ended Survey Responses: Research Participant Use of AI and Homogenization",
       "year": 2025,
-      "doi": null,
-      "arxiv_id": null,
-      "venue": "Repository of the University of Primorsk (University of Primorska)",
-      "abstract": "Generative AI is used to create music more and more. This chapter explores how this phenomenon affects aspects of musical interpretation. The way in which AI generates texts, pictures, music and other media indicates that compared to human creators – it is likely to reduce the range of interpretative variants in its output. This argument is developed in three steps: firstly, a number of examples of AI-generated songs are presented in order to outline what AI can do at the moment. Secondly, the way in which large language models (LLMs) – the underlying systems of many AI generators work is discussed, showing that LLMs have a tendency to standardise their results, while also removing any quirk or idiosyncrasy that human creators would (unconsciously) include. AI outputs are “depersonalised”, as it were. Thirdly, the concept of “model collapse” is introduced. It leads to further homogenisation as AI systems will inevitably include more and more data in their processes that are already AI-created, setting in motion a spiral of self-referentiality that is likely to lead to a collapse of the systems in the long run. While this may not be inevitable it poses enough of a risk to give us food for thought and spend more time assessing the danger posed to interpretative variety by generative AI.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Does Generative AI Stifle Creativity? Convergence and Homogenisation in Student Work",
-      "year": 2026,
-      "doi": "10.56831/psen-08-274",
+      "doi": "10.31235/osf.io/4esdp_v2",
       "arxiv_id": null,
       "venue": null,
-      "abstract": "Generative AI (GAI) has now been widely integrated into higher education.While its impact on cognitive abilities (cognitive offloading) has been well-documented, its influence on creativity is less well-understood.This study analysed 12 video game design projects created by 36 second-year computer science students using generative AI tools.Despite the creative power of the tools, the results reveal a strong thematic convergence, with 50-58% of projects set in post-apocalyptic worlds, 75-83% featuring male protagonists and conventional narrative structures.This article discusses the pedagogical implications of this finding and proposes ways to integrate GAI judiciously.",
+      "abstract": "The growing popularity of generative AI tools presents new challenges for data quality in online surveys and experiments. This study examines participants’ use of large language models to answer open-ended survey questions and describes empirical tendencies in human vs LLM-generated text responses. In an original survey of participants recruited from a popular online platform for sourcing social science research subjects, 34% reported using LLMs to help them answer open-ended survey questions. Simulations comparing human-written responses from three pre-ChatGPT studies with LLM-generated text reveal that LLM responses are more homogeneous and positive, particularly when they describe social groups in sensitive questions. These homogenization patterns may mask important underlying social variation in attitudes and beliefs among human subjects, raising concerns about data validity. Our findings shed light on the scope and potential consequences of participants’ LLM use in online research.",
       "source_api": "openalex",
       "query_id": "Q1"
     },
     {
-      "title": "On the Opportunities and Risks of Foundation Models",
-      "year": 2021,
-      "doi": "10.48550/arxiv.2108.07258",
-      "arxiv_id": "2108.07258",
-      "venue": "arXiv (Cornell University)",
-      "abstract": "AI is undergoing a paradigm shift with the rise of models (e.g., BERT, DALL-E, GPT-3) that are trained on broad data at scale and are adaptable to a wide range of downstream tasks. We call these models foundation models to underscore their critically central yet incomplete character. This report provides a thorough account of the opportunities and risks of foundation models, ranging from their capabilities (e.g., language, vision, robotics, reasoning, human interaction) and technical principles(e.g., model architectures, training procedures, data, systems, security, evaluation, theory) to their applications (e.g., law, healthcare, education) and societal impact (e.g., inequity, misuse, economic and environmental impact, legal and ethical considerations). Though foundation models are based on standard deep learning and transfer learning, their scale results in new emergent capabilities,and their effectiveness across so many tasks incentivizes homogenization. Homogenization provides powerful leverage but demands caution, as the defects of the foundation model are inherited by all the adapted models downstream. Despite the impending widespread deployment of foundation models, we currently lack a clear understanding of how they work, when they fail, and what they are even capable of due to their emergent properties. To tackle these questions, we believe much of the critical research on foundation models will require deep interdisciplinary collaboration commensurate with their fundamentally sociotechnical nature.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Resisting Homogenization in EAL Writing Education: Translingual Practices in the Rise of Generative AI",
-      "year": 2026,
-      "doi": "10.1002/tesq.70063",
-      "arxiv_id": null,
-      "venue": "TESOL Quarterly",
-      "abstract": "Abstract This study examined how generative artificial intelligence (GenAI) shaped English as an additional language (EAL) writing from a translingual perspective. Focusing on Chinese EAL students, the study investigated how they used and perceived GenAI tools during writing, weighing the gains in efficiency against the preservation of linguistic and cultural diversity. Using a case‐study design that combined screen recordings, written drafts, and interviews, the research found that GenAI enhanced students' writing fluency and efficiency. At the same time, however, it reinforced monolingual norms and Western cultural standards, which might lead to homogenization—a narrowing of language and cultural expression toward a single, standardized style. Such tendencies risk marginalizing students' diverse linguistic and cultural resources when reliance on GenAI becomes excessive. Therefore, the findings underscore the importance of translingual practices that treat students' full linguistic repertoires and cultural backgrounds as assets. Embracing this approach is vital for fostering inclusivity and creativity in EAL writing, particularly as the influence of GenAI grows. The study thus calls for a balanced integration of GenAI—one that supports EAL writing development while addressing inherent biases and cultivating students' linguistic and cultural agency.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "BIAS IN AI ADMISSION AND HIRING",
-      "year": 2026,
-      "doi": "10.68197/3071-9658/3.1.11",
-      "arxiv_id": null,
-      "venue": "European Journal of Interdisciplinary Issues",
-      "abstract": "The integration of artificial intelligence into admission and hiring systems offers modernizing efficiency yet entails significant risks regarding the automation of inequality. This paper examines the technical sources of algorithmic bias, including proxy variables, feedback loops and data provenance, within educational and workforce pipelines. Employing a critical synthesis methodology, the study provides a theoretical analysis of the intersection of deep learning architectures, emerging Generative AI (GenAI) capabilities and evolving regulatory frameworks such as the EU AI Act and NYC Local Law 144. The analysis highlights that “fairness through unawareness” is technically insufficient and that the deployment of Large Language Models (LLM) introduces new risks of algorithmic monoculture and sociolinguistic homogenization. Addressing the mathematical impossibility of simultaneously satisfying competing fairness metrics, the paper proposes a responsible AI governance framework. This framework emphasizes Algorithmic Impact Assessments (AIA), continuous disparate impact auditing, and a transition from Human-in-the-Loop to Human-in-Command architectures. The study concludes that responsible implementation requires shifting the role of AI from a gatekeeper to a decision-support scout, ensuring that automated systems meet rigorous standards of accountability and symbiotic human oversight.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Competition and Diversity in Generative AI",
-      "year": 2026,
-      "doi": "10.1287/mnsc.2025.02761",
-      "arxiv_id": "2412.08610",
-      "venue": "Management Science",
-      "abstract": "Recent evidence, both in the laboratory and in the wild, suggests that the use of generative artificial intelligence reduces the diversity of content produced. As generative AI penetrates more markets and reaches widespread adoption, should we still expect to see content homogenization? Our work begins with a simple observation: content producers do not act in isolation. Instead, they compete with one another (e.g., for customers or attention). We explore the impact competition has on both content diversity and overall social welfare when producers use generative AI. Through a formal game-theoretic model, we show that competitive markets select for diverse AI models, mitigating monoculture. We further show that a generative AI model that performs well in isolation (i.e., according to a benchmark) may fail to provide value in a competitive market. Our results highlight the importance of evaluating generative AI models across the breadth of their output distributions, particularly when they will be deployed in competitive environments. We validate our theoretical results with a series of experiments involving generative text and image models. Overall, our results suggest that homogenization due to generative AI is unlikely to persist under strong competition. This paper was accepted by Itai Ashlagi, market design, platform, and demand analytics. Supplemental Material: The online appendix and data files are available at https://doi.org/10.1287/mnsc.2025.02761 .",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "The Homogenizing Effect of Large Language Models on Human Expression and Thought",
+      "title": "Dull Stable State: Recursive Training, Homogenization, and Security Risks in the Era of Large Language Models",
       "year": 2025,
-      "doi": "10.48550/arxiv.2508.01491",
-      "arxiv_id": "2508.01491",
-      "venue": "arXiv (Cornell University)",
-      "abstract": "Cognitive diversity, reflected in variations of language, perspective, and reasoning, is essential to creativity and collective intelligence. This diversity is rich and grounded in culture, history, and individual experience. Yet as large language models (LLMs) become deeply embedded in people's lives, they risk standardizing language and reasoning. We synthesize evidence across linguistics, psychology, cognitive science, and computer science to show how LLMs reflect and reinforce dominant styles while marginalizing alternative voices and reasoning strategies. We examine how their design and widespread use contribute to this effect by mirroring patterns in their training data and amplifying convergence as all people increasingly rely on the same models across contexts. Unchecked, this homogenization risks flattening the cognitive landscapes that drive collective intelligence and adaptability.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Delayed AI Access: Mitigating the Homogenising Effects of Generative AI in Collaborative Problem-Solving",
-      "year": 2025,
-      "doi": "10.5281/zenodo.18886853",
+      "doi": "10.5281/zenodo.20398445",
       "arxiv_id": null,
       "venue": "Zenodo (CERN European Organization for Nuclear Research)",
-      "abstract": null,
+      "abstract": "The rapid proliferation of large language models (LLMs) has accelerated the production of online content, yet this growth introduces a recursive dynamic: as models increasingly train on AI-generated text, the diversity and fidelity of outputs decline. Recent research identifies this phenomenon as model collapse, where recursive self-training erodes the statistical tails of language distributions, yielding homogenized and repetitive responses. Parallel studies of recommender systems highlight analogous feedback loops, including algorithmic monocultures and popularity bias, that converge toward uniformity and suppress minority content. Combined, these forces risk what may be termed a dull stable state: an equilibrium in which digital knowledge systems recycle their own outputs, losing novelty, accuracy, and epistemic richness. This state carries profound security implications. Homogenized training corpora amplify vulnerabilities to data poisoning, adversarial prompt injection, and covert manipulation, while reliance on synthetic data increases risks of privacy leakage through membership inference and undermines trust in provenance. Addressing these challenges requires robust data curation, provenance standards (e.g., watermarking, C2PA credentials), and hybrid training strategies that maintain human-authored input. The literature suggests that without such interventions, the pursuit of scale may trade diversity for stability, locking the AI ecosystem into a fragile equilibrium with degraded utility and heightened security exposure.",
       "source_api": "openalex",
       "query_id": "Q1"
     },
     {
-      "title": "Can we disrupt the momentum of the AI colonization of science education?",
-      "year": 2024,
-      "doi": "10.1002/tea.21961",
-      "arxiv_id": null,
-      "venue": "Journal of Research in Science Teaching",
-      "abstract": "Not a day goes by that an advertisement for a new generative AI tool that promises to revolutionize scientific research and education does not make its way to the news. Generative AI as a silver bullet. AI tools are used to extract data (usually without consent), replace research participants, read papers, summarize papers, write papers, design lesson plans, manage students, and assess students, just to name a few. Generative AI technologies are creating a techno-utopia and a new world order. The scientific community has increasingly been utilizing AI tools to improve research, namely, maximizing productivity by attempting to overcome human shortcomings (Messeri & Crockett, 2023). For example, AI tools can enhance scientific research by enabling fast collection and analysis of large data sets. This, however, is not without a cost, as it poses a potential threat to scientific research related to the AI algorithmic monoculture (i.e., choices and preferences are homogeneous, as, all of us enjoy the same kind of music, clothes, or films) in the face of algorithmic curation (Kleinberg & Raghavan, 2021). Can we, hence, ever imagine reverting to monocultural scientific research despite evidence of the value of diversity and plurality of voices and knowledge? The same question applies to education. Even though AI technologies have the potential to innovate teaching they also bring risks and challenges associated with digital monoculturalism as well as ethical, inclusive, and equitable use of AI (UNESCO, 2023). Educational institutions are buying into generative AI promises and hallucinations (Alkaissi & McFarlane, 2023) and frantically trying to catch up with a mass production of AI tools. National funding agencies in different parts of the world are allocating financial support for research projects utilizing AI tools in science and education (e.g., New Horizon Europe Funding for Data, Computing, and AI Technologies). Several (science) education journals have dedicated special issues to an examination of the potential of AI for teaching and learning. Researchers in science education are shifting their interests toward AI to engage with \"hot\" research in this new world order created by the AI industry. The problem with this new world order is that it repeats patterns of colonial history through exploitation and extraction of resources to enrich the wealthy and powerful at the great expense of the poor (Hao, 2022). There exists a wealth of evidence pointing to how AI has exploited marginalized communities for the development of large language models, for example, ChatGPT (Perrigo, 2023). Several studies have shed light on issues related to ethics, biases, and racial and gender stereotypes. For example, descriptions of people images through tagging (i.e., Google Cloud Vision API), personalized news feeds (i.e., Google Search, Amazon Cloud Search), virtual assistants (i.e., Siri), and large language models (i.e., ChatGPT) reflect human biases and reinforce social stereotypes: Physicists are white and male, Black people are athletic, Asian women are beautiful, Black women are hypersexualized (Kyriakou et al., 2019; Noble, 2013; Otterbacher et al., 2017). Moreover, research findings showed that online social networks and information networks (e.g., Who to Follow) that rely on algorithms and used for different purposes (e.g. networking, hiring, and promotion procedures) perpetuate inequities and further discriminate against minorities (Espín-Noboa et al., 2022). Other studies provided evidence of the large environmental impact of AI technologies, which include energy used from both the training of models and the actual use (De Vries, 2023; Luccioni et al., 2023). For example, the carbon footprint of an AI prompt is 4–5 times higher than a search engine query. More concretely, if the typical 9-billion daily Google searches were instead AI chatbot queries it would require as much power to run a country with a population of about 5 million people. Another indicative example of the energy consumption of AI tools is that generating only one image using an AI model takes as much energy as fully charging a smartphone (Luccioni et al., 2023). These are crucial socio-scientific issues that the science education community ought to engage with through a critical approach to AI. Instead, science education is currently operating at the service of the generative and predictive AI industry, at least in the Global North, and remains largely disengaged with issues related to digital monoculturalism, algorithmic biases, ethics, and exploitation of both human and natural resources by the AI industry. Essentially, what this means is that the AI industry is currently shaping the future of science education. In a systematic literature review examining the use of AI in school science in the period between 2010 and 2021, we found that AI applications have been used mostly to automate existing educational practices, for example, reducing workload and automatizing feedback (Heeg & Avraamidou, 2023). Another finding of our review is that the majority of the studies reviewed were atheoretical and lacked criticality. In identifying gaps in the existing knowledge base, we found that those cut across epistemic and sociocultural domains of science learning. Research studies examining the use of AI tools in education have focused largely on cognitive goals and have remained largely disengaged with goals connected to the nature of scientific knowledge, the social nature of both scientific research and learning as well as goals related to learners' socio-emotional development. For example, Intelligent Tutoring Systems with their focus on the cognitive needs of students, often leave unaddressed the critical challenge of supporting the need for social relationships and autonomy that are essential to learning, engaged behavior, and well-being (Collie, 2020). For this to be happening in the post-pandemic world is at least a paradox. Because, if there is one thing that the multiple lockdowns and campus closures taught us, it is that we cannot exist without embodied affairs with other people, no matter how many machines we have at our disposal. We are not only social, but we are also relational beings. We live our lives not only through social interactions but also through relationships with others in social ecologies (Wenger, 1998) where both embodiment and emotions are central (Avraamidou, 2020). The multiple forms of knowledge produced through social relations and how those intertwine with learners' and teachers' subjectivities, identities, values, and cultures while inherent to learning are absent from AI-driven tools, whether those are virtual tutors, chatbots, automated assessment tools, or learning analytics. Instead, the vast majority of AI systems follow a convenience-food approach to learning that promotes fast bite-sized learning over slow learning and prioritizes the use of specific learning paths for the purpose of achieving prescribed goals. Education is confused with training and students with machines that operate through an input–output process. This is reflected in tools that track the progress of students and provide analytics on their performance, engagement, and behavior to create either the \"ideal\" learning path or a personalized path toward an \"ideal\" prescribed outcome (Paolucci et al., 2024). This is how generative AI might promote both the dehumanization of learning and standardization of thinking instead of a celebration of the infinite ways of becoming a science learner (Avraamidou, 2020). Why? Because the Anglo-American AI industry is leading an unsolicited science education reform that lacks vision, it is a-theoretical, it is de-contextualized, it remains largely oblivious to research about how people learn, it is disconnected from social and political tasks of resistance, and it has profit instead of the learner at its center. A feminist AI will provide the frames and tools to prioritize algorithmic literacy and an understanding of how AI perpetuates biases, racism, and existing systems of oppression. Such an approach might also serve as a springboard for designing socially just AI-driven curricula that place all learners' identities, subjectivities, values, and cultures at the forefront. Science education does not need an AI utopia driven by corporate, neoliberal, and eugenics paradigms (Gebru & Torres, 2024), designed through pedagogies for the economy and a disimagination machine (Giroux, 2014). What the field needs is a human-centered feminist AI vision framed within relationality, embodiment, and resistance, pedagogies of care, affect, and cultural sustainability to curate educational spaces where humanization of science learning and social transformation that transcend the algorithm can happen. Can we disrupt the momentum of the AI colonization of science education? Yes, we can—once we step outside of corporate and capitalist visions of science education and imagine more sustainable and socially just futures.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Xenoreproduction: Exploration and Recovery of Collapsible Modes as Core AI Safety Objective",
-      "year": 2025,
-      "doi": "10.31224/5890",
-      "arxiv_id": null,
-      "venue": null,
-      "abstract": "Generative AI models reproduce the biases in the data and further amplify them through mode collapse. AI scholarship often overlooks conceptually rich perspectives, such as those from Queer Theory and Black Studies, when theorizing about those phenomena. As a result, our field lacks a theory with teeth, one sincerely committed to pluralism. In this paper, we introduce Xenoreproduction as a core AI Safety objective, aimed at avoiding homogenization failure modes. Succinctly, Xenoreproduction is the task of strategically recovering and exploring collapsible modes in Gen AI models. To illustrate it, we sketch how this task is formulated for LLMs. Our formalism ties queerness and subalternity to the collapsible modes. Our abstractions readily spark conversations about CoT dynamics and improvisation capability in agents. To render AI xenoreproductive is to ensure it adapts under uncertainty, invents new solutions, and behaves creatively. We invite future AI scholarship to form more unruly connections between disciplines.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Xenoreproduction: Exploration and Recovery of Collapsible Modes as Core AI Safety Objective",
-      "year": 2025,
-      "doi": "10.5281/zenodo.17742269",
+      "title": "Position: Large Language Model Failures from Hallucination to Homogenization Are Different Facets of Miscalibration",
+      "year": 2026,
+      "doi": "10.5281/zenodo.18499743",
       "arxiv_id": null,
       "venue": "Zenodo (CERN European Organization for Nuclear Research)",
-      "abstract": "Generative AI models reproduce the biases in the data and further amplify them through mode collapse. AI scholarship often overlooks conceptually rich perspectives, such as those from Queer Theory and Black Studies, when theorizing about those phenomena. As a result, our field lacks a theory with teeth, one sincerely committed to pluralism. In this paper, we introduce Xenoreproduction as a core AI Safety objective, aimed at avoiding homogenization failure modes. Succinctly, Xenoreproduction is the task of strategically recovering and exploring collapsible modes in Gen AI models. To illustrate it, we sketch how this task is formulated for LLMs. Our formalism ties queerness and subalternity to the collapsible modes. Our abstractions readily spark conversations about CoT dynamics and improvisation capability in agents. To render AI xenoreproductive is to ensure it adapts under uncertainty, invents new solutions, and behaves creatively. We invite future AI scholarship to form more unruly connections between disciplines.",
-      "source_api": "openalex",
-      "query_id": "Q1"
-    },
-    {
-      "title": "Xenoreproduction: Exploration and Recovery of Collapsible Modes as Core AI Safety Objective",
-      "year": 2026,
-      "doi": "10.2139/ssrn.5820442",
-      "arxiv_id": null,
-      "venue": "SSRN Electronic Journal",
       "abstract": null,
       "source_api": "openalex",
       "query_id": "Q1"
