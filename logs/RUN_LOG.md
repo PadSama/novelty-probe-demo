@@ -655,3 +655,134 @@ all 161 merged works mentioning these keywords: 112
 - 前 20 按检索式分布：Q1 4、Q2 5、Q3 5、Q4 1、Q5 2、Q6 3。
 - 前 20 中标题或摘要提到生成式 AI 关键词的有 11 篇，2023 年以前发表的 8 篇；全部 161 篇中提到这些关键词的有 112 篇。
 - 本步未判断新颖性；日志中列出的文献均附 DOI。
+
+---
+
+## [2026-10-31 15:22 UTC] Step 7 — 证据表（前 10 篇）与 DOI 核验脚本
+
+**研究者要求（本轮）**
+
+1. 读 `candidates.csv` 前 10 篇的摘要，对照 `facets/facets.md` 逐面标 overlap / differ / unknown，写到 `evidence/evidence_table.md`（列：rank, 作者, 年份, 题目, DOI/arXiv, 五个面, verified）。
+2. 写 `scripts/verify.py`：对每条 DOI 请求 `https://doi.org/<doi>`（跟随跳转），把 HTTP 状态和返回页标题写回 verified 列；没有 DOI 的标 UNVERIFIED。运行并记日志。
+
+**命令 1：读取前 10 篇（python3 内联脚本，读 candidates.csv 前 10 行全部字段）**
+
+结果：10 篇均有 DOI；9 篇有摘要，rank 1（M010）两个来源都没有返回摘要。
+
+**命令 2：doi.org 连通性**
+
+```bash
+curl -sS -m 30 -o /dev/null -w "doi.org: HTTP %{http_code}\n" "https://doi.org/10.1126/sciadv.adn5290"
+```
+
+输出：
+
+```
+curl: (56) CONNECT tunnel failed, response 403
+doi.org: HTTP 000
+```
+
+**命令 3：补作者（search.py 保存的字段不含作者；按 DOI 查 OpenAlex）**
+
+```bash
+python3 -B scripts/authors.py --top 10
+```
+
+输出：
+
+```
+  1 M010  n_authors=24   title_matches=True  first=Zhen Zhang  
+  2 M031  n_authors=2    title_matches=True  first=Anil Rajnikant Doshi  
+  3 M039  n_authors=4    title_matches=True  first=Stuart R. Borrett  
+  4 M024  n_authors=3    title_matches=True  first=Barrett R. Anderson  
+  5 M022  n_authors=6    title_matches=True  first=Hanadi Aldreabi  
+  6 M035  n_authors=2    title_matches=True  first=Kumari Rashmi  
+  7 M036  n_authors=3    title_matches=True  first=Payal R. Phulwani  
+  8 M042  n_authors=6    title_matches=True  first=Ross D. King  
+  9 M002  n_authors=1    title_matches=True  first=Xueqi Yin  
+ 10 M032  n_authors=2    title_matches=True  first=T. Orchard  
+written: evidence/authors.json
+exit code: 0
+```
+
+**命令 4：写 evidence/evidence_table.md**
+
+逐篇阅读摘要，按文件中写明的标注规则逐面标注，并在"判定依据"一节附摘要原文。标签统计（python3 内联脚本解析表格）：
+
+```
+rows: 10; every row has 11 cells: True
+研究问题: overlap 0 [] | differ 10 | unknown 0 []
+作用机制: overlap 2 ['2', '4'] | differ 7 | unknown 1 ['1']
+研究情境: overlap 0 [] | differ 9 | unknown 1 ['1']
+数据与方法: overlap 5 ['3', '5', '6', '7', '9'] | differ 5 | unknown 0 []
+预期发现: overlap 2 ['2', '4'] | differ 7 | unknown 1 ['1']
+```
+
+**命令 5：verify.py 本地测试（127.0.0.1 测试服务器，不访问外网）**
+
+```bash
+python3 -I -B - <<'PY'   # 正常跳转+标题（含 | 转义）、出版商 403、跳转后连接失败、仅 arXiv 无 DOI、页面无 <title>
+PY
+```
+
+结果：ALL PASSED。
+
+**命令 6：真实运行**
+
+```bash
+python3 -B scripts/verify.py
+```
+
+输出：
+
+```
+verify run at 2026-10-31T15:21:14+00:00  table=/home/user/novelty-probe-demo/evidence/evidence_table.md
+[1] doi:10.1038/s41586-025-09640-5
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[2] doi:10.1126/sciadv.adn5290
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[3] doi:10.1016/j.ecolmodel.2018.04.020
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[4] doi:10.1145/3635636.3656204
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[5] doi:10.1016/j.caeai.2025.100456
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[6] doi:10.1108/ijssp-06-2021-0145
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[7] doi:10.1080/08911762.2020.1765444
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[8] doi:10.1109/hicss.1993.270676
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[9] doi:10.1038/s41598-026-54348-9
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+[10] doi:10.18559/ebr.2023.2.732
+      redirects: (no redirect)
+      result:    BLOCKED at doi.org (network policy, proxy 403)
+
+summary: BLOCKED at doi.org: 10
+written: verified column in /home/user/novelty-probe-demo/evidence/evidence_table.md
+exit code: 1
+```
+
+**产出文件**
+
+- `scripts/authors.py` — 新增：按 DOI 从 OpenAlex 查作者
+- `evidence/authors.json` — 前 10 篇的作者（OpenAlex 返回题目与表中题目 10/10 一致）
+- `evidence/evidence_table.md` — 证据表与判定依据；verified 列目前为 BLOCKED
+- `scripts/verify.py` — 新增：DOI 核验，结果写回 verified 列
+- 删除 `evidence/.gitkeep`（目录已有文件）
+
+**备注**
+
+- `doi.org` 被本环境的网络策略拒绝（代理 403），10 个 DOI 均未能核验。需要研究者在环境设置中放行 `doi.org`；跟随跳转还会访问各出版商网站，这些域名也需放行或调宽网络访问级别。放行后重跑命令 6 即可覆盖 verified 列。
+- 标注只依据摘要；rank 1 无摘要，仅研究问题与数据与方法两面依据题目标注，其余为 unknown。
+- 本步未判断新颖性。
