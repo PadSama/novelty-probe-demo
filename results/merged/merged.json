@@ -1,6 +1,6 @@
 {
   "meta": {
-    "created_at": "2026-10-31T14:57:56+00:00",
+    "created_at": "2026-10-31T15:07:15+00:00",
     "script": "scripts/merge.py",
     "dedup_rules": [
       "same DOI (case-insensitive; OSF/TechRxiv/Research Square version suffix ignored)",
@@ -152,6 +152,26 @@
         "Q4": 1,
         "Q5": 38,
         "Q6": 38
+      },
+      "hits_distribution": {
+        "2": 42,
+        "1": 119
+      }
+    },
+    "candidates": {
+      "file": "results/merged/candidates.csv",
+      "top_k": 20,
+      "sort": "hits desc, n_queries desc, n_sources desc, mean_rank asc, merged_id",
+      "cutoff_hits": 2,
+      "works_with_cutoff_hits": 42,
+      "of_which_outside_top_k": 22,
+      "per_query": {
+        "Q1": 4,
+        "Q2": 5,
+        "Q3": 5,
+        "Q4": 1,
+        "Q5": 2,
+        "Q6": 3
       }
     }
   },
@@ -174,6 +194,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 24.5,
       "raw_refs": [
         "openalex_Q5#25",
         "semanticscholar_Q5#24"
@@ -197,6 +221,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 3.5,
       "raw_refs": [
         "openalex_Q3#3",
         "semanticscholar_Q3#4"
@@ -220,6 +248,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 18.0,
       "raw_refs": [
         "openalex_Q5#17",
         "semanticscholar_Q5#19"
@@ -243,6 +275,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 22.0,
       "raw_refs": [
         "openalex_Q5#23",
         "semanticscholar_Q5#21"
@@ -266,6 +302,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 7.0,
       "raw_refs": [
         "openalex_Q3#5",
         "semanticscholar_Q3#9"
@@ -289,6 +329,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 9.5,
       "raw_refs": [
         "openalex_Q5#3",
         "semanticscholar_Q5#16"
@@ -312,6 +356,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 10.0,
       "raw_refs": [
         "openalex_Q6#1",
         "semanticscholar_Q6#19"
@@ -335,6 +383,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 18.0,
       "raw_refs": [
         "openalex_Q5#22",
         "semanticscholar_Q5#14"
@@ -358,6 +410,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 9.0,
       "raw_refs": [
         "openalex_Q6#5",
         "semanticscholar_Q6#13"
@@ -381,6 +437,10 @@
       "query_ids": [
         "Q4"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 1.0,
       "raw_refs": [
         "openalex_Q4#1",
         "semanticscholar_Q4#1"
@@ -404,6 +464,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 6.5,
       "raw_refs": [
         "openalex_Q5#11",
         "semanticscholar_Q5#2"
@@ -427,6 +491,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 18.5,
       "raw_refs": [
         "openalex_Q2#21",
         "semanticscholar_Q2#16"
@@ -450,6 +518,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 13.0,
       "raw_refs": [
         "openalex_Q2#5",
         "semanticscholar_Q2#21"
@@ -473,6 +545,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 13.0,
       "raw_refs": [
         "openalex_Q5#19",
         "semanticscholar_Q5#7"
@@ -496,6 +572,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 21.5,
       "raw_refs": [
         "openalex_Q2#20",
         "semanticscholar_Q2#23"
@@ -519,6 +599,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 16.0,
       "raw_refs": [
         "openalex_Q5#15",
         "semanticscholar_Q5#17"
@@ -542,6 +626,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 20.0,
       "raw_refs": [
         "openalex_Q2#15",
         "semanticscholar_Q2#25"
@@ -565,6 +653,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 13.0,
       "raw_refs": [
         "openalex_Q6#11",
         "semanticscholar_Q6#15"
@@ -588,6 +680,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 5.0,
       "raw_refs": [
         "openalex_Q1#3",
         "openalex_Q1#9",
@@ -612,6 +708,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 14.5,
       "raw_refs": [
         "openalex_Q5#24",
         "semanticscholar_Q5#5"
@@ -635,6 +735,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 17.5,
       "raw_refs": [
         "openalex_Q2#13",
         "semanticscholar_Q2#22"
@@ -658,6 +762,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 2.5,
       "raw_refs": [
         "openalex_Q5#2",
         "semanticscholar_Q5#3"
@@ -684,6 +792,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 12.5,
       "raw_refs": [
         "openalex_Q1#10",
         "openalex_Q1#17",
@@ -709,6 +821,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 2.0,
       "raw_refs": [
         "openalex_Q1#2",
         "semanticscholar_Q1#2"
@@ -738,6 +854,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 9.0,
       "raw_refs": [
         "openalex_Q1#8",
         "openalex_Q1#15",
@@ -766,6 +886,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 6.5,
       "raw_refs": [
         "openalex_Q6#8",
         "semanticscholar_Q6#5"
@@ -789,6 +913,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 22.5,
       "raw_refs": [
         "openalex_Q6#25",
         "semanticscholar_Q6#20"
@@ -815,6 +943,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 13.5,
       "raw_refs": [
         "openalex_Q2#9",
         "openalex_Q2#10",
@@ -840,6 +972,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 14.5,
       "raw_refs": [
         "openalex_Q6#21",
         "semanticscholar_Q6#8"
@@ -863,6 +999,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 14.0,
       "raw_refs": [
         "openalex_Q6#24",
         "semanticscholar_Q6#4"
@@ -886,6 +1026,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 1.0,
       "raw_refs": [
         "openalex_Q1#1",
         "semanticscholar_Q1#1"
@@ -909,6 +1053,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 3.5,
       "raw_refs": [
         "openalex_Q6#4",
         "semanticscholar_Q6#3"
@@ -932,6 +1080,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 10.5,
       "raw_refs": [
         "openalex_Q2#4",
         "semanticscholar_Q2#17"
@@ -955,6 +1107,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 5.5,
       "raw_refs": [
         "openalex_Q2#6",
         "semanticscholar_Q2#5"
@@ -978,6 +1134,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 2.5,
       "raw_refs": [
         "openalex_Q2#3",
         "semanticscholar_Q2#2"
@@ -1001,6 +1161,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 2.5,
       "raw_refs": [
         "openalex_Q2#2",
         "semanticscholar_Q2#3"
@@ -1024,6 +1188,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 4.5,
       "raw_refs": [
         "openalex_Q3#6",
         "semanticscholar_Q3#3"
@@ -1047,6 +1215,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 8.5,
       "raw_refs": [
         "openalex_Q2#11",
         "semanticscholar_Q2#6"
@@ -1070,6 +1242,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 1.0,
       "raw_refs": [
         "openalex_Q2#1",
         "semanticscholar_Q2#1"
@@ -1093,6 +1269,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 4.0,
       "raw_refs": [
         "openalex_Q3#7",
         "semanticscholar_Q3#1"
@@ -1116,6 +1296,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 16.0,
       "raw_refs": [
         "openalex_Q2#25",
         "semanticscholar_Q2#7"
@@ -1139,6 +1323,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 2,
+      "hits": 2,
+      "mean_rank": 3.0,
       "raw_refs": [
         "openalex_Q3#4",
         "semanticscholar_Q3#2"
@@ -1163,6 +1351,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 8.0,
       "raw_refs": [
         "openalex_Q5#8",
         "openalex_Q5#9"
@@ -1185,6 +1377,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 25.0,
       "raw_refs": [
         "semanticscholar_Q5#25"
       ]
@@ -1206,6 +1402,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 22.0,
       "raw_refs": [
         "semanticscholar_Q5#22"
       ]
@@ -1227,6 +1427,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 22.0,
       "raw_refs": [
         "openalex_Q6#22"
       ]
@@ -1248,6 +1452,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 23.0,
       "raw_refs": [
         "openalex_Q6#23"
       ]
@@ -1269,6 +1477,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 17.0,
       "raw_refs": [
         "semanticscholar_Q6#17"
       ]
@@ -1290,6 +1502,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 12.0,
       "raw_refs": [
         "openalex_Q1#12"
       ]
@@ -1311,6 +1527,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 1.0,
       "raw_refs": [
         "openalex_Q5#1"
       ]
@@ -1332,6 +1552,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 5.0,
       "raw_refs": [
         "openalex_Q5#5"
       ]
@@ -1353,6 +1577,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 16.0,
       "raw_refs": [
         "semanticscholar_Q6#16"
       ]
@@ -1374,6 +1602,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 7.0,
       "raw_refs": [
         "openalex_Q2#7"
       ]
@@ -1395,6 +1627,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 23.0,
       "raw_refs": [
         "openalex_Q2#23"
       ]
@@ -1416,6 +1652,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 14.0,
       "raw_refs": [
         "semanticscholar_Q6#14"
       ]
@@ -1437,6 +1677,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 11.0,
       "raw_refs": [
         "semanticscholar_Q6#11"
       ]
@@ -1458,6 +1702,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 20.0,
       "raw_refs": [
         "openalex_Q5#20"
       ]
@@ -1479,6 +1727,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 17.0,
       "raw_refs": [
         "openalex_Q2#17"
       ]
@@ -1500,6 +1752,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 14.0,
       "raw_refs": [
         "openalex_Q2#14"
       ]
@@ -1521,6 +1777,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 7.0,
       "raw_refs": [
         "openalex_Q1#7"
       ]
@@ -1542,6 +1802,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 24.0,
       "raw_refs": [
         "openalex_Q2#24"
       ]
@@ -1563,6 +1827,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 14.0,
       "raw_refs": [
         "openalex_Q6#14"
       ]
@@ -1584,6 +1852,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 8.0,
       "raw_refs": [
         "semanticscholar_Q5#8"
       ]
@@ -1605,6 +1877,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 10.0,
       "raw_refs": [
         "openalex_Q6#10"
       ]
@@ -1626,6 +1902,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 4.0,
       "raw_refs": [
         "openalex_Q1#4"
       ]
@@ -1647,6 +1927,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 10.0,
       "raw_refs": [
         "semanticscholar_Q5#10"
       ]
@@ -1670,6 +1954,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 13.0,
       "raw_refs": [
         "openalex_Q5#13",
         "openalex_Q5#14"
@@ -1692,6 +1980,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 9.0,
       "raw_refs": [
         "semanticscholar_Q5#9"
       ]
@@ -1713,6 +2005,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 21.0,
       "raw_refs": [
         "openalex_Q5#21"
       ]
@@ -1734,6 +2030,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 19.0,
       "raw_refs": [
         "openalex_Q2#19"
       ]
@@ -1757,6 +2057,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 12.0,
       "raw_refs": [
         "openalex_Q6#12",
         "openalex_Q6#13"
@@ -1779,6 +2083,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 23.0,
       "raw_refs": [
         "semanticscholar_Q5#23"
       ]
@@ -1800,6 +2108,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 5.0,
       "raw_refs": [
         "openalex_Q1#5"
       ]
@@ -1821,6 +2133,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 24.0,
       "raw_refs": [
         "semanticscholar_Q1#24"
       ]
@@ -1842,6 +2158,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 18.0,
       "raw_refs": [
         "semanticscholar_Q5#18"
       ]
@@ -1863,6 +2183,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 6.0,
       "raw_refs": [
         "openalex_Q5#6"
       ]
@@ -1884,6 +2208,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 25.0,
       "raw_refs": [
         "openalex_Q1#25"
       ]
@@ -1905,6 +2233,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 18.0,
       "raw_refs": [
         "openalex_Q5#18"
       ]
@@ -1926,6 +2258,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 18.0,
       "raw_refs": [
         "openalex_Q1#18"
       ]
@@ -1947,6 +2283,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 13.0,
       "raw_refs": [
         "openalex_Q1#13"
       ]
@@ -1968,6 +2308,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 6.0,
       "raw_refs": [
         "openalex_Q6#6"
       ]
@@ -1989,6 +2333,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 6.0,
       "raw_refs": [
         "semanticscholar_Q3#6"
       ]
@@ -2010,6 +2358,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 22.0,
       "raw_refs": [
         "openalex_Q2#22"
       ]
@@ -2031,6 +2383,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 18.0,
       "raw_refs": [
         "openalex_Q6#18"
       ]
@@ -2052,6 +2408,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 8.0,
       "raw_refs": [
         "openalex_Q2#8"
       ]
@@ -2073,6 +2433,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 12.0,
       "raw_refs": [
         "semanticscholar_Q5#12"
       ]
@@ -2094,6 +2458,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 1.0,
       "raw_refs": [
         "openalex_Q3#1"
       ]
@@ -2115,6 +2483,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 14.0,
       "raw_refs": [
         "semanticscholar_Q1#14"
       ]
@@ -2136,6 +2508,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 1.0,
       "raw_refs": [
         "semanticscholar_Q5#1"
       ]
@@ -2157,6 +2533,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 5.0,
       "raw_refs": [
         "semanticscholar_Q1#5"
       ]
@@ -2178,6 +2558,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 13.0,
       "raw_refs": [
         "semanticscholar_Q1#13"
       ]
@@ -2199,6 +2583,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 20.0,
       "raw_refs": [
         "semanticscholar_Q1#20"
       ]
@@ -2220,6 +2608,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 14.0,
       "raw_refs": [
         "openalex_Q1#14"
       ]
@@ -2241,6 +2633,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 11.0,
       "raw_refs": [
         "openalex_Q1#11"
       ]
@@ -2262,6 +2658,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 19.0,
       "raw_refs": [
         "semanticscholar_Q2#19"
       ]
@@ -2283,6 +2683,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 24.0,
       "raw_refs": [
         "openalex_Q1#24"
       ]
@@ -2304,6 +2708,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 12.0,
       "raw_refs": [
         "semanticscholar_Q6#12"
       ]
@@ -2325,6 +2733,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 13.0,
       "raw_refs": [
         "semanticscholar_Q2#13"
       ]
@@ -2346,6 +2758,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 4.0,
       "raw_refs": [
         "semanticscholar_Q5#4"
       ]
@@ -2367,6 +2783,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 15.0,
       "raw_refs": [
         "semanticscholar_Q5#15"
       ]
@@ -2388,6 +2808,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 6.0,
       "raw_refs": [
         "semanticscholar_Q5#6"
       ]
@@ -2409,6 +2833,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 2.0,
       "raw_refs": [
         "openalex_Q6#2"
       ]
@@ -2430,6 +2858,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 6.0,
       "raw_refs": [
         "openalex_Q1#6"
       ]
@@ -2451,6 +2883,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 10.0,
       "raw_refs": [
         "openalex_Q5#10"
       ]
@@ -2472,6 +2908,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 15.0,
       "raw_refs": [
         "openalex_Q6#15"
       ]
@@ -2493,6 +2933,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 7.0,
       "raw_refs": [
         "openalex_Q6#7"
       ]
@@ -2514,6 +2958,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 11.0,
       "raw_refs": [
         "semanticscholar_Q5#11"
       ]
@@ -2535,6 +2983,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 23.0,
       "raw_refs": [
         "semanticscholar_Q1#23"
       ]
@@ -2556,6 +3008,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 9.0,
       "raw_refs": [
         "semanticscholar_Q1#9"
       ]
@@ -2577,6 +3033,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 22.0,
       "raw_refs": [
         "semanticscholar_Q1#22"
       ]
@@ -2598,6 +3058,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 16.0,
       "raw_refs": [
         "openalex_Q2#16"
       ]
@@ -2619,6 +3083,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 16.0,
       "raw_refs": [
         "openalex_Q1#16"
       ]
@@ -2640,6 +3108,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 21.0,
       "raw_refs": [
         "semanticscholar_Q1#21"
       ]
@@ -2661,6 +3133,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 20.0,
       "raw_refs": [
         "semanticscholar_Q5#20"
       ]
@@ -2682,6 +3158,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 12.0,
       "raw_refs": [
         "semanticscholar_Q2#12"
       ]
@@ -2703,6 +3183,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 16.0,
       "raw_refs": [
         "openalex_Q5#16"
       ]
@@ -2724,6 +3208,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 8.0,
       "raw_refs": [
         "openalex_Q3#8"
       ]
@@ -2745,6 +3233,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 4.0,
       "raw_refs": [
         "openalex_Q5#4"
       ]
@@ -2766,6 +3258,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 7.0,
       "raw_refs": [
         "semanticscholar_Q6#7"
       ]
@@ -2787,6 +3283,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 3.0,
       "raw_refs": [
         "semanticscholar_Q1#3"
       ]
@@ -2808,6 +3308,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 19.0,
       "raw_refs": [
         "semanticscholar_Q1#19"
       ]
@@ -2829,6 +3333,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 14.0,
       "raw_refs": [
         "semanticscholar_Q2#14"
       ]
@@ -2850,6 +3358,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 11.0,
       "raw_refs": [
         "semanticscholar_Q2#11"
       ]
@@ -2871,6 +3383,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 7.0,
       "raw_refs": [
         "openalex_Q5#7"
       ]
@@ -2892,6 +3408,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 6.0,
       "raw_refs": [
         "semanticscholar_Q1#6"
       ]
@@ -2913,6 +3433,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 16.0,
       "raw_refs": [
         "semanticscholar_Q1#16"
       ]
@@ -2934,6 +3458,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 11.0,
       "raw_refs": [
         "semanticscholar_Q1#11"
       ]
@@ -2955,6 +3483,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 17.0,
       "raw_refs": [
         "semanticscholar_Q1#17"
       ]
@@ -2976,6 +3508,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 22.0,
       "raw_refs": [
         "semanticscholar_Q6#22"
       ]
@@ -2997,6 +3533,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 18.0,
       "raw_refs": [
         "semanticscholar_Q6#18"
       ]
@@ -3018,6 +3558,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 25.0,
       "raw_refs": [
         "semanticscholar_Q1#25"
       ]
@@ -3039,6 +3583,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 9.0,
       "raw_refs": [
         "openalex_Q6#9"
       ]
@@ -3060,6 +3608,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 7.0,
       "raw_refs": [
         "semanticscholar_Q3#7"
       ]
@@ -3081,6 +3633,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 4.0,
       "raw_refs": [
         "semanticscholar_Q1#4"
       ]
@@ -3102,6 +3658,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 19.0,
       "raw_refs": [
         "openalex_Q6#19"
       ]
@@ -3123,6 +3683,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 12.0,
       "raw_refs": [
         "openalex_Q5#12"
       ]
@@ -3144,6 +3708,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 24.0,
       "raw_refs": [
         "semanticscholar_Q2#24"
       ]
@@ -3165,6 +3733,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 8.0,
       "raw_refs": [
         "semanticscholar_Q1#8"
       ]
@@ -3186,6 +3758,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 2.0,
       "raw_refs": [
         "openalex_Q3#2"
       ]
@@ -3207,6 +3783,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 9.0,
       "raw_refs": [
         "semanticscholar_Q6#9"
       ]
@@ -3228,6 +3808,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 10.0,
       "raw_refs": [
         "semanticscholar_Q6#10",
         "semanticscholar_Q6#21"
@@ -3250,6 +3834,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 23.0,
       "raw_refs": [
         "semanticscholar_Q6#23"
       ]
@@ -3271,6 +3859,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 16.0,
       "raw_refs": [
         "openalex_Q6#16"
       ]
@@ -3292,6 +3884,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 1.0,
       "raw_refs": [
         "semanticscholar_Q6#1"
       ]
@@ -3313,6 +3909,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 15.0,
       "raw_refs": [
         "semanticscholar_Q2#15"
       ]
@@ -3334,6 +3934,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 18.0,
       "raw_refs": [
         "semanticscholar_Q1#18"
       ]
@@ -3355,6 +3959,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 2.0,
       "raw_refs": [
         "semanticscholar_Q6#2"
       ]
@@ -3376,6 +3984,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 6.0,
       "raw_refs": [
         "semanticscholar_Q6#6"
       ]
@@ -3397,6 +4009,10 @@
       "query_ids": [
         "Q1"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 12.0,
       "raw_refs": [
         "semanticscholar_Q1#12"
       ]
@@ -3418,6 +4034,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 17.0,
       "raw_refs": [
         "openalex_Q6#17"
       ]
@@ -3439,6 +4059,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 20.0,
       "raw_refs": [
         "openalex_Q6#20"
       ]
@@ -3460,6 +4084,10 @@
       "query_ids": [
         "Q6"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 3.0,
       "raw_refs": [
         "openalex_Q6#3"
       ]
@@ -3481,6 +4109,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 8.0,
       "raw_refs": [
         "semanticscholar_Q3#8"
       ]
@@ -3502,6 +4134,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 18.0,
       "raw_refs": [
         "openalex_Q2#18"
       ]
@@ -3523,6 +4159,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 8.0,
       "raw_refs": [
         "semanticscholar_Q2#8"
       ]
@@ -3544,6 +4184,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 20.0,
       "raw_refs": [
         "semanticscholar_Q2#20"
       ]
@@ -3565,6 +4209,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 9.0,
       "raw_refs": [
         "semanticscholar_Q2#9"
       ]
@@ -3586,6 +4234,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 10.0,
       "raw_refs": [
         "semanticscholar_Q2#10"
       ]
@@ -3607,6 +4259,10 @@
       "query_ids": [
         "Q2"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 4.0,
       "raw_refs": [
         "semanticscholar_Q2#4"
       ]
@@ -3628,6 +4284,10 @@
       "query_ids": [
         "Q3"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 5.0,
       "raw_refs": [
         "semanticscholar_Q3#5"
       ]
@@ -3649,6 +4309,10 @@
       "query_ids": [
         "Q5"
       ],
+      "n_queries": 1,
+      "n_sources": 1,
+      "hits": 1,
+      "mean_rank": 13.0,
       "raw_refs": [
         "semanticscholar_Q5#13"
       ]

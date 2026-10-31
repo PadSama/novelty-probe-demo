@@ -551,3 +551,107 @@ OSF 8p9wu now in 1 merged record(s): [('M025', 7)]
 - M028 的 alt_ids 中有一个 OpenAlex 原样返回的异常 DOI 字符串（带 "/full/html?utm_source=repec…" 后缀），按"不改写"原则保留。
 - 来源：仅 OpenAlex 54、仅 S2 65、两者都有 42。没有一篇同时被两条以上检索式命中。
 - 本步未判断新颖性，日志中未列出文献标题。
+
+---
+
+## [2026-10-31 15:08 UTC] Step 6 — merge.py 增加命中统计，输出前 20 候选 candidates.csv
+
+**研究者要求（本轮）**：合并 results/raw 全部文件，按 DOI / arXiv ID / 规范化标题去重，统计每篇被多少条检索式、多少个来源命中，按命中次数降序取前 20 写到 `results/merged/candidates.csv`。
+
+`scripts/merge.py` 在 Step 5 已建立（去重规则不变），本步在其上扩展。统计口径：
+
+- `n_queries` 命中的检索式数；`n_sources` 命中的来源数
+- `hits` 命中次数 = 命中的"检索式 × 来源"结果列表数（最多 12）；同一列表中同一篇的多个版本只算一次
+- `mean_rank` 在各命中列表中最好名次的平均值（OpenAlex 名次按相关度，S2 名次按被引次数）
+- 排序：hits 降序 → n_queries 降序 → n_sources 降序 → mean_rank 升序 → merged_id；取前 20
+
+**命令 1：保存改动前的编号对照（用于确认编号不变）**
+
+```bash
+python3 -I -c "...json.dump({merged_id: raw_refs})..."   # -> 临时目录 merged_ids_before.json（161 条）
+```
+
+**命令 2：扩展 scripts/merge.py；单元测试（合成记录，占位 ID）**
+
+```bash
+python3 -I -B - <<'PY'   # 去重回归测试 + 命中统计 + 排序规则
+PY
+```
+
+结果：regression (dedup) PASSED；hit statistics PASSED；candidate ordering PASSED。
+
+**命令 3：运行**
+
+```bash
+python3 scripts/merge.py
+```
+
+输出：
+
+```
+inputs:     12 files, 217 raw records
+merged:     161 works (duplicates removed: 56; groups linked by title only: 7)
+id_status:  DOI 143 | arXiv 14 | UNVERIFIED 4
+sources:    openalex only 54 | semanticscholar only 65 | both 42
+per query:  Q1 37 | Q2 35 | Q3 12 | Q4 1 | Q5 38 | Q6 38   (works hit by more than one query: 0)
+hits:       2 hit(s): 42 works | 1 hit(s): 119 works   (hits = number of query x source result lists containing the work)
+written:    results/merged/merged.json, results/merged/candidates.csv (top 20)
+cutoff:     #20 has hits=2; 42 works have hits=2, 22 of them fall outside the top 20 (decided by n_queries, n_sources, mean_rank)
+candidates per query: Q1 4 | Q2 5 | Q3 5 | Q4 1 | Q5 2 | Q6 3
+
+rank  id    hits  nq  ns mean_rank  identifier                                 title
+   1  M010     2   1   2       1.0  doi:10.1038/s41586-025-09640-5             A multimodal robotic platform for multi-element electrocatal…
+   2  M031     2   1   2       1.0  doi:10.1126/sciadv.adn5290                 Generative AI enhances individual creativity but reduces the…
+   3  M039     2   1   2       1.0  doi:10.1016/j.ecolmodel.2018.04.020        Bibliometric review of ecological network analysis: 2010–201…
+   4  M024     2   1   2       2.0  doi:10.1145/3635636.3656204                Homogenization Effects of Large Language Models on Human Cre…
+   5  M022     2   1   2       2.5  doi:10.1016/j.caeai.2025.100456            Unveiling the dynamics of generative AI adoption: A business…
+   6  M035     2   1   2       2.5  doi:10.1108/ijssp-06-2021-0145             Work–life balance: a systematic literature review and biblio…
+   7  M036     2   1   2       2.5  doi:10.1080/08911762.2020.1765444          A Systematic Literature Review and Bibliometric Analysis of …
+   8  M042     2   1   2       3.0  doi:10.1109/hicss.1993.270676              Drug design using inductive logic programming
+   9  M002     2   1   2       3.5  doi:10.1038/s41598-026-54348-9             A temporal adaptive dictionary-constrained LDA and Bi-calibr…
+  10  M032     2   1   2       3.5  doi:10.18559/ebr.2023.2.732                The rise of generative AI and possible effects on the econom…
+  11  M040     2   1   2       4.0  doi:10.1186/s13643-018-0709-6              Evaluating characteristics of PROSPERO records as predictors…
+  12  M037     2   1   2       4.5  doi:10.1007/978-981-15-1420-3_90           Feature Selection Algorithms in Medical Data Classification:…
+  13  M019     2   1   2       5.0  doi:10.1016/j.tics.2026.01.003             The homogenizing effect of large language models on human ex…
+  14  M034     2   1   2       5.5  doi:10.1007/s13132-022-00920-3             Design Thinking: from Bibliometric Analysis to Content Analy…
+  15  M011     2   1   2       6.5  doi:10.48550/arxiv.2506.21818              A systematic review of research on large language models for…
+  16  M026     2   1   2       6.5  doi:10.1109/access.2024.3491373            Optimizing Secure AI Lifecycle Model Management With Innovat…
+  17  M005     2   1   2       7.0  doi:10.1177/01655515261461741              From connectivity to insight: A graph neural network–large l…
+  18  M038     2   1   2       8.5  doi:10.1108/bij-04-2020-0137               Service supply chain: from bibliometric analysis to content …
+  19  M009     2   1   2       9.0  doi:10.48550/arxiv.2606.10587              Towards Diverse Scientific Hypothesis Search with Large Lang…
+  20  M025     2   1   2       9.0  doi:10.1016/j.chbah.2025.100207            Homogenizing effect of large language models (LLMs) on creat…
+exit code: 0
+```
+
+**命令 4：核对与诊断（python3 内联脚本）**
+
+```
+# 编号对照、CSV 读回检查；按研究者的生成式 AI 筛选关键词统计（标题+摘要，正则，不区分大小写）：
+# LLM(s) | ChatGPT | GPT-<数字> | Gemini | Claude | OpenAI | Anthropic | generative AI |
+# generative artificial intelligence | large language model(s)
+```
+
+输出：
+
+```
+merged_id unchanged vs previous run: True
+candidates.csv: BOM=True  rows=20  columns=17
+ranks 1..20, hits non-increasing, id_status consistent: OK
+
+top-20 mentioning generative-AI keywords in title/abstract: 11/20  ranks=[2, 4, 5, 9, 10, 13, 15, 16, 17, 19, 20]
+top-20 published before 2023: 8/20
+all 161 merged works mentioning these keywords: 112
+```
+
+**产出文件**
+
+- `scripts/merge.py` — 扩展：命中统计、candidates.csv
+- `results/merged/merged.json` — 重新生成（merged_id 与 Step 5 一致；每篇新增 n_queries / n_sources / hits / mean_rank；meta 新增 candidates 小节）
+- `results/merged/candidates.csv` — 前 20 篇，17 列，带 BOM 的 UTF-8
+
+**备注**
+
+- 没有一篇被两条以上检索式命中，hits 只有 1 或 2（2 = 两个来源都命中同一检索式）。hits=2 的 42 篇并列，前 20 由并列规则（实际是 mean_rank）从中选出，另 22 篇落在前 20 之外。
+- 前 20 按检索式分布：Q1 4、Q2 5、Q3 5、Q4 1、Q5 2、Q6 3。
+- 前 20 中标题或摘要提到生成式 AI 关键词的有 11 篇，2023 年以前发表的 8 篇；全部 161 篇中提到这些关键词的有 112 篇。
+- 本步未判断新颖性；日志中列出的文献均附 DOI。
