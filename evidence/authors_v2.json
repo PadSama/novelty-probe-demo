@@ -1,0 +1,168 @@
+{
+  "meta": {
+    "source": "OpenAlex /works/doi:<doi>",
+    "script": "scripts/authors.py",
+    "input": "results/merged/candidates_v2.csv",
+    "top": 10,
+    "retrieved_at": "2026-10-31T16:55:49+00:00"
+  },
+  "records": [
+    {
+      "rank": 1,
+      "merged_id": "M001",
+      "doi": "10.2139/ssrn.4389118",
+      "openalex_id": "https://openalex.org/W4327517997",
+      "openalex_title": "Artificial Intelligence and the Economics of Decision-Making",
+      "title_matches": true,
+      "authors": [
+        "Wim A. Naudé"
+      ],
+      "n_authors": 1,
+      "error": null
+    },
+    {
+      "rank": 2,
+      "merged_id": "M027",
+      "doi": "10.1126/sciadv.adn5290",
+      "openalex_id": "https://openalex.org/W4400578758",
+      "openalex_title": "Generative AI enhances individual creativity but reduces the collective diversity of novel content",
+      "title_matches": true,
+      "authors": [
+        "Anil Rajnikant Doshi",
+        "Oliver Hauser"
+      ],
+      "n_authors": 2,
+      "error": null
+    },
+    {
+      "rank": 3,
+      "merged_id": "M003",
+      "doi": "10.1038/s41586-025-09922-y",
+      "openalex_id": "https://openalex.org/W7124140759",
+      "openalex_title": "Artificial intelligence tools expand scientists’ impact but contract science’s focus",
+      "title_matches": true,
+      "authors": [
+        "Qianyue Hao",
+        "Fengli Xu",
+        "Yong Li",
+        "James A. Evans"
+      ],
+      "n_authors": 4,
+      "error": null
+    },
+    {
+      "rank": 4,
+      "merged_id": "M021",
+      "doi": "10.1145/3635636.3656204",
+      "openalex_id": "https://openalex.org/W4391556516",
+      "openalex_title": "Homogenization Effects of Large Language Models on Human Creative Ideation",
+      "title_matches": true,
+      "authors": [
+        "Barrett R. Anderson",
+        "Jash Hemant Shah",
+        "Max Kreminski"
+      ],
+      "n_authors": 3,
+      "error": null
+    },
+    {
+      "rank": 5,
+      "merged_id": "M018",
+      "doi": "10.1016/j.caeai.2025.100456",
+      "openalex_id": "https://openalex.org/W4412999287",
+      "openalex_title": "Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliometric study",
+      "title_matches": true,
+      "authors": [
+        "Hanadi Aldreabi",
+        "Mohammad Alhur",
+        "Manaf Al‐Okaily",
+        "Dhia Qasim",
+        "Nisreen Kareem Salama Dahdoul",
+        "Fadi Shehab Shiyyab"
+      ],
+      "n_authors": 6,
+      "error": null
+    },
+    {
+      "rank": 6,
+      "merged_id": "M025",
+      "doi": "10.1177/20563051231186353",
+      "openalex_id": "https://openalex.org/W4384562149",
+      "openalex_title": "Artificial Intelligence and Democracy: A Conceptual Framework",
+      "title_matches": true,
+      "authors": [
+        "Andreas Martin Jungherr"
+      ],
+      "n_authors": 1,
+      "error": null
+    },
+    {
+      "rank": 7,
+      "merged_id": "M015",
+      "doi": "10.47309/2713-2358-2025-4-184-195",
+      "openalex_id": "https://openalex.org/W7125481790",
+      "openalex_title": "Issues of using artificial intelligence in scientific research of socio-economic processes",
+      "title_matches": true,
+      "authors": [
+        "Ильдар Узбекович Зулькарнай"
+      ],
+      "n_authors": 1,
+      "error": null
+    },
+    {
+      "rank": 8,
+      "merged_id": "M016",
+      "doi": "10.1016/j.tics.2026.01.003",
+      "openalex_id": "https://openalex.org/W7135026029",
+      "openalex_title": "The homogenizing effect of large language models on human expression and thought",
+      "title_matches": true,
+      "authors": [
+        "Zhivar Sourati",
+        "Alireza S. Ziabari",
+        "Morteza Dehghani"
+      ],
+      "n_authors": 3,
+      "error": null
+    },
+    {
+      "rank": 9,
+      "merged_id": "M012",
+      "doi": "10.48550/arxiv.2506.21818",
+      "openalex_id": "https://openalex.org/W4416081581",
+      "openalex_title": "A systematic review of research on large language models for computer programming education",
+      "title_matches": true,
+      "authors": [
+        "Meina Zhu",
+        "Lei Xu",
+        "Barbara Jane Ericson"
+      ],
+      "n_authors": 3,
+      "error": null
+    },
+    {
+      "rank": 10,
+      "merged_id": "M026",
+      "doi": "10.3390/cancers15092573",
+      "openalex_id": "https://openalex.org/W4367843698",
+      "openalex_title": "Artificial Intelligence in CT and MR Imaging for Oncological Applications",
+      "title_matches": true,
+      "authors": [
+        "Ramesh Paudyal",
+        "Akash Deelip Shah",
+        "Oğuz Akın",
+        "Richard Kinh Gian",
+        "Amaresha Shridhar Konar",
+        "Vaios Hatzoglou",
+        "Usman A. Mahmood",
+        "Nancy Y. Lee",
+        "Richard J. Wong",
+        "Suchandrima Banerjee",
+        "Jaemin Shin",
+        "Harini Veeraraghavan",
+        "Amita Shukla‐Dave"
+      ],
+      "n_authors": 13,
+      "error": null
+    }
+  ]
+}

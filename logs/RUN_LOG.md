@@ -1283,3 +1283,131 @@ M106 | doi 10.48550/arxiv.2412.07727 | arXiv 2412.07727 | hits 1 | refs ['openal
 - UNVERIFIED 15 篇，多来自 S2 的 Q2（按被引次数排在前面的老文献缺少标识符）。
 - hits 只有 1 或 2；hits=2 的 32 篇并列，前 20 由并列规则从中选出。
 - 本步未判断新颖性。
+
+---
+
+## [2026-10-31 17:00 UTC] Step 15 — T5 v2：证据表与 DOI 核验
+
+**命令 1：作者（按 DOI 查 OpenAlex）**
+
+```bash
+python3 -B scripts/authors.py --top 10 --candidates results/merged/candidates_v2.csv --out evidence/authors_v2.json
+```
+
+输出：
+
+```
+  1 M001  n_authors=1    title_matches=True  first=Wim A. Naudé  
+  2 M027  n_authors=2    title_matches=True  first=Anil Rajnikant Doshi  
+  3 M003  n_authors=4    title_matches=True  first=Qianyue Hao  
+  4 M021  n_authors=3    title_matches=True  first=Barrett R. Anderson  
+  5 M018  n_authors=6    title_matches=True  first=Hanadi Aldreabi  
+  6 M025  n_authors=1    title_matches=True  first=Andreas Martin Jungherr  
+  7 M015  n_authors=1    title_matches=True  first=Ильдар Узбекович Зулькарнай  
+  8 M016  n_authors=3    title_matches=True  first=Zhivar Sourati  
+  9 M012  n_authors=3    title_matches=True  first=Meina Zhu  
+ 10 M026  n_authors=13   title_matches=True  first=Ramesh Paudyal  
+written: evidence/authors_v2.json
+exit code: 0
+```
+
+**命令 2：读前 10 篇摘要；核对它们靠哪些结果词命中（python3 内联脚本，词干还原）**
+
+```
+top-10 of candidates_v2: which outcome-group terms (F5 + 'research topic selection') occur in title+abstract (stemmed)
+  rank  1 M001 (queries Q3;Q6): ['narrowing -> "to narrow applications which"']
+  rank  2 M027 (queries Q1): ['narrowing -> "a narrower scope of"', 'collective diversity -> "the collective diversity of novel"']
+  rank  3 M003 (queries Q3): none in title/abstract
+  rank  4 M021 (queries Q1): none in title/abstract
+  rank  5 M018 (queries Q5): none in title/abstract
+  rank  6 M025 (queries Q3): ['narrowing -> "and narrow artificial intelligence"']
+  rank  7 M015 (queries Q6): ['narrowing -> "called narrow systems of"']
+  rank  8 M016 (queries Q1): none in title/abstract
+  rank  9 M012 (queries Q5): none in title/abstract
+  rank 10 M026 (queries Q3): ['narrowing -> "for narrow specific tasks"']
+```
+
+rank 1、6、7、10 只靠词干还原后的 narrow 命中（narrow applications / narrow AI / narrow systems / narrow-specific tasks），与选题收窄无关。这是 Step 12 把 "narrowing of science" 放宽为 narrowing 带来的噪声。
+
+**命令 3：写 evidence/evidence_table_v2.md 并校验（python3 内联脚本：表格与 candidates_v2.csv、authors_v2.json 逐项比对；判定依据中的引文须在对应摘要中逐字出现）**
+
+rank 3（M003）本地无摘要，判定依据引用同一研究的 arXiv 预印本摘要（M106），并在表中注明。
+
+```
+table rows vs candidates_v2.csv / authors_v2.json: all 10 rows match
+  研究问题: overlap 1 ['3'] | differ 9 | unknown 0
+  作用机制: overlap 4 ['2', '3', '4', '8'] | differ 6 | unknown 0
+  研究情境: overlap 1 ['7'] | differ 9 | unknown 0
+  数据与方法: overlap 3 ['3', '5', '9'] | differ 7 | unknown 0
+  预期发现: overlap 4 ['2', '3', '4', '8'] | differ 6 | unknown 0
+quoted fragments checked: 37; not found verbatim: [('M018', '生成式 AI 在教育中')]
+```
+
+唯一未找到的是判定依据中一处加了英文引号的中文短语（不是摘要引文），已去掉引号；英文引文 36 段全部在摘要中逐字找到。
+
+**命令 4：DOI 核验**
+
+```bash
+python3 -B scripts/verify.py --table evidence/evidence_table_v2.md
+```
+
+输出：
+
+```
+verify run at 2026-10-31T16:58:25+00:00  table=evidence/evidence_table_v2.md
+[1] doi:10.2139/ssrn.4389118
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Artificial Intelligence and the Economics of Decision-Making
+                 registered: - | 2023 | posted-content | authors: Naudé
+      landing:   302 www.ssrn.com  -> 落地页 BLOCKED at www.ssrn.com (network policy, proxy 403)
+[2] doi:10.1126/sciadv.adn5290
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Generative AI enhances individual creativity but reduces the collective diversity of novel content
+                 registered: Science Advances | 2024 | journal-article | authors: Doshi; Hauser
+      landing:   302 www.science.org  -> 落地页 BLOCKED at www.science.org (network policy, proxy 403)
+[3] doi:10.1038/s41586-025-09922-y
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Artificial intelligence tools expand scientists’ impact but contract science’s focus
+                 registered: Nature | 2026 | journal-article | authors: Hao; Xu; Li
+      landing:   302 www.nature.com  -> 落地页 BLOCKED at www.nature.com (network policy, proxy 403)
+[4] doi:10.1145/3635636.3656204
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Homogenization Effects of Large Language Models on Human Creative Ideation
+                 registered: Creativity and Cognition | 2024 | proceedings-article | authors: Anderson; Shah; Kreminski
+      landing:   302 dl.acm.org  -> 落地页 BLOCKED at dl.acm.org (network policy, proxy 403)
+[5] doi:10.1016/j.caeai.2025.100456
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliome…
+                 registered: Computers and Education: Artificial Intelligence | 2025 | journal-article | authors: Aldreabi; Alhur; Al-Okaily
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[6] doi:10.1177/20563051231186353
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Artificial Intelligence and Democracy: A Conceptual Framework
+                 registered: Social Media + Society | 2023 | journal-article | authors: Jungherr
+      landing:   302 journals.sagepub.com  -> 落地页 BLOCKED at journals.sagepub.com (network policy, proxy 403)
+[7] doi:10.47309/2713-2358-2025-4-184-195
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Issues of using artificial intelligence in scientific research of socio-economic processes
+                 registered: Ufa Humanitarian Scientific Forum | 2025 | journal-article | authors: ?; Zulkarnay
+      landing:   302 elibrary.ru  -> 落地页 BLOCKED at elibrary.ru (network policy, proxy 403)
+[8] doi:10.1016/j.tics.2026.01.003
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · The homogenizing effect of large language models on human expression and thought
+                 registered: Trends in Cognitive Sciences | 2026 | journal-article | authors: Sourati; S. Ziabari; Dehghani
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[9] doi:10.48550/arxiv.2506.21818
+      crossref:  302 data.crosscite.org  (attempts: 1)  -> Crossref BLOCKED at data.crosscite.org (network policy, proxy 403)
+      landing:   302 arxiv.org  -> 落地页 BLOCKED at arxiv.org (network policy, proxy 403)
+[10] doi:10.3390/cancers15092573
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Artificial Intelligence in CT and MR Imaging for Oncological Applications
+                 registered: Cancers | 2023 | journal-article | authors: Paudyal; Shah; Akin
+      landing:   302 www.mdpi.com  -> 落地页 BLOCKED at www.mdpi.com (network policy, proxy 403)
+
+summary crossref: Crossref BLOCKED at data.crosscite.org: 1 | 题目一致: 9
+summary landing:  落地页 BLOCKED at arxiv.org: 1 | 落地页 BLOCKED at dl.acm.org: 1 | 落地页 BLOCKED at elibrary.ru: 1 | 落地页 BLOCKED at journals.sagepub.com: 1 | 落地页 BLOCKED at linkinghub.elsevier.com: 2 | 落地页 BLOCKED at www.mdpi.com: 1 | 落地页 BLOCKED at www.nature.com: 1 | 落地页 BLOCKED at www.science.org: 1 | 落地页 BLOCKED at www.ssrn.com: 1
+written: verified column in evidence/evidence_table_v2.md
+exit code: 1
+```
+
+**产出文件**
+
+- `evidence/authors_v2.json` — 前 10 篇的作者（OpenAlex 题目与表中题目 10/10 一致）
+- `evidence/evidence_table_v2.md` — v2 证据表与判定依据；verified 列已写入
+
+**备注**
+
+- 标签统计：研究问题 overlap 1（rank 3）；作用机制 overlap 4（rank 2、3、4、8）；研究情境 overlap 1（rank 7）；数据与方法 overlap 3（rank 3、5、9）；预期发现 overlap 4（rank 2、3、4、8）；无 unknown。
+- Crossref：9/10 题目一致；rank 9 是 arXiv 经 DataCite 登记的 DOI，doi.org 把元数据请求转到 data.crosscite.org，该域名未放行，未能核验。落地页：出版商域名均未放行。
+- 本步未判断新颖性。
