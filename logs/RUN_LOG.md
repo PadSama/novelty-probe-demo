@@ -1047,3 +1047,92 @@ sections 2-3 fields still blank: True (5 fields)
 - `evidence/difference_statement.md` — 第 1 节已填（rank 2、4、9，附选择规则）；第 2、3 节仍为空白
 
 **备注**："最接近"只表示在证据表中的相对位置，依据是证据表的标注与摘要；本步未判断新颖性，未填写第 2、3 节。
+
+---
+
+## [2026-10-31 16:59 UTC] Step 11 — v2 准备：核验研究者给出的参考文献，诊断 v1 漏检，写 idea_v2.md
+
+**研究者要求（本轮）**：把研究情境改为"管理学与经济学研究"，保存为 `idea/idea_v2.md`，用 v2 重跑 T2–T5，产出 `_v2` 文件。研究者告知：上一轮的标准答案是 Hao, Q., Xu, F., Li, Y. et al. Artificial intelligence tools expand scientists' impact but contract science's focus. Nature 649, 1237–1243 (2026). https://doi.org/10.1038/s41586-025-09922-y ；该论文明确排除了经济学和商科。
+
+步骤对应：T2 = 拆面与检索式（Step 1），T3 = 检索（Step 2–4），T4 = 合并去重与候选（Step 5–6），T5 = 证据表与 DOI 核验（Step 7–8）。
+
+**说明**：`idea/idea.md` 原文没有"自然科学"字样，情境是笼统的"科研人员 / 整个学科"（v1 的检索词如 AI for science、scientists 偏向自然科学）。`idea/idea.md` 保持不变。
+
+**命令 1：核验参考文献并查 v1 结果（python3 内联脚本：verify.py 的 Crossref 检查、OpenAlex 与 S2 按 DOI 查询、OpenAlex 题目检索找其他版本、用预印本摘要逐条检验 v1 检索式）**
+
+输出：
+
+```
+Crossref: Crossref HTTP 200 · 题目一致 · Artificial intelligence tools expand scientists’ impact but contract science’s focus
+  registered: Nature | volume 649 | pages 1237-1243 | issued [[2026, 1, 14]] | authors: Hao; Xu; Li; Evans ...
+OpenAlex: https://openalex.org/W7124140759 | 2026 | Artificial intelligence tools expand scientists’ impact but contract science’s focus
+  abstract: (none)
+in v1 raw results: NOT FOUND (0 of 217 records)
+S2: Artificial intelligence tools expand scientists’ impact but contract science’s focus | 2026 | Nature | externalIds: {'DOI': '10.1038/s41586-025-09922-y', 'CorpusId': 284736867, 'PubMed': '41535462'}
+  abstract: (none)
+OpenAlex title search: title.search:scientists AND impact AND focus,from_publication_date:2024-01-01 | count: 4
+  2026 | https://doi.org/10.1038/s41586-025-09922-y | Nature | abstract: no | Artificial intelligence tools expand scientists’ impact but contract science’s focus
+  2026 | https://doi.org/10.1016/j.eururo.2026.04.004 | European Urology | abstract: no | Re: Artificial Intelligence Tools Expand Scientists’ Impact but Contract Science’s Focus
+  2024 | https://doi.org/10.48550/arxiv.2412.07727 | arXiv (Cornell University) | abstract: yes | Artificial Intelligence Tools Expand Scientists' Impact but Contract Science's Focus (Just
+  2026 | https://doi.org/10.1093/bjs/znag063.140 | British journal of surgery | abstract: yes | 917 Evaluating Ethical Readiness in Emerging Surgeon Scientists: Impact of an LMIC Focused
+preprint: https://openalex.org/W4405273923 | 2024 | Artificial Intelligence Tools Expand Scientists' Impact but Contract Science's Focus (Just accepted by Nature, to be online soon)
+abstract: Development in Artificial Intelligence (AI) has accelerated scientific discovery. Alongside recent AI-oriented Nobel prizes, these trends establish the role of AI tools in science. This advancement raises questions about the potential influences of AI tools on scientists and science as a whole, and highlights a potential conflict between individual and collective benefits. To evaluate, we used a pretrained language model to identify AI-augmented research, with an F1-score of 0.875 in validation against expert-labeled data. Using a dataset of 41.3 million research papers across natural science and covering distinct eras of AI, here we show an accelerated adoption of AI tools among scientists and consistent professional advantages associated with AI usage, but a collective narrowing of scientific focus. Scientists who engage in AI-augmented research publish 3.02 times more papers, receive 4.84 times more citations, and become research project leaders 1.37 years earlier than those who do not. By contrast, AI adoption shrinks the collective volume of scientific topics studied by 4.63% and decreases scientist's engagement with one another by 22.00%. Thereby, AI adoption in science presents a seeming paradox -- an expansion of individual scientists' impact but a contraction in collective science's reach -- as AI-augmented work moves collectively toward areas richest in data. With reduced follow-on engagement, AI tools appear to automate established fields rather than explore new ones, highlighting a tension between personal advancement and collective scientific progress.
+
+v1 queries vs preprint title+abstract (stemmed; per AND group: matched terms):
+  Q1 satisfied=False  groups=[[], []]
+  Q2 satisfied=False  groups=[[], []]
+  Q3 satisfied=False  groups=[[], []]
+  Q4 satisfied=False  groups=[[], [], ['scientist*']]
+  Q5 satisfied=False  groups=[[], [], []]
+  Q6 satisfied=False  groups=[[], [], ['scientist*']]
+```
+
+结论：
+
+- DOI 有效，Crossref 登记题目一致（Nature 649: 1237–1243，2026-01-14）。
+- v1 的 217 条原始记录中没有它。Nature 版在 OpenAlex 与 S2 都没有摘要，只能靠题目匹配。
+- 同一研究的 arXiv 预印本（doi:10.48550/arxiv.2412.07727）有摘要，但不满足 v1 任何一条检索式：AI 一侧用的是 "Artificial Intelligence (AI)"、"AI tools"，结果一侧用的是 "narrowing of scientific focus"、"shrinks the collective volume of scientific topics"，v1 的检索词都匹配不到。
+- 预印本摘要写明数据为 "41.3 million research papers across natural science"。"明确排除经济学和商科"在摘要中未提及，记为研究者提供的信息。
+
+**命令 2：写入 idea/idea_v2.md（只改情境）**
+
+```
+v1：我注意到身边越来越多人用 AI 做研究。我想研究：科研人员使用 AI 工具，会不会让整个学科的选题变窄？打算用大规模论文数据来测。
+v2：我注意到身边越来越多人用 AI 做研究。我想研究：管理学与经济学领域的研究者使用 AI 工具，会不会让这两个学科的选题变窄？打算用大规模论文数据来测。
+```
+
+**产出文件**：`idea/idea_v2.md`
+
+
+---
+
+## [2026-10-31 16:59 UTC] Step 12 — T2 v2：拆面与检索式
+
+**命令 1：写入 facets/facets_v2.md、queries/queries_v2.json**
+
+与 v1 的差异及原因写在 `facets/facets_v2.md` 的"与 v1 的差异及原因"一节：情境词改为管理学与经济学（研究者要求）；按 Step 11 的诊断加入 "AI tools"、"artificial intelligence"，并把 "narrowing of science" 放宽为 narrowing；去掉自然科学取向的词与 v1 中带来误命中的词。沿用研究者决定：AI 工具只指生成式 AI（筛选时判断），concurrent 只取 2023 年起。
+
+**命令 2：校验（python3 内联脚本，同 Step 1 的检查，另检验参考文献预印本满足哪些 v2 检索式）**
+
+```
+research_question  5 terms: ['AI tools', 'artificial intelligence', 'generative AI', 'large language models', 'research topic selection']
+mechanism          5 terms: ['homogenization', 'algorithmic monoculture', 'streetlight effect', 'exploration-exploitation', 'Matthew effect']
+context            5 terms: ['economists', 'economic research', 'management research', 'business research', 'scientists']
+data_method        5 terms: ['science of science', 'bibliometrics', 'topic modeling', 'LLM-generated text', 'difference-in-differences']
+expected_findings  5 terms: ['narrowing', 'topic diversity', 'topic concentration', 'collective diversity', 'research diversification']
+Q1 component   OK  facets=['expected_findings', 'mechanism', 'research_question']
+Q2 component   OK  facets=['context', 'expected_findings']
+Q3 application OK  facets=['context', 'expected_findings', 'research_question']
+Q4 application OK  facets=['context', 'mechanism', 'research_question']
+Q5 method      OK  facets=['data_method', 'research_question']
+Q6 concurrent  OK  facets=['context', 'expected_findings', 'research_question']
+unused terms: none (25/25 used)
+
+reference preprint (arXiv 2412.07727) vs v2 queries: {'Q1': False, 'Q2': False, 'Q3': True, 'Q4': False, 'Q5': False, 'Q6': False}
+```
+
+注意：v2 检索词是在知道 v1 漏检原因之后调整的，预印本满足 Q3 只说明修正生效，不是独立的召回验证。
+
+**产出文件**：`facets/facets_v2.md`、`queries/queries_v2.json`
+
+**备注**：本步未判断新颖性。
