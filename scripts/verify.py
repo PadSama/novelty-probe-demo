@@ -190,7 +190,7 @@ def main():
     cols = split_row(lines[header])
     i_doi, i_ver = cols.index("DOI/arXiv"), cols.index("verified")
     i_rank = cols.index("rank") if "rank" in cols else None
-    i_title = cols.index("题目") if "题目" in cols else None
+    i_title = next((cols.index(c) for c in ("题目", "Title", "title") if c in cols), None)  # 中文或英文表头
 
     print(f"verify run at {datetime.now(timezone.utc).isoformat(timespec='seconds')}  table={args.table}")
     tally_cr, tally_land, failed = {}, {}, 0

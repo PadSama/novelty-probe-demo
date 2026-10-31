@@ -1500,3 +1500,33 @@ preprint abstract mentions '41.3 million research papers across natural science'
 **产出文件**：`README.md`；`novelty-probe.zip` 重新打包（含 README，不纳入仓库）
 
 **备注**：README 只描述流程与已记录的结果，不含新颖性判断，不含研究者的个人信息。
+
+---
+
+## [2026-10-31 17:35 UTC] Step 18 — HOWTO 改为中英双语（逐段）
+
+**研究者要求（本轮）**：把 HOWTO 改为中英文双语（逐段）的形式。
+
+**命令 1：改写与相关修改**
+
+```
+# HOWTO.md：每段先中文后英文；表格单元格中英并列；命令只写一次；三个提示词各给中文、英文两个版本
+# scripts/verify.py：标题列同时接受"题目"与"Title"（英文提示词生成的英文表头也能对照标题）
+# README.md：更新对 HOWTO 语言的说明
+```
+
+**命令 2：检查（python3 内联脚本：新旧 HOWTO 的命令逐条比对；提示词成对；英文表头的 verify.py 本地测试）**
+
+```
+bash blocks: old 18, new 18; changed: 2
+  - export OPENALEX_API_KEY="你的 key"
+  + export OPENALEX_API_KEY="你的 key / your key"
+  - export S2_API_KEY="你的 key"
+  + export S2_API_KEY="你的 key / your key"
+prompt blocks: 6 (Chinese 3, English 3)
+verify.py with English 'Title' header -> Crossref HTTP 200 · 题目一致 · An English Test Paper；落地页 HTTP 200 (127.0.0.1) · An English Test Paper
+```
+
+**产出文件**：`HOWTO.md`（改写）、`scripts/verify.py`、`README.md`（修改）
+
+**备注**：命令只有两处有意改动（export 示例中的占位文字）。本步未检索新文献，未判断新颖性。

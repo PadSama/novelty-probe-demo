@@ -6,7 +6,7 @@ You describe an idea in one or two sentences. The pipeline breaks it into facets
 
 The workflow **does not judge novelty**. It collects evidence with verifiable identifiers so that the researcher can make that judgment.
 
-> The step-by-step guide (`HOWTO.md`) and the assistant's rules (`PROJECT.md`) are written in Chinese. This README summarizes both in English.
+> The step-by-step guide (`HOWTO.md`) is bilingual, Chinese and English paragraph by paragraph, with every prompt in both languages. The assistant's rules (`PROJECT.md`) are in Chinese and summarized below.
 
 ## Ground rules
 
@@ -130,5 +130,5 @@ evidence/        evidence tables, authors, difference statement
 logs/RUN_LOG.md  append-only log of every step
 scripts/         search.py, merge.py, authors.py, verify.py, logrun.py
 PROJECT.md       the assistant's role and rules (Chinese)
-HOWTO.md         step-by-step guide with commands and prompts (Chinese)
+HOWTO.md         step-by-step guide with commands and prompts (Chinese / English)
 ```
