@@ -1612,3 +1612,38 @@ git push -u origin claude/vigilant-faraday-odzwe4             # 改为把改写�
 - 远端 main 仍是改写前的历史（1b7dac7，带会话链接）。是否用新分支替换 main，由研究者决定。
 
 **产出**：分支 `claude/vigilant-faraday-odzwe4`（改写后的完整历史，含 Step 19 的 LICENSE 与 CITATION.cff）
+
+---
+
+## [2026-11-01 08:59 UTC] Step 21 — 核查替换后的 main；CITATION.cff 改为个人作者格式并标注 v1.0.0
+
+**研究者告知与要求（本轮）**：已按方案 A 替换 main，请检查；完善 About（description、website、topics）；发布 v1.0。
+
+**命令 1：核查 main（只读：git fetch、ls-remote、log）**
+
+```
+默认分支：main；远端只剩 main（071539d），旧分支名已不存在；远端无标签
+main 共 23 个提交；提交信息中的会话链接：0；改写前的旧历史（1b7dac7）不在 main 上
+本会话最后推送的 d80d849 是 main 的祖先；其后为研究者在网页上的两个提交：
+  d97ab3d Change copyright（LICENSE 版权人改为 Quan Yuan）
+  071539d Update author name in CITATION.cff（作者改为 Quan Yuan）
+  两个提交的作者邮箱均为 GitHub noreply 地址
+LICENSE、CITATION.cff、README.md 均在 main 上
+```
+
+此前条目（Step 19、20）中记的版权人 Alston-Y 已由研究者改为 Quan Yuan，以 main 上的文件为准。
+
+**命令 2：CITATION.cff 修改与校验**
+
+```
+# authors 由机构格式（name）改为个人格式（family-names: Yuan / given-names: Quan），引用可格式化为 "Yuan, Q."
+# 新增 version: "1.0.0"、date-released: 2026-11-01
+# 校验：从 cffconvert 2.0.0 的安装包中取出官方 CFF 1.2.0 schema，用 jsonschema 校验（均装在临时目录）
+schema: cffconvert/schemas/1.2.0/schema.json (from cffconvert-2.0.0-py3-none-any.whl)
+CITATION.cff valid against CFF 1.2.0 schema: True 
+authors: [{'family-names': 'Yuan', 'given-names': 'Quan'}] | version: 1.0.0 | date-released: 2026-11-01 | license: MIT
+```
+
+**产出文件**：`CITATION.cff`（推送到分支 `claude/vigilant-faraday-odzwe4`，main 受保护，需研究者通过 PR 合并）
+
+**备注**：About 的文字与 v1.0.0 的发布由研究者在 GitHub 网页上操作，本环境没有修改仓库设置或创建 Release 的工具。本仓库没有可发布的软件包，Packages 不需要。
