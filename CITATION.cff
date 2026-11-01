@@ -5,6 +5,7 @@ type: software
 authors:
   - family-names: "Yuan"
     given-names: "Quan"
+    orcid: "https://orcid.org/0009-0009-3011-3739"
 version: "1.0.0"
 date-released: 2026-11-01
 repository-code: "https://github.com/PadSama/novelty-probe-demo"
