@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use novelty-probe, please cite it as below."
-title: "novelty-probe: a logged, AI-assisted workflow for probing the literature around a research idea"
+title: "Novelty-probe: a logged, AI-assisted workflow for probing the literature around a research idea"
 type: software
 authors:
   - family-names: "Yuan"
