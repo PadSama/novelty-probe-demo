@@ -3,7 +3,10 @@ message: "If you use novelty-probe, please cite it as below."
 title: "novelty-probe: a logged, AI-assisted workflow for probing the literature around a research idea"
 type: software
 authors:
-  - name: "Quan Yuan"
+  - family-names: "Yuan"
+    given-names: "Quan"
+version: "1.0.0"
+date-released: 2026-11-01
 repository-code: "https://github.com/PadSama/novelty-probe-demo"
 abstract: >-
   A tutorial workflow that breaks a research idea into facets, builds Boolean
