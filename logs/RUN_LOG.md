@@ -1647,3 +1647,31 @@ authors: [{'family-names': 'Yuan', 'given-names': 'Quan'}] | version: 1.0.0 | da
 **产出文件**：`CITATION.cff`（推送到分支 `claude/vigilant-faraday-odzwe4`，main 受保护，需研究者通过 PR 合并）
 
 **备注**：About 的文字与 v1.0.0 的发布由研究者在 GitHub 网页上操作，本环境没有修改仓库设置或创建 Release 的工具。本仓库没有可发布的软件包，Packages 不需要。
+
+---
+
+## [2026-11-01 09:20 UTC] Step 22 — CITATION.cff 加入作者 ORCID
+
+**研究者告知与要求（本轮）**：已手动合并 PR #1；其余配置（About 等）已完成；提供 ORCID 0009-0009-3011-3739，加入 CITATION.cff。
+
+**命令 1：核查远端（只读）**
+
+```
+main：3f00b7a "Merge pull request #1 from PadSama/claude/vigilant-faraday-odzwe4"（合并提交，父提交 071539d、2ec606a）
+标签：v1.0.0 → 3f00b7a；分支 claude/vigilant-faraday-odzwe4 仍在 2ec606a（已并入 main）
+main 上提交信息中的会话链接：0
+```
+
+**命令 2：加入 ORCID 并校验**
+
+```
+# authors 下新增 orcid: "https://orcid.org/0009-0009-3011-3739"
+# 校验：ORCID 校验位（ISO 7064 MOD 11-2）；官方 CFF 1.2.0 schema（同 Step 21 的方法）
+ORCID 0009-0009-3011-3739: check digit valid (ISO 7064 MOD 11-2)
+CITATION.cff valid against CFF 1.2.0 schema: True 
+authors: [{'family-names': 'Yuan', 'given-names': 'Quan', 'orcid': 'https://orcid.org/0009-0009-3011-3739'}]
+```
+
+**产出文件**：`CITATION.cff`（推送到分支 `claude/vigilant-faraday-odzwe4`，需研究者通过 PR 合并）
+
+**备注**：v1.0.0 的标签已打在 3f00b7a 上，这一版的 CITATION.cff 不含 ORCID；本次改动进入 main 后，"Cite this repository" 与之后的版本会带上 ORCID。
