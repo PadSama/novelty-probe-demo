@@ -1847,3 +1847,88 @@ OK
 **产出文件**
 
 - `evidence/evidence_table.md`、`evidence/evidence_table_v2.md`、`evidence/difference_statement.md`（修改）
+
+---
+
+## [2026-11-02 08:24 UTC] Step 26 — 调研结论与改进计划
+
+**做了什么**：三个调研子任务（召回与引文追踪；预印本与正式版的识别；排序、降噪与词干还原）各自查阅 GitHub 上的同类项目与方法论文献，并对 OpenAlex、Semantic Scholar 做实时请求，结论写入 `docs/IMPROVEMENT_PLAN.md`（问题 → 原因 → 依据 → 方案 → 状态 → 验收标准）。计划与第 27 步的实施交替进行，状态栏按实施结果更新。
+
+**主要结论**（详见计划文件）
+
+- 召回：从 v1 证据表的种子出发，一步追踪（前向、后向、OpenAlex related_works、S2 推荐接口）都找不到 Hao 等；两步共被引可以找到，但结果取决于过滤引用者所用的词组（这一过滤方式是在知道目标的情况下试出的，只算一个正例）。
+- 降噪：OpenAlex 的大写 NOT 有效，小写 not 与 - 会把排除变成必须包含；S2 用 `-(…)`。v2 Q3 加 NOT 后 OpenAlex 299 → 247、S2 123 → 111，前 10 的噪声 4 → 1。
+- 合并：Hao 等两个版本未合并只因预印本标题末尾的 "(Just accepted by Nature…)"；保守规则在 v1、v2 数据上只新增这一对合并。
+- 排序：RRF 消除并列但不能去噪；S2 应在取回的全部记录上本地重排；两个来源都用本地 BM25 时参考文献会因缺摘要掉到第 23 名，所以 OpenAlex 保留 API 排序。
+- 词干还原：`textmatch.porter_stem` 与 Snowball porter 在 Snowball 的 42,603 词测试表上完全一致；两个 API 的匹配更像 KStem，质量检查的比例因此略偏高。
+
+**命令：文献 DOI 核验（python3 内联脚本，按 DOI 请求 api.crossref.org/works/<doi>，查不到时查 OpenAlex）**
+
+```
+排序与降噪 14 个、去重与版本识别 15 个、召回与引文追踪 16 个，共 45 个 DOI：全部 OK（44 个 Crossref，1 个 arXiv DOI 经 OpenAlex）
+例：OK crossref | 10.1145/1571941.1572114 | 2009 | Cormack | Reciprocal rank fusion outperforms condorcet and individual rank learning methods
+    OK crossref | 10.1186/s12915-023-01686-z | 2023 | Hair | The Automated Systematic Search Deduplicator (ASySD) …
+    OK crossref | 10.1136/bmj-2023-078384 | 2024 | Hirt | Guidance on terminology, application, and reporting of citation searching: the TARCiS statement
+    OK openalex | 10.48550/arXiv.2301.10140 | 2023 | Rodney Kinney | The Semantic Scholar Open Data Platform
+```
+
+**产出文件**：`docs/IMPROVEMENT_PLAN.md`（新增）
+
+---
+
+## [2026-11-02 08:28 UTC] Step 27 — 按计划实施：NOT、S2 本地重排、合并新方法、两步共被引、结果比较
+
+**命令 1：脚本修改与新增**
+
+```
+# search.py：AND NOT (…) 译为 OpenAlex 原样（大写 NOT）、S2 的 + -(…)；OpenAlex 返回的 x_query.oql 中没有 NOT 时报错、不保存；
+#   拒绝小写运算符（and/or/not）和以 - 或 ! 开头的词。S2 改为翻页取回全部命中（最多 3000 条）后本地重排：
+#   满足的包含组数 → BM25（k1=1.2，b=0.75）→ 被引次数；无摘要记录中标题命中（组数 − 1）个组的按比例穿插。
+#   每条 S2 记录附 local_rank 字段（命中组数、BM25、是否有摘要、被引次数）
+# textmatch.py：版本识别改为调研给出的保守规则（去掉末尾发表状态括注、去重音、来信/变体/数据集/DOI 冲突/年份差/摘要 Jaccard）
+# merge.py：默认方法改为——DOI 规范化（去掉 ?utm_source=… 与 /full/html）、版本识别（自动合并或标出待核对）、
+#   year 取正式发表版本、year_first 取最早版本、按 RRF（k=60）排序并以 BM25 打破并列；--legacy 复现 Step 6 / 14 的方法
+# snowball.py：新增两步共被引（--cocite --citer-filter …，读者来信与更正不计）；输出改名为 chase_<标签>{suffix}
+# 新增 compare.py：比较几轮结果（已知文献名次、截断处并列、前 K 篇满足检索式 / 噪声 / 生成式 AI 关键词 / 摘要 / 年份）
+# qa.py：注明是 Porter 对 API 的 KStem 匹配的近似
+```
+
+**命令 2：实时检查（写入临时目录，不改动仓库文件）**
+
+```
+search.py，v2 检索式加 AND NOT ("narrow AI" OR "narrow artificial intelligence")，只跑 Q3：
+  Q3 openalex total_hits 247；semanticscholar total_hits 111（与调研子任务独立测得的数字一致）
+  S2 本地重排后的前 25：24 篇有摘要且满足全部 3 个包含组；Hao 等 Nature 版（无摘要，标题命中 2 组）穿插在第 13 位；
+  arXiv 预印本第 2 位。原先按被引次数取的前 25 含 1984、1997 年的文献
+merge.py（默认方法）用已提交的原始结果：
+  v2：新增版本合并 1 组（Hao 等 Nature 版 + arXiv 版，year 2026、year_first 2024，带上预印本摘要）；
+      待核对 2 对（IEEE DataPort 数据集 / 同名 TechRxiv 预印本；ICAITE 会议论文 / 同名 Zenodo 存档）
+  v1、v2：旧方法按标题合并的 7 组各保留 6 组，只拆开 DataPort 一对；
+  两个来源年份不一致的 4 个 DOI 都取到正式发表年份（含 OpenAlex 把 1993 年 HICSS 论文记为 2002 的一例）
+snowball.py --from-evidence evidence/evidence_table.md --cocite --citer-filter 'scientist*'（种子：v1 rank 2、4）：
+  citing works: 1083 cite the seeds; 13 pass the filter 'scientists'; 1 letters/replies excluded; 12 citers used
+  co-cited: 558 works cited by the citers; 15 cited by at least 2
+  cocited #1 support 5  doi:10.1038/s41586-025-09922-y  Artificial intelligence tools expand scientists' impact but contract …
+compare.py --runs ,_v2（已提交结果）：v2 前 10 的噪声 4 篇（与 Step 15 一致）；Hao 等 v1 中无，v2 中第 3 名，其 arXiv 版单列第 60 名
+```
+
+过滤词组 scientist* 取自 v1 facets.md 研究情境面的"使用者"一词（F3 #5），依据是两篇种子与想法恰在研究情境面不同；但调研子任务已先测出这一过滤能找到 Hao 等，所以这不是独立验证。
+
+**命令 3：离线自检**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests
+```
+
+```
+Ran 44 tests
+
+OK
+```
+
+新增测试：NOT 转换与 oql 检查、S2 本地重排与翻页、合并新方法（版本、年份、待核对、RRF）、两步共被引、compare.py；`test_reproduces_committed_merge_outputs` 改为用 `--legacy` 复现已提交结果（仍逐字节一致）。
+
+**产出文件**
+
+- `scripts/compare.py`（新增）
+- `scripts/search.py`、`scripts/textmatch.py`、`scripts/merge.py`、`scripts/snowball.py`、`scripts/qa.py`、`tests/test_offline.py`、`tests/test_pipeline.py`、`docs/IMPROVEMENT_PLAN.md`（修改）

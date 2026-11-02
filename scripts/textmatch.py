@@ -11,6 +11,8 @@
 import html
 import math
 import re
+import unicodedata
+from difflib import SequenceMatcher
 
 # ---------- Porter 词干还原 ----------
 
@@ -276,39 +278,157 @@ def cosine(u, v):
     return sum(x * v.get(t, 0.0) for t, x in u.items())
 
 
-# ---------- 版本识别 ----------
+# ---------- 版本识别（同一研究的预印本与正式发表版本） ----------
+# 规则参照 bib-dedupe、ASySD、Zotero、JabRef 等去重工具的做法与 preprint–publication 匹配研究，取保守的一侧：
+# 标题规范化后完全相同才自动合并，其余疑似情况只标出供人工核对（见 merge.py）。
 
-_NOTE_RE = re.compile(r"\s*[\(\[][^()\[\]]*(accepted|preprint|forthcoming|in press|to appear|under review|working paper|"
-                      r"version|draft|online|published)[^()\[\]]*[\)\]]\s*$", re.I)
-_NOT_SAME_WORK = re.compile(r"^\s*(re|reply|response|correction|corrigendum|erratum|retraction|retracted|comment|"
-                            r"commentary|author correction|publisher correction|editorial expression of concern)\b"
-                            r"|^\s*(reply|response|comment|correction) (to|on)\b", re.I)
+_TAG_OR_ENTITY_RE = re.compile(r"<[^>]+>")
+# 末尾括注中只表示发表状态的说明：比较前去掉（最多两个），如 "(Just accepted by Nature, to be online soon)"
+_STATUS_RE = re.compile(
+    r"^\s*(?:just\s+)?accepted\b|\baccepted (?:by|at|in|for|to)\b|\bto appear\b|\bin press\b|\bforthcoming\b|"
+    r"\bpublished (?:in|at|by|version)\b|\bcamera[- ]?ready\b|\bpre-?print\b|\bpost-?print\b|\b(?:to be )?online soon\b|"
+    r"\bearly access\b|\bauthor'?s? (?:version|copy)\b|\baccepted (?:manuscript|version)\b|\bversion of record\b|"
+    r"\bunder review\b|\bsubmitted (?:to|for)\b|\bworking paper\b|^\s*draft\s*$|^\s*v\d+\s*$|^\s*revised(?: version)?\s*$",
+    re.I)
+_TRAILING_GROUP_RE = re.compile(r"\s*[\(\[]([^()\[\]]*)[\)\]]\s*\.?\s*$")
+# 关于另一篇文献的条目（读者来信、回复、更正、撤稿等）：不是同一研究的另一个版本
+_NOTICE_START_RE = re.compile(
+    r"^\s*(?:(?:re|reply|response|comment|commentary|correction|author correction|publisher correction|retraction note|"
+    r"retraction|expression of concern|editorial expression of concern|matters arising|addendum|editorial)"
+    r"\s*(?::|\bto\b|\bon\b|\bregarding\b)|(?:erratum|errata|corrigendum)\b|retracted\b)", re.I)
+_NOTICE_ANY_RE = re.compile(r"[\(\[]\s*(?:retracted|retraction|withdrawn)\b", re.I)
+# 内容不同的变体：扩展摘要、短文、补充材料、第 N 部分
+_VARIANT_RE = re.compile(r"\b(?:extended (?:abstract|version)|full version|short paper|supplement\w*|part [ivx\d]+|"
+                         r"abstract no)\b", re.I)
+PREPRINT_DOI_RE = re.compile(
+    r"^10\.(?:48550/arxiv\.|1101/|21203/rs\.|2139/ssrn\.|31219/|31234/|31235/|31222/|31224/|31237/|36227/techrxiv|"
+    r"20944/preprints|26434/chemrxiv|22541/au\.|1002/essoar\.)", re.I)
+PREPRINT_VENUE_RE = re.compile(r"arxiv|biorxiv|medrxiv|ssrn|research square|preprints?\.org|osf preprints|psyarxiv|"
+                               r"socarxiv|techrxiv|chemrxiv|authorea|essoar", re.I)
+DATA_DOI_RE = re.compile(r"^10\.(?:5281|6084|21227|5061|17632|7910|3886)/", re.I)  # Zenodo、figshare、IEEE DataPort 等
+_NUM_RE = re.compile(r"\b(?:\d+|[ivx]+)\b")
+YEAR_WINDOW = 3
 
 
-_POSSESSIVE_RE = re.compile(r"['\u2019]s\b", re.I)
-_WORD_RE = re.compile(r"[^\W_]+")
+def norm_doi(doi):
+    """比较用的 DOI：小写；去掉解析器前缀、URL 查询串与落地页后缀（如 /full/html?utm_source=…）。"""
+    if not doi:
+        return None
+    d = re.sub(r"^(?:https?://(?:dx\.)?doi\.org/|doi:)", "", doi.strip().lower())
+    d = re.split(r"[?#]", d)[0]
+    return re.sub(r"/(?:full|abstract|pdf|epdf|html)(?:/html)?/?$", "", d) or None
 
 
-def _strip_title(title):
-    return _NOTE_RE.sub("", html.unescape(_TAG_RE.sub(" ", title or "")))
+def strip_status_notes(title):
+    t = title or ""
+    for _ in range(2):
+        m = _TRAILING_GROUP_RE.search(t)
+        if not m or _NOTICE_ANY_RE.search(m.group(0)) or _VARIANT_RE.search(m.group(1)) \
+                or not _STATUS_RE.search(m.group(1)):
+            break
+        t = t[:m.start()]
+    return t
+
+
+def title_words(title):
+    """比较用的标题词：去 HTML、去末尾的发表状态括注、去重音，小写，任何非字母数字字符都作分隔。"""
+    t = strip_status_notes(html.unescape(_TAG_OR_ENTITY_RE.sub(" ", title or "")))
+    t = "".join(c for c in unicodedata.normalize("NFKD", t) if not unicodedata.combining(c))
+    return _WORD_RE.findall(t.lower())
 
 
 def title_key(title):
-    """用于比较的标题：去掉末尾的版本说明括注，统一引号与大小写，只保留字母数字词。"""
-    return " ".join(tokenize(_strip_title(title)))
+    return " ".join(title_words(title))
+
+
+def is_notice(title):
+    return bool(_NOTICE_START_RE.search(title or "") or _NOTICE_ANY_RE.search(title or ""))
+
+
+def is_variant(title):
+    return bool(_VARIANT_RE.search(title or ""))
+
+
+def _same_key(ka, kb):
+    return ka == kb or ka.replace(" ", "") == kb.replace(" ", "")  # "problem-solving" 与 "problemsolving"
+
+
+def version_title_match(a, b, min_words=6):
+    """两个标题是否像同一研究的不同版本：规范化后相同（至少 min_words 个词），且都不是来信、回复、更正之类的条目。"""
+    if not a or not b or is_notice(a) or is_notice(b):
+        return False
+    ka, kb = title_key(a), title_key(b)
+    return _same_key(ka, kb) and len(ka.split()) >= min_words
+
+
+_POSSESSIVE_RE = re.compile(r"['’]s\b", re.I)
+_WORD_RE = re.compile(r"[^\W_]+")
 
 
 def title_search_words(title, n=12):
     """在 OpenAlex 中按题目查找其他版本时用的检索词：去掉版本说明括注和所有格 's，
     只保留两个字符以上的词（OpenAlex 的分词会去掉所有格，单独的 s 会让检索落空）。"""
-    t = _POSSESSIVE_RE.sub("", _strip_title(title)).lower()
+    t = _POSSESSIVE_RE.sub("", strip_status_notes(html.unescape(_TAG_OR_ENTITY_RE.sub(" ", title or "")))).lower()
     return [w for w in _WORD_RE.findall(t) if len(w) > 1][:n]
 
 
-def version_title_match(a, b, min_words=6):
-    """两个标题是否像同一研究的不同版本：标题键完全相同（至少 min_words 个词），
-    且都不是更正、回复、评论之类的独立条目。"""
-    if not a or not b or _NOT_SAME_WORK.search(a) or _NOT_SAME_WORK.search(b):
-        return False
-    ka, kb = title_key(a), title_key(b)
-    return ka == kb and len(ka.split()) >= min_words
+def version_summary(records, min_words=5):
+    """一组记录（同一 DOI / arXiv ID 已并在一起）用于版本比较的摘要信息。"""
+    titles = [r.get("title") for r in records if r.get("title")]
+    dois = [norm_doi(r.get("doi")) for r in records if r.get("doi")]
+    return {
+        "keys": {k for k in (title_key(t) for t in titles) if len(k.split()) >= min_words},
+        "notice": any(is_notice(t) for t in titles),
+        "variant": any(is_variant(t) for t in titles),
+        "years": sorted({r["year"] for r in records if r.get("year")}),
+        "dois": sorted(set(dois)),
+        "pub_dois": sorted({d for d in dois if not PREPRINT_DOI_RE.match(d)}),
+        "preprint": any(r.get("arxiv_id") or (r.get("venue") and PREPRINT_VENUE_RE.search(r["venue"])) for r in records)
+                    or any(PREPRINT_DOI_RE.match(d) for d in dois),
+        "abstract": max((r.get("abstract") or "" for r in records), key=len),
+    }
+
+
+def _jaccard(a, b):
+    a, b = set(a), set(b)
+    return len(a & b) / len(a | b) if a | b else 0.0
+
+
+def version_decision(a, b):
+    """比较两组记录（version_summary 的结果），返回 (merge / review / no, 原因)。
+    merge：规范化标题相同，且没有来信或变体标记只在一侧、没有两个不同的正式发表 DOI、都不是数据集 DOI、
+           年份相差不超过 3 年、两边都有摘要时摘要词集合的 Jaccard ≥ 0.5；
+    review：标题相同但不满足上述条件，或标题几乎相同（difflib ≥ 0.90 且词 Jaccard ≥ 0.80，或较短标题完整包含在较长标题中）；
+    no：其余情况（含 "Re: <标题>" 这类关于另一篇文献的条目）。"""
+    if not a["keys"] or not b["keys"]:
+        return "no", "title shorter than 5 words"
+    gap = min((abs(x - y) for x in a["years"] for y in b["years"]), default=0)
+    one_sided_notice = a["notice"] != b["notice"]
+    one_sided_variant = a["variant"] != b["variant"]
+    if any(_same_key(x, y) for x in a["keys"] for y in b["keys"]):
+        if one_sided_notice or one_sided_variant:
+            return "review", "same title, but a notice/variant word appears on one side only"
+        if a["pub_dois"] and b["pub_dois"] and not set(a["pub_dois"]) & set(b["pub_dois"]):
+            return "review", "same title, but two different non-preprint DOIs"
+        if any(DATA_DOI_RE.match(d) for d in a["dois"] + b["dois"]):
+            return "review", "same title, but one record has a data-repository DOI"
+        if gap > YEAR_WINDOW:
+            return "review", f"same title, but years differ by more than {YEAR_WINDOW}"
+        if a["abstract"] and b["abstract"] and _jaccard(tokenize(a["abstract"]), tokenize(b["abstract"])) < 0.5:
+            return "review", "same title, but abstracts differ (word Jaccard < 0.5)"
+        return "merge", "same normalized title; no DOI conflict; year gap <= 3"
+    ka, kb = min(a["keys"]), min(b["keys"])
+    wa, wb = ka.split(), kb.split()
+    jac = _jaccard(wa, wb)
+    contained = (ka in kb or kb in ka) and min(len(wa), len(wb)) >= 6
+    if not contained and jac < 0.8:   # 以下各分支都要求词 Jaccard ≥ 0.8 或包含关系，先排除，省去逐字符比较
+        return "no", "titles differ"
+    ratio = SequenceMatcher(None, ka, kb).ratio()
+    if one_sided_notice and (contained or ratio >= 0.9):
+        return "no", "a notice about the other record (Re:/reply/correction), not another version"
+    na, nb = set(_NUM_RE.findall(ka)), set(_NUM_RE.findall(kb))
+    if na and nb and na != nb:
+        return "no", "different numbers (e.g. Part I vs Part II)"
+    if ((ratio >= 0.9 and jac >= 0.8) or contained) and gap <= YEAR_WINDOW:
+        return "review", f"near-identical titles (ratio {ratio:.2f}, word Jaccard {jac:.2f})"
+    return "no", "titles differ"

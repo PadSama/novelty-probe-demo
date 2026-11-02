@@ -2,8 +2,10 @@
 """检索质量检查：每个原始结果文件中，有多少条记录的标题 + 摘要满足原检索式。
 
 用 scripts/textmatch.py 的 Porter 词干还原近似两个 API 的匹配方式：短语按词干逐词连续匹配，
-截断词按前缀匹配，NOT 组命中即视为不满足。没有摘要的记录只能用标题判断，所以另列"有摘要者"的比例。
+截断词按前缀匹配，NOT 组命中（在全文任何位置）即视为不满足。没有摘要的记录只能用标题判断，所以另列"有摘要者"的比例。
 比例低说明 API 返回了大量在标题和摘要层面不满足检索式的记录（例如 OpenAlex 的 search= 会匹配全文）。
+注意这只是近似：两个 API 的词干还原都更像 KStem（Krovetz），比 Porter 保守（实测 news ≠ new、universe ≠ university），
+Porter 会把更多词形视为同一个词，所以本脚本给出的比例略偏高。
 
 用法：python3 scripts/qa.py [--suffix _v2]
 """
@@ -45,7 +47,7 @@ def main():
               f"{pct(r['conform_with_abstract'], r['with_abstract']):>24}")
     tot = {k: sum(r[k] for r in rows) for k in ("records", "with_abstract", "conform", "conform_with_abstract")}
     print(f"\ntotal: {tot['conform']}/{tot['records']} records conform; among records with an abstract: "
-          f"{tot['conform_with_abstract']}/{tot['with_abstract']}")
+          f"{tot['conform_with_abstract']}/{tot['with_abstract']}  (Porter approximation of the APIs' KStem-like matching)")
     return 0
 
 

@@ -293,10 +293,11 @@ class TestMerge(unittest.TestCase):
                 self.assertEqual([p.name for p in merge.raw_files("_v2")], ["openalex_Q1_v2.json"])
 
     def test_reproduces_committed_merge_outputs(self):
-        """用仓库里已提交的 results/raw 重跑合并，须与已提交的 merged*.json、candidates*.csv 一致。"""
+        """用仓库里已提交的 results/raw 按旧方法（--legacy）重跑合并，须与已提交的 merged*.json、candidates*.csv 一致。"""
         for suffix in ("", "_v2"):
             with self.subTest(round=suffix or "v1"), tempfile.TemporaryDirectory() as d:
-                with mock.patch.object(merge, "OUT_DIR", Path(d)), mock.patch.object(sys, "argv", ["merge.py", "--suffix", suffix]), \
+                with mock.patch.object(merge, "OUT_DIR", Path(d)), \
+                        mock.patch.object(sys, "argv", ["merge.py", "--suffix", suffix, "--legacy"]), \
                         contextlib.redirect_stdout(io.StringIO()):
                     merge.main()
                 new = json.loads((Path(d) / f"merged{suffix}.json").read_text(encoding="utf-8"))

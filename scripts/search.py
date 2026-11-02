@@ -48,6 +48,8 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+from textmatch import BM25, Doc, groups_matched
+
 ROOT = Path(__file__).resolve().parent.parent
 QUERIES_FILE = ROOT / "queries" / "queries.json"
 RAW_DIR = ROOT / "results" / "raw"
@@ -58,8 +60,9 @@ USER_AGENT = "novelty-probe/0.1 (literature search script)"
 OPENALEX_URL = "https://api.openalex.org/works"
 OPENALEX_SORT = "relevance_score:desc"
 S2_URL = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
-S2_FIELDS = "title,year,externalIds,venue,journal,abstract"
+S2_FIELDS = "title,year,externalIds,venue,journal,abstract,citationCount"
 S2_SORT = "citationCount:desc"
+S2_MAX_RECORDS = 3000  # 本地重排时最多取多少条（bulk 每页最多 1000 条，用 token 翻页）
 S2_PAUSE = 1.1  # 不带 API key 时 S2 限流较严，请求之间留间隔
 MAX_RETRY_WAIT = 60  # 服务端要求等待超过这么多秒（如 OpenAlex 每日额度用完）就不重试，直接报错
 
@@ -116,6 +119,11 @@ def parse_query(query):
             if depth or cur or negate:
                 raise ValueError('NOT 只能写在 AND 之后、作为一个组的开头，例如 … AND NOT ("a" OR "b")')
             negate = True
+        elif tok.upper() in ("AND", "OR", "NOT"):
+            # OpenAlex 把小写的 not 当作普通词、整句改按 AND 处理（实测会把排除变成包含），一律要求大写
+            raise ValueError(f"运算符必须大写：{tok} → {tok.upper()}；如果它是检索词，请加引号")
+        elif tok[0] in "-!":
+            raise ValueError(f"不支持用 {tok[0]} 表示排除（{tok}），请写成 AND NOT (…)")
         else:
             cur.append(tok)
     (exclude if negate else include).append(cur)
@@ -132,26 +140,32 @@ def and_groups(query):
 
 
 def to_openalex(query):
-    and_groups(query)  # 只做语法检查
+    """通用布尔式 → OpenAlex：照原样发送（AND / OR / NOT 均为 OpenAlex 原生语法，必须大写），截断词换成完整词。"""
+    parse_query(query)  # 只做语法检查
     if "," in query:
         raise ValueError("OpenAlex 的 filter 用逗号分隔条件，检索式里不能有逗号")
     return expand_truncation(query)
 
 
 def to_s2_bulk(query):
-    """通用布尔式 → S2 bulk 语法：AND → +，OR → |；括号、引号短语、截断词原样保留。"""
-    and_groups(query)  # 只做语法检查
-    out = []
+    """通用布尔式 → S2 bulk 语法：AND → +，OR → |，AND NOT (…) → + -(…)；括号、引号短语、截断词原样保留。"""
+    parse_query(query)  # 只做语法检查
+    out, negate = [], False
     for tok in TOKEN_RE.findall(query):
         if tok == "AND":
             out.append("+")
-        elif tok == "OR":
+            continue
+        if tok == "OR":
             out.append("|")
-        elif "-" in tok and not tok.startswith('"'):
+            continue
+        if tok == "NOT":
+            negate = True
+            continue
+        if "-" in tok and not tok.startswith('"'):
             # 未加引号的连字符词在 S2 语法里会被当成"排除"，改写成短语
-            out.append('"' + tok.replace("-", " ") + '"')
-        else:
-            out.append(tok)
+            tok = '"' + tok.replace("-", " ") + '"'
+        out.append("-" + tok if negate else tok)
+        negate = False
     return " ".join(out).replace("( ", "(").replace(" )", ")")
 
 
@@ -275,6 +289,10 @@ def search_openalex(q, year_from):
     data = get_json(url, headers)
     time.sleep(0.2)
     api_meta = data.get("meta") or {}
+    oql = (api_meta.get("x_query") or {}).get("oql")
+    if parse_query(q["query"])[1] and oql and " NOT " not in oql:
+        # 例如 not 写成了小写：OpenAlex 会静默改按 AND 处理，把要排除的内容变成必须包含
+        raise RuntimeError(f"OpenAlex 没有把排除组解析为 NOT（oql: {oql[:160]}），结果未保存")
     records = [openalex_record(w, q["id"]) for w in (data.get("results") or [])[:TOP_N]]
     meta = {
         "conversion": "boolean kept; truncated words -> full words; matched on title and abstract",
@@ -287,6 +305,34 @@ def search_openalex(q, year_from):
     return meta, records
 
 
+def s2_local_rank(papers, query, top_n=TOP_N):
+    """S2 bulk 不按相关度排序：在取回的记录上本地重排，返回 [(下标, 打分说明)]，最多 top_n 条。
+    排序键：满足的包含组数（按词干匹配标题 + 摘要）→ BM25（k1=1.2，b=0.75，短语按整体计）→ 被引次数。
+    没有摘要的记录（S2 常因出版商限制不给摘要）只能按标题打分，单独排序：标题至少命中（组数 − 1）个包含组的，
+    按无摘要记录在全部记录中的比例分配名额、按名次穿插，免得只因缺摘要就沉底；其余排在最后。"""
+    include, exclude = parse_query(query)
+    ignore = [t for g in exclude for t in g]
+    docs = [Doc(p.get("title"), p.get("abstract")) for p in papers]
+    bm = BM25(docs, [t for g in include for t in g])
+    info = {i: {"groups_matched": groups_matched(include, d, ignore), "bm25": round(bm.score(i, ignore), 3),
+                "has_abstract": bool(papers[i].get("abstract")), "citations": papers[i].get("citationCount") or 0}
+            for i, d in enumerate(docs)}
+    key = lambda i: (-info[i]["groups_matched"], -info[i]["bm25"], -info[i]["citations"], i)  # noqa: E731
+    with_abs = sorted((i for i in info if info[i]["has_abstract"]), key=key)
+    without = sorted((i for i in info if not info[i]["has_abstract"]), key=key)
+    threshold = max(1, len(include) - 1)
+    eligible = [i for i in without if info[i]["groups_matched"] >= threshold]
+    rest = [i for i in without if info[i]["groups_matched"] < threshold]
+    n = min(top_n, len(papers))
+    n_without = min(round(n * len(without) / len(papers)) if papers else 0, len(eligible))
+    n_with = min(n - n_without, len(with_abs))
+    n_without = min(n - n_with, len(eligible))
+    picked = [((k + 0.5) / n_with, 0, i) for k, i in enumerate(with_abs[:n_with])]
+    picked += [((k + 0.5) / n_without, 1, i) for k, i in enumerate(eligible[:n_without])]
+    order = [i for _, _, i in sorted(picked)] + rest[:n - n_with - n_without]
+    return [(i, info[i]) for i in order]
+
+
 def search_s2(q, year_from):
     key = os.environ.get("S2_API_KEY")
     headers = {"x-api-key": key} if key else {}
@@ -294,15 +340,31 @@ def search_s2(q, year_from):
     if year_from:
         params["year"] = f"{year_from}-"
     url = f"{S2_URL}?{urllib.parse.urlencode(params)}"
-    data = get_json(url, headers)
-    time.sleep(S2_PAUSE)
-    records = [s2_record(p, q["id"]) for p in (data.get("data") or [])[:TOP_N]]
+    papers, total, token, pages = [], None, None, 0
+    while True:  # 翻页取回记录（最多 S2_MAX_RECORDS 条），再在本地按相关度重排
+        page_url = url + (f"&{urllib.parse.urlencode({'token': token})}" if token else "")
+        data = get_json(page_url, headers)
+        time.sleep(S2_PAUSE)
+        pages += 1
+        total = data.get("total") if total is None else total
+        papers.extend(data.get("data") or [])
+        token = data.get("token")
+        if not token or len(papers) >= S2_MAX_RECORDS:
+            break
+    papers = papers[:S2_MAX_RECORDS]
+    ranked = s2_local_rank(papers, q["query"])
+    records = [{**s2_record(papers[i], q["id"]), "local_rank": info} for i, info in ranked]
     meta = {
-        "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |); phrases and prefix * kept",
+        "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; "
+                      "re-ranked locally",
         "query_sent": params["query"],
         "request_url": url,
-        "sort": S2_SORT,
-        "total_hits": data.get("total"),
+        "sort": "local: include groups matched, BM25 (title+abstract), citations; "
+                "records without abstract ranked separately and interleaved by their share",
+        "retrieval_sort": S2_SORT,
+        "pool": {"retrieved": len(papers), "pages": pages, "truncated": bool(token) or len(papers) < (total or 0),
+                 "with_abstract": sum(1 for p in papers if p.get("abstract"))},
+        "total_hits": total,
     }
     return meta, records
 
@@ -410,7 +472,7 @@ def main():
 
     total = len(queries) * len(sources)
     print(f"\n{total - failed}/{total} requests succeeded. total_hits = API-reported matches; "
-          f"saved = records kept (top {TOP_N}: OpenAlex by relevance, S2 by citation count); "
+          f"saved = records kept (top {TOP_N}: OpenAlex by API relevance, S2 re-ranked locally by relevance); "
           "no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).")
     return 1 if failed else 0
 
