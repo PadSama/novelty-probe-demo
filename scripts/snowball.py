@@ -17,7 +17,8 @@
 query_blocks / conform 对照检索式文件给出满足的 AND 组比例与是否满足检索式，只作参考，不参与排序——追踪的目的
 正是找出措辞与检索式不同的文献。
 输出（不并入检索结果的排序）：
-  results/raw/chase_<标签>{suffix}.json      全部记录，格式与 search.py 相同，另加 chase 字段（路径、支持数、经由哪些引用者等）
+  results/raw/chase_<标签>{suffix}.json      排序后的前 --keep 条（默认 200；总数记在 meta.total_hits），格式与 search.py 相同，
+                                             另加 chase 字段（路径、支持数、经由哪些引用者等）
   results/merged/chase_<标签>{suffix}.csv    每条路径各取前 --top 篇（默认 20），标出已在检索结果（merged{suffix}.json）中的
 不判断相关性或新颖性；所有题目、DOI、摘要都取自 OpenAlex 的返回。
 
@@ -51,6 +52,7 @@ FIELDS = ("id,doi,title,display_name,publication_year,type,primary_location,loca
           "cited_by_count")
 MAX_FORWARD = 2000
 TOP = 20
+KEEP = 200
 BATCH = 50
 PAUSE = 0.15
 FACETS = ["研究问题", "作用机制", "研究情境", "数据与方法", "预期发现"]
@@ -197,6 +199,25 @@ def citing_works(seed_ids, expr, limit):
     return out[:limit], total
 
 
+def version_groups(works):
+    """题目规范化后相同（≥5 词，且不是来信、更正之类的条目）的记录视为同一研究的不同版本：{work id: 组 id}。"""
+    groups, by_key = {}, {}
+    for w in works:
+        wid, title = short_id(w["id"]), w.get("display_name") or w.get("title")
+        k = title_key(title)
+        groups[wid] = by_key.setdefault(k, wid) if len(k.split()) >= 5 and not is_notice(title) else wid
+    return groups
+
+
+def representative(ws):
+    """同一研究的几个版本中选一条作代表：正式发表（非预印本 DOI）优先，其次有摘要、被引多。"""
+    def score(w):
+        doi = (w.get("doi") or "").lower()
+        return (bool(doi) and "10.48550/arxiv" not in doi, bool(w.get("abstract_inverted_index")),
+                w.get("cited_by_count") or 0)
+    return max(ws, key=score)
+
+
 def collect_onehop(args, seeds_resolved):
     links, pool = {}, {}  # links: work id -> {seed label: set(directions)}
     for label, works, info in seeds_resolved:
@@ -213,43 +234,71 @@ def collect_onehop(args, seeds_resolved):
     seed_ids = {i for _, _, info in seeds_resolved for i in info["openalex_ids"]}
     for w in fetch_by_ids([wid for wid in links if wid not in pool and wid not in seed_ids]):
         pool[short_id(w["id"])] = w
+    works = [w for wid, w in pool.items() if wid not in seed_ids]
+    groups = version_groups(works)
+    members = {}
+    for w in works:
+        members.setdefault(groups[short_id(w["id"])], []).append(w)
     rows = []
-    for wid, w in pool.items():
-        if wid in seed_ids:
-            continue
-        lk = links.get(wid, {})
-        rows.append((w, {"path": "onehop", "links": len(lk), "seeds": sorted(lk),
-                         "directions": sorted({x for v in lk.values() for x in v})}))
-    return rows, {"direction": args.direction, "max_forward_per_seed": args.max_forward}
+    for ws in members.values():  # 同一研究的几个版本合成一行，与种子的关系取并集
+        lk = {}
+        for w in ws:
+            for label, dirs in links.get(short_id(w["id"]), {}).items():
+                lk.setdefault(label, set()).update(dirs)
+        rep = representative(ws)
+        rows.append((rep, {"path": "onehop", "links": len(lk), "seeds": sorted(lk),
+                           "directions": sorted({x for v in lk.values() for x in v}),
+                           "versions": sorted(short_id(w["id"]) for w in ws if w is not rep)}))
+    return rows, {"direction": args.direction, "max_forward_per_seed": args.max_forward,
+                  "versions_merged": len(works) - len(members)}
 
 
 def collect_cocite(args, seeds_resolved):
-    """两步：引用种子且满足 --citer-filter 的文献（引用者），再统计它们共同引用的文献。"""
+    """两步：引用种子且满足 --citer-filter 的文献（引用者），再统计它们共同引用的文献。
+    同一研究的不同版本（如期刊版与 SSRN 版）算一篇引用者；被引文献的不同版本（如预印本与正式版）合并计数。"""
     seed_ids = sorted({i for _, _, info in seeds_resolved for i in info["openalex_ids"]})
     citing, total = citing_works(seed_ids, args.citer_filter, args.max_forward)
     notices = [w for w in citing if is_notice(w.get("display_name"))]  # 读者来信、回复、更正：只围绕某一篇写，不计
     citers = [w for w in citing if not is_notice(w.get("display_name"))]
-    support, via = {}, {}
+    cgroups = version_groups(citers)
+    citer_members, refs = {}, {}
     for w in citers:
-        for rid in {short_id(r) for r in w.get("referenced_works") or []} - set(seed_ids):
-            support[rid] = support.get(rid, 0) + 1
-            via.setdefault(rid, []).append(short_id(w["id"]))
-    kept = [rid for rid, n in support.items() if n >= args.min_support]
+        g = cgroups[short_id(w["id"])]
+        citer_members.setdefault(g, []).append(w)
+        refs.setdefault(g, set()).update(short_id(r) for r in w.get("referenced_works") or [])
+    cited_by = {}  # 被引文献 id -> 引用它的引用者组
+    for g, rs in refs.items():
+        for rid in rs - set(seed_ids):
+            cited_by.setdefault(rid, set()).add(g)
+    # 取被引文献的元数据以便合并版本；被引文献太多时只取已达到门槛的
+    wanted = [rid for rid, gs in cited_by.items() if len(cited_by) <= 3000 or len(gs) >= args.min_support]
+    fetched = fetch_by_ids(wanted)
+    vgroups = version_groups(fetched)
+    ref_members = {}
+    for w in fetched:
+        ref_members.setdefault(vgroups[short_id(w["id"])], []).append(w)
     rows = []
-    for w in fetch_by_ids(kept):
-        wid = short_id(w["id"])
-        n = support[wid]
-        rows.append((w, {"path": "cocited", "support": n, "via": sorted(via[wid]),
-                         "norm_support": round(n / math.sqrt(max(w.get("cited_by_count") or 0, 1)), 4)}))
-    for w in citers:
-        wid = short_id(w["id"])
-        rows.append((w, {"path": "citer", "seeds": sorted(label for label, _, info in seeds_resolved
-                                                          if set(info["openalex_ids"]) & {short_id(r) for r in
-                                                                                           w.get("referenced_works") or []})}))
+    for ws in ref_members.values():
+        gs = set().union(*(cited_by[short_id(w["id"])] for w in ws))
+        if len(gs) < args.min_support:
+            continue
+        rep = representative(ws)
+        n = len(gs)
+        cites = max(w.get("cited_by_count") or 0 for w in ws)
+        rows.append((rep, {"path": "cocited", "support": n, "via": sorted(gs),
+                           "norm_support": round(n / math.sqrt(max(cites, 1)), 4),
+                           "versions": sorted(short_id(w["id"]) for w in ws if w is not rep)}))
+    for g, ws in citer_members.items():
+        rep = representative(ws)
+        r = refs[g]
+        rows.append((rep, {"path": "citer", "versions": sorted(short_id(w["id"]) for w in ws if w is not rep),
+                           "seeds": sorted(label for label, _, info in seeds_resolved if set(info["openalex_ids"]) & r)}))
     stats = {"citer_filter": args.citer_filter, "citer_filter_sent": search.to_openalex(args.citer_filter)
              if args.citer_filter else None, "citing_total_unfiltered": total, "citing_filtered": len(citing),
-             "citing_notices_excluded": [w.get("display_name") for w in notices], "citers_used": len(citers),
-             "min_support": args.min_support, "references_counted": len(support), "cocited_kept": len(kept)}
+             "citing_notices_excluded": [w.get("display_name") for w in notices],
+             "citers_used": len(citer_members), "citer_versions_merged": len(citers) - len(citer_members),
+             "min_support": args.min_support, "references_counted": len(cited_by),
+             "cocited_kept": sum(1 for _, c in rows if c["path"] == "cocited")}
     return rows, stats
 
 
@@ -268,6 +317,7 @@ def main():
     ap.add_argument("--max-forward", type=int, default=MAX_FORWARD, help="最多取多少条前向引用（一步模式按每个种子计）")
     ap.add_argument("--label", help="输出文件标签，默认一步模式 C1、共被引模式 C2")
     ap.add_argument("--top", type=int, default=TOP)
+    ap.add_argument("--keep", type=int, default=KEEP, help="原始结果文件保存排序后的前多少条（默认 200；全部条数记在 meta）")
     args = ap.parse_args()
     label = args.label or ("C2" if args.cocite else "C1")
     if args.citer_filter:
@@ -329,13 +379,13 @@ def main():
             "seeds": [info for _, _, info in seeds_resolved], **stats, "queries_file": rel(args.queries),
             "sort": ("cocited: support desc, support/sqrt(cited_by_count) desc; citers: similarity to seeds desc"
                      if args.cocite else "links desc, similarity to seeds desc"),
-            "total_hits": len(out), "returned": len(out),
+            "total_hits": len(out), "returned": min(len(out), args.keep),
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     raw_path = RAW_DIR / f"chase_{label}{args.suffix}.json"
     raw_path.write_text(json.dumps({"meta": meta, "records": [{k: v for k, v in x.items() if k != "in_search"}
-                                                               for x in out]}, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8")
+                                                               for x in out[:args.keep]]}, ensure_ascii=False, indent=2)
+                        + "\n", encoding="utf-8")
     shown, per_path = [], {}
     for x in out:
         k = x["chase"]["path"]
@@ -361,7 +411,8 @@ def main():
     if args.cocite:
         print(f"\nciting works: {stats['citing_total_unfiltered']} cite the seeds; {stats['citing_filtered']} pass the "
               f"filter {stats['citer_filter_sent']!r}; {len(stats['citing_notices_excluded'])} letters/replies excluded; "
-              f"{stats['citers_used']} citers used")
+              f"{stats['citers_used']} citers used (versions of one work counted once: "
+              f"{stats['citer_versions_merged']} merged)")
         print(f"co-cited: {stats['references_counted']} works cited by the citers; "
               f"{stats['cocited_kept']} cited by at least {args.min_support}")
     else:

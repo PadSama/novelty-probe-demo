@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q3",
+    "purpose": "application",
+    "queries_file": "queries/queries.json",
+    "query_original": "(\"AI in science\" OR \"AI for science\" OR \"large language models\" OR \"machine learning\") AND (\"research topic selection\" OR \"problem choice\" OR \"direction of science\")",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(\"AI in science\" | \"AI for science\" | \"large language models\" | \"machine learning\") + (\"research topic selection\" | \"problem choice\" | \"direction of science\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22AI+in+science%22+%7C+%22AI+for+science%22+%7C+%22large+language+models%22+%7C+%22machine+learning%22%29+%2B+%28%22research+topic+selection%22+%7C+%22problem+choice%22+%7C+%22direction+of+science%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 9,
+      "pages": 1,
+      "truncated": false,
+      "with_abstract": 7,
+      "same_title_dropped": 0
+    },
+    "total_hits": 9,
+    "returned": 9,
+    "retrieved_at": "2026-11-02T08:53:03+00:00"
+  },
+  "records": [
+    {
+      "title": "From connectivity to insight: A graph neural network–large language model synergy for scholar–topic recommendation",
+      "year": 2026,
+      "doi": "10.1177/01655515261461741",
+      "arxiv_id": null,
+      "venue": "Journal of information science",
+      "abstract": "Research topic selection is a pivotal decision in a scholar’s academic trajectory, yet identifying viable topics remains challenging due to information overload within academic literature. To address these challenges, we propose a novel graph neural network–large language model synergy framework that systematically integrates structural connectivity learning with semantic expert reasoning for personalized scholar–topic recommendation. Unlike existing approaches that rely solely on graph topology or semantic generation, our framework decomposes the recommendation process into two stages: (1) constructing a scholar–paper–topic heterogeneous bibliometric network to capture long-term research trajectories through embedding learning with a heterogeneous graph neural network (HetGNN) and (2) empowering large language models as domain experts through chain-of-thought prompting to perform reasoning-based filtering and re-ranking. A key innovation of our approach lies in constraining large language models to reason over graph-derived candidate topics, which effectively mitigates the propensity for hallucinating irrelevant topics while addressing the “sparsity” issue inherent in purely graph-based methods. Empirical evaluation using Scopus publication data from scholars at Renmin University of China, along with cross-institutional validation (Peking University and Tsinghua University), demonstrates the framework’s superior performance. The synergy strategy significantly improves recommendation accuracy, increasing the F1-score up to 85.91%, and effectively bridges the gap between network topology and deep semantic insight in scientometric recommender systems.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 2.439,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "A temporal adaptive dictionary-constrained LDA and Bi-calibrated dual granularity DTM framework for dynamic topic evolution analysis in academic papers",
+      "year": 2026,
+      "doi": "10.1038/s41598-026-54348-9",
+      "arxiv_id": null,
+      "venue": "Scientific Reports",
+      "abstract": "With the explosive growth of academic achievements in artificial intelligence (AI), accurately capturing the dynamic evolution of research topics is crucial for research topic selection, policy-making, and industrial innovation. To address the limitation that traditional topic models struggle to balance static topic recognition accuracy and dynamic evolution tracking capability, this study proposes a unified framework: Temporal Adaptive Dictionary-Constrained Latent Dirichlet Allocation (LDA) combined with Bi-calibrated Dual Granularity Dynamic Topic Model (DTM). We conduct a systematic empirical analysis of dynamic topic evolution in the AI field using English AI papers retrieved from the Web of Science (WOS) Core Collection (2014–2023). Specifically, we first optimize the topic initialization process of LDA using a domain-specific dictionary to enhance the accuracy of static topic clustering. Second, we take the core topics identified by the optimized LDA as prior knowledge and input them into DTM, while optimizing the traditional single temporal granularity to an “annual + quarterly” dual granularity to accurately track the changes in topic strength, keyword composition, and cross-topic association relationships over time. Finally, we verify the performance of the proposed model using perplexity and topic coherence indicators, and reveal the coupling characteristics between different topics through correlation analysis. Results indicate that six core topic clusters have emerged in the AI field, with “generative AI”, “large language models”, and “multimodal learning” evolving into explosive topics after 2021, traditional machine learning shows a declining trend, with its core focus shifting toward “few-shot learning” and “edge computing adaptation”. The top three topic couplings are “generative AI-large language models”, “computer vision-multimodal learning” and “reinforcement learning-robotics”. The proposed combined model outperforms single models, achieving a 17.3% reduction in perplexity and a 23.5% decrease in topic drift rate, thereby providing valuable decision support for researchers seeking to grasp field frontiers and management departments for optimizing resource allocation.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 2.294,
+        "has_abstract": true,
+        "citations": 2
+      }
+    },
+    {
+      "title": "Theoretical Model and Implementation Path of Research Support Service in University Libraries Empowered by Academic Agents",
+      "year": 2026,
+      "doi": "10.1109/ITOEC69754.2026.11732670",
+      "arxiv_id": null,
+      "venue": "2026 IEEE 9th Information Technology and Mechatronics Engineering Conference (ITOEC)",
+      "abstract": "With the rapid development of large language models and agent technologies, the research support services of academic libraries are undergoing a paradigm shift from “resource supply-oriented” to “intelligent empowerment-oriented” models. Based on the technical characteristics and service logic of academic intelligent agents, this paper systematically analyzes the practical challenges faced by current research support services in academic libraries and proposes a new research support service model driven by academic intelligent agents. This model, centered on the entire research lifecycle, constructs a multi-level service system covering research topic selection and project initiation assistance, literature review and synthesis generation, data processing and methodological support, academic writing and submission guidance, and impact tracking and dissemination promotion. Furthermore, this paper designs a four-dimensional architecture of “infrastructure-capability hub-service application-governance” and proposes technological implementation pathways and ethical governance frameworks, aiming to provide theoretical support and practical references for the intelligent transformation of academic libraries.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.947,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Evaluating characteristics of PROSPERO records as predictors of eventual publication of non-Cochrane systematic reviews: a meta-epidemiological study protocol",
+      "year": 2018,
+      "doi": "10.1186/s13643-018-0709-6",
+      "arxiv_id": null,
+      "venue": "Systematic Reviews",
+      "abstract": "BackgroundEpidemiology and the reporting characteristics of systematic reviews (SRs) and meta-analyses (MAs) are well known. However, no study has analyzed the influence of protocol features on the probability that a study’s results will be finally reported, thereby indirectly assessing the reporting bias of International Prospective Register of Systematic Reviews (PROSPERO) registration records.ObjectiveThe objective of this study is to explore which factors are associated with a higher probability that results derived from a non-Cochrane PROSPERO registration record for a systematic review will be finally reported as an original article in a scientific journal.Methods/designThe PROSPERO repository will be web scraped to automatically and iteratively obtain all completed non-Cochrane registration records stored from February 2011 to December 2017. Downloaded records will be screened, and those with less than 90% fulfilled or are duplicated (i.e., those sharing titles and reviewers) will be excluded. Manual and human-supervised automatic methods will be used for data extraction, depending on the data source (fields of PROSPERO registration records, bibliometric databases, etc.). Records will be classified into published, discontinued, and abandoned review subgroups. All articles derived from published reviews will be obtained through multiple parallel searches using the full protocol “title” and/or “list reviewers” in MEDLINE/PubMed databases and Google Scholar. Reviewer, author, article, and journal metadata will be obtained using different sources. R and Python programming and analysis languages will be used to describe the datasets; perform text mining, machine learning, and deep learning analyses; and visualize the data. We will report the study according to the recommendations for meta-epidemiological studies adapted from the Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) statement for SRs and MAs.DiscussionThis meta-epidemiological study will explore, for the first time, characteristics of PROSPERO records that may be associated with the publication of a completed systematic review. The evidence may help to improve review workflow performance in terms of research topic selection, decision-making regarding team selection, planning relationships with funding sources, implementing literature search strategies, and efficient data extraction and analysis. We expect to make our results, datasets, and R and Python code scripts publicly available during the third quarter of 2018.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.001,
+        "has_abstract": true,
+        "citations": 17
+      }
+    },
+    {
+      "title": "AN INVESTIGATION OF INFORMATION INTELLIGENCE RETRIEVAL MODEL IN LOCAL SEARCHING SYSTEMS",
+      "year": 2018,
+      "doi": "10.14529/JCEM180207",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "The process of building and learning neural networks requires considerable computational effort. Fortunately, nowadays there are many various systems with high computing power. Development of systems, algorithms, methods and their applications in machine learning has become a promising direction in science. The work is devoted to the investigation of information retrieval problems and the main problems associated with this task, constructing an overfit-safe neural network model for improving the local searching system quality on 49% using machine learning algorithms.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 0.967,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Pembelajaran IPA Berorientasi Pada Framework Strategic Vision and Direction for Science (SVDS) PISA 2024",
+      "year": 2024,
+      "doi": "10.52434/jkpi.v4i1.3579",
+      "arxiv_id": null,
+      "venue": "JURNAL Kajian Pendidikan IPA",
+      "abstract": "Penelitin ini bertujuan mengkaji secara literatur megnenai pembelajaran IPA berorientasi pada Framework Strategic Vision and Direction for Science (SVDS). Kajian literatur yang dilakukan menggunakan Narrative Literatur Review (NLR) dengan 4 tahapan utama, yaitu menentukan topik kajian, mencari dan menyeleksi literatur, menganalisis dan mengkritisi literatur, dan menentukan struktur logis untuk narasi dari kajian literaturnya. Hasil kajian literatur menunjukkan bahwa 1) pada SVDS terdapat penambahan domain literasi saintifik, yaitu scientific identity yang menggantikan scientific attitude. 2) Domain scientific knowledge terdiri atas pengetahuan yang mendukung untuk pemecahan masalah kompleks berkaitan dengan isu-isu di sekitar, pengetahuan dalam memberikan apresiasi dalam perkembangan ilmu, serta pengetahuan tentang data, struktur dan perilaku sistem pemorsesan informasi. 3) Pada domain scientific competencies terjadi penambahan dua kompetensi dan mengeliminasi satu kompetensi, yaitu kompetensi menggunakan pengetahuan sains dalam memutuskan tindakan, keterampilan berpikir probabilistik, keterampilan mengevaluasi dan merancang penyelidikan ilmiah, dan keterampilan menginterpretasi data dan bukti ilmiah. 4) Pada domaian tambahan, yaitu scientific identitiy terdiri atas Science Capital, Critical science agency, Inclusive science experiences and practices, Ethics and values. Pembelajaran IPA yang dapat dirancang antara lain pembelajaran IPA berpendekatan socio-scientific issues (SSI), pembelajaran IPA dengan tema-tema sustainable development goals, pembelajaran IPA dengan pendekatan Historical Inquiry Cases (HIC), pembelajaran IPA berbantuan Machine learning and artificial intelligence, dan pembelajaran IPA dengan Inquiry Based Learning (IBL)",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 0.559,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "APPLICATION OF NEURAL NETWORKS TO PREDICT THE FUTURE PROSPECTIVE STUDENTS’ EDUCATIONAL ACHIEVEMENT AT THE UNIVERSITY",
+      "year": 2022,
+      "doi": "10.14489/vkit.2022.12.pp.038-045",
+      "arxiv_id": null,
+      "venue": "Vestnik komp iuternykh i informatsionnykh tekhnologii",
+      "abstract": "The issues of improving the quality of education at the university by developing a recommendation to the applicant for admission to a university in a suitable field of study are considered. Predicting the student's academic performance for the chosen field of study reduces the risk of choosing the wrong direction, and, as a result, increases the level of mastery of appropriate competencies when studying at a university. The successful experience of foreign universities using machine learning methods to study the quality of students’ education in universities is considered. For forecasting, the authors use a neural network model describing the relationship between predictors and a criterion variable. Indicators reflecting the quality of the applicant’s education in secondary school were chosen as predictors. Objective data of indicators acting as predictors are considered: grades in school natural science disciplines, scores of the unified and main state exam in natural science disciplines, the average score of the certificate. As a criterion variable, the average assessment of the teachers of the graduating department was chosen, reflecting the level of mastering the core competencies. The results of the work of this model for real source data of students of the direction “Computer Science and Computer Engineering” of several years of study are presented. The effectiveness of the proposed forecasting model with a sufficient degree of accuracy for the available statistical data is shown. To check the adequacy of the proposed model, a multidimensional linear regression model is constructed. The main indicators of this model are described, their values are given. The conclusion is made about the success of the proposed forecasting model and suggests ways to further improve the accuracy of the forecast.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 0.495,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Drug design using inductive logic programming",
+      "year": 1993,
+      "doi": "10.1109/HICSS.1993.270676",
+      "arxiv_id": null,
+      "venue": "[1993] Proceedings of the Twenty-sixth Hawaii International Conference on System Sciences",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 0,
+        "bm25": 0.0,
+        "has_abstract": false,
+        "citations": 14
+      }
+    },
+    {
+      "title": "Feature Selection Algorithms in Medical Data Classification: A Brief Survey and Experimentation",
+      "year": 2020,
+      "doi": "10.1007/978-981-15-1420-3_90",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 0,
+        "bm25": 0.0,
+        "has_abstract": false,
+        "citations": 3
+      }
+    }
+  ]
+}

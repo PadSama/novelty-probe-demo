@@ -1,0 +1,270 @@
+{
+  "meta": {
+    "source_api": "openalex",
+    "query_id": "Q1",
+    "purpose": "component",
+    "queries_file": "queries/queries.json",
+    "query_original": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+    "year_from": null,
+    "conversion": "boolean kept; truncated words -> full words; matched on title and abstract",
+    "query_sent": "(\"large language models\" OR \"generative AI\") AND (homogenization OR homogenisation OR \"algorithmic monoculture\" OR \"collective diversity\")",
+    "api_interpretation": "get works with ((stemmed \"algorithmic monoculture\" OR stemmed \"collective diversity\" OR homogenisation OR homogenization) AND (stemmed \"generative AI\" OR stemmed \"large language models\")) in the title or abstract",
+    "request_url": "https://api.openalex.org/works?filter=title_and_abstract.search%3A%28%22large+language+models%22+OR+%22generative+AI%22%29+AND+%28homogenization+OR+homogenisation+OR+%22algorithmic+monoculture%22+OR+%22collective+diversity%22%29&sort=relevance_score%3Adesc&per-page=25&page=1",
+    "sort": "relevance_score:desc",
+    "total_hits": 785,
+    "returned": 25,
+    "retrieved_at": "2026-11-02T08:52:21+00:00"
+  },
+  "records": [
+    {
+      "title": "Generative AI enhances individual creativity but reduces the collective diversity of novel content",
+      "year": 2024,
+      "doi": "10.1126/sciadv.adn5290",
+      "arxiv_id": "2312.00506",
+      "venue": "Science Advances",
+      "abstract": "Creativity is core to being human. Generative artificial intelligence (AI)-including powerful large language models (LLMs)-holds promise for humans to be more creative by offering new ideas, or less creative by anchoring on generative AI ideas. We study the causal impact of generative AI ideas on the production of short stories in an online experiment where some writers obtained story ideas from an LLM. We find that access to generative AI ideas causes stories to be evaluated as more creative, better written, and more enjoyable, especially among less creative writers. However, generative AI-enabled stories are more similar to each other than stories by humans alone. These results point to an increase in individual creativity at the risk of losing collective novelty. This dynamic resembles a social dilemma: With generative AI, writers are individually better off, but collectively a narrower scope of novel content is produced. Our results have implications for researchers, policy-makers, and practitioners interested in bolstering creativity.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenization Effects of Large Language Models on Human Creative Ideation",
+      "year": 2024,
+      "doi": "10.1145/3635636.3656204",
+      "arxiv_id": "2402.01536",
+      "venue": "Creativity and Cognition",
+      "abstract": "Large language models (LLMs) are now being used in a wide variety of contexts, including as creativity support tools (CSTs) intended to help their users come up with new ideas. But do LLMs actually support user creativity? We hypothesized that the use of an LLM as a CST might make the LLM’s users feel more creative, and even broaden the range of ideas suggested by each individual user, but also homogenize the ideas suggested by different users. We conducted a 36-participant comparative user study and found, in accordance with the homogenization hypothesis, that different users tended to produce less semantically distinct ideas with ChatGPT than with an alternative CST. Additionally, ChatGPT users generated a greater number of more detailed ideas, but felt less responsible for the ideas they generated. We discuss potential implications of these findings for users, designers, and developers of LLM-based CSTs.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The homogenizing effect of large language models on human expression and thought",
+      "year": 2026,
+      "doi": "10.1016/j.tics.2026.01.003",
+      "arxiv_id": null,
+      "venue": "Trends in Cognitive Sciences",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI and the homogenization of analyst forecasts",
+      "year": 2026,
+      "doi": "10.1016/j.frl.2026.110767",
+      "arxiv_id": null,
+      "venue": "Finance research letters",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Language ideologies and the homogenizing pull of generative AI",
+      "year": 2026,
+      "doi": "10.1016/j.jslw.2026.101375",
+      "arxiv_id": null,
+      "venue": "Journal of Second Language Writing",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI and Content Homogenization: The Case of Digital Marketing",
+      "year": 2025,
+      "doi": "10.2139/ssrn.5367123",
+      "arxiv_id": null,
+      "venue": "SSRN Electronic Journal",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Does Generative AI Stifle Creativity? Convergence and Homogenisation in Student Work",
+      "year": 2026,
+      "doi": "10.56831/psen-08-274",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Generative AI (GAI) has now been widely integrated into higher education.While its impact on cognitive abilities (cognitive offloading) has been well-documented, its influence on creativity is less well-understood.This study analysed 12 video game design projects created by 36 second-year computer science students using generative AI tools.Despite the creative power of the tools, the results reveal a strong thematic convergence, with 50-58% of projects set in post-apocalyptic worlds, 75-83% featuring male protagonists and conventional narrative structures.This article discusses the pedagogical implications of this finding and proposes ways to integrate GAI judiciously.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing effect of large language models (LLMs) on creative diversity: An empirical comparison of human and ChatGPT writing",
+      "year": 2025,
+      "doi": "10.1016/j.chbah.2025.100207",
+      "arxiv_id": null,
+      "venue": "Computers in Human Behavior Artificial Humans",
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) such as ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human-created content, their widespread use risks reducing creative diversity across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMs on creative diversity, not only at the individual level but also at the collective level. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—the diversity growth rate—we showed that each additional human-written essay contributed more new ideas than did each additional GPT-4 essay. Notably, this difference became more pronounced as more essays were included in the analysis and persisted despite efforts to enhance AI-generated content through both prompt and parameter modifications. Overall, our findings suggest that, despite their potential to enhance individual creativity, the widespread use of LLMs could diminish the collective diversity of creative ideas. • We Introduce diversity growth rate to measure idea diversity added per creative output. • Each additional human-written essay contributes more new ideas than a GPT-generated essay. • Diversity gap widens with more essays, showing greater AI homogenization at scale. • Enhancing GPT's creative diversity through parameter- or prompt-modifications does not mitigate the diversity gap. • Our study suggests widespread LLM use could diminish collective diversity of creative ideas.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The Homogenizing Effect of Large Language Models on Human Expression and Thought",
+      "year": 2025,
+      "doi": "10.48550/arxiv.2508.01491",
+      "arxiv_id": "2508.01491",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "Cognitive diversity, reflected in variations of language, perspective, and reasoning, is essential to creativity and collective intelligence. This diversity is rich and grounded in culture, history, and individual experience. Yet as large language models (LLMs) become deeply embedded in people's lives, they risk standardizing language and reasoning. We synthesize evidence across linguistics, psychology, cognitive science, and computer science to show how LLMs reflect and reinforce dominant styles while marginalizing alternative voices and reasoning strategies. We examine how their design and widespread use contribute to this effect by mirroring patterns in their training data and amplifying convergence as all people increasingly rely on the same models across contexts. Unchecked, this homogenization risks flattening the cognitive landscapes that drive collective intelligence and adaptability.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI Meets Open-Ended Survey Responses: Research Participant Use of AI and Homogenization",
+      "year": 2025,
+      "doi": "10.1177/00491241251327130",
+      "arxiv_id": null,
+      "venue": "Sociological Methods & Research",
+      "abstract": "The growing popularity of generative AI tools presents new challenges for data quality in online surveys and experiments. This study examines participants’ use of large language models to answer open-ended survey questions and describes empirical tendencies in human vs LLM-generated text responses. In an original survey of participants recruited from a popular online platform for sourcing social science research subjects, 34% reported using LLMs to help them answer open-ended survey questions. Simulations comparing human-written responses from three pre-ChatGPT studies with LLM-generated text reveal that LLM responses are more homogeneous and positive, particularly when they describe social groups in sensitive questions. These homogenization patterns may mask important underlying social variation in attitudes and beliefs among human subjects, raising concerns about data validity. Our findings shed light on the scope and potential consequences of participants’ LLM use in online research.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Delayed Ai Access: Mitigating the Homogenising Effects of Generative Ai in Collaborative Problemsolving",
+      "year": 2025,
+      "doi": "10.1109/icaite68636.2025.11442590",
+      "arxiv_id": null,
+      "venue": "International Conference on Artificial Intelligence and Teacher Education (ICAITE)",
+      "abstract": "The rapid integration of generative artificial intelligence (GenAI) into collaborative learning environments raises a critical question about its impact on team creativity and idea diversity. This study investigates whether delaying the use of AI tools in collaborative problem-solving can mitigate the “homogenising effect” associated with immediate AI access. Using a quasi-experimental design, 36 students were assigned to three conditions (immediate AI access, delayed AI access, or no AI access) to solve a real-world problem-solving task. The results show a homogenising effect in the immediate AI access group, which produced significantly more similar solutions compared to the other groups, suggesting that continuous, early reliance on AI stifles idea diversity. In contrast, the No AI group achieved the lowest homogenisation score and the highest level of creativity. The Delayed AI group also showed a significantly lower homogenisation score than the immediate access group, supporting the argument that a period of unassisted, humancentric ideation is crucial for fostering novel and diverse solutions before using AI for refinement. These findings suggest that timing is critical for AI integration in education. By delaying AI access, educators can empower students to first engage in the creative struggle and socio-cognitive conflict essential for collaborative problem-solving, ensuring that AI serves as a tool for intentional augmentation rather than a replacement for original human thought. This approach promotes higher levels of learning and preserves human agency.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Algorithmic Assistance and the Creativity Paradox: Large Language Models, Student Writing, and Cognitive Homogenisation",
+      "year": 2026,
+      "doi": "10.55737/qjss.vii-i.26481",
+      "arxiv_id": null,
+      "venue": "Qlantic journal of social sciences.",
+      "abstract": "The adoption of large language models in higher education aids brainstorming and productivity, but raises concerns about student dependence, potentially diminishing confidence in generating original ideas independently. The paper tackles these issues by carrying out a quantitative survey on a sample size of 120 undergraduate and postgraduate students of four universities in Dublin, that is, Dublin City University, University College Dublin, Trinity College Dublin, and Technological University Dublin. The respondents were varied in their academic backgrounds; some were undergraduate or post-graduate level and this was evenly split between 46 per cent female and 54 per cent male. The survey was taking the trends of using ChatGPT, the sense of creative self-efficacy, and how dissimilar students perceived academic ideas and written work. The results suggest that there is a definite conflict in the application of AI tools. A significant number of respondents referred to ChatGPT in the context of the idea development, increased productive, and assistance at the first drafting phase. Nevertheless, a large percentage of them experienced more trouble in idea generation, and thought they were beginning to resemble the work of other students using the same system. On the whole, 67.5 per cent thought that their ideas were growing closer to those who also use ChatGPT. These results imply that the positive effects of writing with AI might be accompanied by the feeling of reduced originality. The paper highlights AI’s impact on creativity, emphasizing pedagogical strategies for fostering independent thinking and intellectual diversity in education.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The Chameleon's Limit: Investigating Persona Collapse and Homogenization in Large Language Models",
+      "year": 2026,
+      "doi": "10.48550/arxiv.2604.24698",
+      "arxiv_id": "2604.24698",
+      "venue": "arXiv (Cornell University)",
+      "abstract": "Large language models (LLMs) have powered multi-agent simulations such as survey respondents or application users. However, LLMs lack the population-level diversity required by these simulations---responses from LLMs with detailed human profiles cluster into classes, unlike human responses that uniformly fill the entire space. In this paper, we formalize this as Persona Collapse and quantify its population-level structure with three diagnostic metrics: Coverage (how much of the persona space is occupied), Uniformity (how evenly agents spread across it), and Complexity (how rich the resulting behaviors are). Across eight LLMs on personality (BFI-44), moral reasoning, and self-introduction, persona collapse is universal but task-dependent: CoSER-Llama-8B collapses the most in personality while being the most diverse in moral reasoning. Moreover, sampling more personas cannot mitigate the collapse. We further show a fidelity--diversity tradeoff: the models with the highest per-persona fidelity produce the most polarized populations. Finally, persona-targeted fine-tuning further narrows the population instead of diversifying it.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing Effect of a Large Language Model (LLM) on Creative Diversity: An Empirical Comparison of Human and ChatGPT Writing",
+      "year": 2024,
+      "doi": "10.31234/osf.io/8p9wu",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) like ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human creations, their widespread use risks reducing the diversity of creative outputs across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMS on collective creativity. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—diversity growth rate—we showed that each additional human-written essay contributed more new ideas than each additional GPT-4 essay. This homogenizing effect persisted even after a range of enhancements to the diversity of the GPT-4 writings, including prompt and parameters modifications. Overall, our findings suggest that, despite improvements in individual creativity, the widespread use of LLMs could diminish the collective diversity of ideas.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Delayed AI Access: Mitigating the Homogenising Effects of Generative AI in Collaborative Problem-Solving",
+      "year": 2025,
+      "doi": "10.5281/zenodo.18886853",
+      "arxiv_id": null,
+      "venue": "Zenodo (CERN European Organization for Nuclear Research)",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The double-edged sword of generative AI for assessment: Efficiency versus homogenization",
+      "year": 2025,
+      "doi": "10.4337/9781035337873.00012",
+      "arxiv_id": null,
+      "venue": "Edward Elgar Publishing eBooks",
+      "abstract": "Chapter 8 examines the dual impact of generative artificial intelligence (GenAI) on educational assessment, highlighting the tensions between increased efficiency and risks of homogenization. It discusses the limitations of traditional assessment methods in the GenAI era, emphasizing the need for educators to retune assessments by embracing authentic, personalized, and higher-order thinking-focused methods to cultivate critical and independent learners in the GenAI era. The concept of retuning assessments involves educators making bold moves in adapting strategies to promote higher-order thinking skills, critical analysis, and independent thought. By exploring case studies and practical approaches, the chapter advocates for the incorporation of interactive presentations, project-based learning, and personalized portfolios to enhance student engagement. Ultimately, it argues for a balanced approach in assessment practices, ensuring GenAI's advantages are harnessed while maintaining diverse and meaningful learning experiences.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Resisting Homogenization in EAL Writing Education: Translingual Practices in the Rise of Generative AI",
+      "year": 2026,
+      "doi": "10.1002/tesq.70063",
+      "arxiv_id": null,
+      "venue": "TESOL Quarterly",
+      "abstract": "Abstract This study examined how generative artificial intelligence (GenAI) shaped English as an additional language (EAL) writing from a translingual perspective. Focusing on Chinese EAL students, the study investigated how they used and perceived GenAI tools during writing, weighing the gains in efficiency against the preservation of linguistic and cultural diversity. Using a case‐study design that combined screen recordings, written drafts, and interviews, the research found that GenAI enhanced students' writing fluency and efficiency. At the same time, however, it reinforced monolingual norms and Western cultural standards, which might lead to homogenization—a narrowing of language and cultural expression toward a single, standardized style. Such tendencies risk marginalizing students' diverse linguistic and cultural resources when reliance on GenAI becomes excessive. Therefore, the findings underscore the importance of translingual practices that treat students' full linguistic repertoires and cultural backgrounds as assets. Embracing this approach is vital for fostering inclusivity and creativity in EAL writing, particularly as the influence of GenAI grows. The study thus calls for a balanced integration of GenAI—one that supports EAL writing development while addressing inherent biases and cultivating students' linguistic and cultural agency.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI Meets Open-Ended Survey Responses: Participant Use of AI and Homogenization",
+      "year": 2024,
+      "doi": "10.31235/osf.io/4esdp",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "The growing popularity of generative AI tools presents new challenges for data quality in online surveys and experiments. This study examines participants’ use of large language models to answer open-ended survey questions and describes empirical tendencies in human vs LLM-generated text responses. In an original survey of participants recruited from a popular online platform for sourcing social science research subjects, 34% reported using LLMs to help them answer open-ended survey questions. Simulations comparing human-written responses from three pre-ChatGPT studies with LLM-generated text reveal that LLM responses are more homogeneous and positive, particularly when they describe social groups in sensitive questions. These homogenization patterns may mask important underlying social variation in attitudes and beliefs among human subjects, raising concerns about data validity. Our findings shed light on the scope and potential consequences of participants’ LLM use in online research.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing Effect of Large Language Models (LLMs) on Creative Diversity: An Empirical Comparison of Human and ChatGPT Writing",
+      "year": 2024,
+      "doi": "10.31234/osf.io/8p9wu_v1",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) such as ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human-created content, their widespread use risks reducing creative diversity across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMs on creative diversity, not only at the individual level but also at the collective level. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—the diversity growth rate—we showed that each additional human-written essay contributed more new ideas than did each additional GPT-4 essay. Notably, this difference became more pronounced as more essays were included in the analysis and persisted despite efforts to enhance AI-generated content through both prompt and parameter modifications. Overall, our findings suggest that, despite their potential to enhance individual creativity, the widespread use of LLMs could diminish the collective diversity of creative ideas.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing Effect of a Large Language Model (LLM) on Creative Diversity: An Empirical Comparison of Human and ChatGPT Writing",
+      "year": 2025,
+      "doi": "10.31234/osf.io/8p9wu_v2",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) like ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human creations, their widespread use risks reducing the diversity of creative outputs across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMS on collective creativity. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—diversity growth rate—we showed that each additional human-written essay contributed more new ideas than each additional GPT-4 essay. This homogenizing effect persisted even after a range of enhancements to the diversity of the GPT-4 writings, including prompt and parameters modifications. Overall, our findings suggest that, despite improvements in individual creativity, the widespread use of LLMs could diminish the collective diversity of ideas.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing Effect of Large Language Models (LLMs) on Creative Diversity: An Empirical Comparison of Human and ChatGPT Writing",
+      "year": 2025,
+      "doi": "10.31234/osf.io/8p9wu_v4",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) such as ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human-created content, their widespread use risks reducing creative diversity across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMs on creative diversity, not only at the individual level but also at the collective level. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—the diversity growth rate—we showed that each additional human-written essay contributed more new ideas than did each additional GPT-4 essay. Notably, this difference became more pronounced as more essays were included in the analysis and persisted despite efforts to enhance AI-generated content through both prompt and parameter modifications. Overall, our findings suggest that, despite their potential to enhance individual creativity, the widespread use of LLMs could diminish the collective diversity of creative ideas.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing Effect of Large Language Models (LLMs) on Creative Diversity: An Empirical Comparison of Human and ChatGPT Writing",
+      "year": 2025,
+      "doi": "10.31234/osf.io/8p9wu_v3",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Generative AI systems, especially Large Language Models (LLMs) such as ChatGPT, have recently emerged as significant contributors to creative processes. While LLMs can produce creative content that might be as good as or even better than human-created content, their widespread use risks reducing creative diversity across groups of people. In the present research, we aimed to quantify this homogenizing effect of LLMs on creative diversity, not only at the individual level but also at the collective level. Across three preregistered studies, we analyzed 2,200 college admissions essays. Using a novel measure—the diversity growth rate—we showed that each additional human-written essay contributed more new ideas than did each additional GPT-4 essay. Notably, this difference became more pronounced as more essays were included in the analysis and persisted despite efforts to enhance AI-generated content through both prompt and parameter modifications. Overall, our findings suggest that, despite their potential to enhance individual creativity, the widespread use of LLMs could diminish the collective diversity of creative ideas.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI Meets Open-Ended Survey Responses: Research Participant Use of AI and Homogenization",
+      "year": 2025,
+      "doi": "10.31235/osf.io/4esdp_v2",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "The growing popularity of generative AI tools presents new challenges for data quality in online surveys and experiments. This study examines participants’ use of large language models to answer open-ended survey questions and describes empirical tendencies in human vs LLM-generated text responses. In an original survey of participants recruited from a popular online platform for sourcing social science research subjects, 34% reported using LLMs to help them answer open-ended survey questions. Simulations comparing human-written responses from three pre-ChatGPT studies with LLM-generated text reveal that LLM responses are more homogeneous and positive, particularly when they describe social groups in sensitive questions. These homogenization patterns may mask important underlying social variation in attitudes and beliefs among human subjects, raising concerns about data validity. Our findings shed light on the scope and potential consequences of participants’ LLM use in online research.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Dull Stable State: Recursive Training, Homogenization, and Security Risks in the Era of Large Language Models",
+      "year": 2025,
+      "doi": "10.5281/zenodo.20398445",
+      "arxiv_id": null,
+      "venue": "Zenodo (CERN European Organization for Nuclear Research)",
+      "abstract": "The rapid proliferation of large language models (LLMs) has accelerated the production of online content, yet this growth introduces a recursive dynamic: as models increasingly train on AI-generated text, the diversity and fidelity of outputs decline. Recent research identifies this phenomenon as model collapse, where recursive self-training erodes the statistical tails of language distributions, yielding homogenized and repetitive responses. Parallel studies of recommender systems highlight analogous feedback loops, including algorithmic monocultures and popularity bias, that converge toward uniformity and suppress minority content. Combined, these forces risk what may be termed a dull stable state: an equilibrium in which digital knowledge systems recycle their own outputs, losing novelty, accuracy, and epistemic richness. This state carries profound security implications. Homogenized training corpora amplify vulnerabilities to data poisoning, adversarial prompt injection, and covert manipulation, while reliance on synthetic data increases risks of privacy leakage through membership inference and undermines trust in provenance. Addressing these challenges requires robust data curation, provenance standards (e.g., watermarking, C2PA credentials), and hybrid training strategies that maintain human-authored input. The literature suggests that without such interventions, the pursuit of scale may trade diversity for stability, locking the AI ecosystem into a fragile equilibrium with degraded utility and heightened security exposure.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Position: Large Language Model Failures from Hallucination to Homogenization Are Different Facets of Miscalibration",
+      "year": 2026,
+      "doi": "10.36227/techrxiv.177130685.57616643/v1",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "This position paper argues that diverse failures of Large Language Models (LLMs), from confident hallucinations to collapsed diversity to brittle safety refusals, are best understood as different facets of a single underlying problem: miscalibration. We propose a unified framework organized around four types of miscalibration: probabilistic (the model cannot match requested probability distributions), semantic (confidence is misaligned with factual correctness), distributional (output diversity collapses to stereotypical modes), and metacognitive (the model fails to assess its own competence). We argue that foregrounding calibration as a diagnostic lens and evaluation target is essential for building models that are not merely capable, but genuinely reliable. We call for calibration metrics to become a standard part of benchmark reporting, for training paradigms that preserve uncertainty, and for interaction designs that surface model confidence to downstream decision-makers.",
+      "source_api": "openalex",
+      "query_id": "Q1"
+    }
+  ]
+}

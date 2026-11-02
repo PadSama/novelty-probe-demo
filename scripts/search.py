@@ -48,7 +48,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-from textmatch import BM25, Doc, groups_matched
+from textmatch import BM25, Doc, groups_matched, title_key
 
 ROOT = Path(__file__).resolve().parent.parent
 QUERIES_FILE = ROOT / "queries" / "queries.json"
@@ -309,7 +309,8 @@ def s2_local_rank(papers, query, top_n=TOP_N):
     """S2 bulk 不按相关度排序：在取回的记录上本地重排，返回 [(下标, 打分说明)]，最多 top_n 条。
     排序键：满足的包含组数（按词干匹配标题 + 摘要）→ BM25（k1=1.2，b=0.75，短语按整体计）→ 被引次数。
     没有摘要的记录（S2 常因出版商限制不给摘要）只能按标题打分，单独排序：标题至少命中（组数 − 1）个包含组的，
-    按无摘要记录在全部记录中的比例分配名额、按名次穿插，免得只因缺摘要就沉底；其余排在最后。"""
+    按无摘要记录在全部记录中的比例分配名额、按名次穿插，免得只因缺摘要就沉底；其余排在最后。
+    标题完全相同的记录只保留排在最前的一条（其 same_title_dropped 记去掉了几条）。"""
     include, exclude = parse_query(query)
     ignore = [t for g in exclude for t in g]
     docs = [Doc(p.get("title"), p.get("abstract")) for p in papers]
@@ -318,13 +319,23 @@ def s2_local_rank(papers, query, top_n=TOP_N):
                 "has_abstract": bool(papers[i].get("abstract")), "citations": papers[i].get("citationCount") or 0}
             for i, d in enumerate(docs)}
     key = lambda i: (-info[i]["groups_matched"], -info[i]["bm25"], -info[i]["citations"], i)  # noqa: E731
-    with_abs = sorted((i for i in info if info[i]["has_abstract"]), key=key)
-    without = sorted((i for i in info if not info[i]["has_abstract"]), key=key)
+    # 标题完全相同的记录（如在多期重复刊登、各有 DOI 的征稿启事）只保留排在最前的一条，免得占满名额
+    first_of_title = {}
+    for i in sorted(info, key=lambda i: (not info[i]["has_abstract"],) + key(i)):
+        tk = title_key(papers[i].get("title"))
+        if tk and tk in first_of_title:
+            info[first_of_title[tk]]["same_title_dropped"] = info[first_of_title[tk]].get("same_title_dropped", 0) + 1
+            info[i]["dropped"] = True
+        elif tk:
+            first_of_title[tk] = i
+    with_abs = sorted((i for i in info if info[i]["has_abstract"] and not info[i].get("dropped")), key=key)
+    without = sorted((i for i in info if not info[i]["has_abstract"] and not info[i].get("dropped")), key=key)
     threshold = max(1, len(include) - 1)
     eligible = [i for i in without if info[i]["groups_matched"] >= threshold]
     rest = [i for i in without if info[i]["groups_matched"] < threshold]
-    n = min(top_n, len(papers))
-    n_without = min(round(n * len(without) / len(papers)) if papers else 0, len(eligible))
+    n = min(top_n, len(with_abs) + len(without))
+    pool = len(with_abs) + len(without)
+    n_without = min(round(n * len(without) / pool) if pool else 0, len(eligible))
     n_with = min(n - n_without, len(with_abs))
     n_without = min(n - n_with, len(eligible))
     picked = [((k + 0.5) / n_with, 0, i) for k, i in enumerate(with_abs[:n_with])]
@@ -363,7 +374,8 @@ def search_s2(q, year_from):
                 "records without abstract ranked separately and interleaved by their share",
         "retrieval_sort": S2_SORT,
         "pool": {"retrieved": len(papers), "pages": pages, "truncated": bool(token) or len(papers) < (total or 0),
-                 "with_abstract": sum(1 for p in papers if p.get("abstract"))},
+                 "with_abstract": sum(1 for p in papers if p.get("abstract")),
+                 "same_title_dropped": sum(info.get("same_title_dropped", 0) for _, info in ranked)},
         "total_hits": total,
     }
     return meta, records

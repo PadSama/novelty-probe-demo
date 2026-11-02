@@ -20,7 +20,8 @@
 | T2 拆面与检索式<br>Facets and queries | AI 助手<br>AI assistant | `idea/idea.md` | `facets/facets.md`、`queries/queries.json` |
 | T3 检索<br>Search | 脚本<br>Script | `queries/queries.json` | `results/raw/{来源 source}_{检索式 query}.json` |
 | T4 合并去重<br>Merge and deduplicate | 脚本<br>Script | `results/raw/` | `results/merged/merged.json`、`results/merged/candidates.csv` |
-| T5 证据表与核验<br>Evidence table and verification | 脚本 + AI 助手<br>Scripts + AI assistant | `results/merged/candidates.csv` | `evidence/authors.json`、`evidence/evidence_table.md` |
+| T5 证据表与核验<br>Evidence table and verification | 脚本 + AI 助手<br>Scripts + AI assistant | `results/merged/candidates.csv` | `evidence/authors.json`、`evidence/enrichment.json`、`evidence/evidence_table.md` |
+| T5b 引文追踪（可选）<br>Citation chasing (optional) | 脚本 + 你<br>Script + you | `evidence/evidence_table.md` | `results/raw/chase_*.json`、`results/merged/chase_*.csv` |
 | T6 差异陈述<br>Difference statement | AI 助手 + 你<br>AI assistant + you | `evidence/evidence_table.md` | `evidence/difference_statement.md` |
 
 - 所有命令都在本目录（项目根目录）下运行。命令按 macOS / Linux 的 shell 写；Windows 建议用 WSL，或把 `python3` 换成 `python`。
@@ -136,7 +137,7 @@ Paste either version of the prompt below into the AI assistant:
 1) 拆成五个面写到 facets/facets.md：研究问题、作用机制、研究情境、数据与方法、预期发现；
 2) 每个面给 3–5 个英文检索词（含同义词、相邻学科说法）；
 3) 组合 6 条检索式写到 queries/queries.json，字段：id（Q1–Q6）, facets_used, query, purpose（component / application / method / concurrent）。
-检索式格式（scripts/search.py 只认这种写法）：用 AND 连接若干个括号组，括号内只用 OR；短语加英文双引号；不用截断符 *、NOT、嵌套括号和逗号。
+检索式格式（scripts/search.py 只认这种写法）：用 AND 连接若干个括号组，括号内只用 OR；短语加英文双引号；运算符一律大写；不用截断符 *、嵌套括号和逗号。需要排除某些说法时，在最后加 AND NOT ("…" OR "…")。
 完成后把产出文件追加到 logs/RUN_LOG.md。
 ```
 
@@ -145,7 +146,7 @@ Read idea/idea.md. Following the rules in PROJECT.md:
 1) Break the idea into five facets and write them to facets/facets.md: research question, mechanism, context, data and methods, expected findings;
 2) Give each facet 3–5 English search terms, including synonyms and the terms used in adjacent disciplines;
 3) Combine them into 6 queries in queries/queries.json with the fields id (Q1–Q6), facets_used, query, and purpose (component / application / method / concurrent).
-Query format (the only format scripts/search.py accepts): parenthesized groups joined by AND, with only OR inside each group; phrases in English double quotes; no truncation (*), NOT, nested parentheses or commas.
+Query format (the only format scripts/search.py accepts): parenthesized groups joined by AND, with only OR inside each group; phrases in English double quotes; operators in upper case; no truncation (*), nested parentheses or commas. To exclude some phrasings, append AND NOT ("…" OR "…") at the end.
 When done, append the output files to logs/RUN_LOG.md.
 ```
 
@@ -171,9 +172,13 @@ The last line should read `6/6 queries valid`. If any query is INVALID, give the
 python3 scripts/logrun.py "T3 检索" -- python3 scripts/search.py
 ```
 
-- 每条检索式分别查 OpenAlex（标题 + 摘要，按相关度）和 Semantic Scholar（bulk 检索，标题 + 摘要，按被引次数），各存前 25 条到 `results/raw/`。
+- 每条检索式分别查 OpenAlex（标题 + 摘要，按 API 的相关度）和 Semantic Scholar（bulk 检索，标题 + 摘要），各存前 25 条到 `results/raw/`。S2 的 bulk 接口不按相关度排序，脚本取回全部命中（最多 3000 条）后在本地重排：满足的 AND 组数 → BM25 → 被引次数；没有摘要的记录单独排序并按比例穿插，标题相同的只留一条。
 
-  Each query is run against OpenAlex (titles and abstracts, ranked by relevance) and Semantic Scholar (bulk search on titles and abstracts, ranked by citation count); the top 25 records from each are saved to `results/raw/`.
+  Each query is run against OpenAlex (titles and abstracts, ranked by the API's relevance score) and Semantic Scholar (bulk search on titles and abstracts); the top 25 records from each are saved to `results/raw/`. S2's bulk endpoint does not rank by relevance, so the script fetches all hits (up to 3,000) and re-ranks them locally: number of AND groups matched, then BM25, then citation count. Records without an abstract are ranked separately and interleaved in proportion, and duplicate titles are kept once.
+
+- 排除组 `AND NOT (…)`：OpenAlex 原样发送（必须大写 NOT，小写会被当成普通词，把排除变成必须包含；脚本发现 OpenAlex 没有按 NOT 解析时会报错），S2 译为 `+ -(…)`。
+
+  Exclusion groups `AND NOT (…)` are sent to OpenAlex unchanged (NOT must be upper case: OpenAlex treats a lower-case not as an ordinary word and turns the exclusion into a requirement; the script stops if OpenAlex did not parse the NOT), and translated to `+ -(…)` for S2.
 
 - purpose 为 concurrent 的检索式只取 2023 年起的文献。要改年份，修改 `scripts/search.py` 中的 `CONCURRENT_FROM_YEAR`。
 
@@ -191,27 +196,35 @@ For lines marked FAILED, fix the cause first (see Troubleshooting), then re-run 
 python3 scripts/logrun.py "T3 补跑" -- python3 scripts/search.py --ids Q3,Q4 --sources semanticscholar
 ```
 
+可选：检查检索质量（每个结果文件中，标题 + 摘要满足原检索式的记录有多少；用 Porter 词干还原近似两个 API 的匹配，比例略偏高）：
+
+Optional: check search quality (how many records in each result file satisfy the original query in their title and abstract; Porter stemming approximates the APIs' matching, so the shares run slightly high):
+
+```bash
+python3 scripts/logrun.py "T3 质量检查" -- python3 scripts/qa.py
+```
+
 ## 5. T4 合并去重（脚本）｜ T4 Merge and deduplicate (script)
 
 ```bash
 python3 scripts/logrun.py "T4 合并去重" -- python3 scripts/merge.py
 ```
 
-按 DOI、arXiv ID、规范化标题去重（预印本平台的版本 DOI 视为同一篇），输出：
+按 DOI、arXiv ID 去重（预印本平台的版本 DOI 视为同一篇），再识别同一研究的不同版本：规范化标题相同（去掉 "(Just accepted by …)" 之类的发表状态括注）且通过一组保守的检查（年份相差 ≤3、不是两个不同的正式发表 DOI、不是数据集、不是 "Re:" 之类的来信等）才自动合并，疑似情况只标出（`review` 字段）供你核对。年份取正式发表版本，最早版本记在 `year_first`。输出：
 
-Records are deduplicated by DOI, arXiv ID and normalized title (versioned DOIs on preprint servers count as one work). Outputs:
+Records are deduplicated by DOI and arXiv ID (versioned DOIs on preprint servers count as one work); then versions of the same work are linked: titles that match after normalization (dropping publication-status notes such as "(Just accepted by …)") are merged only if a set of conservative checks passes (years at most 3 apart, not two different journal DOIs, not a dataset, not a "Re:" letter, and so on); doubtful pairs are only flagged (the `review` field) for you to check. The year is that of the version of record; the earliest version's year is kept in `year_first`. Outputs:
 
 - `results/merged/merged.json`：去重后的全部文献。每篇带出处 `raw_refs`，可回查原始记录。
 
   `results/merged/merged.json`: all deduplicated works. Each work carries `raw_refs`, pointing back to its raw records.
 
-- `results/merged/candidates.csv`：按命中次数（命中的"检索式 × 来源"数）取前 20 篇，Excel 可直接打开。
+- `results/merged/candidates.csv`：前 20 篇，按倒数排名融合（RRF：在各"检索式 × 来源"列表中的名次 r，累加 1/(60 + r)）排序，BM25（全部检索词）打破并列；`hits`、`n_conform`（本地判断满足几条检索式）只作参考。Excel 可直接打开。
 
-  `results/merged/candidates.csv`: the top 20 works by hits (the number of query × source result lists containing the work); opens directly in Excel.
+  `results/merged/candidates.csv`: the top 20 works, ranked by reciprocal rank fusion (RRF: for each query × source list in which the work appears at rank r, add 1/(60 + r)), with BM25 over all query terms breaking ties; `hits` and `n_conform` (how many queries the work satisfies, checked locally) are shown for reference. Opens directly in Excel.
 
-注意：命中次数只反映两个来源是否都检索到，不代表与研究问题的相关度。
+注意：排名反映检索式与文本的匹配，不代表与研究问题的相关度。要复现教程 v1、v2 当时的合并方法（按命中次数排序），加 `--legacy`。
 
-Note: hits only show whether both sources found a work; they do not measure relevance to your research question.
+Note: the ranking reflects how well the text matches the queries, not relevance to your research question. To reproduce the merge method used for the tutorial's v1 and v2 (ranking by hits), add `--legacy`.
 
 ## 6. T5 证据表与核验（脚本 + AI 助手）｜ T5 Evidence table and verification (scripts + AI assistant)
 
@@ -223,6 +236,14 @@ Look up authors (the search results do not include authors):
 python3 scripts/logrun.py "T5 查作者" -- python3 scripts/authors.py --top 10
 ```
 
+为没有摘要的候选从同一研究的其他版本（如 arXiv 预印本）补摘要，连同来源写到 `evidence/enrichment.json`：
+
+For candidates without an abstract, fetch one from another version of the same work (such as its arXiv preprint); the abstracts and their sources go to `evidence/enrichment.json`:
+
+```bash
+python3 scripts/logrun.py "T5 补摘要" -- python3 scripts/enrich.py --top 20
+```
+
 把下面任一版本的提示词粘贴给 AI 助手：
 
 Paste either version of the prompt below into the AI assistant:
@@ -231,14 +252,14 @@ Paste either version of the prompt below into the AI assistant:
 读 results/merged/candidates.csv 前 10 篇的摘要（作者见 evidence/authors.json），对照 facets/facets.md，逐面标 overlap / differ / unknown，写到 evidence/evidence_table.md。
 表格列：rank, 作者, 年份, 题目, DOI/arXiv, 研究问题, 作用机制, 研究情境, 数据与方法, 预期发现, verified。
 DOI/arXiv 列写成 doi:<DOI>，有 arXiv ID 时加上 " · arXiv:<ID>"；verified 列先写"待核验"。
-在文件开头写明标注规则，在表下逐篇写判定依据并引用摘要原文。不判断新颖性；把产出文件追加到 logs/RUN_LOG.md。
+在文件开头写明标注规则，在表下逐篇写判定依据并引用摘要原文。候选本身没有摘要时，可以用 evidence/enrichment.json 中补到的摘要，并注明来源（DOI）。不判断新颖性；把产出文件追加到 logs/RUN_LOG.md。
 ```
 
 ```text
 Read the abstracts of the top 10 works in results/merged/candidates.csv (authors are in evidence/authors.json). Compare each with facets/facets.md, label every facet overlap / differ / unknown, and write the result to evidence/evidence_table.md.
 Table columns: rank, Authors, Year, Title, DOI/arXiv, Research question, Mechanism, Context, Data and methods, Expected findings, verified.
 Write the DOI/arXiv column as doi:<DOI>, adding " · arXiv:<ID>" when there is an arXiv ID; put "pending" in the verified column for now.
-State the labeling rules at the top of the file, and below the table give the evidence for each paper, quoting the abstract. Do not judge novelty; append the output files to logs/RUN_LOG.md.
+State the labeling rules at the top of the file, and below the table give the evidence for each paper, quoting the abstract. If a candidate has no abstract, you may use the abstract in evidence/enrichment.json, citing its source (DOI). Do not judge novelty; append the output files to logs/RUN_LOG.md.
 ```
 
 核验 DOI，结果写回 verified 列：
@@ -249,9 +270,31 @@ Verify the DOIs; the results are written back into the verified column:
 python3 scripts/logrun.py "T5 DOI 核验" -- python3 scripts/verify.py
 ```
 
-verified 列格式为"Crossref 结果；落地页结果"。"Crossref HTTP 200 · 题目一致"表示 DOI 有效，且指向表中这篇；BLOCKED 表示该域名未放行；没有 DOI 的行写 UNVERIFIED。
+verified 列格式为"Crossref 结果；落地页结果"。"Crossref HTTP 200 · 题目一致"表示 DOI 有效，且指向表中这篇；BLOCKED 表示该域名未放行；没有 DOI 的行写 UNVERIFIED。Crossref 查不到时（如 arXiv 等 DataCite 登记的 DOI）改查 OpenAlex，中间多一段"OpenAlex · 题目一致 · …"。出版商常对脚本返回 403，只想核验元数据时加 `--no-landing`。
 
-The verified column reads "Crossref result；landing-page result" (落地页 = landing page). "Crossref HTTP 200 · 题目一致" (title matches) means the DOI is valid and points to the paper in the table; 题目不一致 means the titles differ; BLOCKED means that domain is not allowed; rows without a DOI read UNVERIFIED.
+The verified column reads "Crossref result；landing-page result" (落地页 = landing page). "Crossref HTTP 200 · 题目一致" (title matches) means the DOI is valid and points to the paper in the table; 题目不一致 means the titles differ; BLOCKED means that domain is not allowed; rows without a DOI read UNVERIFIED. When Crossref has no record (for example arXiv and other DOIs registered with DataCite), the script checks OpenAlex instead and adds an "OpenAlex · 题目一致 · …" part. Publishers often answer scripts with 403; to check metadata only, add `--no-landing`.
+
+### T5b 引文追踪（可选）｜ T5b Citation chasing (optional)
+
+关键词检索找不到措辞不同的文献（教程 v1 漏检参考文献就是这个原因）。以证据表中至少 2 个面为 overlap 的文献为种子，查与它们有引用关系的文献：
+
+Keyword search misses papers that use different wording (that is why the tutorial's v1 missed the reference paper). Using the evidence-table papers with at least two overlapping facets as seeds, look for papers linked to them by citations:
+
+```bash
+python3 scripts/logrun.py "T5b 引文追踪" -- python3 scripts/snowball.py --from-evidence evidence/evidence_table.md
+```
+
+两步共被引：先取引用种子、且标题摘要满足你给的词组的文献，再看它们共同引用了什么。词组由你决定；种子与想法只在研究情境面不同时，可以用该面"谁在用"的词：
+
+Two-hop co-citation: take the papers that cite the seeds and match a term group you choose in their title and abstract, then see what they cite in common. The term group is your call; if the seeds differ from your idea only in the context facet, try that facet's "who uses it" terms:
+
+```bash
+python3 scripts/logrun.py "T5b 共被引" -- python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --cocite --citer-filter 'scientist*'
+```
+
+结果在 `results/merged/chase_C1.csv`（一步）、`chase_C2.csv`（共被引）；`in_search` 列标出已在检索结果中的。结果对词组很敏感（教程中用数据与方法面的词过滤时，排在前面的是 VOSviewer、PRISMA 这类通用文献），建议换几个面各跑一次（`--label C3` 等）。值得纳入的文献由你挑选，再按 T5 的格式加进证据表。
+
+The results are in `results/merged/chase_C1.csv` (one hop) and `chase_C2.csv` (co-citation); the `in_search` column marks works already in the search results. Results depend heavily on the term group (in the tutorial, filtering by the data-and-methods terms put generic references such as VOSviewer and PRISMA on top), so try a few facets (`--label C3`, and so on). You choose which papers to add, then add them to the evidence table in the T5 format.
 
 ## 7. T6 差异陈述（AI 助手 + 你）｜ T6 Difference statement (AI assistant + you)
 
@@ -317,6 +360,18 @@ Use the T5 prompt to have the assistant write the evidence table to `evidence/ev
 python3 scripts/logrun.py "T5 v2 DOI 核验" -- python3 scripts/verify.py --table evidence/evidence_table_v2.md
 ```
 
+比较两轮：已知文献（如你已经知道的相关论文）各排第几、截断处的并列、前 10 / 前 20 篇的构成：
+
+Compare two rounds: where known papers (for example relevant papers you already know) rank, ties at the cutoff, and the make-up of the top 10 / top 20:
+
+```bash
+python3 scripts/logrun.py "比较 v1 与 v2" -- python3 scripts/compare.py --runs ,_v2 --known 10.1038/s41586-025-09922-y
+```
+
+教程中 v1b、v2b 两轮就是用改进后的流程重跑并这样比较的，结果见 `docs/IMPROVEMENT_PLAN.md` 第 12 节。
+
+That is how the tutorial's v1b and v2b rounds were re-run with the improved pipeline and compared; see section 12 of `docs/IMPROVEMENT_PLAN.md`.
+
 ## 常见问题 ｜ Troubleshooting
 
 | 现象<br>Symptom | 原因<br>Cause | 处理<br>Fix |
@@ -327,7 +382,9 @@ python3 scripts/logrun.py "T5 v2 DOI 核验" -- python3 scripts/verify.py --tabl
 | `INVALID: 未登记的截断词 …`、`不支持括号外的 OR` 等<br>`INVALID: 未登记的截断词 …` (unregistered truncation), `不支持括号外的 OR` (OR outside parentheses), etc. | 检索式写法不符合要求<br>The query does not follow the required format | 按 T2 的格式修改 `queries/queries.json`，再跑 `--dry-run`<br>Fix `queries/queries.json` to the T2 format and run `--dry-run` again |
 | `results/raw/ 中同一来源混有不同检索方式的结果`<br>(results from different search methods mixed for one source) | 混有旧脚本或旧想法留下的结果<br>Leftover results from an older script or a previous idea | 按第 1 步清空 `results/raw/`，重跑 T3<br>Clear `results/raw/` as in step 1 and re-run T3 |
 | 某条检索式在某个来源命中 0 条<br>A query returns 0 hits from one source | 组合太严<br>The combination is too strict | 可以接受；或让助手放宽这条检索式<br>Acceptable; or ask the assistant to loosen that query |
-| verified 列为 `Crossref BLOCKED at data.crosscite.org`<br>The verified column reads `Crossref BLOCKED at data.crosscite.org` | arXiv 等 DataCite 登记的 DOI<br>A DOI registered with DataCite, such as an arXiv DOI | 放行 `data.crosscite.org` 后重跑 `verify.py`<br>Allow `data.crosscite.org` and re-run `verify.py` |
+| verified 列为 `Crossref BLOCKED at data.crosscite.org；OpenAlex · …`<br>The verified column reads `Crossref BLOCKED at data.crosscite.org；OpenAlex · …` | arXiv 等 DataCite 登记的 DOI，已改用 OpenAlex 核验<br>A DOI registered with DataCite, such as an arXiv DOI; checked via OpenAlex instead | OpenAlex 一段为"题目一致"即可；也可放行 `data.crosscite.org`<br>Fine if the OpenAlex part says 题目一致 (title matches); or allow `data.crosscite.org` |
+| `OpenAlex 没有把排除组解析为 NOT`<br>(OpenAlex did not parse the exclusion as NOT) | NOT 没有大写，或写在了不支持的位置<br>NOT was not upper case, or was placed where it is not supported | 写成 `… AND NOT ("a" OR "b")`，放在最后<br>Write `… AND NOT ("a" OR "b")` at the end |
+| `运算符必须大写`、`不支持用 - 表示排除`<br>(operators must be upper case; "-" is not supported for exclusion) | 检索式里有小写的 and / or / not，或以 - 开头的词<br>The query has a lower-case and / or / not, or a word starting with - | 改成大写运算符；排除用 `AND NOT (…)`<br>Use upper-case operators; exclude with `AND NOT (…)` |
 
 ## 目录速查 ｜ Directory reference
 
@@ -342,9 +399,15 @@ python3 scripts/logrun.py "T5 v2 DOI 核验" -- python3 scripts/verify.py --tabl
 | `results/raw/`、`results/merged/` | T3、T4 产出<br>T3 and T4 outputs |
 | `evidence/` | T5、T6 产出<br>T5 and T6 outputs |
 | `logs/RUN_LOG.md` | 运行日志<br>Run log |
+| `docs/IMPROVEMENT_PLAN.md` | 遗留问题的调研、改进计划与评估结果（中文）<br>Research, improvement plan and evaluation for the known issues (Chinese) |
 | `scripts/search.py` | T3 检索（`--dry-run` 检查语法；`--ids`、`--sources` 补跑；`--queries`、`--suffix` 用于新一轮）<br>T3 search (`--dry-run` checks syntax; `--ids`, `--sources` re-run failures; `--queries`, `--suffix` for a new round) |
-| `scripts/merge.py` | T4 合并去重（`--suffix`）<br>T4 merge and deduplicate (`--suffix`) |
+| `scripts/qa.py` | T3 检索质量检查（`--suffix`）<br>T3 search quality check (`--suffix`) |
+| `scripts/merge.py` | T4 合并去重（`--suffix`；`--legacy` 复现 v1、v2 当时的方法）<br>T4 merge and deduplicate (`--suffix`; `--legacy` reproduces the v1/v2 method) |
+| `scripts/enrich.py` | T5 从其他版本补摘要（`--top`、`--candidates`、`--out`）<br>T5 abstracts from other versions (`--top`, `--candidates`, `--out`) |
+| `scripts/snowball.py` | T5b 引文追踪（`--from-evidence` 或 `--seeds`；`--cocite --citer-filter`；`--suffix`）<br>T5b citation chasing (`--from-evidence` or `--seeds`; `--cocite --citer-filter`; `--suffix`) |
+| `scripts/compare.py` | 比较几轮结果（`--runs`、`--known`、`--ignore-phrases`）<br>Compare rounds (`--runs`, `--known`, `--ignore-phrases`) |
+| `scripts/textmatch.py` | 共用的文本匹配（词干还原、BM25、版本识别），不单独运行<br>Shared text matching (stemming, BM25, version linking); not run on its own |
 | `scripts/authors.py` | T5 查作者（`--top`、`--candidates`、`--out`）<br>T5 author lookup (`--top`, `--candidates`, `--out`) |
-| `scripts/verify.py` | T5 DOI 核验（`--table`）<br>T5 DOI verification (`--table`) |
+| `scripts/verify.py` | T5 DOI 核验（`--table`、`--no-landing`）<br>T5 DOI verification (`--table`, `--no-landing`) |
 | `scripts/logrun.py` | 运行一条命令，同时写入 `logs/RUN_LOG.md`<br>Runs a command and records it in `logs/RUN_LOG.md` |
 | `tests/` | 离线自检（`python3 -m unittest discover -s tests -v`）<br>Offline self-test |

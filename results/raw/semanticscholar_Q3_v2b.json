@@ -1,0 +1,428 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q3",
+    "purpose": "application",
+    "queries_file": "queries/queries_v2b.json",
+    "query_original": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research topic selection\") AND scientist* AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (narrowing | \"topic diversity\" | \"topic concentration\" | \"collective diversity\" | \"research topic selection\") + scientist* + -(\"narrow AI\" | \"narrow artificial intelligence\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22artificial+intelligence%22+%7C+%22AI+tools%22+%7C+%22generative+AI%22+%7C+%22large+language+models%22%29+%2B+%28narrowing+%7C+%22topic+diversity%22+%7C+%22topic+concentration%22+%7C+%22collective+diversity%22+%7C+%22research+topic+selection%22%29+%2B+scientist%2A+%2B+-%28%22narrow+AI%22+%7C+%22narrow+artificial+intelligence%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 111,
+      "pages": 1,
+      "truncated": false,
+      "with_abstract": 59,
+      "same_title_dropped": 1
+    },
+    "total_hits": 111,
+    "returned": 25,
+    "retrieved_at": "2026-11-02T08:55:09+00:00"
+  },
+  "records": [
+    {
+      "title": "AI Tools in Scientific Research: Boosting Individuals at the Expense of Collective Progress",
+      "year": 2026,
+      "doi": "10.71097/ijsat.v17.i1.10159",
+      "arxiv_id": null,
+      "venue": "International Journal for Sciences and Technology",
+      "abstract": "Artificial intelligence (AI) tools have revolutionized scientific research by dramatically enhancing individual productivity, enabling researchers to produce more publications and achieve greater career acceleration. Empirical evidence from millions of papers shows AI adopters publish 3.02 times more and receive 4.84 times more citations, with junior scientists advancing 1.37 years faster. However, this individual empowerment comes with systemic costs: AI narrows research topic diversity by 4.63%, reduces interdisciplinary collaboration by 22%, and concentrates efforts in data-rich domains, potentially stunting the broader scientific enterprise. Drawing on large-scale analyses of 41.3 million papers and 2.28 million careers, this paper elucidates the mechanisms, quantifies trade-offs, and proposes policy interventions to mitigate collective limitations while preserving gains. Findings reveal a classic social dilemma, akin to generative AI's effects on creativity, urging a balanced approach to AI integration in science",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 14.174,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Artificial Intelligence Tools Expand Scientists'Impact but Contract Science's Focus (Just accepted by Nature, to be online soon)",
+      "year": 2024,
+      "doi": null,
+      "arxiv_id": "2412.07727",
+      "venue": null,
+      "abstract": "Development in Artificial Intelligence (AI) has accelerated scientific discovery. Alongside recent AI-oriented Nobel prizes, these trends establish the role of AI tools in science. This advancement raises questions about the potential influences of AI tools on scientists and science as a whole, and highlights a potential conflict between individual and collective benefits. To evaluate, we used a pretrained language model to identify AI-augmented research, with an F1-score of 0.875 in validation against expert-labeled data. Using a dataset of 41.3 million research papers across natural science and covering distinct eras of AI, here we show an accelerated adoption of AI tools among scientists and consistent professional advantages associated with AI usage, but a collective narrowing of scientific focus. Scientists who engage in AI-augmented research publish 3.02 times more papers, receive 4.84 times more citations, and become research project leaders 1.37 years earlier than those who do not. By contrast, AI adoption shrinks the collective volume of scientific topics studied by 4.63% and decreases scientist's engagement with one another by 22.00%. Thereby, AI adoption in science presents a seeming paradox -- an expansion of individual scientists'impact but a contraction in collective science's reach -- as AI-augmented work moves collectively toward areas richest in data. With reduced follow-on engagement, AI tools appear to automate established fields rather than explore new ones, highlighting a tension between personal advancement and collective scientific progress.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 7.077,
+        "has_abstract": true,
+        "citations": 2,
+        "same_title_dropped": 1
+      }
+    },
+    {
+      "title": "Learning About and Against Generative AI Through Mapping Generative AI’s Ecologies and Developing a Luddite Praxis",
+      "year": 2024,
+      "doi": "10.22318/icls2024.259570",
+      "arxiv_id": null,
+      "venue": "Proceedings of the 18th International Conference of the Learning Sciences - ICLS 2024",
+      "abstract": ": In this paper, I respond to recent conversations in the learning sciences about how the field might develop research with generative artificial intelligence (GenAI). Rather than a narrow focus on what we might do with GenAI, I argue that learning scientists should expand our approaches to consider ways to research and learn about and against GenAI. While AI literacy is a common framework for helping people learn with and about artificial intelligence, a literacy framework can struggle to contend with AI’s opaque systems and is vulnerable to hegemonic influences. I suggest an alternative: mapping ecologies of GenAI and its social, technical",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 6.98,
+        "has_abstract": true,
+        "citations": 9
+      }
+    },
+    {
+      "title": "ARTS: autonomous research topic selection system using word embeddings and network analysis",
+      "year": 2022,
+      "doi": "10.1088/2632-2153/ac61eb",
+      "arxiv_id": null,
+      "venue": "Machine Learning: Science and Technology",
+      "abstract": "The materials science research process has become increasingly autonomous due to the remarkable progress in artificial intelligence. However, autonomous research topic selection (ARTS) has not yet been fully explored due to the difficulty of estimating its promise and the lack of previous research. This paper introduces an ARTS system that autonomously selects potential research topics that are likely to reveal new scientific facts yet have not been the subject of much previous research by analyzing vast numbers of articles. Potential research topics are selected by analyzing the difference between two research concept networks constructed from research information in articles: one that represents the promise of research topics and is constructed from word embeddings, and one that represents known facts and past research activities and is constructed from statistical information on the appearance patterns of research concepts. The ARTS system is also equipped with functions to search and visualize information about selected research topics to assist in the final determination of a research topic by a scientist. We developed the ARTS system using approximately 100 00 articles published in the Computational Materials Science journal. The results of our evaluation demonstrated that research topics studied after 2016 could be generated autonomously from an analysis of the articles published before 2015. This suggests that potential research topics can be effectively selected by using the ARTS system.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 6.611,
+        "has_abstract": true,
+        "citations": 3
+      }
+    },
+    {
+      "title": "THE PLACE AND MEANING OF ARTIFICIAL INTELLIGENCE GENERATIVE SYSTEMS IN MODERN EDUCATION",
+      "year": 2025,
+      "doi": "10.35433/pedagogy.4(123).2025.19",
+      "arxiv_id": null,
+      "venue": "Zhytomyr Ivan Franko State University Journal. Рedagogical Sciences",
+      "abstract": "The article focuses on revealing essential aspects of integrating current technological solutions in artificial intelligence into the modern educational process. It is due to several factors, the most important of which are the avalanche-like spread of publicly available online AI services and the increasingly apparent changes in the labor market caused by the processes of widespread use of relevant tools in various spheres of human life and society as a whole. The education sector is no exception, as it is designed to develop competencies in future full-fledged citizens of Ukraine that will allow them to be successful in the face of constant dynamic change. The analysis of both domestic and foreign scientific sources and literature has shown increased attention of teacher scientists to the use of AI tools in the educational process. In particular, the impact of artificial intelligence on the educational process is studied, and its role and importance in the study of specific educational components are revealed. In this paper, the author focuses on the narrower technological concept of \"generative artificial intelligence\" and its role in education in general. For this purpose, the author analyzes the definition of this term in the scientific literature. The article provides an overview of the main application areas of generative AI models in education. Particular attention is paid to the importance of using relevant technologies in teaching mathematics, computer science, natural sciences, and humanities. The author also points out potential problematic aspects of using modern digital technologies. Examples are given to show how to turn the disadvantages of the radical introduction of publicly available tools of online AI services into the educational space into advantages that will help students develop critical thinking skills and the ability to navigate the modern information flow. The conclusions emphasize that artificial intelligence is an important modern tool that educators should learn to work with and indicate further prospects for research on this issue.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 6.5,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Comments on “AI and the advent of the cyborg behavioral scientist”",
+      "year": 2025,
+      "doi": "10.1002/jcpy.1453",
+      "arxiv_id": null,
+      "venue": "Journal of Consumer Psychology",
+      "abstract": "Below are comments on Tomaino, Cooke, and Hoover by four teams of collaborative reviewers that helped clarify and focus its original version. Their comments on the refined version articulate how the fast‐moving world of generative AI can alter authors, readers, reviewers, and consumer behavior journals. In the first comment, Blythe, Kulis, and McGraw propose that Generative AI requires substantial effort to generate research that is fast, cost‐effective, and of high quality. They articulate three recommendations: to ask, to train, and to check the system. Asking builds on GenAI's ability to reveal its own capabilities at different stages of the research process. Training allows the system to be customized with relevant context, domain‐specific documents, and tailored examples, enhancing its accuracy and reducing errors. Checking is strongly advised to validate that the outputs are both reasonable and robust. Haenlein, Hewett, and Yoo build on the capabilities of Large Language Models that go beyond the research practices central to consumer psychology. They outline strategic prompting strategies: starting broadly and gradually narrowing to specific domains, downloading information from relevant articles and data that is unlikely to be part of the current corpus, and evoking specific theories, methods, or presentation formats. They also elaborate on the ways the apparent magic of GenAI may raise learning or ethical challenges. The third comment by Stacy Wood focuses less on the capabilities of GenAI and more on how its adoption will depend on researcher feelings—in other words, how different aspects of its use may alter researchers' experiences of doing research and their identities as scholars. GenAI has the potential to both build (through increased productivity or increased accessibility) and limit (through loss of agency or faster production) pride of purpose in research. She argues that feelings from using GenAI are likely to differ across research steps, from developing novel concepts, processes, analyses, and writing of the paper. Wherever GenAI may lessen the excitement, satisfaction, motivation, and perceived status of the researcher, barriers to its use are likely to be erected. Finally, Vicki Morwitz identifies new AI capabilities beyond those explored in Tomaino et al. Those include the ability to generate synthetic data that can guide empirical experiments, a facility to create audio and visual stimuli, a capability to study group behavior, and a capacity to reliably interpret complex human statements. The comment then closes with important questions for editorial policies, raising issues about limitations on AI use by authors, its appropriate applications by review teams, and possible publishers' restrictions on uploading copyrighted articles.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 5.233,
+        "has_abstract": true,
+        "citations": 7
+      }
+    },
+    {
+      "title": "Reconnaissance Robot for Rescue Services",
+      "year": 2022,
+      "doi": "10.1109/ELEKTRO53996.2022.9803783",
+      "arxiv_id": null,
+      "venue": "2022 ELEKTRO (ELEKTRO)",
+      "abstract": "The spherical robots are becoming very popular in the field for many scientists and researchers working with surveillance, military, or transportation systems. This paper deals with comparing of each driving mechanism of the spherical robot. The vast majority of spherical robots only have inertial sensors, which they use for movement, positioning, travel balancing, etc. Few spherical robots can interact with the environment. Those who can do this have sensors that can measure the properties of the environment or can influence the environment in some way. The article also deals with the possibility to use sensors like cameras, gas sensors, thermocouples, and LiDARs. Data from these sensors will be processed using artificial intelligence techniques to detect anomalies in the environments. Chosen sensors can expand a robot's sensing capabilities which are usually very narrow. The aim of the article is to design s special type of spherical robot. If we join all these components together we can create a reconnaissance spherical robot for rescue services special designated for tunnels or closed spaces.The prototype is a financially inexpensive robot, which is also suitable for the teaching process, as an element that collects data from the environment (sensors, video, etc.), which will be used for working with AI tools.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 4.601,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Practical guide for food scientists to build AI: data, algorithms, and applications.",
+      "year": 2025,
+      "doi": "10.1016/j.foodchem.2025.147281",
+      "arxiv_id": null,
+      "venue": "Food Chemistry",
+      "abstract": "Artificial intelligence (AI) is rapidly transforming scientific disciplines, yet its adoption in food science remains fragmented and often constrained to narrow application scenarios. This perspective provides a practical guide for food scientists to build effective AI models, grounded in the premise that sustainable progress depends on advancing three foundational pillars in tandem: (1) high-quality datasets to enable new application scenarios; (2) tailored algorithms addressing food science challenges; and (3) impactful applications that yield new scientific insights and/or industrial value. We discuss how each pillar contributes to AI in food science and the state-of-the-art methods (e.g., large language models, high-throughput platforms, physics-informed neural networks, and multimodal fusion) that support each pillar. Building on these insights, we propose a checklist to help food scientists plan, develop, evaluate, and deploy AI models. Aligning future work with these pillars and the checklist may foster more AI-driven discovery and accelerate innovation across the food sector.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 4.411,
+        "has_abstract": true,
+        "citations": 11
+      }
+    },
+    {
+      "title": "Scientific exploration, collaboration and labor division in the large language model era",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2607.20923",
+      "arxiv_id": "2607.20923",
+      "venue": "arXiv.org",
+      "abstract": "Large language models (LLMs) have rapidly and significantly entered scientific workflows, but it remains unclear how their diffusion is associated with changes in scientists'strategies in research directions and team building. We link PubMed Central full text with OpenAlex publication and collaboration histories for 775,323 scientists and analyze CRediT contribution statements from 137,120 multi-author papers. After 2022, scientists increasingly published across more intellectually distant fields and entered fields in which they had not previously worked. These increases in interdisciplinarity and exploration were especially pronounced among established scientists and scientists from non-English-speaking low- and middle-income countries. Authors with stronger AI-writing signals were already more interdisciplinary and exploratory before the widespread adoption of LLMs, and the gap widened further after 2022 compared with authors with weaker AI-writing signals. Scientists'collaboration networks also became more interdisciplinary after 2022. Yet, among authors with stronger AI-writing signals, research interdisciplinarity was less closely tied to the disciplinary diversity of their collaborators. The division of labor within research teams also became more differentiated. Contributors on papers published after 2022 reported narrower role sets on average, coauthors shared fewer roles in common, and their role profiles became less rigid and more fluid. Software and validation roles increased, while conceptual and management roles decreased. These patterns suggest that team members are taking on more distinct responsibilities and may rely less on one another to perform research tasks. Overall, this study indicates that the LLM era coincides with a broader reorganization of scientific exploration, collaboration, and the division of labor.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 4.131,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "(\n Invited\n ) Searching for Ideal Electrolytes in the Molecular Universe via AI",
+      "year": 2025,
+      "doi": "10.1149/ma2025-022210mtgabs",
+      "arxiv_id": null,
+      "venue": "ECS Meeting Abstracts",
+      "abstract": "\n In the past three decades since the invention of lithium-ion batteries, extensive efforts have been made to seek ideal electrolyte components that can resolve the many challenges faced by emerging battery chemistries. However, scientists have been confined to a rather narrow chemical space of 10\n 2\n , most of which were either discoveries of serendipity, or from human-designs in empirical instead of rational manners. Leveraging the rapid development of artificial intelligence, we seek to map the entire molecular universe of small organic compounds computationally, and rapidly identify those most promising candidates for the next-generation batteries.\n \n In this talk I will summarize my recent adventure at SES AI, where we built immense databases of battery literature, chemical structures, and properties, mapped the molecular as well as ionic universes of cosmic scales, and trained an omniscient large-language-model to explore the large maps. Some of the AI-discovered/-designed molecules have already been synthesized, tested and outperformed human-designed electrolyte materials.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 4.073,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Large language models reshape the language of science",
+      "year": 2025,
+      "doi": null,
+      "arxiv_id": "2504.12317",
+      "venue": null,
+      "abstract": "Scientific language is a central infrastructure of knowledge production, but it remains unclear whether large language models (LLMs) are altering not only how scientists write, but also how scientific knowledge is communicated and accessed. Here we analyze 21.36 million scientific abstracts published between 2020 and 2024, together with historical records from major journals, to trace recent changes in the language of science. We identify a marked turning point in 2024, when scientific writing shows a sharp increase in lexical complexity alongside a decline in syntactic complexity. This shift is pervasive across disciplines and journal tiers, and is more pronounced in texts by scholars working in non-native English contexts, especially those from language backgrounds that differ more typologically from English. Controlled polishing experiments confirm that LLMs reproduce this pattern by favoring more lexically dense and syntactically compressed expression. We further show why this linguistic shift matters: it may widen the distance between scientific discourse and public-facing language, while also helping scholars in non-native English contexts navigate English-language publishing requirements. These findings suggest that LLMs may broaden participation in scientific authorship while narrowing the accessibility of scientific communication, making them a new force in the linguistic infrastructure of science.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 3.985,
+        "has_abstract": true,
+        "citations": 6
+      }
+    },
+    {
+      "title": "Large Language Models for Scholarly Ontology Generation: An Extensive Analysis in the Engineering Field",
+      "year": 2024,
+      "doi": "10.1016/j.ipm.2025.104262",
+      "arxiv_id": "2412.08258",
+      "venue": "Information Processing & Management",
+      "abstract": "Ontologies of research topics are crucial for structuring scientific knowledge, enabling scientists to navigate vast amounts of research, and forming the backbone of intelligent systems such as search engines and recommendation systems. However, manual creation of these ontologies is expensive, slow, and often results in outdated and overly general representations. As a solution, researchers have been investigating ways to automate or semi-automate the process of generating these ontologies. This paper offers a comprehensive analysis of the ability of large language models (LLMs) to identify semantic relationships between different research topics, which is a critical step in the development of such ontologies. To this end, we developed a gold standard based on the IEEE Thesaurus to evaluate the task of identifying four types of relationships between pairs of topics: broader, narrower, same-as, and other. Our study evaluates the performance of seventeen LLMs, which differ in scale, accessibility (open vs. proprietary), and model type (full vs. quantised), while also assessing four zero-shot reasoning strategies. Several models have achieved outstanding results, including Mixtral-8x7B, Dolphin-Mistral-7B, and Claude 3 Sonnet, with F1-scores of 0.847, 0.920, and 0.967, respectively. Furthermore, our findings demonstrate that smaller, quantised models, when optimised through prompt engineering, can deliver performance comparable to much larger proprietary models, while requiring significantly fewer computational resources.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 3.829,
+        "has_abstract": true,
+        "citations": 30
+      }
+    },
+    {
+      "title": "Can AI Help Us in the Fight Against Counterfeit Components?",
+      "year": 2019,
+      "doi": "10.37665/smdjomw12285",
+      "arxiv_id": null,
+      "venue": "SMTA International",
+      "abstract": "\n In this work, we introduce the use of the x-ray image as the unique fingerprint for an electronic component or printed circuit board assembly (PCBA). Unique features of the x-ray image such as solder voids, cracks, part alignment, die attach porosity and voiding, die placement and alignment, and wire bonding diagram. These are just a few of the many features in the x-ray image that can be used in tandem to create a unique fingerprint for a single component or an entire PCBA. This technique can also be expanded to mechanical objects by utilizing other idiosyncratic features of the part - such as voids and porosity - to generate the x-ray image fingerprint.\n To compare the acquired image with the original fingerprint, we study the use of artificial intelligence (AI) as a powerful image comparison engine. The difference between narrow and general AI is reviewed, and results are presented.\n Gartner’s Technology Hype Cycle [1] puts many applications of AI and Machine Learning (ML) in around the ‘peak of inflated expectations’ or headed into the ‘trough of disillusionment.’ Meanwhile, very few have made it onto the ‘slope of enlightenment’ let alone the ‘plateau of productivity.’\n We’ve been working with AI for a while now and have seen real application and success in our own field. We believe that AI, when combined with other technologies, can be more than a game changer and can result in superpowers.\n In this paper we will discuss how artificial intelligence (AI) is changing the way we think about x-ray inspection and counterfeit detection. Things we would never dream of doing just a few years ago are now reality by combining AI and x-ray inspection. Moreover, we will show you a series of real-life cases on how our team of AI scientists is using AI to solve the most challenging applications in x-ray inspection. And beyond x-ray inspection, we’ll examine how AI is forever changing the way in which we manufacture and inspect anything.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 3.82,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "DatawiseAgent: A Notebook-Centric LLM Agent Framework for Adaptive and Robust Data Science Automation",
+      "year": 2025,
+      "doi": "10.18653/v1/2025.emnlp-main.58",
+      "arxiv_id": "2503.07044",
+      "venue": "Conference on Empirical Methods in Natural Language Processing",
+      "abstract": "Existing large language model (LLM) agents for automating data science show promise, but they remain constrained by narrow task scopes, limited generalization across tasks and models, and over-reliance on state-of-the-art (SOTA) LLMs. We introduce DatawiseAgent, a notebook-centric LLM agent framework for adaptive and robust data science automation. Inspired by how human data scientists work in computational notebooks, DatawiseAgent introduces a unified interaction representation and a multi-stage architecture based on finite-state transducers (FSTs). This design enables flexible long-horizon planning, progressive solution development, and robust recovery from execution failures. Extensive experiments across diverse data science scenarios and models show that DatawiseAgent consistently achieves SOTA performance by surpassing strong baselines such as AutoGen and TaskWeaver, demonstrating superior effectiveness and adaptability. Further evaluations reveal graceful performance degradation under weaker or smaller models, underscoring the robustness and scalability.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 3.597,
+        "has_abstract": true,
+        "citations": 14
+      }
+    },
+    {
+      "title": "The Homogenizing Engine: AI's Role in Standardizing Culture and the Path to Policy",
+      "year": 2025,
+      "doi": "10.1177/23727322251406591",
+      "arxiv_id": null,
+      "venue": "Policy Insights from the Behavioral and Brain Sciences",
+      "abstract": "Large Language Models (LLMs) have emerged as unprecedented drivers of cultural homogenization, operating at scales and speeds that exceed all previous technologies. This paper examines how LLMs reduce cultural diversity across three cultural domains. Drawing on recent empirical studies, we demonstrate that LLMs disproportionately reflect a narrow demographic, primarily western, liberal, high-income, highly educated, male populations from English-speaking nations, while marginalizing not only non-Western cultures but also diverse groups within Western societies, including older adults, religious communities, and minority populations. Unlike earlier technologies that primarily transmitted cultural content, LLMs actively shape communication styles and knowledge systems, creating a feedback loop where AI-generated content becomes training material for future systems, progressively standardizing human expression with each generation. These homogenizing effects extend beyond representation to behavioral influence, reshaping how users communicate and make decisions. We propose targeted policy interventions across the LLM development pipeline and emphasize the critical need for standardized benchmarks to evaluate how well LLMs understand and represent diverse cultures across all stages. These interventions require coordinated action among AI developers, policymakers, social scientists, and diverse cultural communities to ensure that cultural diversity becomes a non-negotiable requirement rather than an optional enhancement. Without such efforts, AI risks eroding humanity's cultural plurality, replacing diverse traditions with homogenized norms shaped by a narrow subset of the global population.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 3.27,
+        "has_abstract": true,
+        "citations": 11
+      }
+    },
+    {
+      "title": "AIGS: Generating Science from AI-Powered Automated Falsification",
+      "year": 2024,
+      "doi": "10.48550/arXiv.2411.11910",
+      "arxiv_id": "2411.11910",
+      "venue": "arXiv.org",
+      "abstract": "Rapid development of artificial intelligence has drastically accelerated the development of scientific discovery. Trained with large-scale observation data, deep neural networks extract the underlying patterns in an end-to-end manner and assist human researchers with highly-precised predictions in unseen scenarios. The recent rise of Large Language Models (LLMs) and the empowered autonomous agents enable scientists to gain help through interaction in different stages of their research, including but not limited to literature review, research ideation, idea implementation, and academic writing. However, AI researchers instantiated by foundation model empowered agents with full-process autonomy are still in their infancy. In this paper, we study $\\textbf{AI-Generated Science}$ (AIGS), where agents independently and autonomously complete the entire research process and discover scientific laws. By revisiting the definition of scientific research, we argue that $\\textit{falsification}$ is the essence of both human research process and the design of an AIGS system. Through the lens of falsification, prior systems attempting towards AI-Generated Science either lack the part in their design, or rely heavily on existing verification engines that narrow the use in specialized domains. In this work, we propose Baby-AIGS as a baby-step demonstration of a full-process AIGS system, which is a multi-agent system with agents in roles representing key research process. By introducing FalsificationAgent, which identify and then verify possible scientific discoveries, we empower the system with explicit falsification. Experiments on three tasks preliminarily show that Baby-AIGS could produce meaningful scientific discoveries, though not on par with experienced human researchers. Finally, we discuss on the limitations of current Baby-AIGS, actionable insights, and related ethical issues in detail.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 3.267,
+        "has_abstract": true,
+        "citations": 23
+      }
+    },
+    {
+      "title": "Contemporary AI lacks the imagination to diverge or negate in science",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2606.08251",
+      "arxiv_id": "2606.08251",
+      "venue": "arXiv.org",
+      "abstract": "Bold claims that AI will accelerate scientific discovery have raced ahead of evidence from working scientists, yet large-scale, scientist-in-the-loop evidence is scarce. Here we mount the largest evaluation to date, inviting authors of 121,640 recent preprints in biology, medicine, chemistry, and social science to judge large language model (LLM)-generated ideas derived from their own papers. 6,749 representative scientists returned 25,139 rating sets on novelty, feasibility, probability of being true, and favorability of adoption. Three patterns emerge. First, non-reasoning LLMs collapse into a narrow\"hivemind\"of similar ideas while reasoning models explore a wider hypothesis space, but no model spontaneously proposes null hypotheses, a move humans make more freely. Second, scientists reward ideas resembling their own and prize probability over novelty, though social scientists tolerate risk more than life scientists; senior social scientists are the harshest critics, and their skepticism is earned, as LLMs falter most in pluralistic fields demanding context-aware interpretation and evolving theories. Third, automated evaluators, including LLM-as-a-judge and state-of-the-art (SOTA) models, agree weakly with expert judgment. Retrieval augmentation and scientist persona prompting yield marginal gains. A Qwen3-14B reward model we post-trained on human ratings captures nuances of taste, beats SOTA models by up to 27%, and closes the gap to the consistency of human peer reviewers. An analysis of 39 million papers from 2010 to 2025 links survey findings to macro-level patterns: following ChatGPT's release, null claims are sharply suppressed and ideas contract. Agent-based simulations further suggest that saturated fields should especially prize human uniqueness. For all the hype, today's AI for science remains a collaborator whose imagination and judgment benefit from human grounding.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 3.26,
+        "has_abstract": true,
+        "citations": 5
+      }
+    },
+    {
+      "title": "Thinking Like a Scientist? A Structural Study of LLM-Generated Research Methods",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2606.26130",
+      "arxiv_id": "2606.26130",
+      "venue": "arXiv.org",
+      "abstract": "Large Language Models (LLMs) are increasingly used to guide research methodology, yet their default methodological tendencies under minimal prompting remain unclear. Here, we prompt GPT-5.1, Gemini 3 Pro, and DeepSeek-V3.2 with an LLM-extracted research question from each of 1,000 recent arXiv computer-science papers and compare the resulting methodology suggestions against a paper-derived experimental inventory. Since we provide only the research question, the differences we measure reflect initial suggestions and not how optimal those suggestions are. We extract structured method features from both sources, map them into a shared taxonomy, and quantify divergence across multiple taxonomy dimensions including model provider, dataset task type, and evaluation metric type. The strongest imbalance appears in provider choice, with Jensen-Shannon divergence about 3-5x larger than any other taxonomy dimension. Other/Academic single-occurrence models are underrepresented by 23-24 percentage points, while reused academic/community models are slightly overrepresented (4-6pp). LLMs also suggest a much narrower range of methods overall: the effective number of model entities contracts from 1,232 to 59-96, and inter-LLM rank correlations (0.55-0.68) generally exceed LLM-to-paper correlations (0.33-0.56), so the distortions are largely shared across models. Popularity baselines, BM25 retrieval calibration, and paper-level similarity tests confirm that the outputs are query-specific responses, but filtered through a narrower set of options. Researchers who rely on LLM suggestions without cross-checking therefore risk narrowing their methodological search space toward a more concentrated default.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 3.244,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "The problem of alignment",
+      "year": 2023,
+      "doi": "10.1007/s00146-024-02039-2",
+      "arxiv_id": "2401.00210",
+      "venue": "Ai & Society",
+      "abstract": "Large language models (LLMs) produce sequences learned as statistical patterns from large corpora. Their emergent status as representatives of the advances in artificial intelligence (AI) have led to an increased attention to the possibilities of regulating the automated production of linguistic utterances and interactions with human users in a process that computer scientists refer to as ‘alignment’—a series of technological and political mechanisms to impose a normative model of morality on algorithms and networks behind the model. Alignment, which can be viewed as the superimposition of normative structure onto a statistical model, however, reveals a conflicted and complex history of the conceptualisation of an interrelationship between language, mind and technology. This relationship is shaped by and, in turn, influences theories of language, linguistic practice and subjectivity, which are especially relevant to the current sophistication in artificially produced text. In this paper, we propose a critical evaluation of the concept of alignment, arguing that the theories and practice behind LLMs reveal a more complex social and technological dynamic of output coordination. We examine this dynamic as a two-way interaction between users and models by analysing how ChatGPT4 redacts perceived ‘anomalous’ language in fragments of Joyce’s Ulysses. We then situate this alignment problem historically, revisiting earlier postwar linguistic debates which counterposed two views of meaning: as discrete structures, and as continuous probability distributions. We discuss the largely occluded work of the Moscow Linguistic School, which sought to reconcile this opposition. Our attention to the Moscow School and later related arguments by Searle and Kristeva casts the problem of alignment in a new light: as one involving attention to the social regulation of linguistic practice, including rectification of anomalies that, like the Joycean text, exist in defiance of expressive conventions. The “problem of alignment” that we address here is, therefore, twofold: on one hand, it points to its narrow and normative definition in current technological development and critical research and, on the other hand, to the reality of complex and contradictory relations between subjectivity, technology and language that alignment problems reveal.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.939,
+        "has_abstract": true,
+        "citations": 11
+      }
+    },
+    {
+      "title": "War in the Abstract: The Rise and Consequences of Militarized Language in Scientific Communication",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2606.23462",
+      "arxiv_id": "2606.23462",
+      "venue": "arXiv.org",
+      "abstract": "Scientists do not, by profession, wage war. Yet warfare's vocabulary consistently appears in their abstracts. To quantify the extent to which warfare's vocabulary pervades scientific abstracts, we analyze 21.4 million papers (2010-2025; OpenAlex, PubMed). We additionally run a within-subject war-framing experiment ($N = 801$; 32{,}040 trials) designed to provide causal insight into the effects of militaristic language on persuasion. Between 2010 and 2025, the presence of militaristic terms in scientific abstracts rose 48\\% in OpenAlex and 32\\% in PubMed, with the rise accelerating sharply after 2019 (cross-database $r = 0.96$, $p<10^{-8}$). The prevalence of militaristic language is conflict-aligned at both country and annual scales (Uppsala Conflict Data Program; $r = 0.77$-$0.84$), with the abstracts from the Global South displaying the fastest rise in militaristic language. Among disciplines, social sciences leads in level of such language while engineering and computer science lead in growth. The COVID and post-2022 large-language-model eras also accelerated the rise and narrowed the language gap between native-English-speaking and non-English-speaking countries. In our follow-up experiment, we found that war framing reduced credibility (mean shift $-0.176$ Likert units, 95\\% CI $[-0.21, -0.14]$; $d_z = -0.28$, $p<10^{-20}$), funding willingness ($d_z = -0.12$) and policy support ($d_z = -0.08$), with a trend-level increase in sense of urgency ($d_z = +0.07$). Collectively, findings reveal that while scientific abstracts drift toward warfare, the use of militaristic language may erode credibility, funding willingness, and policy support.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.804,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "What is science for? The Lighthill report on artificial intelligence reinterpreted.",
+      "year": 2020,
+      "doi": "10.1017/S0007087420000230",
+      "arxiv_id": null,
+      "venue": "British Journal for the History of Science",
+      "abstract": "This paper uses a case study of a 1970s controversy in artificial-intelligence (AI) research to explore how scientists understand the relationships between research and practical applications. It is part of a project that seeks to map such relationships in order to enable better policy recommendations to be grounded empirically through historical evidence. In 1972 the mathematician James Lighthill submitted a report, published in 1973, on the state of artificial-intelligence research under way in the United Kingdom. The criticisms made in the report have been held to be a major cause behind the dramatic slowing down (subsequently called an 'AI winter') of such research. This paper has two aims, one narrow and one broad. The narrow aim is to inquire into the causes, motivations and content of the Lighthill report. I argue that behind James Lighthill's criticisms of a central part of artificial intelligence was a principle he held throughout his career - that the best research was tightly coupled to practical problem solving. I also show that the Science Research Council provided a preliminary steer to the direction of this apparently independent report. The broader aim of the paper is to map some of the ways that scientists (and in Lighthill's case, a mathematician) have articulated and justified relationships between research and practical, real-world problems, an issue previously identified as central to historical analysis of modern science. The paper therefore offers some deepened historical case studies of the processes identified in Agar's 'working-worlds' model.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.463,
+        "has_abstract": true,
+        "citations": 16
+      }
+    },
+    {
+      "title": "Managing autonomous materials labs with multi-agent AI and its implications for the science of science",
+      "year": 2026,
+      "doi": "10.1038/s43246-026-01219-5",
+      "arxiv_id": null,
+      "venue": "Communications Materials",
+      "abstract": "Self-driving lab systems (aka, autonomous experimentation) accelerate research - letting scientists learn faster, spend less resources, and fail smarter in well defined, narrow studies. The next-generation materials lab combines self-driving systems to tackle broader challenges - orchestrating complex research campaigns while optimizing lab resources. We propose that agent-based and agentic artificial intelligence will be an integral part of next-generation lab management and discuss potential implementation scenarios. Additionally, digital and physical sandboxes will allow scientists to evaluate diverse and dynamic research and lab management strategies. Beyond the immediate benefit to lab optimization, such sandboxes will enable realistic computational studies of the philosophy of science (i.e., science of science) to achieve higher level scientific efficiencies. This Perspective proposes that agent-based and agentic artificial intelligence will be an integral part of next generation lab management, and discusses potential implementation scenarios.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.378,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "The Scientist–AI System: Rethinking Research on War-Related Environmental Contamination",
+      "year": 2026,
+      "doi": "10.66659/dz0jgs38",
+      "arxiv_id": null,
+      "venue": "Pollution and Diseases",
+      "abstract": "Artificial intelligence is often discussed as an autonomous capability or a substitute for human intellectual work. This contribution proposes a different unit of analysis: the scientist–AI system. The central question is not what AI can accomplish independently, but what becomes possible when it is used by a domain expert able to formulate meaningful questions, evaluate outputs, recognize uncertainty, and connect information across disciplinary boundaries.\nUnlike earlier computational tools, AI influences more than calculation speed. It can support searches across heterogeneous sources, identify conceptual relationships and knowledge gaps, generate alternative hypotheses, and organize complex research problems. Yet the quality of inquiry remains dependent on the researcher’s conceptual framework: narrow questions reproduce narrow analytical spaces, whereas informed questions may reveal connections obscured by disciplinary routines.\nThis configuration is especially relevant to war-related environmental contamination, where chemical, hydrological, biological, spatial, historical, military, health, and social processes interact. AI cannot replace expertise, fieldwork, sampling, laboratory analysis, or verification. It can reduce the time and cost of information integration and research design, allowing limited resources to be redirected toward observation, measurement, verification, long-term environmental monitoring, and the systematic development of robust and testable research hypotheses.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.214,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Towards a Biosignatures Image Detection System for Planetary Exploration with UAVs",
+      "year": 2023,
+      "doi": "10.1109/AERO55745.2023.10115661",
+      "arxiv_id": null,
+      "venue": "IEEE Aerospace Conference",
+      "abstract": "The search for life beyond Earth can benefit from orbiters and spacecraft with compact instruments able to identify potential biological signatures. One of the main challenges is the balance between a lower resolution and a wide field of view to discard uninteresting places while a high resolution - narrow field of view to collect data in higher detail. The recent flights of the Mars helicopter “Ingenuity” have shown UAVs are a viable platform to explore the surface of celestial objects in a wide and narrow approach using diverse remote sensing instruments. With data collected from real biosignatures in Western Australia, this work proposes an online UAV-based Artificial Intelligence detector using Convolutional Neural Networks (CNN) based on ResNet18 and YOLO models able to detect multiple potential biological signatures in near real-time. The system and pipeline presented allow the inclusion of new observations refined by scientists to increase the scientific exploration outcomes for remote-based operations.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.153,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "A study on observing, detecting, and determining objects in low earth orbit using optical telescope system",
+      "year": 2024,
+      "doi": "10.11591/eei.v13i6.8093",
+      "arxiv_id": null,
+      "venue": "Bulletin of Electrical Engineering and Informatics",
+      "abstract": "Problems of space debris, space security threats and space accidents are an escalating topic that is drawing attention from scientists and researchers worldwide. Based on the practical demand for detecting and surveilling objects in Earth's orbit in the Vietnam's sky area, the research group has designed a space monitoring system to detect and identify orbiting objects using optical telescopes. The idea of this system is to utilize wide and narrow field-of-view (FOV) optical telescope systems to observe and identify the trajectory of orbiting objects. After an image of an unknown object is captured with a wide FOV telescope, an analyzing algorithm will process and predict the trajectory of it, with support of artificial intelligence, and determine whether there is the appearance of an uncataloged object. If it is affirmative, the narrow telescope system will adapt to a new attitude to track the object from predicted trajectory and gather information for future use. Constructing and validating of this monitoring system deployed by the research group are described in this paper.",
+      "source_api": "semanticscholar",
+      "query_id": "Q3",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.06,
+        "has_abstract": true,
+        "citations": 2
+      }
+    }
+  ]
+}

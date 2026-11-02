@@ -1,0 +1,298 @@
+{
+  "meta": {
+    "source": "OpenAlex title.search (other versions of the same work)",
+    "script": "scripts/enrich.py",
+    "input": "results/merged/candidates_v1b.csv",
+    "top": 20,
+    "max_year_gap": 3,
+    "retrieved_at": "2026-11-02T08:53:50+00:00",
+    "counts": {
+      "candidates": 20,
+      "missing_abstract": 3,
+      "abstract_added": 0,
+      "arxiv_id_added": 0,
+      "doi_suggested": 0
+    }
+  },
+  "records": [
+    {
+      "rank": 1,
+      "merged_id": "M015",
+      "title": "A multimodal robotic platform for multi-element electrocatalyst discovery",
+      "needs": [
+        "abstract",
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 2,
+      "merged_id": "M001",
+      "title": "A temporal adaptive dictionary-constrained LDA and Bi-calibrated dual granularity DTM framework for dynamic topic evolution analysis in academic papers",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 3,
+      "merged_id": "M007",
+      "title": "From connectivity to insight: A graph neural network–large language model synergy for scholar–topic recommendation",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 4,
+      "merged_id": "M026",
+      "title": "Generative AI enhances individual creativity but reduces the collective diversity of novel content",
+      "needs": [],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 5,
+      "merged_id": "M031",
+      "title": "The rise of generative AI and possible effects on the economy",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 6,
+      "merged_id": "M002",
+      "title": "Analysis of Generative AI Research Trends in Korean Business Administration: Using Bibliometric Analysis and Topic Modeling",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 7,
+      "merged_id": "M025",
+      "title": "Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliometric study",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 8,
+      "merged_id": "M013",
+      "title": "Towards Diverse Scientific Hypothesis Search with Large Language Models",
+      "needs": [],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 9,
+      "merged_id": "M017",
+      "title": "Bibliometric analysis of robotic-assisted hepatobiliary and pancreaticosplenic surgery",
+      "needs": [
+        "abstract",
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 10,
+      "merged_id": "M011",
+      "title": "Prompt‐a‐Scientist: Using Generative AI to Disrupt Stereotypical Conceptions in Science Education",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 11,
+      "merged_id": "M038",
+      "title": "Evaluating characteristics of PROSPERO records as predictors of eventual publication of non-Cochrane systematic reviews: a meta-epidemiological study protocol",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 12,
+      "merged_id": "M040",
+      "title": "Drug design using inductive logic programming",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 13,
+      "merged_id": "M037",
+      "title": "Bibliometric review of ecological network analysis: 2010–2016",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 14,
+      "merged_id": "M032",
+      "title": "Bibliometric Review of Biodiversity Offsetting During 1992–2019",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 15,
+      "merged_id": "M006",
+      "title": "Does Generative AI Stifle Creativity? Convergence and Homogenisation in Student Work",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 16,
+      "merged_id": "M035",
+      "title": "Feature Selection Algorithms in Medical Data Classification: A Brief Survey and Experimentation",
+      "needs": [
+        "abstract",
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 17,
+      "merged_id": "M021",
+      "title": "Make A Match Learning Model on Learning Outcomes in Elementary Schools: A Bibliometric Analysis",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 18,
+      "merged_id": "M003",
+      "title": "Artificial Intelligence in English Language Teaching (2018–2025): A Bibliometric Analysis and LDA Topic Modeling",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 19,
+      "merged_id": "M034",
+      "title": "A Systematic Literature Review and Bibliometric Analysis of Recycling Behavior",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 20,
+      "merged_id": "M036",
+      "title": "Service supply chain: from bibliometric analysis to content analysis, current research trends and future research directions",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    }
+  ]
+}

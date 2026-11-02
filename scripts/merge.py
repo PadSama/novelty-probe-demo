@@ -368,6 +368,30 @@ def merge_ranked(recs, suffix):
     return merged, info
 
 
+def review_clusters(pairs):
+    """把两两的待核对关系并成组，便于显示：[(merged_id 列表, 原因列表)]。"""
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for p in pairs:
+        a, b = (find(m) for m in p["merged_ids"])
+        if a != b:
+            parent[max(a, b)] = min(a, b)
+    clusters = {}
+    for p in pairs:
+        c = clusters.setdefault(find(p["merged_ids"][0]), [set(), []])
+        c[0].update(p["merged_ids"])
+        if p["reason"] not in c[1]:
+            c[1].append(p["reason"])
+    return [(sorted(ids), reasons) for ids, reasons in sorted(clusters.values(), key=lambda c: min(c[0]))]
+
+
 def write_candidates_ranked(candidates, path):
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS_RANKED)
@@ -536,11 +560,11 @@ def main_ranked(args, recs, inputs, out_file, cand_file):
     print(f"inputs:     {len(inputs)} files, {counts['raw_records']} raw records")
     print(f"merged:     {counts['merged_records']} works (duplicates removed: {counts['duplicates_removed']}; "
           f"groups linked as versions by title: {counts['title_linked_groups']}; pairs flagged for review: "
-          f"{counts['review_pairs']})")
+          f"{counts['review_pairs']} in {len(review_clusters(info['review_pairs']))} cluster(s))")
     for v in info["version_links"]:
         print(f"  version link  {v['merged_id']}: {' + '.join(v['records'])}")
-    for v in info["review_pairs"]:
-        print(f"  review        {' / '.join(v['merged_ids'])}: {v['reason']}")
+    for ids, reasons in review_clusters(info["review_pairs"]):
+        print(f"  review        {', '.join(ids)}: {'; '.join(reasons)}")
     print(f"id_status:  DOI {st.get('DOI', 0)} | arXiv {st.get('arXiv', 0)} | UNVERIFIED {st.get('UNVERIFIED', 0)}")
     print(f"sources:    openalex only {src.get('openalex', 0)} | semanticscholar only {src.get('semanticscholar', 0)} | "
           f"both {src.get('openalex+semanticscholar', 0)}")

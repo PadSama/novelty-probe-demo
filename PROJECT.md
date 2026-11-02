@@ -26,7 +26,8 @@
 | `results/merged/` | 去重合并后的结果 |
 | `evidence/` | 按维度整理的证据条目 |
 | `logs/` | 运行日志（`RUN_LOG.md`） |
-| `scripts/` | 流程脚本：检索、合并去重、查作者、DOI 核验、运行并记日志 |
+| `scripts/` | 流程脚本：检索、质量检查、合并去重、查作者、补摘要、DOI 核验、引文追踪、结果比较、运行并记日志 |
 | `tests/` | 离线自检 |
+| `docs/` | 改进计划与评估（`IMPROVEMENT_PLAN.md`） |
 
 其他文档：`README.md`（英文介绍）、`HOWTO.md`（操作步骤，中英双语）、`HANDOFF.md`（交接：现状、数据约定、已知问题）、`AGENTS.md`（给 AI 编程助手的说明）。

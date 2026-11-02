@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q6",
+    "purpose": "concurrent",
+    "queries_file": "queries/queries_v2b.json",
+    "query_original": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research diversification\" OR \"research topic selection\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\") AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")",
+    "year_from": 2023,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (narrowing | \"topic diversity\" | \"topic concentration\" | \"collective diversity\" | \"research diversification\" | \"research topic selection\") + (economist* | \"economic research\" | \"management research\" | \"business research\") + -(\"narrow AI\" | \"narrow artificial intelligence\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22artificial+intelligence%22+%7C+%22AI+tools%22+%7C+%22generative+AI%22+%7C+%22large+language+models%22%29+%2B+%28narrowing+%7C+%22topic+diversity%22+%7C+%22topic+concentration%22+%7C+%22collective+diversity%22+%7C+%22research+diversification%22+%7C+%22research+topic+selection%22%29+%2B+%28economist%2A+%7C+%22economic+research%22+%7C+%22management+research%22+%7C+%22business+research%22%29+%2B+-%28%22narrow+AI%22+%7C+%22narrow+artificial+intelligence%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc&year=2023-",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 6,
+      "pages": 1,
+      "truncated": false,
+      "with_abstract": 6,
+      "same_title_dropped": 0
+    },
+    "total_hits": 6,
+    "returned": 6,
+    "retrieved_at": "2026-11-02T08:55:28+00:00"
+  },
+  "records": [
+    {
+      "title": "Qualitative Insights Tool (QualIT): LLM Enhanced Topic Modeling",
+      "year": 2024,
+      "doi": "10.48550/arXiv.2409.15626",
+      "arxiv_id": "2409.15626",
+      "venue": "arXiv.org",
+      "abstract": "Topic modeling is a widely used technique for uncovering thematic structures from large text corpora. However, most topic modeling approaches e.g. Latent Dirichlet Allocation (LDA) struggle to capture nuanced semantics and contextual understanding required to accurately model complex narratives. Recent advancements in this area include methods like BERTopic, which have demonstrated significantly improved topic coherence and thus established a new standard for benchmarking. In this paper, we present a novel approach, the Qualitative Insights Tool (QualIT) that integrates large language models (LLMs) with existing clustering-based topic modeling approaches. Our method leverages the deep contextual understanding and powerful language generation capabilities of LLMs to enrich the topic modeling process using clustering. We evaluate our approach on a large corpus of news articles and demonstrate substantial improvements in topic coherence and topic diversity compared to baseline topic modeling techniques. On the 20 ground-truth topics, our method shows 70% topic coherence (vs 65%&57% benchmarks) and 95.5% topic diversity (vs 85%&72% benchmarks). Our findings suggest that the integration of LLMs can unlock new opportunities for topic modeling of dynamic and complex text data, as is common in talent management research contexts.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 4.492,
+        "has_abstract": true,
+        "citations": 19
+      }
+    },
+    {
+      "title": "Regulating the Artificial Intelligence Economy: A Systematic Search and Mechanism‐based Review of Legal Institutions, Regulatory Mechanisms, Economic Trade‐offs, and Welfare Consequences",
+      "year": 2026,
+      "doi": "10.1111/joes.70175",
+      "arxiv_id": null,
+      "venue": "Journal of economic surveys (Print)",
+      "abstract": "\n Artificial intelligence regulation changes technological risk as well as entry, learning, competition, work, and control. Legal and economic research nevertheless remains divided by instrument and discipline. This article combines a transparent systematic search with a mechanism‐based, purposive synthesis. The corpus contains 84 academic contributions and 20 primary legal and institutional documents, current through August 21, 2026. The search is reproducible, but the corpus is designed to cover mechanisms rather than estimate the prevalence of findings across all scholarship. The Institution‐Mechanism‐Incidence‐Welfare framework connects legal authority to behavior, strategic adaptation, and welfare. Four conclusions follow. Risk rules, assurance, liability, data rights, competition policy, and labor protections operate as complements. Fixed compliance and information costs can favor incumbents even when rules reduce direct harm. Evidence is strongest for narrower shocks involving privacy, workplace rollouts, and pricing technologies. It remains weakest for the aggregate welfare effects of comprehensive AI statutes. Efficiency claims are incomplete unless they report incidence and rights constraints separately. The research agenda therefore pairs safety with innovation, market structure, and distribution.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.502,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "CYBERSECURITY IN TOURISM AND HOSPITALITY MANAGEMENT RESEARCH: CURRENT ISSUES, TRENDS, AND AN AGENDA FOR FUTURE RESEARCH",
+      "year": 2024,
+      "doi": "10.6018/turismo.616471",
+      "arxiv_id": null,
+      "venue": "Cuadernos de Turismo",
+      "abstract": "This paper compares two literature reviews on cybersecurity issues focused on the mature organisations, business and management field, and the embryonic tourism and hospitality area. Hence, we use the general study on the former as a benchmark for the narrower review on the latter, to map the current trends and identify the corresponding gaps. Findings suggest the following topic clusters for future research: (1) machine learning, artificial intelligence, blockchain, big data; (2) fraud and reputation; (3) phishing and social engineering; (4) human security and user education.\n Este artículo compara dos revisiones bibliográficas sobre cuestiones de ciberseguridad centradas en el ámbito de las empresas y la gestión empresarial, por una parte, y en el sector del turismo y la hostelería por otra. De este modo, se utiliza el estudio general en el ámbito empresarial como punto de referencia para el análisis sobre el sector del turismo, con el fin de trazar las tendencias actuales e identificar las lagunas existentes. Los resultados sugieren los siguientes temas para futuras investigaciones: (1) aprendizaje automático, inteligencia artificial, blockchain y big data; (2) fraude y reputación; (3) phishing e ingeniería social; (4) seguridad y educación.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.843,
+        "has_abstract": true,
+        "citations": 6
+      }
+    },
+    {
+      "title": "Toward AI-Enabled Process Model Selection for IT Projects: A Self-Enforcing Network Approach",
+      "year": 2026,
+      "doi": "10.3390/computers15100689",
+      "arxiv_id": null,
+      "venue": "Computers",
+      "abstract": "The selection of an appropriate process model is a critical determinant of information technology (IT) project success. However, existing decision models insufficiently consider hybrid approaches and show limited practical adoption. Based on a systematic literature review of 35 publications, this article reveals five recurring deficits of analyzed decision models: coarse decision granularity, few alternatives, few criteria, absent criterion weighting, and limited empirical validation and practical implementation. Drawing on contingency theory, we develop and implement an artificial intelligence (AI) enabled decision model within a self-enforcing network. The model covers 17 process models, considers 82 project-specific, project-management-specific, team-related, and organizational criteria, and applies explicit criterion weighting. Two online surveys with project management experts yielded 20 retrospectively characterized IT projects for retrospective validation. For representative IT projects, the first recommendation matches the adopted overarching IT project management approach in 81.25% of cases, whereas the agreement at the level of concrete process models remains lower. Across all comparison metrics, it performs at least as well as the most comprehensive existing decision model, while activating agile process models more strongly. The article contributes a transparent and reproducible decision aid that helps narrow the gap between IT project management research and practice.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.84,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Artificial Intelligence-Embedded Restructuring of Enterprise Decision Authority: A Re-examination from the Perspective of Management Theory",
+      "year": 2026,
+      "doi": "10.63313/ebm.9154",
+      "arxiv_id": null,
+      "venue": "Economics &amp; Business Management",
+      "abstract": "Artificial intelligence (AI) is becoming deeply embedded in organizational operations, especially in digitally intensive and platform-based business environments. Rather than serving only as a technical support tool, AI is increasingly involved in how decisions are formulated, implemented, and monitored. This development raises an important question for management research: when algorithmic systems gain clear advantages in prediction, optimization, and automated execution, do firms still allocate decision authority in the same way as traditional theories assume ?\nConventional management theories generally treat decision authority as something held by managers and formal governance bodies. These theories are built on assumptions of human-centered decision-making, bounded rationality, and a close connection between authority and responsibility. However, as algorithmic systems begin to shape operational choices more directly, these assumptions become less stable. In many cases, algorithms may not hold formal authority, yet they can exercise substantial influence over outcomes by structuring information, narrowing options, and triggering action.\nTo explain this shift, this paper develops the Algorithm-Embedded Decision Authority Structure (AEDAS) framework. The framework defines decision authority as a combination of formal authority and effective authority, and argues that authority evolves through three stages: decision support, human-AI co-decision, and layered authority. At the layered stage, algorithms tend to dominate operational decisions, while strategic decisions remain primarily human-led but increasingly constrained by algorithmic systems under a hybrid rationality model. The paper also identifies three mechanisms that drive this restructuring—information power shift, execution automation, and accountability reconfiguration—and develops six propositions together with relevant boundary conditions. Overall, the study argues that AI does not simply improve decision efficiency; it changes how decision authority is distributed inside firms, with important implications for management theory and governance design.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.838,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Editorial",
+      "year": 2026,
+      "doi": "10.15415/jtmge/2025.162011",
+      "arxiv_id": null,
+      "venue": "Journal of Technology Management for Growing Economies",
+      "abstract": "We are pleased to share Volume 16, Issue 2 (2025) of \nthe Journal of Technology Management for Growing \nEconomies, which contains ten articles capturing the \nrapid changes happening in the field of technology \nmanagement, artificial intelligence, financial innovation, \nmarketing, sustainability, and organizational development. \nT\nhese papers cover a variety of empirical, conceptual, \nbibliometric, and systematic review studies demonstrating \nthe increasingly interdisciplinary approach to management \nresearch happening today in well-developed countries and \nemerging markets.\nT\nhe opening paper written by Minh Nguyen Hoang, \nT\nhota Sai Karthikeya, and Thota Sree Mallikharjuna \nRao deals with what can be viewed as the most crucial \nproblem of financial technology—how to reach the \nbalance between the predictive ability of a model and its \ntransparency in the area of lending to small businesses. \nBy using a champion LightGBM model together with an \nExplainable Boosting Machine, the authors proved their \npoint that it is possible to have very accurate credit-risk \nprediction without decreasing the interpretability at the \nsame time.\nT\nhe authors of the second article, Sukhmani Bhatia, \nArchana Goel, and Jayalakshmi Ramachandran, cover \na bibliometric study devoted to the research on global \neconomic policy uncertainty (GEPU) conducted over \nthe last decade. The authors show the main topics of \nresearch, leading countries, and the new directions, while \nalso presenting ideas for future research on firm-level \nimplications of uncertainty in policy.\nRajesh Gupta and Karnika Gupta provide the analysis \nof whether demographic characteristics affect the perception \nof the usefulness of financial technology in India. According \nto their findings, age, education, income, occupation, \nand living in urban areas are the key features affecting the \nperceived usefulness of financial technology, while gender \nand education do not play a significant role in this case. The \nresearch provides useful insights for the advancement of \nf\ninancial inclusion and the development of effective fintech \npromotion strategies.\nIn their paper, Falak and Pooja Malhotra discuss the \napplication of artificial intelligence in financial markets by \npresenting a systematic analysis of the introduction of AI \ntechnologies to credit rating methods. The study reflects \non the departure from classic credit assessment, which used \nonly the opinions of analysts, to the adoption of machine \nlearning technologies, providing a higher degree of accuracy \nand efficiency.\nBusiness ethics remain an important question for \nmanagement during the times of institutional shifts. \nShallu Dhiman and Sultan Singh examine the impact of \nmergers and acquisitions on employee perceptions about \nethical issues, commitment to their organization, and \neffectiveness of their work in state-owned banks of India. \nTo the authors’ surprise, the results show that employees in \nthe banks analyzed had similar concerns, which proves that \nconsistent practices in ethics can lead to easier organizational \nintegration in the times of radical transitions.\nTechnology-driven consumer behavior is studied by \nParamjit Singh and Pavleen Soni, who investigate how ageaffects the showrooming behavior of Indian consumers of \ncosmetics. The findings reveal that Generation Y is more \nprice-conscious than Generation Z, who cares more about \ntactile experience and social interaction. However, the two \ngenerations display similar attitudes towards technology\ndriven shopping.\nSmriti Goudhaman investigates the role of artificial \nintelligence in organizational learning by conducting a \nlongitudinal assessment of AI-enabled training microbots \ninteracting with humans in the decision-making process. The \nresearch shows how, despite lower engagement rates once \ntraining sessions are no longer small-scale initiatives, the quality \nof learning keeps getting better through time, demonstrating \nthe significance of organizational systems that merge together \ntechnological knowledge with human oversight.\nT\nhe authors Sanjeewani Sehgal and Divya Mehta \nfocus on ecological sustainability within digital finance. \nT\nhe authors rely on deep learning and LSTM forecasting \nmethods to explore the carbon emissions related to crypto \nmining within different energy scenarios, coming to the \nconclusion that the use of renewable energy sources can \nnarrow the damage inflicted on the environment, especially \nhydroelectric energy.\nAuthors Pallavi Kumari and Anjan Niyogi study \nmarketing strategy and review a newer body of literature on \npurpose-driven marketing. Their review suggests that people \ntend to accept organizations when they believe their purpose \nis real and is consistently incorporated into their activities. \nAt the same time, any declaration of a purpose made just for \na show will only trigger disbelief amongst consumers.\nFinally, the last article has the authors Shivani \nPandey and Umme Ara discussing the use of AI in green \nhuman resource management. The authors argue that \nthe implementation of AI makes workforce planning, \nrecruiting, and diversity management more effective, along \nwith enhancing organizational performance and achieving \nESG objectives. However, the authors pay attention to the \nimportance of responsible management based on strong \nethical governance.\nIn conclusion, this issue proves that nowadays systems \nfor addressing management challenges in many instances \ninclude not only new technologies but also responsible \nleadership, ethics, and a focus on people and sustainability \nas well. Artificial intelligence and digital innovations are \ntwo crucial concepts that demonstrate the current state of \ndevelopment of management techniques.\nWe express our appreciation to all authors, reviewers, \nand the editorial board for their contributions",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.617,
+        "has_abstract": true,
+        "citations": 0
+      }
+    }
+  ]
+}

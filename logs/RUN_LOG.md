@@ -1932,3 +1932,1543 @@ OK
 
 - `scripts/compare.py`（新增）
 - `scripts/search.py`、`scripts/textmatch.py`、`scripts/merge.py`、`scripts/snowball.py`、`scripts/qa.py`、`tests/test_offline.py`、`tests/test_pipeline.py`、`docs/IMPROVEMENT_PLAN.md`（修改）
+
+---
+
+## [2026-11-02 08:47 UTC] Step 28 — v1b 检索前语法检查（v1 检索式不变）
+
+**命令**
+
+```bash
+python3 scripts/search.py --queries queries/queries.json --dry-run
+```
+
+**输出**（退出码 0）
+
+```
+Q1 [component]
+  openalex:        ("large language models" OR "generative AI") AND (homogenization OR homogenisation OR "algorithmic monoculture" OR "collective diversity")
+  semanticscholar: ("large language models" | "generative AI") + (homogeniz* | homogenis* | "algorithmic monoculture" | "collective diversity")
+Q2 [component]
+  openalex:        ("narrowing of science" OR "topic concentration" OR "topic diversity" OR "research diversification") AND ("science of science" OR bibliometrics)
+  semanticscholar: ("narrowing of science" | "topic concentration" | "topic diversity" | "research diversification") + ("science of science" | bibliometric*)
+Q3 [application]
+  openalex:        ("AI in science" OR "AI for science" OR "large language models" OR "machine learning") AND ("research topic selection" OR "problem choice" OR "direction of science")
+  semanticscholar: ("AI in science" | "AI for science" | "large language models" | "machine learning") + ("research topic selection" | "problem choice" | "direction of science")
+Q4 [application]
+  openalex:        ("streetlight effect" OR "Matthew effect" OR "exploration-exploitation") AND ("AI for science" OR "large language models" OR "generative AI") AND scientists
+  semanticscholar: ("streetlight effect" | "Matthew effect" | "exploration-exploitation") + ("AI for science" | "large language models" | "generative AI") + scientist*
+Q5 [method]
+  openalex:        ("LLM-generated text" OR "topic modeling" OR "difference-in-differences") AND ("science of science" OR bibliometrics) AND ("large language models" OR "generative AI")
+  semanticscholar: ("LLM-generated text" | "topic modeling" | "difference-in-differences") + ("science of science" | bibliometric*) + ("large language models" | "generative AI")
+Q6 [concurrent]
+  openalex:        ("AI in science" OR "large language models" OR "generative AI") AND ("topic diversity" OR "narrowing of science" OR "collective diversity" OR disruptiveness OR "research diversification") AND (scientists OR "science of science")
+  semanticscholar: ("AI in science" | "large language models" | "generative AI") + ("topic diversity" | "narrowing of science" | "collective diversity" | disruptiveness | "research diversification") + (scientist* | "science of science")
+
+6/6 queries valid (dry run, nothing sent)
+```
+
+---
+
+## [2026-11-02 08:47 UTC] Step 29 — v1b 检索（v1 检索式；OpenAlex 按 API 相关度，S2 取回全部命中后本地重排）
+
+**命令**
+
+```bash
+python3 scripts/search.py --queries queries/queries.json --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   openalex               785    25     0  results/raw/openalex_Q1_v1b.json
+Q1    component   semanticscholar        392    25     1  results/raw/semanticscholar_Q1_v1b.json
+Q2    component   openalex                38    25     0  results/raw/openalex_Q2_v1b.json
+Q2    component   semanticscholar         43    25     1  results/raw/semanticscholar_Q2_v1b.json
+Q3    application openalex                 8     8     1  results/raw/openalex_Q3_v1b.json
+Q3    application semanticscholar          9     9     0  results/raw/semanticscholar_Q3_v1b.json
+Q4    application openalex                 1     1     0  results/raw/openalex_Q4_v1b.json
+Q4    application semanticscholar          1     1     0  results/raw/semanticscholar_Q4_v1b.json
+Q5    method      openalex                50    25     0  results/raw/openalex_Q5_v1b.json
+Q5    method      semanticscholar         45    25     1  results/raw/semanticscholar_Q5_v1b.json
+Q6    concurrent  openalex                63    25     1  results/raw/openalex_Q6_v1b.json  [year>=2023]
+Q6    concurrent  semanticscholar         23    23     1  results/raw/semanticscholar_Q6_v1b.json  [year>=2023]
+
+12/12 requests succeeded. total_hits = API-reported matches; saved = records kept (top 25: OpenAlex by API relevance, S2 re-ranked locally by relevance); no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).
+```
+
+---
+
+## [2026-11-02 08:47 UTC] Step 30 — v1b 检索质量检查
+
+**命令**
+
+```bash
+python3 scripts/qa.py --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+file                                  n abstract  conform (all)  conform (with abstract)
+openalex_Q1_v1b.json                 25       20   25/25 (100%)             20/20 (100%)
+openalex_Q2_v1b.json                 25       16    16/25 (64%)             16/16 (100%)
+openalex_Q3_v1b.json                  8        7      7/8 (88%)               7/7 (100%)
+openalex_Q4_v1b.json                  1        0       0/1 (0%)                      0/0
+openalex_Q5_v1b.json                 25       21    21/25 (84%)             21/21 (100%)
+openalex_Q6_v1b.json                 25       23    22/25 (88%)              22/23 (96%)
+semanticscholar_Q1_v1b.json          25       23   25/25 (100%)             23/23 (100%)
+semanticscholar_Q2_v1b.json          25       21    21/25 (84%)             21/21 (100%)
+semanticscholar_Q3_v1b.json           9        7      4/9 (44%)                4/7 (57%)
+semanticscholar_Q4_v1b.json           1        0       0/1 (0%)                      0/0
+semanticscholar_Q5_v1b.json          25       23    24/25 (96%)             23/23 (100%)
+semanticscholar_Q6_v1b.json          23       21    18/23 (78%)              18/21 (86%)
+
+total: 183/217 records conform; among records with an abstract: 175/182  (Porter approximation of the APIs' KStem-like matching)
+```
+
+---
+
+## [2026-11-02 08:47 UTC] Step 31 — v1b 合并去重与排序（默认方法：版本识别、正式发表年份、RRF）
+
+**命令**
+
+```bash
+python3 scripts/merge.py --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+inputs:     12 files, 217 raw records
+merged:     164 works (duplicates removed: 53; groups linked as versions by title: 6; pairs flagged for review: 2)
+  version link  M089: openalex_Q1_v1b#3 + openalex_Q1_v1b#9
+  version link  M112: openalex_Q1_v1b#8 + openalex_Q1_v1b#14
+  version link  M111: openalex_Q1_v1b#10 + openalex_Q1_v1b#18
+  version link  M142: openalex_Q2_v1b#9 + openalex_Q2_v1b#11
+  version link  M008: openalex_Q5_v1b#13 + openalex_Q5_v1b#14
+  version link  M072: openalex_Q6_v1b#12 + openalex_Q6_v1b#13
+  review        M018 / M103: same title, but two different non-preprint DOIs
+  review        M041 / M075: same title, but one record has a data-repository DOI
+id_status:  DOI 140 | arXiv 18 | UNVERIFIED 6
+sources:    openalex only 57 | semanticscholar only 67 | both 40
+per query:  Q1 39 | Q2 33 | Q3 12 | Q4 1 | Q5 41 | Q6 38
+written:    results/merged/merged_v1b.json, results/merged/candidates_v1b.csv (top 20; sorted by RRF, then BM25)
+cutoff:     works sharing the #20 score (RRF and BM25): 1
+
+rank  id        rrf   bm25 conf hits year  identifier                               title
+   1  M015   0.0328   0.00    0    2 2025  doi:10.1038/s41586-025-09640-5           A multimodal robotic platform for multi-element electrocat…
+   2  M001   0.0320   8.88    1    2 2026  doi:10.1038/s41598-026-54348-9           A temporal adaptive dictionary-constrained LDA and Bi-cali…
+   3  M007   0.0318   5.72    1    2 2026  doi:10.1177/01655515261461741            From connectivity to insight: A graph neural network–large…
+   4  M026   0.0318   5.64    1    2 2024  doi:10.1126/sciadv.adn5290               Generative AI enhances individual creativity but reduces t…
+   5  M031   0.0315   5.22    1    2 2023  doi:10.18559/ebr.2023.2.732              The rise of generative AI and possible effects on the econ…
+   6  M002   0.0311   4.68    1    2 2026  doi:10.32599/apjb.17.1.202603.1          Analysis of Generative AI Research Trends in Korean Busine…
+   7  M025   0.0311   4.50    1    2 2025  doi:10.1016/j.caeai.2025.100456          Unveiling the dynamics of generative AI adoption: A busine…
+   8  M013   0.0310   4.62    1    2 2026  doi:10.48550/arxiv.2606.10587            Towards Diverse Scientific Hypothesis Search with Large La…
+   9  M017   0.0310   1.31    0    2 2025  doi:10.1007/s11701-025-03108-4           Bibliometric analysis of robotic-assisted hepatobiliary an…
+  10  M011   0.0309   6.16    1    2 2026  doi:10.1111/ssm.70041                    Prompt‐a‐Scientist: Using Generative AI to Disrupt Stereot…
+  11  M038   0.0306   5.17    1    2 2018  doi:10.1186/s13643-018-0709-6            Evaluating characteristics of PROSPERO records as predicto…
+  12  M040   0.0303   9.55    1    2 1993  doi:10.1109/hicss.1993.270676            Drug design using inductive logic programming
+  13  M037   0.0302   4.25    1    2 2018  doi:10.1016/j.ecolmodel.2018.04.020      Bibliometric review of ecological network analysis: 2010–2…
+  14  M032   0.0301   4.28    1    2 2022  doi:10.1007/s11769-022-1265-5            Bibliometric Review of Biodiversity Offsetting During 1992…
+  15  M006   0.0299   5.11    1    2 2026  doi:10.56831/psen-08-274                 Does Generative AI Stifle Creativity? Convergence and Homo…
+  16  M035   0.0296   0.00    0    2 2020  doi:10.1007/978-981-15-1420-3_90         Feature Selection Algorithms in Medical Data Classificatio…
+  17  M021   0.0294   4.87    1    2 2025  doi:10.51574/ijrer.v5i1.4271             Make A Match Learning Model on Learning Outcomes in Elemen…
+  18  M003   0.0293   4.62    1    2 2026  doi:10.37630/bijee.v4i1.4446             Artificial Intelligence in English Language Teaching (2018…
+  19  M034   0.0292   3.69    1    2 2020  doi:10.1080/08911762.2020.1765444        A Systematic Literature Review and Bibliometric Analysis o…
+  20  M036   0.0290   4.85    1    2 2020  doi:10.1108/bij-04-2020-0137             Service supply chain: from bibliometric analysis to conten…
+```
+
+---
+
+## [2026-11-02 08:48 UTC] Step 32 — v1b 从其他版本补摘要（前 20 篇）
+
+**命令**
+
+```bash
+python3 scripts/enrich.py --top 20 --candidates results/merged/candidates_v1b.csv --out evidence/enrichment_v1b.json
+```
+
+**输出**（退出码 0）
+
+```
+  1 M015  needs=abstract,arxiv_id      versions=0 found=- 
+  2 M001  needs=arxiv_id               versions=0 found=- 
+  3 M007  needs=arxiv_id               versions=0 found=- 
+  4 M026  needs=-                      versions=0 found=- 
+  5 M031  needs=arxiv_id               versions=0 found=- 
+  6 M002  needs=arxiv_id               versions=0 found=- 
+  7 M025  needs=arxiv_id               versions=0 found=- 
+  8 M013  needs=-                      versions=0 found=- 
+  9 M017  needs=abstract,arxiv_id      versions=0 found=- 
+ 10 M011  needs=arxiv_id               versions=0 found=- 
+ 11 M038  needs=arxiv_id               versions=0 found=- 
+ 12 M040  needs=arxiv_id               versions=0 found=- 
+ 13 M037  needs=arxiv_id               versions=0 found=- 
+ 14 M032  needs=arxiv_id               versions=0 found=- 
+ 15 M006  needs=arxiv_id               versions=0 found=- 
+ 16 M035  needs=abstract,arxiv_id      versions=0 found=- 
+ 17 M021  needs=arxiv_id               versions=0 found=- 
+ 18 M003  needs=arxiv_id               versions=0 found=- 
+ 19 M034  needs=arxiv_id               versions=0 found=- 
+ 20 M036  needs=arxiv_id               versions=0 found=- 
+
+missing abstracts: 3 → added from another version: 0; arXiv IDs added: 0; DOIs suggested (verify before use): 0
+written: evidence/enrichment_v1b.json
+```
+
+---
+
+## [2026-11-02 08:48 UTC] Step 33 — v1b 引文追踪：一步（种子取 v1 证据表中至少 2 个面为 overlap 的文献）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+pool: 1171 works linked to the seeds (66 linked to more than one seed)
+already in search results (results/merged/merged_v1b.json): 7
+written: results/raw/chase_C1_v1b.json, results/merged/chase_C1_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+onehop      1      2  0.326      M112  doi:10.1016/j.chbah.2025.100207          Homogenizing effect of large language models (LLMs) on creative divers
+onehop      2      2  0.279      M133  doi:10.1145/3715928.3737481              How AI Ideas Affect the Creativity, Diversity, and Evolution of Human 
+onehop      3      2  0.267         -  doi:10.1145/3706598.3713146              Timing Matters: How Using LLMs at Different Timings Influences Writers
+onehop      4      2  0.254         -  doi:10.1016/j.yjoc.2026.100142           Perceived human agency and AI-assisted idea generation
+onehop      5      2  0.247         -  doi:10.1145/3803784.3816857              The Role of Human Agency in Human-AI Co-Creativity
+onehop      6      2  0.239         -  doi:10.1073/pnas.2504966122              Echoes in AI: Quantifying lack of plot diversity in LLM outputs
+onehop      7      2  0.234         -  doi:10.1145/3772318.3791185              Partnering with Generative AI: Experimental Evaluation of Model-Led an
+onehop      8      2  0.229         -  doi:10.1016/j.chbah.2026.100289          Diverse AI personas can mitigate the homogenization effect in human-AI
+onehop      9      2  0.216         -  doi:10.1145/3706598.3714198              Human Creativity in the Age of LLMs: Randomized Experiments on Diverge
+onehop     10      2  0.211      M111  doi:10.1177/00491241251327130            Generative AI Meets Open-Ended Survey Responses: Research Participant 
+onehop     11      2  0.211         -  doi:10.1145/3708359.3712094              One Does Not Simply Meme Alone: Evaluating Co-Creativity Between LLMs 
+onehop     12      2  0.209         -  doi:10.1016/j.tsc.2025.101870            Large language models show both individual and collective creativity c
+onehop     13      2  0.207         -  doi:10.1016/j.tsc.2025.101958            Evaluating AI-assisted creative ideation: A crossover study in higher 
+onehop     14      2  0.194         -  doi:10.1145/3746175.3746189              Has AI Surpassed Humans in Creative Idea Generation? A Meta-Analysis
+onehop     15      2  0.185         -  doi:10.1038/s41562-025-02331-1           A large-scale comparison of divergent creativity in humans and large l
+onehop     16      2  0.172         -  doi:10.1057/s41599-025-05867-9           Inspiration booster or creative fixation? The dual mechanisms of LLMs 
+onehop     17      2  0.166         -  doi:10.1145/3698061.3726910              From Pen to Prompt: How Creative Writers Integrate AI into their Writi
+onehop     18      2  0.159         -  doi:10.1080/17501229.2026.2678315        When LLMs meet creativity: rethinking GFL writing through Human–LLM co
+onehop     19      2  0.158         -  doi:10.55737/tk/v5i1.51147               Students’ Creativity, Originality, and Use of Generative AI in Irish A
+onehop     20      2  0.152         -  doi:10.1145/3772318.3791329              Decoupling of Usefulness and Novelty: Evaluating the Impact of Generat
+```
+
+---
+
+## [2026-11-02 08:48 UTC] Step 34 — v1b 引文追踪：两步共被引（引用者按 v1 研究情境面的使用者一词 scientist* 过滤）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b --cocite --citer-filter 'scientist*'
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+citing works: 1083 cite the seeds; 13 pass the filter 'scientists'; 1 letters/replies excluded; 12 citers used
+co-cited: 558 works cited by the citers; 15 cited by at least 2
+already in search results (results/merged/merged_v1b.json): 0
+written: results/raw/chase_C2_v1b.json, results/merged/chase_C2_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+cocited     1      5  0.040         -  doi:10.1038/s41586-025-09922-y           Artificial intelligence tools expand scientists’ impact but contract s
+cocited     2      3  0.112         -  doi:10.1038/s43588-025-00906-6           SciSciGPT: advancing human–AI collaboration in the science of science
+cocited     3      3  0.030         -  doi:10.1038/s41562-024-02020-5           Quantifying the use and potential benefits of artificial intelligence 
+cocited     4      3  0.085         -  doi:10.3390/soc15010006                  AI Tools in Society: Impacts on Cognitive Offloading and the Future of
+cocited     5      3  0.093         -  doi:10.1126/science.adh2586              Experimental evidence on the productivity effects of generative artifi
+cocited     6      2  0.177         -  doi:10.1145/3614419.3644000              The Role of Interface Design on Prompt-mediated Creativity in Generati
+cocited     7      2  0.263         -  doi:10.48550/arxiv.2409.04109            Can LLMs Generate Novel Research Ideas? A Large-Scale Human Study with
+cocited     8      2  0.354         -  doi:10.2139/ssrn.4526071                 AI and Its Impact on Creativity and Diversity: An Empirical Study of L
+cocited     9      2  0.213         -  doi:10.1038/s41598-023-40858-3           Best humans still outperform artificial intelligence in a creative div
+cocited    10      2  0.158         -  doi:10.1073/pnas.2314021121              Can Generative AI improve social science?
+cocited    11      2  0.056         -  doi:10.1287/orsc.2021.1549               To Engage or Not to Engage with AI for Critical Judgments: How Profess
+cocited    12      2  0.018         -  doi:10.1038/s41586-024-07146-0           Artificial intelligence and illusions of understanding in scientific r
+cocited    13      2  0.028         -  doi:10.2139/ssrn.4573321                 Navigating the Jagged Technological Frontier: Field Experimental Evide
+cocited    14      2  0.127         -  doi:10.1017/cbo9780511807916.003         The Concept of Creativity: Prospects and Paradigms
+cocited    15      2  0.078         -  doi:10.1145/3442188.3445922              On the Dangers of Stochastic Parrots
+citer       1         0.202         -  doi:10.1111/caim.70013                   Switching Perspectives: Enhancing Generative Artificial Intelligence's
+citer       2         0.180         -  doi:10.2139/ssrn.5013086                 How Experience Moderates the Impact of Generative AI Ideas on the Rese
+citer       3         0.122         -  doi:10.1007/s11186-026-09753-4           The rebirth of the author: writing critical social theory in the time 
+citer       4         0.117         -  doi:10.1080/10401334.2026.2737803        From Solitude to AI Companionship—Three Phases of a Writing Life and W
+citer       5         0.115         -  doi:10.1017/s0267190525000042            Digital accents, homogeneity-by-design, and the evolving social scienc
+citer       6         0.091         -  doi:10.1145/3746175.3746199              Bridging the conceptual gap between workers and data-scientists' needs
+citer       7         0.081         -  doi:10.1080/21620555.2026.2707167        Vibe researching: can AI agents with skills replace or augment social 
+citer       8         0.026         -  doi:10.1038/d41586-026-00665-y           AI agents are ‘aeroplanes for the mind’: five ways to ensure that scie
+citer       9         0.023         -  doi:10.2139/ssrn.5169619                 A Quest for AI Knowledge
+citer      10         0.022         -  doi:10.1007/978-3-032-32152-7_4          AI and Wicked Problems
+citer      11         0.020         -  doi:10.1007/s13347-026-01214-1           The Artificial View from Somewhere: Or How AI Could Undermine Scientif
+citer      12         0.015         -  doi:10.1002/qub2.70032                   Conversing with machines: How AI is changing the way scientists think
+```
+
+---
+
+## [2026-11-02 08:48 UTC] Step 35 — v1b 共被引的敏感性检查：引用者改按数据与方法面过滤
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b --cocite --citer-filter '("science of science" OR bibliometric*)' --label C3
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+citing works: 1083 cite the seeds; 10 pass the filter '("science of science" OR bibliometrics)'; 0 letters/replies excluded; 10 citers used
+co-cited: 596 works cited by the citers; 10 cited by at least 2
+already in search results (results/merged/merged_v1b.json): 0
+written: results/raw/chase_C3_v1b.json, results/merged/chase_C3_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+cocited     1      4  0.020         -  doi:10.1016/j.jbusres.2021.04.070        How to conduct a bibliometric analysis: An overview and guidelines
+cocited     2      4  0.030         -  doi:10.1007/s11192-009-0146-3            Software survey: VOSviewer, a computer program for bibliometric mappin
+cocited     3      3  0.020         -  doi:10.1016/j.joi.2017.08.007            bibliometrix : An R-tool for comprehensive science mapping analysis
+cocited     4      3  0.021         -  doi:10.1136/bmj.n71                      The PRISMA 2020 statement: an updated guideline for reporting systemat
+cocited     5      2  0.140         -  doi:10.1080/10400419.2025.2587803        Agency in Human-AI Collaboration for Image Generation and Creative Wri
+cocited     6      2  0.038         -  doi:10.1038/s41562-024-02020-5           Quantifying the use and potential benefits of artificial intelligence 
+cocited     7      2  0.091         -  doi:10.1080/10400419.2022.2107850        Redefining Creativity in the Era of AI? Perspectives of Computer Scien
+cocited     8      2  0.078         -  doi:10.1016/j.respol.2022.104604         Artificial intelligence in science: An emerging general method of inve
+cocited     9      2  0.200         -  doi:10.1093/pnasnexus/pgae052            Generative artificial intelligence, human creativity, and art
+cocited    10      2  0.110         -  doi:10.3390/arts8010026                  Art, Creativity, and the Potential of Artificial Intelligence
+citer       1         0.107         -  doi:10.1002/pchj.70042                   Artificial Intelligence Reshapes Creativity: A Multidimensional Evalua
+citer       2         0.105         -  doi:10.1108/ijem-10-2024-0653            Generative artificial intelligence for management education: applicati
+citer       3         0.103         -  doi:10.1016/j.infsof.2026.108277         How reliance on GenAI might limit human creativity and critical thinki
+citer       4         0.093         -  doi:10.66815/ejecs/3311                  Artificial Intelligence-Supported Cultural Art Practices: A Bibliometr
+citer       5         0.089         -  doi:10.1007/s44163-025-00760-5           GenAI: a scientometric analysis of research trends using biblioshiny a
+citer       6         0.078         -  doi:10.3390/info17090893                 Ownership-Preserving Autonomy in Creative Human–Robot Interaction: A S
+citer       7         0.073         -  doi:10.1177/20552076261499911            AI’s impact on medical research: A bibliometric study of citation impa
+citer       8         0.064         -  doi:10.1016/j.ssaho.2026.103470          Creativity skills in entrepreneurship education: A bibliometric analys
+citer       9         0.053         -  doi:10.1007/s11366-026-09932-1           Innovation and Diffusion: The Effects of AI Integration on Knowledge D
+citer      10         0.028         -  doi:10.1080/14480220.2026.2630822        Digital skills integration and EV technician training: mapping core co
+```
+
+---
+
+## [2026-11-02 08:49 UTC] Step 36 — v2b 检索式（v2 检索式中含 narrowing 的 Q2、Q3、Q6 加 AND NOT ("narrow AI" OR "narrow artificial intelligence")）语法检查
+
+**命令**
+
+```bash
+python3 scripts/search.py --queries queries/queries_v2b.json --dry-run
+```
+
+**输出**（退出码 0）
+
+```
+Q1 [component]
+  openalex:        ("large language models" OR "generative AI") AND (homogenization OR homogenisation OR "algorithmic monoculture" OR "collective diversity")
+  semanticscholar: ("large language models" | "generative AI") + (homogeniz* | homogenis* | "algorithmic monoculture" | "collective diversity")
+Q2 [component]
+  openalex:        (narrowing OR "topic diversity" OR "topic concentration" OR "research diversification") AND (economists OR "economic research" OR "management research" OR "business research") AND NOT ("narrow AI" OR "narrow artificial intelligence")
+  semanticscholar: (narrowing | "topic diversity" | "topic concentration" | "research diversification") + (economist* | "economic research" | "management research" | "business research") + -("narrow AI" | "narrow artificial intelligence")
+Q3 [application]
+  openalex:        ("artificial intelligence" OR "AI tools" OR "generative AI" OR "large language models") AND (narrowing OR "topic diversity" OR "topic concentration" OR "collective diversity" OR "research topic selection") AND scientists AND NOT ("narrow AI" OR "narrow artificial intelligence")
+  semanticscholar: ("artificial intelligence" | "AI tools" | "generative AI" | "large language models") + (narrowing | "topic diversity" | "topic concentration" | "collective diversity" | "research topic selection") + scientist* + -("narrow AI" | "narrow artificial intelligence")
+Q4 [application]
+  openalex:        ("streetlight effect" OR "Matthew effect" OR "exploration-exploitation") AND ("artificial intelligence" OR "AI tools" OR "generative AI" OR "large language models") AND (economists OR "economic research" OR "management research" OR "business research")
+  semanticscholar: ("streetlight effect" | "Matthew effect" | "exploration-exploitation") + ("artificial intelligence" | "AI tools" | "generative AI" | "large language models") + (economist* | "economic research" | "management research" | "business research")
+Q5 [method]
+  openalex:        ("LLM-generated text" OR "topic modeling" OR "difference-in-differences") AND ("science of science" OR bibliometrics) AND ("large language models" OR "generative AI")
+  semanticscholar: ("LLM-generated text" | "topic modeling" | "difference-in-differences") + ("science of science" | bibliometric*) + ("large language models" | "generative AI")
+Q6 [concurrent]
+  openalex:        ("artificial intelligence" OR "AI tools" OR "generative AI" OR "large language models") AND (narrowing OR "topic diversity" OR "topic concentration" OR "collective diversity" OR "research diversification" OR "research topic selection") AND (economists OR "economic research" OR "management research" OR "business research") AND NOT ("narrow AI" OR "narrow artificial intelligence")
+  semanticscholar: ("artificial intelligence" | "AI tools" | "generative AI" | "large language models") + (narrowing | "topic diversity" | "topic concentration" | "collective diversity" | "research diversification" | "research topic selection") + (economist* | "economic research" | "management research" | "business research") + -("narrow AI" | "narrow artificial intelligence")
+
+6/6 queries valid (dry run, nothing sent)
+```
+
+---
+
+## [2026-11-02 08:49 UTC] Step 37 — v2b 检索（v2b 检索式；S2 本地重排）
+
+**命令**
+
+```bash
+python3 scripts/search.py --queries queries/queries_v2b.json --suffix _v2b
+```
+
+**输出**（退出码 0）
+
+```
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   openalex               785    25     0  results/raw/openalex_Q1_v2b.json
+Q1    component   semanticscholar        392    25     1  results/raw/semanticscholar_Q1_v2b.json
+Q2    component   openalex              2756    25     5  results/raw/openalex_Q2_v2b.json
+Q2    component   semanticscholar       2160    25     5  results/raw/semanticscholar_Q2_v2b.json
+Q3    application openalex               247    25     0  results/raw/openalex_Q3_v2b.json
+Q3    application semanticscholar        111    25     0  results/raw/semanticscholar_Q3_v2b.json
+Q4    application openalex                 3     3     0  results/raw/openalex_Q4_v2b.json
+Q4    application semanticscholar          0     0     0  results/raw/semanticscholar_Q4_v2b.json
+Q5    method      openalex                50    25     0  results/raw/openalex_Q5_v2b.json
+Q5    method      semanticscholar         45    25     1  results/raw/semanticscholar_Q5_v2b.json
+Q6    concurrent  openalex                39    25     1  results/raw/openalex_Q6_v2b.json  [year>=2023]
+Q6    concurrent  semanticscholar          6     6     0  results/raw/semanticscholar_Q6_v2b.json  [year>=2023]
+
+12/12 requests succeeded. total_hits = API-reported matches; saved = records kept (top 25: OpenAlex by API relevance, S2 re-ranked locally by relevance); no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).
+```
+
+---
+
+## [2026-11-02 08:50 UTC] Step 38 — v2b 检索质量检查
+
+**命令**
+
+```bash
+python3 scripts/qa.py --suffix _v2b
+```
+
+**输出**（退出码 0）
+
+```
+file                                  n abstract  conform (all)  conform (with abstract)
+openalex_Q1_v2b.json                 25       20   25/25 (100%)             20/20 (100%)
+openalex_Q2_v2b.json                 25       20    22/25 (88%)             20/20 (100%)
+openalex_Q3_v2b.json                 25       20    20/25 (80%)             20/20 (100%)
+openalex_Q4_v2b.json                  3        3     3/3 (100%)               3/3 (100%)
+openalex_Q5_v2b.json                 25       21    21/25 (84%)             21/21 (100%)
+openalex_Q6_v2b.json                 25       19    18/25 (72%)              18/19 (95%)
+semanticscholar_Q1_v2b.json          25       23   25/25 (100%)             23/23 (100%)
+semanticscholar_Q2_v2b.json          25        5     9/25 (36%)               5/5 (100%)
+semanticscholar_Q3_v2b.json          25       24    24/25 (96%)             24/24 (100%)
+semanticscholar_Q4_v2b.json           0        0            0/0                      0/0
+semanticscholar_Q5_v2b.json          25       23    24/25 (96%)             23/23 (100%)
+semanticscholar_Q6_v2b.json           6        6     6/6 (100%)               6/6 (100%)
+
+total: 197/234 records conform; among records with an abstract: 183/184  (Porter approximation of the APIs' KStem-like matching)
+```
+
+---
+
+## [2026-11-02 08:50 UTC] Step 39 — v2b 合并去重与排序（默认方法）
+
+**命令**
+
+```bash
+python3 scripts/merge.py --suffix _v2b
+```
+
+**输出**（退出码 0）
+
+```
+inputs:     12 files, 234 raw records
+merged:     189 works (duplicates removed: 45; groups linked as versions by title: 7; pairs flagged for review: 30)
+  version link  M083: openalex_Q1_v2b#3 + openalex_Q1_v2b#9
+  version link  M109: openalex_Q1_v2b#8 + openalex_Q1_v2b#14
+  version link  M107: openalex_Q1_v2b#10 + openalex_Q1_v2b#18
+  version link  M030: openalex_Q2_v2b#2 + semanticscholar_Q2_v2b#6
+  version link  M006: openalex_Q3_v2b#1 + openalex_Q3_v2b#3
+  version link  M002: openalex_Q3_v2b#11 + openalex_Q3_v2b#12
+  version link  M010: openalex_Q5_v2b#13 + openalex_Q5_v2b#14
+  review        M017 / M101: same title, but two different non-preprint DOIs
+  review        M032 / M065: same title, but one record has a data-repository DOI
+  review        M168 / M169: same title, but two different non-preprint DOIs
+  review        M168 / M162: same title, but two different non-preprint DOIs
+  review        M168 / M163: same title, but two different non-preprint DOIs
+  review        M168 / M164: same title, but two different non-preprint DOIs
+  review        M168 / M165: same title, but two different non-preprint DOIs
+  review        M168 / M166: same title, but two different non-preprint DOIs
+  review        M168 / M170: near-identical titles (ratio 0.88, word Jaccard 0.68)
+  review        M169 / M162: same title, but two different non-preprint DOIs
+  review        M169 / M163: same title, but two different non-preprint DOIs
+  review        M169 / M164: same title, but two different non-preprint DOIs
+  review        M169 / M165: same title, but two different non-preprint DOIs
+  review        M169 / M166: same title, but two different non-preprint DOIs
+  review        M169 / M170: near-identical titles (ratio 0.88, word Jaccard 0.68)
+  review        M162 / M163: same title, but two different non-preprint DOIs
+  review        M162 / M164: same title, but two different non-preprint DOIs
+  review        M162 / M165: same title, but two different non-preprint DOIs
+  review        M162 / M166: same title, but two different non-preprint DOIs
+  review        M162 / M170: near-identical titles (ratio 0.88, word Jaccard 0.68)
+  review        M163 / M164: same title, but two different non-preprint DOIs
+  review        M163 / M165: same title, but two different non-preprint DOIs
+  review        M163 / M166: same title, but two different non-preprint DOIs
+  review        M163 / M170: near-identical titles (ratio 0.88, word Jaccard 0.68)
+  review        M164 / M165: same title, but two different non-preprint DOIs
+  review        M164 / M166: same title, but two different non-preprint DOIs
+  review        M164 / M170: near-identical titles (ratio 0.88, word Jaccard 0.68)
+  review        M165 / M166: same title, but two different non-preprint DOIs
+  review        M165 / M170: near-identical titles (ratio 0.88, word Jaccard 0.68)
+  review        M166 / M170: near-identical titles (ratio 0.88, word Jaccard 0.68)
+id_status:  DOI 155 | arXiv 22 | UNVERIFIED 12
+sources:    openalex only 85 | semanticscholar only 74 | both 30
+per query:  Q1 39 | Q2 46 | Q3 38 | Q4 3 | Q5 41 | Q6 24
+written:    results/merged/merged_v2b.json, results/merged/candidates_v2b.csv (top 20; sorted by RRF, then BM25)
+cutoff:     works sharing the #20 score (RRF and BM25): 1
+
+rank  id        rrf   bm25 conf hits year  identifier                               title
+   1  M001   0.0462  13.72    2    3 2024  doi:10.48550/arxiv.2409.15626            Qualitative Insights Tool (QualIT): LLM Enhanced Topic Mod…
+   2  M031   0.0328   5.00    1    2 1998  doi:10.1057/palgrave.jibs.8490055        Cognitive Tendencies in International Business Research: I…
+   3  M006   0.0325   9.76    1    2 2026  doi:10.1038/s41586-025-09922-y           Artificial intelligence tools expand scientists’ impact bu…
+   4  M025   0.0320   6.37    1    2 2024  doi:10.22318/icls2024.259570             Learning About and Against Generative AI Through Mapping G…
+   5  M024   0.0318   9.01    1    2 2024  doi:10.1126/sciadv.adn5290               Generative AI enhances individual creativity but reduces t…
+   6  M030   0.0313   7.67    1    2 2004  UNVERIFIED                               WHAT ECONOMISTS DO: TRENDS IN ECONOMIC RESEARCH
+   7  M029   0.0313   5.29    1    2 2008  doi:10.5465/amj.2008.34789630            From the Editors Beyond Contextualization: Using Context T…
+   8  M004   0.0311   7.07    1    2 2026  doi:10.32599/apjb.17.1.202603.1          Analysis of Generative AI Research Trends in Korean Busine…
+   9  M022   0.0311   7.75    1    2 2025  doi:10.1016/j.caeai.2025.100456          Unveiling the dynamics of generative AI adoption: A busine…
+  10  M026   0.0310   9.56    1    2 2022  doi:10.1088/2632-2153/ac61eb             ARTS: autonomous research topic selection system using wor…
+  11  M002   0.0302   7.12    3    2 2024  doi:10.1017/9781009483094.004            Artificial Intelligence and the Economics of Decision-Maki…
+  12  M013   0.0302   5.80    2    2 2026  doi:10.1111/joes.70175                   Regulating the Artificial Intelligence Economy: A Systemat…
+  13  M023   0.0302   4.60    2    2 2024  doi:10.6018/turismo.616471               CYBERSECURITY IN TOURISM AND HOSPITALITY MANAGEMENT RESEAR…
+  14  M007   0.0301   4.37    2    2 2026  doi:10.63313/ebm.9154                    Artificial Intelligence-Embedded Restructuring of Enterpri…
+  15  M008   0.0299   9.90    1    2 2026  doi:10.56831/psen-08-274                 Does Generative AI Stifle Creativity? Convergence and Homo…
+  16  M028   0.0294   4.17    0    2 2010  doi:10.1016/j.jbusres.2010.11.005        Where does business research go from here? Food-for-though…
+  17  M005   0.0293  11.24    1    2 2026  doi:10.37630/bijee.v4i1.4446             Artificial Intelligence in English Language Teaching (2018…
+  18  M020   0.0292   4.20    1    2 2025  doi:10.48550/arxiv.2504.12317            Large language models reshape the language of science
+  19  M003   0.0289  15.21    1    2 2026  doi:10.71097/ijsat.v17.i1.10159          AI Tools in Scientific Research: Boosting Individuals at t…
+  20  M015   0.0288   4.59    2    2 2026  doi:10.3390/computers15100689            Toward AI-Enabled Process Model Selection for IT Projects:…
+```
+
+---
+
+## [2026-11-02 08:52 UTC] Step 40 — 修正：S2 前 25 条中同题记录只留一条；待核对按组显示
+
+**发现**（Step 37、39）：v2b 的 S2 Q2 本地重排后，前 25 条中有 8 条是 Organization Studies 在多期重复刊登的同一份征稿启事（"Call for Papers Special Issue on Advancing Organization Studies in Family Business Research…"，每期一个 DOI，如 10.1177/0170840615588740a），占去 8 个名额；merge.py 把它们两两列为待核对，共 28 对。
+
+**做了什么**
+
+- `scripts/search.py` 的 S2 本地重排：标题完全相同的记录只保留排在最前的一条，被去掉的条数记在保留记录的 `local_rank.same_title_dropped` 和 meta 的 `pool.same_title_dropped` 中（只影响前 25 条的选取，不影响 API 报告的命中数）。
+- `scripts/merge.py`：终端输出把两两的待核对关系并成组显示；merged.json 中仍保留全部两两关系。
+- 新增测试（同题只留一条）；`python3 -W error::ResourceWarning -m unittest discover -s tests` → Ran 45 tests … OK。
+
+Step 29–39 的 v1b、v2b 结果作废，下面用修正后的流程从检索开始重跑，输出覆盖同名文件。
+
+**产出文件**：`scripts/search.py`、`scripts/merge.py`、`tests/test_pipeline.py`（修改）
+
+---
+
+## [2026-11-02 08:52 UTC] Step 41 — v1b 重跑检索（修正后的流程）
+
+**命令**
+
+```bash
+python3 scripts/search.py --queries queries/queries.json --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   openalex               785    25     0  results/raw/openalex_Q1_v1b.json
+Q1    component   semanticscholar        392    25     1  results/raw/semanticscholar_Q1_v1b.json
+Q2    component   openalex                38    25     0  results/raw/openalex_Q2_v1b.json
+Q2    component   semanticscholar         43    25     1  results/raw/semanticscholar_Q2_v1b.json
+Q3    application openalex                 8     8     1  results/raw/openalex_Q3_v1b.json
+Q3    application semanticscholar          9     9     0  results/raw/semanticscholar_Q3_v1b.json
+Q4    application openalex                 1     1     0  results/raw/openalex_Q4_v1b.json
+Q4    application semanticscholar          1     1     0  results/raw/semanticscholar_Q4_v1b.json
+Q5    method      openalex                50    25     0  results/raw/openalex_Q5_v1b.json
+Q5    method      semanticscholar         45    25     1  results/raw/semanticscholar_Q5_v1b.json
+Q6    concurrent  openalex                63    25     1  results/raw/openalex_Q6_v1b.json  [year>=2023]
+Q6    concurrent  semanticscholar         23    22     1  results/raw/semanticscholar_Q6_v1b.json  [year>=2023]
+
+12/12 requests succeeded. total_hits = API-reported matches; saved = records kept (top 25: OpenAlex by API relevance, S2 re-ranked locally by relevance); no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).
+```
+
+---
+
+## [2026-11-02 08:53 UTC] Step 42 — v1b 检索质量检查
+
+**命令**
+
+```bash
+python3 scripts/qa.py --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+file                                  n abstract  conform (all)  conform (with abstract)
+openalex_Q1_v1b.json                 25       20   25/25 (100%)             20/20 (100%)
+openalex_Q2_v1b.json                 25       16    16/25 (64%)             16/16 (100%)
+openalex_Q3_v1b.json                  8        7      7/8 (88%)               7/7 (100%)
+openalex_Q4_v1b.json                  1        0       0/1 (0%)                      0/0
+openalex_Q5_v1b.json                 25       21    21/25 (84%)             21/21 (100%)
+openalex_Q6_v1b.json                 25       23    22/25 (88%)              22/23 (96%)
+semanticscholar_Q1_v1b.json          25       23   25/25 (100%)             23/23 (100%)
+semanticscholar_Q2_v1b.json          25       21    21/25 (84%)             21/21 (100%)
+semanticscholar_Q3_v1b.json           9        7      4/9 (44%)                4/7 (57%)
+semanticscholar_Q4_v1b.json           1        0       0/1 (0%)                      0/0
+semanticscholar_Q5_v1b.json          25       23    24/25 (96%)             23/23 (100%)
+semanticscholar_Q6_v1b.json          22       20    17/22 (77%)              17/20 (85%)
+
+total: 182/216 records conform; among records with an abstract: 174/181  (Porter approximation of the APIs' KStem-like matching)
+```
+
+---
+
+## [2026-11-02 08:53 UTC] Step 43 — v1b 合并去重与排序（默认方法）
+
+**命令**
+
+```bash
+python3 scripts/merge.py --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+inputs:     12 files, 216 raw records
+merged:     164 works (duplicates removed: 52; groups linked as versions by title: 6; pairs flagged for review: 2 in 2 cluster(s))
+  version link  M089: openalex_Q1_v1b#3 + openalex_Q1_v1b#9
+  version link  M112: openalex_Q1_v1b#8 + openalex_Q1_v1b#14
+  version link  M111: openalex_Q1_v1b#10 + openalex_Q1_v1b#18
+  version link  M142: openalex_Q2_v1b#9 + openalex_Q2_v1b#11
+  version link  M008: openalex_Q5_v1b#13 + openalex_Q5_v1b#14
+  version link  M072: openalex_Q6_v1b#12 + openalex_Q6_v1b#13
+  review        M018, M103: same title, but two different non-preprint DOIs
+  review        M041, M075: same title, but one record has a data-repository DOI
+id_status:  DOI 140 | arXiv 18 | UNVERIFIED 6
+sources:    openalex only 57 | semanticscholar only 67 | both 40
+per query:  Q1 39 | Q2 33 | Q3 12 | Q4 1 | Q5 41 | Q6 38
+written:    results/merged/merged_v1b.json, results/merged/candidates_v1b.csv (top 20; sorted by RRF, then BM25)
+cutoff:     works sharing the #20 score (RRF and BM25): 1
+
+rank  id        rrf   bm25 conf hits year  identifier                               title
+   1  M015   0.0328   0.00    0    2 2025  doi:10.1038/s41586-025-09640-5           A multimodal robotic platform for multi-element electrocat…
+   2  M001   0.0320   8.88    1    2 2026  doi:10.1038/s41598-026-54348-9           A temporal adaptive dictionary-constrained LDA and Bi-cali…
+   3  M007   0.0318   5.72    1    2 2026  doi:10.1177/01655515261461741            From connectivity to insight: A graph neural network–large…
+   4  M026   0.0318   5.64    1    2 2024  doi:10.1126/sciadv.adn5290               Generative AI enhances individual creativity but reduces t…
+   5  M031   0.0315   5.22    1    2 2023  doi:10.18559/ebr.2023.2.732              The rise of generative AI and possible effects on the econ…
+   6  M002   0.0311   4.68    1    2 2026  doi:10.32599/apjb.17.1.202603.1          Analysis of Generative AI Research Trends in Korean Busine…
+   7  M025   0.0311   4.50    1    2 2025  doi:10.1016/j.caeai.2025.100456          Unveiling the dynamics of generative AI adoption: A busine…
+   8  M013   0.0310   4.62    1    2 2026  doi:10.48550/arxiv.2606.10587            Towards Diverse Scientific Hypothesis Search with Large La…
+   9  M017   0.0310   1.31    0    2 2025  doi:10.1007/s11701-025-03108-4           Bibliometric analysis of robotic-assisted hepatobiliary an…
+  10  M011   0.0309   6.16    1    2 2026  doi:10.1111/ssm.70041                    Prompt‐a‐Scientist: Using Generative AI to Disrupt Stereot…
+  11  M038   0.0306   5.17    1    2 2018  doi:10.1186/s13643-018-0709-6            Evaluating characteristics of PROSPERO records as predicto…
+  12  M040   0.0303   9.55    1    2 1993  doi:10.1109/hicss.1993.270676            Drug design using inductive logic programming
+  13  M037   0.0302   4.25    1    2 2018  doi:10.1016/j.ecolmodel.2018.04.020      Bibliometric review of ecological network analysis: 2010–2…
+  14  M032   0.0301   4.28    1    2 2022  doi:10.1007/s11769-022-1265-5            Bibliometric Review of Biodiversity Offsetting During 1992…
+  15  M006   0.0299   5.11    1    2 2026  doi:10.56831/psen-08-274                 Does Generative AI Stifle Creativity? Convergence and Homo…
+  16  M035   0.0296   0.00    0    2 2020  doi:10.1007/978-981-15-1420-3_90         Feature Selection Algorithms in Medical Data Classificatio…
+  17  M021   0.0294   4.87    1    2 2025  doi:10.51574/ijrer.v5i1.4271             Make A Match Learning Model on Learning Outcomes in Elemen…
+  18  M003   0.0293   4.62    1    2 2026  doi:10.37630/bijee.v4i1.4446             Artificial Intelligence in English Language Teaching (2018…
+  19  M034   0.0292   3.69    1    2 2020  doi:10.1080/08911762.2020.1765444        A Systematic Literature Review and Bibliometric Analysis o…
+  20  M036   0.0290   4.85    1    2 2020  doi:10.1108/bij-04-2020-0137             Service supply chain: from bibliometric analysis to conten…
+```
+
+---
+
+## [2026-11-02 08:53 UTC] Step 44 — v1b 从其他版本补摘要（前 20 篇）
+
+**命令**
+
+```bash
+python3 scripts/enrich.py --top 20 --candidates results/merged/candidates_v1b.csv --out evidence/enrichment_v1b.json
+```
+
+**输出**（退出码 0）
+
+```
+  1 M015  needs=abstract,arxiv_id      versions=0 found=- 
+  2 M001  needs=arxiv_id               versions=0 found=- 
+  3 M007  needs=arxiv_id               versions=0 found=- 
+  4 M026  needs=-                      versions=0 found=- 
+  5 M031  needs=arxiv_id               versions=0 found=- 
+  6 M002  needs=arxiv_id               versions=0 found=- 
+  7 M025  needs=arxiv_id               versions=0 found=- 
+  8 M013  needs=-                      versions=0 found=- 
+  9 M017  needs=abstract,arxiv_id      versions=0 found=- 
+ 10 M011  needs=arxiv_id               versions=0 found=- 
+ 11 M038  needs=arxiv_id               versions=0 found=- 
+ 12 M040  needs=arxiv_id               versions=0 found=- 
+ 13 M037  needs=arxiv_id               versions=0 found=- 
+ 14 M032  needs=arxiv_id               versions=0 found=- 
+ 15 M006  needs=arxiv_id               versions=0 found=- 
+ 16 M035  needs=abstract,arxiv_id      versions=0 found=- 
+ 17 M021  needs=arxiv_id               versions=0 found=- 
+ 18 M003  needs=arxiv_id               versions=0 found=- 
+ 19 M034  needs=arxiv_id               versions=0 found=- 
+ 20 M036  needs=arxiv_id               versions=0 found=- 
+
+missing abstracts: 3 → added from another version: 0; arXiv IDs added: 0; DOIs suggested (verify before use): 0
+written: evidence/enrichment_v1b.json
+```
+
+---
+
+## [2026-11-02 08:54 UTC] Step 45 — v1b 引文追踪：一步（种子：v1 证据表中至少 2 个面为 overlap 的文献）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+pool: 1171 works linked to the seeds (66 linked to more than one seed)
+already in search results (results/merged/merged_v1b.json): 7
+written: results/raw/chase_C1_v1b.json, results/merged/chase_C1_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+onehop      1      2  0.326      M112  doi:10.1016/j.chbah.2025.100207          Homogenizing effect of large language models (LLMs) on creative divers
+onehop      2      2  0.279      M133  doi:10.1145/3715928.3737481              How AI Ideas Affect the Creativity, Diversity, and Evolution of Human 
+onehop      3      2  0.267         -  doi:10.1145/3706598.3713146              Timing Matters: How Using LLMs at Different Timings Influences Writers
+onehop      4      2  0.254         -  doi:10.1016/j.yjoc.2026.100142           Perceived human agency and AI-assisted idea generation
+onehop      5      2  0.247         -  doi:10.1145/3803784.3816857              The Role of Human Agency in Human-AI Co-Creativity
+onehop      6      2  0.239         -  doi:10.1073/pnas.2504966122              Echoes in AI: Quantifying lack of plot diversity in LLM outputs
+onehop      7      2  0.234         -  doi:10.1145/3772318.3791185              Partnering with Generative AI: Experimental Evaluation of Model-Led an
+onehop      8      2  0.229         -  doi:10.1016/j.chbah.2026.100289          Diverse AI personas can mitigate the homogenization effect in human-AI
+onehop      9      2  0.216         -  doi:10.1145/3706598.3714198              Human Creativity in the Age of LLMs: Randomized Experiments on Diverge
+onehop     10      2  0.211      M111  doi:10.1177/00491241251327130            Generative AI Meets Open-Ended Survey Responses: Research Participant 
+onehop     11      2  0.211         -  doi:10.1145/3708359.3712094              One Does Not Simply Meme Alone: Evaluating Co-Creativity Between LLMs 
+onehop     12      2  0.209         -  doi:10.1016/j.tsc.2025.101870            Large language models show both individual and collective creativity c
+onehop     13      2  0.207         -  doi:10.1016/j.tsc.2025.101958            Evaluating AI-assisted creative ideation: A crossover study in higher 
+onehop     14      2  0.194         -  doi:10.1145/3746175.3746189              Has AI Surpassed Humans in Creative Idea Generation? A Meta-Analysis
+onehop     15      2  0.185         -  doi:10.1038/s41562-025-02331-1           A large-scale comparison of divergent creativity in humans and large l
+onehop     16      2  0.172         -  doi:10.1057/s41599-025-05867-9           Inspiration booster or creative fixation? The dual mechanisms of LLMs 
+onehop     17      2  0.166         -  doi:10.1145/3698061.3726910              From Pen to Prompt: How Creative Writers Integrate AI into their Writi
+onehop     18      2  0.159         -  doi:10.1080/17501229.2026.2678315        When LLMs meet creativity: rethinking GFL writing through Human–LLM co
+onehop     19      2  0.158         -  doi:10.55737/tk/v5i1.51147               Students’ Creativity, Originality, and Use of Generative AI in Irish A
+onehop     20      2  0.152         -  doi:10.1145/3772318.3791329              Decoupling of Usefulness and Novelty: Evaluating the Impact of Generat
+```
+
+---
+
+## [2026-11-02 08:54 UTC] Step 46 — v1b 引文追踪：两步共被引（引用者按 v1 研究情境面的使用者一词 scientist* 过滤）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b --cocite --citer-filter 'scientist*'
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+citing works: 1083 cite the seeds; 13 pass the filter 'scientists'; 1 letters/replies excluded; 12 citers used
+co-cited: 558 works cited by the citers; 15 cited by at least 2
+already in search results (results/merged/merged_v1b.json): 0
+written: results/raw/chase_C2_v1b.json, results/merged/chase_C2_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+cocited     1      5  0.040         -  doi:10.1038/s41586-025-09922-y           Artificial intelligence tools expand scientists’ impact but contract s
+cocited     2      3  0.112         -  doi:10.1038/s43588-025-00906-6           SciSciGPT: advancing human–AI collaboration in the science of science
+cocited     3      3  0.030         -  doi:10.1038/s41562-024-02020-5           Quantifying the use and potential benefits of artificial intelligence 
+cocited     4      3  0.085         -  doi:10.3390/soc15010006                  AI Tools in Society: Impacts on Cognitive Offloading and the Future of
+cocited     5      3  0.093         -  doi:10.1126/science.adh2586              Experimental evidence on the productivity effects of generative artifi
+cocited     6      2  0.177         -  doi:10.1145/3614419.3644000              The Role of Interface Design on Prompt-mediated Creativity in Generati
+cocited     7      2  0.263         -  doi:10.48550/arxiv.2409.04109            Can LLMs Generate Novel Research Ideas? A Large-Scale Human Study with
+cocited     8      2  0.354         -  doi:10.2139/ssrn.4526071                 AI and Its Impact on Creativity and Diversity: An Empirical Study of L
+cocited     9      2  0.213         -  doi:10.1038/s41598-023-40858-3           Best humans still outperform artificial intelligence in a creative div
+cocited    10      2  0.158         -  doi:10.1073/pnas.2314021121              Can Generative AI improve social science?
+cocited    11      2  0.056         -  doi:10.1287/orsc.2021.1549               To Engage or Not to Engage with AI for Critical Judgments: How Profess
+cocited    12      2  0.018         -  doi:10.1038/s41586-024-07146-0           Artificial intelligence and illusions of understanding in scientific r
+cocited    13      2  0.028         -  doi:10.2139/ssrn.4573321                 Navigating the Jagged Technological Frontier: Field Experimental Evide
+cocited    14      2  0.127         -  doi:10.1017/cbo9780511807916.003         The Concept of Creativity: Prospects and Paradigms
+cocited    15      2  0.078         -  doi:10.1145/3442188.3445922              On the Dangers of Stochastic Parrots
+citer       1         0.202         -  doi:10.1111/caim.70013                   Switching Perspectives: Enhancing Generative Artificial Intelligence's
+citer       2         0.180         -  doi:10.2139/ssrn.5013086                 How Experience Moderates the Impact of Generative AI Ideas on the Rese
+citer       3         0.122         -  doi:10.1007/s11186-026-09753-4           The rebirth of the author: writing critical social theory in the time 
+citer       4         0.117         -  doi:10.1080/10401334.2026.2737803        From Solitude to AI Companionship—Three Phases of a Writing Life and W
+citer       5         0.115         -  doi:10.1017/s0267190525000042            Digital accents, homogeneity-by-design, and the evolving social scienc
+citer       6         0.091         -  doi:10.1145/3746175.3746199              Bridging the conceptual gap between workers and data-scientists' needs
+citer       7         0.081         -  doi:10.1080/21620555.2026.2707167        Vibe researching: can AI agents with skills replace or augment social 
+citer       8         0.026         -  doi:10.1038/d41586-026-00665-y           AI agents are ‘aeroplanes for the mind’: five ways to ensure that scie
+citer       9         0.023         -  doi:10.2139/ssrn.5169619                 A Quest for AI Knowledge
+citer      10         0.022         -  doi:10.1007/978-3-032-32152-7_4          AI and Wicked Problems
+citer      11         0.020         -  doi:10.1007/s13347-026-01214-1           The Artificial View from Somewhere: Or How AI Could Undermine Scientif
+citer      12         0.015         -  doi:10.1002/qub2.70032                   Conversing with machines: How AI is changing the way scientists think
+```
+
+---
+
+## [2026-11-02 08:54 UTC] Step 47 — v1b 共被引的敏感性检查：引用者改按数据与方法面过滤
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b --cocite --citer-filter '("science of science" OR bibliometric*)' --label C3
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+citing works: 1083 cite the seeds; 10 pass the filter '("science of science" OR bibliometrics)'; 0 letters/replies excluded; 10 citers used
+co-cited: 596 works cited by the citers; 10 cited by at least 2
+already in search results (results/merged/merged_v1b.json): 0
+written: results/raw/chase_C3_v1b.json, results/merged/chase_C3_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+cocited     1      4  0.020         -  doi:10.1016/j.jbusres.2021.04.070        How to conduct a bibliometric analysis: An overview and guidelines
+cocited     2      4  0.030         -  doi:10.1007/s11192-009-0146-3            Software survey: VOSviewer, a computer program for bibliometric mappin
+cocited     3      3  0.020         -  doi:10.1016/j.joi.2017.08.007            bibliometrix : An R-tool for comprehensive science mapping analysis
+cocited     4      3  0.021         -  doi:10.1136/bmj.n71                      The PRISMA 2020 statement: an updated guideline for reporting systemat
+cocited     5      2  0.140         -  doi:10.1080/10400419.2025.2587803        Agency in Human-AI Collaboration for Image Generation and Creative Wri
+cocited     6      2  0.038         -  doi:10.1038/s41562-024-02020-5           Quantifying the use and potential benefits of artificial intelligence 
+cocited     7      2  0.091         -  doi:10.1080/10400419.2022.2107850        Redefining Creativity in the Era of AI? Perspectives of Computer Scien
+cocited     8      2  0.078         -  doi:10.1016/j.respol.2022.104604         Artificial intelligence in science: An emerging general method of inve
+cocited     9      2  0.200         -  doi:10.1093/pnasnexus/pgae052            Generative artificial intelligence, human creativity, and art
+cocited    10      2  0.110         -  doi:10.3390/arts8010026                  Art, Creativity, and the Potential of Artificial Intelligence
+citer       1         0.107         -  doi:10.1002/pchj.70042                   Artificial Intelligence Reshapes Creativity: A Multidimensional Evalua
+citer       2         0.105         -  doi:10.1108/ijem-10-2024-0653            Generative artificial intelligence for management education: applicati
+citer       3         0.103         -  doi:10.1016/j.infsof.2026.108277         How reliance on GenAI might limit human creativity and critical thinki
+citer       4         0.093         -  doi:10.66815/ejecs/3311                  Artificial Intelligence-Supported Cultural Art Practices: A Bibliometr
+citer       5         0.089         -  doi:10.1007/s44163-025-00760-5           GenAI: a scientometric analysis of research trends using biblioshiny a
+citer       6         0.078         -  doi:10.3390/info17090893                 Ownership-Preserving Autonomy in Creative Human–Robot Interaction: A S
+citer       7         0.073         -  doi:10.1177/20552076261499911            AI’s impact on medical research: A bibliometric study of citation impa
+citer       8         0.064         -  doi:10.1016/j.ssaho.2026.103470          Creativity skills in entrepreneurship education: A bibliometric analys
+citer       9         0.053         -  doi:10.1007/s11366-026-09932-1           Innovation and Diffusion: The Effects of AI Integration on Knowledge D
+citer      10         0.028         -  doi:10.1080/14480220.2026.2630822        Digital skills integration and EV technician training: mapping core co
+```
+
+---
+
+## [2026-11-02 08:54 UTC] Step 48 — v2b 重跑检索（修正后的流程；v2b 检索式）
+
+**命令**
+
+```bash
+python3 scripts/search.py --queries queries/queries_v2b.json --suffix _v2b
+```
+
+**输出**（退出码 0）
+
+```
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   openalex               785    25     0  results/raw/openalex_Q1_v2b.json
+Q1    component   semanticscholar        392    25     1  results/raw/semanticscholar_Q1_v2b.json
+Q2    component   openalex              2756    25     5  results/raw/openalex_Q2_v2b.json
+Q2    component   semanticscholar       2160    25     7  results/raw/semanticscholar_Q2_v2b.json
+Q3    application openalex               247    25     0  results/raw/openalex_Q3_v2b.json
+Q3    application semanticscholar        111    25     0  results/raw/semanticscholar_Q3_v2b.json
+Q4    application openalex                 3     3     0  results/raw/openalex_Q4_v2b.json
+Q4    application semanticscholar          0     0     0  results/raw/semanticscholar_Q4_v2b.json
+Q5    method      openalex                50    25     0  results/raw/openalex_Q5_v2b.json
+Q5    method      semanticscholar         45    25     1  results/raw/semanticscholar_Q5_v2b.json
+Q6    concurrent  openalex                39    25     1  results/raw/openalex_Q6_v2b.json  [year>=2023]
+Q6    concurrent  semanticscholar          6     6     0  results/raw/semanticscholar_Q6_v2b.json  [year>=2023]
+
+12/12 requests succeeded. total_hits = API-reported matches; saved = records kept (top 25: OpenAlex by API relevance, S2 re-ranked locally by relevance); no_id = records with neither DOI nor arXiv ID (to be marked UNVERIFIED).
+```
+
+---
+
+## [2026-11-02 08:55 UTC] Step 49 — v2b 检索质量检查
+
+**命令**
+
+```bash
+python3 scripts/qa.py --suffix _v2b
+```
+
+**输出**（退出码 0）
+
+```
+file                                  n abstract  conform (all)  conform (with abstract)
+openalex_Q1_v2b.json                 25       20   25/25 (100%)             20/20 (100%)
+openalex_Q2_v2b.json                 25       20    22/25 (88%)             20/20 (100%)
+openalex_Q3_v2b.json                 25       20    20/25 (80%)             20/20 (100%)
+openalex_Q4_v2b.json                  3        3     3/3 (100%)               3/3 (100%)
+openalex_Q5_v2b.json                 25       21    21/25 (84%)             21/21 (100%)
+openalex_Q6_v2b.json                 25       19    18/25 (72%)              18/19 (95%)
+semanticscholar_Q1_v2b.json          25       23   25/25 (100%)             23/23 (100%)
+semanticscholar_Q2_v2b.json          25        6    10/25 (40%)               6/6 (100%)
+semanticscholar_Q3_v2b.json          25       25   25/25 (100%)             25/25 (100%)
+semanticscholar_Q4_v2b.json           0        0            0/0                      0/0
+semanticscholar_Q5_v2b.json          25       23    24/25 (96%)             23/23 (100%)
+semanticscholar_Q6_v2b.json           6        6     6/6 (100%)               6/6 (100%)
+
+total: 199/234 records conform; among records with an abstract: 185/186  (Porter approximation of the APIs' KStem-like matching)
+```
+
+---
+
+## [2026-11-02 08:55 UTC] Step 50 — v2b 合并去重与排序（默认方法）
+
+**命令**
+
+```bash
+python3 scripts/merge.py --suffix _v2b
+```
+
+**输出**（退出码 0）
+
+```
+inputs:     12 files, 234 raw records
+merged:     190 works (duplicates removed: 44; groups linked as versions by title: 7; pairs flagged for review: 3 in 3 cluster(s))
+  version link  M083: openalex_Q1_v2b#3 + openalex_Q1_v2b#9
+  version link  M109: openalex_Q1_v2b#8 + openalex_Q1_v2b#14
+  version link  M107: openalex_Q1_v2b#10 + openalex_Q1_v2b#18
+  version link  M030: openalex_Q2_v2b#2 + semanticscholar_Q2_v2b#6
+  version link  M006: openalex_Q3_v2b#1 + openalex_Q3_v2b#3
+  version link  M002: openalex_Q3_v2b#11 + openalex_Q3_v2b#12
+  version link  M010: openalex_Q5_v2b#13 + openalex_Q5_v2b#14
+  review        M017, M101: same title, but two different non-preprint DOIs
+  review        M032, M065: same title, but one record has a data-repository DOI
+  review        M166, M167: near-identical titles (ratio 0.88, word Jaccard 0.68)
+id_status:  DOI 154 | arXiv 22 | UNVERIFIED 14
+sources:    openalex only 85 | semanticscholar only 75 | both 30
+per query:  Q1 39 | Q2 46 | Q3 39 | Q4 3 | Q5 41 | Q6 24
+written:    results/merged/merged_v2b.json, results/merged/candidates_v2b.csv (top 20; sorted by RRF, then BM25)
+cutoff:     works sharing the #20 score (RRF and BM25): 1
+
+rank  id        rrf   bm25 conf hits year  identifier                               title
+   1  M001   0.0462  13.69    2    3 2024  doi:10.48550/arxiv.2409.15626            Qualitative Insights Tool (QualIT): LLM Enhanced Topic Mod…
+   2  M031   0.0328   5.44    1    2 1998  doi:10.1057/palgrave.jibs.8490055        Cognitive Tendencies in International Business Research: I…
+   3  M006   0.0325   9.71    1    2 2026  doi:10.1038/s41586-025-09922-y           Artificial intelligence tools expand scientists’ impact bu…
+   4  M025   0.0320   6.32    1    2 2024  doi:10.22318/icls2024.259570             Learning About and Against Generative AI Through Mapping G…
+   5  M024   0.0318   9.00    1    2 2024  doi:10.1126/sciadv.adn5290               Generative AI enhances individual creativity but reduces t…
+   6  M030   0.0313   7.19    1    2 2004  UNVERIFIED                               WHAT ECONOMISTS DO: TRENDS IN ECONOMIC RESEARCH
+   7  M029   0.0313   5.17    1    2 2008  doi:10.5465/amj.2008.34789630            From the Editors Beyond Contextualization: Using Context T…
+   8  M004   0.0311   7.09    1    2 2026  doi:10.32599/apjb.17.1.202603.1          Analysis of Generative AI Research Trends in Korean Busine…
+   9  M022   0.0311   7.77    1    2 2025  doi:10.1016/j.caeai.2025.100456          Unveiling the dynamics of generative AI adoption: A busine…
+  10  M026   0.0310   9.55    1    2 2022  doi:10.1088/2632-2153/ac61eb             ARTS: autonomous research topic selection system using wor…
+  11  M002   0.0302   7.06    3    2 2024  doi:10.1017/9781009483094.004            Artificial Intelligence and the Economics of Decision-Maki…
+  12  M013   0.0302   5.34    2    2 2026  doi:10.1111/joes.70175                   Regulating the Artificial Intelligence Economy: A Systemat…
+  13  M023   0.0302   4.52    2    2 2024  doi:10.6018/turismo.616471               CYBERSECURITY IN TOURISM AND HOSPITALITY MANAGEMENT RESEAR…
+  14  M007   0.0301   4.30    2    2 2026  doi:10.63313/ebm.9154                    Artificial Intelligence-Embedded Restructuring of Enterpri…
+  15  M008   0.0299   9.93    1    2 2026  doi:10.56831/psen-08-274                 Does Generative AI Stifle Creativity? Convergence and Homo…
+  16  M005   0.0293  11.27    1    2 2026  doi:10.37630/bijee.v4i1.4446             Artificial Intelligence in English Language Teaching (2018…
+  17  M020   0.0292   4.17    1    2 2025  doi:10.48550/arxiv.2504.12317            Large language models reshape the language of science
+  18  M028   0.0292   4.70    0    2 2010  doi:10.1016/j.jbusres.2010.11.005        Where does business research go from here? Food-for-though…
+  19  M003   0.0289  15.18    1    2 2026  doi:10.71097/ijsat.v17.i1.10159          AI Tools in Scientific Research: Boosting Individuals at t…
+  20  M015   0.0288   4.50    2    2 2026  doi:10.3390/computers15100689            Toward AI-Enabled Process Model Selection for IT Projects:…
+```
+
+---
+
+## [2026-11-02 08:55 UTC] Step 51 — v2b 从其他版本补摘要（前 20 篇）
+
+**命令**
+
+```bash
+python3 scripts/enrich.py --top 20 --candidates results/merged/candidates_v2b.csv --out evidence/enrichment_v2b.json
+```
+
+**输出**（退出码 0）
+
+```
+  1 M001  needs=-                      versions=0 found=- 
+  2 M031  needs=abstract,arxiv_id      versions=0 found=- 
+  3 M006  needs=-                      versions=0 found=- 
+  4 M025  needs=arxiv_id               versions=0 found=- 
+  5 M024  needs=-                      versions=0 found=- 
+  6 M030  needs=arxiv_id,doi           versions=1 found=- 
+  7 M029  needs=abstract,arxiv_id      versions=0 found=- 
+  8 M004  needs=arxiv_id               versions=0 found=- 
+  9 M022  needs=arxiv_id               versions=0 found=- 
+ 10 M026  needs=arxiv_id               versions=0 found=- 
+ 11 M002  needs=arxiv_id               versions=1 found=- 
+ 12 M013  needs=arxiv_id               versions=0 found=- 
+ 13 M023  needs=arxiv_id               versions=0 found=- 
+ 14 M007  needs=arxiv_id               versions=0 found=- 
+ 15 M008  needs=arxiv_id               versions=0 found=- 
+ 16 M005  needs=arxiv_id               versions=0 found=- 
+ 17 M020  needs=-                      versions=0 found=- 
+ 18 M028  needs=abstract,arxiv_id      versions=0 found=- 
+ 19 M003  needs=arxiv_id               versions=0 found=- 
+ 20 M015  needs=arxiv_id               versions=0 found=- 
+
+missing abstracts: 3 → added from another version: 0; arXiv IDs added: 0; DOIs suggested (verify before use): 0
+written: evidence/enrichment_v2b.json
+```
+
+---
+
+## [2026-11-02 08:55 UTC] Step 52 — v2b 引文追踪：一步（种子：v2 证据表中至少 2 个面为 overlap 的文献）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table_v2.md --queries queries/queries_v2b.json --suffix _v2b
+```
+
+**输出**（退出码 0）
+
+```
+seeds (4):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 3: W7124140759 | refs 57 | cited by [117] | Artificial intelligence tools expand scientists’ impact but contract science’s focus
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+  rank 8: W7135026029, W4417098922 | refs 54 | cited by [42, 1] | The homogenizing effect of large language models on human expression and thought
+
+pool: 1407 works linked to the seeds (92 linked to more than one seed)
+already in search results (results/merged/merged_v2b.json): 6
+written: results/raw/chase_C1_v2b.json, results/merged/chase_C1_v2b.csv
+
+path     rank  score    sim in_search  identifier                               title
+onehop      1      3  0.262         -  doi:10.1016/j.yjoc.2026.100142           Perceived human agency and AI-assisted idea generation
+onehop      2      3  0.226         -  doi:10.1016/j.cobeha.2026.101695         From individual gains to collective risks in human–AI co-creativity
+onehop      3      3  0.226      M107  doi:10.1177/00491241251327130            Generative AI Meets Open-Ended Survey Responses: Research Participant 
+onehop      4      3  0.152         -  doi:10.1007/s43681-026-01215-y           The meek shall inherit the Earth: personality, empathy, and the human 
+onehop      5      3  0.102         -  doi:10.1007/s43681-026-01320-y           The politics of creative attribution: generative artificial intelligen
+onehop      6      3  0.077         -  doi:10.1016/j.caeai.2026.100684          Agentivism: a learning theory for the age of artificial intelligence
+onehop      7      3  0.023         -  doi:10.1007/s13347-026-01214-1           The Artificial View from Somewhere: Or How AI Could Undermine Scientif
+onehop      8      2  0.446         -  doi:10.1016/j.eururo.2026.04.004         Re: Artificial Intelligence Tools Expand Scientists’ Impact but Contra
+onehop      9      2  0.324      M109  doi:10.1016/j.chbah.2025.100207          Homogenizing effect of large language models (LLMs) on creative divers
+onehop     10      2  0.261         -  doi:10.1145/3803784.3816857              The Role of Human Agency in Human-AI Co-Creativity
+onehop     11      2  0.259      M134  doi:10.1145/3715928.3737481              How AI Ideas Affect the Creativity, Diversity, and Evolution of Human 
+onehop     12      2  0.253         -  doi:10.1145/3706598.3714198              Human Creativity in the Age of LLMs: Randomized Experiments on Diverge
+onehop     13      2  0.239         -  doi:10.1016/j.chbah.2026.100289          Diverse AI personas can mitigate the homogenization effect in human-AI
+onehop     14      2  0.233         -  doi:10.1145/3772318.3791185              Partnering with Generative AI: Experimental Evaluation of Model-Led an
+onehop     15      2  0.220         -  doi:10.1145/3706598.3713146              Timing Matters: How Using LLMs at Different Timings Influences Writers
+onehop     16      2  0.210         -  doi:10.1016/j.tsc.2025.101870            Large language models show both individual and collective creativity c
+onehop     17      2  0.209         -  doi:10.1016/j.tsc.2025.101958            Evaluating AI-assisted creative ideation: A crossover study in higher 
+onehop     18      2  0.208         -  doi:10.1073/pnas.2504966122              Echoes in AI: Quantifying lack of plot diversity in LLM outputs
+onehop     19      2  0.193         -  doi:10.1016/j.respol.2026.105575         How experience moderates the impact of AI suggestions on researchers' 
+onehop     20      2  0.185         -  doi:10.1145/3708359.3712094              One Does Not Simply Meme Alone: Evaluating Co-Creativity Between LLMs
+```
+
+---
+
+## [2026-11-02 08:56 UTC] Step 53 — v2b 引文追踪：两步共被引（引用者按 v2 研究情境组过滤：经济学与管理学研究者）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table_v2.md --queries queries/queries_v2b.json --suffix _v2b --cocite --citer-filter '(economist* OR "economic research" OR "management research" OR "business research")'
+```
+
+**输出**（退出码 0）
+
+```
+seeds (4):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 3: W7124140759 | refs 57 | cited by [117] | Artificial intelligence tools expand scientists’ impact but contract science’s focus
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+  rank 8: W7135026029, W4417098922 | refs 54 | cited by [42, 1] | The homogenizing effect of large language models on human expression and thought
+
+citing works: 1213 cite the seeds; 3 pass the filter '(economists OR "economic research" OR "management research" OR "business research")'; 0 letters/replies excluded; 3 citers used
+co-cited: 118 works cited by the citers; 24 cited by at least 2
+already in search results (results/merged/merged_v2b.json): 0
+written: results/raw/chase_C2_v2b.json, results/merged/chase_C2_v2b.csv
+
+path     rank  score    sim in_search  identifier                               title
+cocited     1      3  0.110         -  doi:10.1093/qje/qjad055                  Machine Learning as a Tool for Hypothesis Generation
+cocited     2      2  0.107         -  doi:10.1177/09637214261419427            The Integration of Explanation and Prediction in Behavioral Science
+cocited     3      2  0.144         -  doi:10.1287/orsc.2025.20459              CROSSROADS—Organization Research as an Applied Science: Lessons from F
+cocited     4      2  0.068         -  doi:10.1177/01708406251326693            Producing Images and Making Judgement: The ongoing use of epistemic te
+cocited     5      2  0.146         -  doi:10.1177/26317877241275113            Beyond the Turing Test: Exploring the implications of generative AI fo
+cocited     6      2  0.102         -  doi:10.1145/3722138                      Does AI Prediction Scale to Decision Making?
+cocited     7      2  0.138         -  doi:10.1177/10944281251339144            Enhancing Theorization Using Artificial Intelligence: Leveraging Large
+cocited     8      2  0.129         -  doi:10.1177/87569728241266938            AI for Management and Organization Research: Examples and Reflections 
+cocited     9      2  0.162         -  doi:10.18653/v1/2024.nlp4science-1.10    Hypothesis Generation with Large Language Models
+cocited    10      2  0.000         -  doi:10.1038/d41586-026-00969-z           Hallucinated citations are polluting the scientific literature. What c
+cocited    11      2  0.159         -  doi:10.1177/26317877241239056            Large Language Models and the Future of Organization Theory
+cocited    12      2  0.125         -  doi:10.1287/orsc.2026.ed.v37.n3          More Versus Better: Artificial Intelligence, Incentives, and the Emerg
+cocited    13      2  0.152         -  doi:10.1177/10944281251377154            Generative Artificial Intelligence in Qualitative Data Analysis: Analy
+cocited    14      2  0.061         -  doi:10.1177/00018392241304403            Resisting the Algorithmic Management of Science: Craft and Community A
+cocited    15      2  0.054         -  doi:10.1177/00076503231163286            Efficient, Explicatory, and Equitable: Why Qualitative Researchers Sho
+cocited    16      2  0.190         -  doi:10.1287/stsc.2024.0189               Theory Is All You Need: AI, Human Cognition, and Causal Reasoning
+cocited    17      2  0.139         -  doi:10.1177/00222429241276529            AI–Human Hybrids for Marketing Research: Leveraging Large Language Mod
+cocited    18      2  0.064         -  doi:10.1177/26317877211020328            What Theory Is and Can Be: Forms of Theorizing in Organizational Schol
+cocited    19      2  0.078         -  doi:10.1111/jpim.12698                   Artificial intelligence in innovation management: A review of innovati
+cocited    20      2  0.065         -  doi:10.1038/s41586-024-08252-9           Probabilistic weather forecasting with machine learning
+citer       1         0.132         -  doi:10.1111/emre.70114                   How will AI affect theorizing in management research?
+citer       2         0.033         -  doi:10.2139/ssrn.6594299                 Improving Abductive Reasoning
+citer       3         0.023         -  doi:10.2139/ssrn.7613938                 How Will AI Affect Theorizing in Management Research?
+```
+
+---
+
+## [2026-11-02 08:57 UTC] Step 54 — 修正：引文追踪中同一研究的不同版本只算一次
+
+**发现**（Step 53）：v2b 的共被引只有 3 篇引用者通过过滤，其中 2 篇是同一研究的两个版本（"How will AI affect theorizing in management research?" 的期刊版 doi:10.1111/emre.70114 与 SSRN 版 doi:10.2139/ssrn.7613938），所以大多数"被 2 篇共同引用"其实是同一篇论文算了两次。调研中也提到被引文献的预印本与正式版会把支持数分开（Hao 等 19 对 2）。
+
+**做了什么**（`scripts/snowball.py`）
+
+- 引用者：题目规范化后相同（≥5 词，且不是来信、更正之类）的视为同一研究，参考文献取并集，只算一篇。
+- 被引文献：同样按题目合并版本，支持数取引用者组的并集；代表记录优先取正式发表版本，其余版本记在 `chase.versions`。
+- 一步模式：同一研究的几个版本合成一行，与种子的关系取并集。
+- 测试补充版本合并的情形；`python3 -W error::ResourceWarning -m unittest discover -s tests` → Ran 45 tests … OK。
+
+Step 45–47、52–53 的引文追踪结果作废，下面重跑（检索与合并结果不受影响）。
+
+**产出文件**：`scripts/snowball.py`、`tests/test_pipeline.py`（修改）
+
+---
+
+## [2026-11-02 08:57 UTC] Step 55 — v1b 引文追踪：一步（重跑）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+pool: 1160 works linked to the seeds (66 linked to more than one seed)
+already in search results (results/merged/merged_v1b.json): 7
+written: results/raw/chase_C1_v1b.json, results/merged/chase_C1_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+onehop      1      2  0.326      M112  doi:10.1016/j.chbah.2025.100207          Homogenizing effect of large language models (LLMs) on creative divers
+onehop      2      2  0.279      M133  doi:10.1145/3715928.3737481              How AI Ideas Affect the Creativity, Diversity, and Evolution of Human 
+onehop      3      2  0.267         -  doi:10.1145/3706598.3713146              Timing Matters: How Using LLMs at Different Timings Influences Writers
+onehop      4      2  0.254         -  doi:10.1016/j.yjoc.2026.100142           Perceived human agency and AI-assisted idea generation
+onehop      5      2  0.247         -  doi:10.1145/3803784.3816857              The Role of Human Agency in Human-AI Co-Creativity
+onehop      6      2  0.239         -  doi:10.1073/pnas.2504966122              Echoes in AI: Quantifying lack of plot diversity in LLM outputs
+onehop      7      2  0.234         -  doi:10.1145/3772318.3791185              Partnering with Generative AI: Experimental Evaluation of Model-Led an
+onehop      8      2  0.229         -  doi:10.1016/j.chbah.2026.100289          Diverse AI personas can mitigate the homogenization effect in human-AI
+onehop      9      2  0.216         -  doi:10.1145/3706598.3714198              Human Creativity in the Age of LLMs: Randomized Experiments on Diverge
+onehop     10      2  0.211      M111  doi:10.1177/00491241251327130            Generative AI Meets Open-Ended Survey Responses: Research Participant 
+onehop     11      2  0.211         -  doi:10.1145/3708359.3712094              One Does Not Simply Meme Alone: Evaluating Co-Creativity Between LLMs 
+onehop     12      2  0.209         -  doi:10.1016/j.tsc.2025.101870            Large language models show both individual and collective creativity c
+onehop     13      2  0.207         -  doi:10.1016/j.tsc.2025.101958            Evaluating AI-assisted creative ideation: A crossover study in higher 
+onehop     14      2  0.194         -  doi:10.1145/3746175.3746189              Has AI Surpassed Humans in Creative Idea Generation? A Meta-Analysis
+onehop     15      2  0.185         -  doi:10.1038/s41562-025-02331-1           A large-scale comparison of divergent creativity in humans and large l
+onehop     16      2  0.172         -  doi:10.1057/s41599-025-05867-9           Inspiration booster or creative fixation? The dual mechanisms of LLMs 
+onehop     17      2  0.166         -  doi:10.1145/3698061.3726910              From Pen to Prompt: How Creative Writers Integrate AI into their Writi
+onehop     18      2  0.160         -  doi:10.1080/17501229.2026.2678315        When LLMs meet creativity: rethinking GFL writing through Human–LLM co
+onehop     19      2  0.158         -  doi:10.55737/tk/v5i1.51147               Students’ Creativity, Originality, and Use of Generative AI in Irish A
+onehop     20      2  0.152         -  doi:10.1145/3772318.3791329              Decoupling of Usefulness and Novelty: Evaluating the Impact of Generat
+```
+
+---
+
+## [2026-11-02 08:58 UTC] Step 56 — v1b 引文追踪：两步共被引，引用者按 scientist* 过滤（重跑）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b --cocite --citer-filter 'scientist*'
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+citing works: 1083 cite the seeds; 13 pass the filter 'scientists'; 1 letters/replies excluded; 12 citers used (versions of one work counted once: 0 merged)
+co-cited: 558 works cited by the citers; 16 cited by at least 2
+already in search results (results/merged/merged_v1b.json): 0
+written: results/raw/chase_C2_v1b.json, results/merged/chase_C2_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+cocited     1      5  0.040         -  doi:10.1038/s41586-025-09922-y           Artificial intelligence tools expand scientists’ impact but contract s
+cocited     2      3  0.112         -  doi:10.1038/s43588-025-00906-6           SciSciGPT: advancing human–AI collaboration in the science of science
+cocited     3      3  0.030         -  doi:10.1038/s41562-024-02020-5           Quantifying the use and potential benefits of artificial intelligence 
+cocited     4      3  0.131         -  doi:10.1287/orsc.2025.21838              Navigating the Jagged Technological Frontier: Field Experimental Evide
+cocited     5      3  0.084         -  doi:10.3390/soc15010006                  AI Tools in Society: Impacts on Cognitive Offloading and the Future of
+cocited     6      3  0.094         -  doi:10.1126/science.adh2586              Experimental evidence on the productivity effects of generative artifi
+cocited     7      2  0.176         -  doi:10.1145/3614419.3644000              The Role of Interface Design on Prompt-mediated Creativity in Generati
+cocited     8      2  0.266         -  doi:10.48550/arxiv.2409.04109            Can LLMs Generate Novel Research Ideas? A Large-Scale Human Study with
+cocited     9      2  0.354         -  doi:10.2139/ssrn.4526071                 AI and Its Impact on Creativity and Diversity: An Empirical Study of L
+cocited    10      2  0.209         -  doi:10.1038/s41598-023-40858-3           Best humans still outperform artificial intelligence in a creative div
+cocited    11      2  0.158         -  doi:10.1073/pnas.2314021121              Can Generative AI improve social science?
+cocited    12      2  0.056         -  doi:10.1287/orsc.2021.1549               To Engage or Not to Engage with AI for Critical Judgments: How Profess
+cocited    13      2  0.018         -  doi:10.1038/s41586-024-07146-0           Artificial intelligence and illusions of understanding in scientific r
+cocited    14      2  0.123         -  doi:10.1017/cbo9780511807916.003         The Concept of Creativity: Prospects and Paradigms
+cocited    15      2  0.078         -  doi:10.1145/3442188.3445922              On the Dangers of Stochastic Parrots
+cocited    16      2  0.000         -  doi:10.1111/j.1468-0149.1963.tb00813.x   THE STRUCTURE OF SCIENTIFIC REVOLUTIONS
+citer       1         0.200         -  doi:10.1111/caim.70013                   Switching Perspectives: Enhancing Generative Artificial Intelligence's
+citer       2         0.182         -  doi:10.2139/ssrn.5013086                 How Experience Moderates the Impact of Generative AI Ideas on the Rese
+citer       3         0.121         -  doi:10.1007/s11186-026-09753-4           The rebirth of the author: writing critical social theory in the time 
+citer       4         0.116         -  doi:10.1017/s0267190525000042            Digital accents, homogeneity-by-design, and the evolving social scienc
+citer       5         0.113         -  doi:10.1080/10401334.2026.2737803        From Solitude to AI Companionship—Three Phases of a Writing Life and W
+citer       6         0.090         -  doi:10.1145/3746175.3746199              Bridging the conceptual gap between workers and data-scientists' needs
+citer       7         0.081         -  doi:10.1080/21620555.2026.2707167        Vibe researching: can AI agents with skills replace or augment social 
+citer       8         0.025         -  doi:10.1038/d41586-026-00665-y           AI agents are ‘aeroplanes for the mind’: five ways to ensure that scie
+citer       9         0.023         -  doi:10.2139/ssrn.5169619                 A Quest for AI Knowledge
+citer      10         0.022         -  doi:10.1007/978-3-032-32152-7_4          AI and Wicked Problems
+citer      11         0.020         -  doi:10.1007/s13347-026-01214-1           The Artificial View from Somewhere: Or How AI Could Undermine Scientif
+citer      12         0.014         -  doi:10.1002/qub2.70032                   Conversing with machines: How AI is changing the way scientists think
+```
+
+---
+
+## [2026-11-02 08:58 UTC] Step 57 — v1b 共被引的敏感性检查：引用者改按数据与方法面过滤（重跑）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b --cocite --citer-filter '("science of science" OR bibliometric*)' --label C3
+```
+
+**输出**（退出码 0）
+
+```
+seeds (2):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+
+citing works: 1083 cite the seeds; 10 pass the filter '("science of science" OR bibliometrics)'; 0 letters/replies excluded; 10 citers used (versions of one work counted once: 0 merged)
+co-cited: 596 works cited by the citers; 10 cited by at least 2
+already in search results (results/merged/merged_v1b.json): 0
+written: results/raw/chase_C3_v1b.json, results/merged/chase_C3_v1b.csv
+
+path     rank  score    sim in_search  identifier                               title
+cocited     1      4  0.020         -  doi:10.1016/j.jbusres.2021.04.070        How to conduct a bibliometric analysis: An overview and guidelines
+cocited     2      4  0.030         -  doi:10.1007/s11192-009-0146-3            Software survey: VOSviewer, a computer program for bibliometric mappin
+cocited     3      3  0.020         -  doi:10.1016/j.joi.2017.08.007            bibliometrix : An R-tool for comprehensive science mapping analysis
+cocited     4      3  0.021         -  doi:10.1136/bmj.n71                      The PRISMA 2020 statement: an updated guideline for reporting systemat
+cocited     5      2  0.140         -  doi:10.1080/10400419.2025.2587803        Agency in Human-AI Collaboration for Image Generation and Creative Wri
+cocited     6      2  0.038         -  doi:10.1038/s41562-024-02020-5           Quantifying the use and potential benefits of artificial intelligence 
+cocited     7      2  0.091         -  doi:10.1080/10400419.2022.2107850        Redefining Creativity in the Era of AI? Perspectives of Computer Scien
+cocited     8      2  0.078         -  doi:10.1016/j.respol.2022.104604         Artificial intelligence in science: An emerging general method of inve
+cocited     9      2  0.200         -  doi:10.1093/pnasnexus/pgae052            Generative artificial intelligence, human creativity, and art
+cocited    10      2  0.110         -  doi:10.3390/arts8010026                  Art, Creativity, and the Potential of Artificial Intelligence
+citer       1         0.107         -  doi:10.1002/pchj.70042                   Artificial Intelligence Reshapes Creativity: A Multidimensional Evalua
+citer       2         0.105         -  doi:10.1108/ijem-10-2024-0653            Generative artificial intelligence for management education: applicati
+citer       3         0.103         -  doi:10.1016/j.infsof.2026.108277         How reliance on GenAI might limit human creativity and critical thinki
+citer       4         0.093         -  doi:10.66815/ejecs/3311                  Artificial Intelligence-Supported Cultural Art Practices: A Bibliometr
+citer       5         0.089         -  doi:10.1007/s44163-025-00760-5           GenAI: a scientometric analysis of research trends using biblioshiny a
+citer       6         0.078         -  doi:10.3390/info17090893                 Ownership-Preserving Autonomy in Creative Human–Robot Interaction: A S
+citer       7         0.073         -  doi:10.1177/20552076261499911            AI’s impact on medical research: A bibliometric study of citation impa
+citer       8         0.064         -  doi:10.1016/j.ssaho.2026.103470          Creativity skills in entrepreneurship education: A bibliometric analys
+citer       9         0.053         -  doi:10.1007/s11366-026-09932-1           Innovation and Diffusion: The Effects of AI Integration on Knowledge D
+citer      10         0.028         -  doi:10.1080/14480220.2026.2630822        Digital skills integration and EV technician training: mapping core co
+```
+
+---
+
+## [2026-11-02 08:58 UTC] Step 58 — v2b 引文追踪：一步（重跑；种子：v2 证据表中至少 2 个面为 overlap 的文献）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table_v2.md --queries queries/queries_v2b.json --suffix _v2b
+```
+
+**输出**（退出码 0）
+
+```
+seeds (4):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 3: W7124140759 | refs 57 | cited by [117] | Artificial intelligence tools expand scientists’ impact but contract science’s focus
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+  rank 8: W7135026029, W4417098922 | refs 54 | cited by [42, 1] | The homogenizing effect of large language models on human expression and thought
+
+pool: 1396 works linked to the seeds (92 linked to more than one seed)
+already in search results (results/merged/merged_v2b.json): 6
+written: results/raw/chase_C1_v2b.json, results/merged/chase_C1_v2b.csv
+
+path     rank  score    sim in_search  identifier                               title
+onehop      1      3  0.262         -  doi:10.1016/j.yjoc.2026.100142           Perceived human agency and AI-assisted idea generation
+onehop      2      3  0.226         -  doi:10.1016/j.cobeha.2026.101695         From individual gains to collective risks in human–AI co-creativity
+onehop      3      3  0.226      M107  doi:10.1177/00491241251327130            Generative AI Meets Open-Ended Survey Responses: Research Participant 
+onehop      4      3  0.152         -  doi:10.1007/s43681-026-01215-y           The meek shall inherit the Earth: personality, empathy, and the human 
+onehop      5      3  0.102         -  doi:10.1007/s43681-026-01320-y           The politics of creative attribution: generative artificial intelligen
+onehop      6      3  0.077         -  doi:10.1016/j.caeai.2026.100684          Agentivism: a learning theory for the age of artificial intelligence
+onehop      7      3  0.023         -  doi:10.1007/s13347-026-01214-1           The Artificial View from Somewhere: Or How AI Could Undermine Scientif
+onehop      8      2  0.446         -  doi:10.1016/j.eururo.2026.04.004         Re: Artificial Intelligence Tools Expand Scientists’ Impact but Contra
+onehop      9      2  0.324      M109  doi:10.1016/j.chbah.2025.100207          Homogenizing effect of large language models (LLMs) on creative divers
+onehop     10      2  0.261         -  doi:10.1145/3803784.3816857              The Role of Human Agency in Human-AI Co-Creativity
+onehop     11      2  0.259      M134  doi:10.1145/3715928.3737481              How AI Ideas Affect the Creativity, Diversity, and Evolution of Human 
+onehop     12      2  0.254         -  doi:10.1145/3706598.3714198              Human Creativity in the Age of LLMs: Randomized Experiments on Diverge
+onehop     13      2  0.238         -  doi:10.1016/j.chbah.2026.100289          Diverse AI personas can mitigate the homogenization effect in human-AI
+onehop     14      2  0.233         -  doi:10.1145/3772318.3791185              Partnering with Generative AI: Experimental Evaluation of Model-Led an
+onehop     15      2  0.221         -  doi:10.1145/3706598.3713146              Timing Matters: How Using LLMs at Different Timings Influences Writers
+onehop     16      2  0.210         -  doi:10.1016/j.tsc.2025.101870            Large language models show both individual and collective creativity c
+onehop     17      2  0.209         -  doi:10.1016/j.tsc.2025.101958            Evaluating AI-assisted creative ideation: A crossover study in higher 
+onehop     18      2  0.208         -  doi:10.1073/pnas.2504966122              Echoes in AI: Quantifying lack of plot diversity in LLM outputs
+onehop     19      2  0.193         -  doi:10.1016/j.respol.2026.105575         How experience moderates the impact of AI suggestions on researchers' 
+onehop     20      2  0.186         -  doi:10.1145/3708359.3712094              One Does Not Simply Meme Alone: Evaluating Co-Creativity Between LLMs
+```
+
+---
+
+## [2026-11-02 08:58 UTC] Step 59 — v2b 引文追踪：两步共被引，引用者按 v2 研究情境组过滤（重跑）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --from-evidence evidence/evidence_table_v2.md --queries queries/queries_v2b.json --suffix _v2b --cocite --citer-filter '(economist* OR "economic research" OR "management research" OR "business research")'
+```
+
+**输出**（退出码 0）
+
+```
+seeds (4):
+  rank 2: W4400578758 | refs 42 | cited by [978] | Generative AI enhances individual creativity but reduces the collective diversity of novel content
+  rank 3: W7124140759 | refs 57 | cited by [117] | Artificial intelligence tools expand scientists’ impact but contract science’s focus
+  rank 4: W4391556516 | refs 50 | cited by [189] | Homogenization Effects of Large Language Models on Human Creative Ideation
+  rank 8: W7135026029, W4417098922 | refs 54 | cited by [42, 1] | The homogenizing effect of large language models on human expression and thought
+
+citing works: 1213 cite the seeds; 3 pass the filter '(economists OR "economic research" OR "management research" OR "business research")'; 0 letters/replies excluded; 2 citers used (versions of one work counted once: 1 merged)
+co-cited: 118 works cited by the citers; 1 cited by at least 2
+already in search results (results/merged/merged_v2b.json): 0
+written: results/raw/chase_C2_v2b.json, results/merged/chase_C2_v2b.csv
+
+path     rank  score    sim in_search  identifier                               title
+cocited     1      2  0.121         -  doi:10.1093/qje/qjad055                  Machine Learning as a Tool for Hypothesis Generation
+citer       1         0.147         -  doi:10.1111/emre.70114                   How will AI affect theorizing in management research?
+citer       2         0.044         -  doi:10.2139/ssrn.6594299                 Improving Abductive Reasoning
+```
+
+---
+
+## [2026-11-02 08:59 UTC] Step 60 — 评估：v1 与 v1b 对比（已知文献为参考文献 Hao 等的正式版与预印本）
+
+**命令**
+
+```bash
+python3 scripts/compare.py --runs ,_v1b --known 10.1038/s41586-025-09922-y,arXiv:2412.07727 --out results/merged/compare_v1_v1b.json
+```
+
+**输出**（退出码 0）
+
+```
+                                                    (v1)                  _v1b
+ranking method                             hits (legacy)                   RRF
+merged works                                         161                   164
+works tied at the cutoff                              42                     1
+rank of doi:10.1038/s41586-025-099                  None                  None
+  in chase lists                                       -         C2/cocited #1
+rank of arxiv:2412.07727                            None                  None
+  in chase lists                                       -                     -
+top10 conform                                          9                     8
+top10 noise                                            0                     0
+top10 genai                                            5                     8
+top10 abstract                                         9                     8
+top10 year_median                                 2023.0                2025.5
+top10 before_2015                                      1                     0
+top20 conform                                         17                    17
+top20 noise                                            0                     0
+top20 genai                                           11                    10
+top20 abstract                                        17                    17
+top20 year_median                                 2023.5                2025.0
+top20 before_2015                                      1                     1
+
+written: results/merged/compare_v1_v1b.json
+```
+
+---
+
+## [2026-11-02 08:59 UTC] Step 61 — 评估：v2 与 v2b 对比（noise 按 Step 15 的定义：只因 narrow AI、narrow applications 等短语才满足检索式）
+
+**命令**
+
+```bash
+python3 scripts/compare.py --runs _v2,_v2b --known 10.1038/s41586-025-09922-y,arXiv:2412.07727 --ignore-phrases '"narrow AI"' '"narrow artificial intelligence"' '"narrow applications"' '"narrow systems"' '"narrow-specific tasks"' '"narrow tasks"' --out results/merged/compare_v2_v2b.json
+```
+
+**输出**（退出码 0）
+
+```
+                                                     _v2                  _v2b
+ranking method                             hits (legacy)                   RRF
+merged works                                         191                   190
+works tied at the cutoff                              32                     1
+rank of doi:10.1038/s41586-025-099                     3                     3
+  in chase lists                                       -                     -
+rank of arxiv:2412.07727                              60                     3
+  in chase lists                                       -                     -
+top10 conform                                          5                    10
+top10 noise                                            4                     0
+top10 genai                                            7                     5
+top10 abstract                                         9                     8
+top10 year_median                                 2024.5                2024.0
+top10 before_2015                                      0                     3
+top20 conform                                         15                    18
+top20 noise                                            4                     1
+top20 genai                                           11                     9
+top20 abstract                                        18                    17
+top20 year_median                                 2024.0                2024.5
+top20 before_2015                                      2                     4
+
+written: results/merged/compare_v2_v2b.json
+```
+
+---
+
+## [2026-11-02 09:05 UTC] Step 62 — 用改进后的 verify.py 重新核验 v1 证据表（OpenAlex 回退；https 跳转改用 https）
+
+**命令**
+
+```bash
+python3 scripts/verify.py
+```
+
+**输出**（退出码 0）
+
+```
+verify run at 2026-11-02T09:05:14+00:00  table=/home/user/novelty-probe-demo/evidence/evidence_table.md
+[1] doi:10.1038/s41586-025-09640-5
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · A multimodal robotic platform for multi-element electrocatalyst discovery
+                 registered: Nature | 2025 | journal-article | authors: Zhang; Ren; Hsu
+      landing:   302 www.nature.com  -> 落地页 BLOCKED at www.nature.com (network policy, proxy 403)
+[2] doi:10.1126/sciadv.adn5290
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Generative AI enhances individual creativity but reduces the collective diversity of novel content
+                 registered: Science Advances | 2024 | journal-article | authors: Doshi; Hauser
+      landing:   302 www.science.org  -> 落地页 BLOCKED at www.science.org (network policy, proxy 403)
+[3] doi:10.1016/j.ecolmodel.2018.04.020
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · Bibliometric review of ecological network analysis: 2010–2016
+                 registered: Ecological Modelling | 2018 | journal-article | authors: Borrett; Sheble; Moody
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[4] doi:10.1145/3635636.3656204
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Homogenization Effects of Large Language Models on Human Creative Ideation
+                 registered: Creativity and Cognition | 2024 | proceedings-article | authors: Anderson; Shah; Kreminski
+      landing:   302 dl.acm.org  -> 落地页 BLOCKED at dl.acm.org (network policy, proxy 403)
+[5] doi:10.1016/j.caeai.2025.100456
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliome…
+                 registered: Computers and Education: Artificial Intelligence | 2025 | journal-article | authors: Aldreabi; Alhur; Al-Okaily
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[6] doi:10.1108/ijssp-06-2021-0145
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · Work–life balance: a systematic literature review and bibliometric analysis
+                 registered: International Journal of Sociology and Social Policy | 2021 | journal-article | authors: Rashmi; Kataria
+      landing:   302 www.emerald.com (http→https)  -> 落地页 BLOCKED at www.emerald.com (network policy, proxy 403)
+[7] doi:10.1080/08911762.2020.1765444
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · A Systematic Literature Review and Bibliometric Analysis of Recycling Behavior
+                 registered: Journal of Global Marketing | 2020 | journal-article | authors: Phulwani; Kumar; Goyal
+      landing:   302 www.tandfonline.com  -> 落地页 BLOCKED at www.tandfonline.com (network policy, proxy 403)
+[8] doi:10.1109/hicss.1993.270676
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Drug design using inductive logic programming
+                 registered: [1993] Proceedings of the Twenty-sixth Hawaii International Conference on System Sciences | None | proceedings-article | authors: King; Srinivasan; Muggleton
+      landing:   302 ieeexplore.ieee.org (http→https)  -> 落地页 BLOCKED at ieeexplore.ieee.org (network policy, proxy 403)
+[9] doi:10.1038/s41598-026-54348-9
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · A temporal adaptive dictionary-constrained LDA and Bi-calibrated dual granularity DTM framework for dynamic topic evolut…
+                 registered: Scientific Reports | 2026 | journal-article | authors: Yin
+      landing:   302 www.nature.com  -> 落地页 BLOCKED at www.nature.com (network policy, proxy 403)
+[10] doi:10.18559/ebr.2023.2.732
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · The rise of generative AI and possible effects on the economy
+                 registered: Economics and Business Review | 2023 | journal-article | authors: Orchard; Tasiemski
+      landing:   302 journals.ue.poznan.pl  -> 落地页 BLOCKED at journals.ue.poznan.pl (network policy, proxy 403)
+
+summary crossref: 题目一致: 10
+summary landing:  落地页 BLOCKED at dl.acm.org: 1 | 落地页 BLOCKED at ieeexplore.ieee.org: 1 | 落地页 BLOCKED at journals.ue.poznan.pl: 1 | 落地页 BLOCKED at linkinghub.elsevier.com: 2 | 落地页 BLOCKED at www.emerald.com: 1 | 落地页 BLOCKED at www.nature.com: 2 | 落地页 BLOCKED at www.science.org: 1 | 落地页 BLOCKED at www.tandfonline.com: 1
+written: verified column in /home/user/novelty-probe-demo/evidence/evidence_table.md
+```
+
+---
+
+## [2026-11-02 09:05 UTC] Step 63 — 用改进后的 verify.py 重新核验 v2 证据表
+
+**命令**
+
+```bash
+python3 scripts/verify.py --table evidence/evidence_table_v2.md
+```
+
+**输出**（退出码 0）
+
+```
+verify run at 2026-11-02T09:05:44+00:00  table=evidence/evidence_table_v2.md
+[1] doi:10.2139/ssrn.4389118
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · Artificial Intelligence and the Economics of Decision-Making
+                 registered: - | 2023 | posted-content | authors: Naudé
+      landing:   302 www.ssrn.com  -> 落地页 BLOCKED at www.ssrn.com (network policy, proxy 403)
+[2] doi:10.1126/sciadv.adn5290
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Generative AI enhances individual creativity but reduces the collective diversity of novel content
+                 registered: Science Advances | 2024 | journal-article | authors: Doshi; Hauser
+      landing:   302 www.science.org  -> 落地页 BLOCKED at www.science.org (network policy, proxy 403)
+[3] doi:10.1038/s41586-025-09922-y
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · Artificial intelligence tools expand scientists’ impact but contract science’s focus
+                 registered: Nature | 2026 | journal-article | authors: Hao; Xu; Li
+      landing:   302 www.nature.com  -> 落地页 BLOCKED at www.nature.com (network policy, proxy 403)
+[4] doi:10.1145/3635636.3656204
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Homogenization Effects of Large Language Models on Human Creative Ideation
+                 registered: Creativity and Cognition | 2024 | proceedings-article | authors: Anderson; Shah; Kreminski
+      landing:   302 dl.acm.org  -> 落地页 BLOCKED at dl.acm.org (network policy, proxy 403)
+[5] doi:10.1016/j.caeai.2025.100456
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliome…
+                 registered: Computers and Education: Artificial Intelligence | 2025 | journal-article | authors: Aldreabi; Alhur; Al-Okaily
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[6] doi:10.1177/20563051231186353
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Artificial Intelligence and Democracy: A Conceptual Framework
+                 registered: Social Media + Society | 2023 | journal-article | authors: Jungherr
+      landing:   302 journals.sagepub.com  -> 落地页 BLOCKED at journals.sagepub.com (network policy, proxy 403)
+[7] doi:10.47309/2713-2358-2025-4-184-195
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · Issues of using artificial intelligence in scientific research of socio-economic processes
+                 registered: Ufa Humanitarian Scientific Forum | 2025 | journal-article | authors: ?; Zulkarnay
+      landing:   302 elibrary.ru  -> 落地页 BLOCKED at elibrary.ru (network policy, proxy 403)
+[8] doi:10.1016/j.tics.2026.01.003
+      crossref:  302 api.crossref.org  (attempts: 2)  -> Crossref HTTP 200 · 题目一致 · The homogenizing effect of large language models on human expression and thought
+                 registered: Trends in Cognitive Sciences | 2026 | journal-article | authors: Sourati; S. Ziabari; Dehghani
+      landing:   302 linkinghub.elsevier.com  -> 落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403)
+[9] doi:10.48550/arxiv.2506.21818
+      crossref:  302 data.crosscite.org  (attempts: 1)  -> Crossref BLOCKED at data.crosscite.org (network policy, proxy 403)
+      openalex:  -> OpenAlex · 题目一致 · A systematic review of research on large language models for computer programming education
+      landing:   302 arxiv.org  -> 落地页 BLOCKED at arxiv.org (network policy, proxy 403)
+[10] doi:10.3390/cancers15092573
+      crossref:  302 api.crossref.org  (attempts: 1)  -> Crossref HTTP 200 · 题目一致 · Artificial Intelligence in CT and MR Imaging for Oncological Applications
+                 registered: Cancers | 2023 | journal-article | authors: Paudyal; Shah; Akin
+      landing:   302 www.mdpi.com  -> 落地页 BLOCKED at www.mdpi.com (network policy, proxy 403)
+
+summary crossref: OpenAlex 题目一致: 1 | 题目一致: 9
+summary landing:  落地页 BLOCKED at arxiv.org: 1 | 落地页 BLOCKED at dl.acm.org: 1 | 落地页 BLOCKED at elibrary.ru: 1 | 落地页 BLOCKED at journals.sagepub.com: 1 | 落地页 BLOCKED at linkinghub.elsevier.com: 2 | 落地页 BLOCKED at www.mdpi.com: 1 | 落地页 BLOCKED at www.nature.com: 1 | 落地页 BLOCKED at www.science.org: 1 | 落地页 BLOCKED at www.ssrn.com: 1
+written: verified column in evidence/evidence_table_v2.md
+```
+
+---
+
+## [2026-11-02 09:07 UTC] Step 64 — 评估结论与文档更新
+
+**评估结论**（Step 60、61 的 compare.py 输出；详见 `docs/IMPROVEMENT_PLAN.md` 第 12 节）
+
+- 截断处并列：v1 42 → v1b 1；v2 32 → v2b 1。
+- 噪声（Step 15 的定义）：v2 前 10 中 4 篇 → v2b 0 篇；v2b 前 20 中剩 1 篇（"narrow applications"）。
+- 参考文献 Hao 等：v1、v1b 的检索结果中都没有；v1b 两步共被引（引用者按 scientists 过滤）排第 1；换用数据与方法面的词过滤时不在列表中（Step 57）。v2b 中 Nature 版与 arXiv 版合并（原 arXiv 版单列第 60 名），排第 3。
+- 局限：NOT 短语与共被引的过滤方式都是在知道问题或目标之后确定的，评估只说明修正对已知问题有效，不是独立验证。
+
+**命令 1：核实 README 中的一处说法（python3 内联脚本）**：`textmatch.porter_stem` 与 Snowball 官方测试数据（snowball-data 的 porter/voc.txt 与 output.txt，调研子任务下载）逐行比对。
+
+```
+lines: 42603 mismatches: 0 []
+```
+
+**命令 2：文档**
+
+```
+# docs/IMPROVEMENT_PLAN.md：新增第 12 节"评估结果"，各问题的状态更新
+# HOWTO.md（中英双语）：T2 提示词允许 AND NOT（运算符大写）；T3 说明 S2 本地重排与 NOT 的转换、可选的 qa.py；
+#   T4 说明版本识别、正式发表年份、RRF 排序与 --legacy；T5 新增补摘要（enrich.py）并允许标注时使用补到的摘要；
+#   verify.py 的 OpenAlex 回退与 --no-landing；新增 T5b 引文追踪；第 8 节加入 compare.py；常见问题与目录速查补充
+# HANDOFF.md：现状、数据流、数据格式（S2 的 local_rank、合并结果新字段、enrichment、chase 文件）、脚本速查、
+#   设计决策、已知问题（改为本轮之后仍需注意的事项）、自检数（45）、下一步编号
+# AGENTS.md：检索式可用 AND NOT（运算符大写）；chase、compare、enrichment 文件的约定；merge.py 默认方法；
+#   证据表可用补到的摘要（注明来源）、年份取正式发表版本、"研究问题"面按研究者的标准；判断空间扩展到 NOT 与追踪
+# README.md（英文）：流程、脚本说明、评估结果、局限、目录
+# PROJECT.md：目录表补充 docs/ 与新脚本
+# 两张证据表：verified 列的格式说明补充 OpenAlex 一段（Step 62–63 已用改进后的 verify.py 刷新）
+```
+
+**命令 3：离线自检与语法检查**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests
+```
+
+```
+Ran 45 tests
+
+OK
+```
+
+`python3 scripts/search.py --dry-run` → 6/6 queries valid。
+
+**产出文件**
+
+- `docs/IMPROVEMENT_PLAN.md`、`HOWTO.md`、`HANDOFF.md`、`AGENTS.md`、`README.md`、`PROJECT.md`、`evidence/evidence_table.md`、`evidence/evidence_table_v2.md`（修改）
+- 本轮评估产出：`queries/queries_v2b.json`；`results/raw/*_v1b.json`、`*_v2b.json`（含 `chase_*`）；`results/merged/merged_v1b.json`、`merged_v2b.json`、`candidates_v1b.csv`、`candidates_v2b.csv`、`chase_*_v1b.csv`、`chase_*_v2b.csv`、`compare_v1_v1b.json`、`compare_v2_v2b.json`；`evidence/enrichment_v1b.json`、`enrichment_v2b.json`
+
+**备注**：推送到分支 `claude/vigilant-faraday-odzwe4`，需研究者通过 PR 合并。下一步编号为 Step 65。

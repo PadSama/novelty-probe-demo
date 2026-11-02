@@ -142,11 +142,18 @@ class TestS2LocalRank(unittest.TestCase):
         info = dict(ranked)[1]
         self.assertEqual((info["groups_matched"], info["has_abstract"]), (2, True))
 
+    def test_same_title_kept_once(self):
+        papers = [self.paper("Call for papers on generative AI narrowing", "generative AI narrowing", doi=f"10.1/{i}")
+                  for i in range(4)] + [self.paper("ChatGPT narrows topics", "ChatGPT narrowing topic diversity")]
+        ranked = search.s2_local_rank(papers, self.Q, top_n=5)
+        self.assertEqual(len(ranked), 2)                                   # 四条同题启事只留一条
+        self.assertEqual(sum(info.get("same_title_dropped", 0) for _, info in ranked), 3)
+
     def test_pagination_and_cap(self):
         pages = {None: {"total": 5, "token": "t2", "data": [self.paper(f"ChatGPT narrowing {i}", "ChatGPT narrowing")
                                                            for i in range(3)]},
-                 "t2": {"total": 5, "token": None, "data": [self.paper("Generative AI topic diversity", "generative AI")
-                                                            for _ in range(2)]}}
+                 "t2": {"total": 5, "token": None, "data": [self.paper(f"Generative AI topic diversity {i}", "generative AI")
+                                                            for i in range(2)]}}
         urls = []
 
         def fake(url, headers=None, retries=5):
@@ -342,12 +349,14 @@ class TestSnowballCocite(unittest.TestCase):
 
         seeds = {"10.1/seed1": work("W1", "Generative AI reduces collective diversity of stories"),
                  "10.1/seed2": work("W2", "LLMs homogenize creative ideas across users")}
-        citers = [work("C1", "Scientists and AI tools", ["W1", "W50", "W51"]),
+        citers = [work("C1", "Scientists and AI tools in the lab", ["W1", "W50", "W51"]),
                   work("C2", "Scientists adopting large language models", ["W2", "W50", "W51"]),
                   work("C3", "Re: Something about scientists", ["W1", "W50"]),        # 来信：不计
-                  work("C4", "Scientists' topic choice with AI", ["W1", "W50", "W52"])]
-        cocited = {"W50": work("W50", "A generic reporting guideline", cited=10000),
-                   "W51": work("W51", "AI narrows the focus of science", cited=4),
+                  work("C4", "Scientists' topic choice with AI", ["W1", "W50", "W53", "W52"]),
+                  work("C5", "Scientists and AI tools in the lab", ["W1", "W51"], doi="10.2139/ssrn.5")]  # C1 的另一版本
+        cocited = {"W50": work("W50", "A generic reporting guideline for reviews", cited=10000),
+                   "W51": work("W51", "AI narrows the focus of modern science", cited=4),
+                   "W53": work("W53", "AI narrows the focus of modern science", cited=0, doi="10.48550/arxiv.1"),  # W51 的预印本
                    "W52": work("W52", "Only one citer cites me")}
         self.filters = []
 
@@ -390,15 +399,17 @@ class TestSnowballCocite(unittest.TestCase):
             self.assertEqual(snowball.main(), 0)
         data = json.loads((Path(self.tmp.name) / "chase_C2_t.json").read_text(encoding="utf-8"))
         rows = [(r["chase"]["path"], r["chase"]["openalex_id"], r["chase"].get("support")) for r in data["records"]]
-        self.assertEqual([x for x in rows if x[0] == "cocited"], [("cocited", "W50", 3), ("cocited", "W51", 2)])
+        # W51 与其预印本 W53 合并计数（C1 组、C2、C4）；C1 与 C5 是同一研究的两个版本，只算一篇
+        self.assertEqual([x for x in rows if x[0] == "cocited"], [("cocited", "W51", 3), ("cocited", "W50", 3)])
         self.assertEqual(sorted(x[1] for x in rows if x[0] == "citer"), ["C1", "C2", "C4"])    # 来信 C3 不计
         m = data["meta"]
-        self.assertEqual((m["citing_total_unfiltered"], m["citing_filtered"], m["citers_used"], m["cocited_kept"]),
-                         (25, 4, 3, 2))
+        self.assertEqual((m["citing_total_unfiltered"], m["citing_filtered"], m["citers_used"], m["citer_versions_merged"],
+                          m["cocited_kept"]), (25, 5, 3, 1, 2))
         self.assertEqual(m["citing_notices_excluded"], ["Re: Something about scientists"])
         self.assertTrue(any(f.endswith(",title_and_abstract.search:scientists") for f in self.filters))
         w51 = next(r for r in data["records"] if r["chase"]["openalex_id"] == "W51")
-        self.assertEqual((w51["chase"]["via"], w51["chase"]["norm_support"]), (["C1", "C2"], 1.0))
+        self.assertEqual((w51["chase"]["via"], w51["chase"]["versions"], w51["chase"]["norm_support"]),
+                         (["C1", "C2", "C4"], ["W53"], 1.5))                      # 支持数相同，按支持数/√被引次数
 
 
 # ---------- 合并：版本识别、年份、RRF ----------

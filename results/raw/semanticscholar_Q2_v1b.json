@@ -1,0 +1,427 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q2",
+    "purpose": "component",
+    "queries_file": "queries/queries.json",
+    "query_original": "(\"narrowing of science\" OR \"topic concentration\" OR \"topic diversity\" OR \"research diversification\") AND (\"science of science\" OR bibliometric*)",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(\"narrowing of science\" | \"topic concentration\" | \"topic diversity\" | \"research diversification\") + (\"science of science\" | bibliometric*)",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22narrowing+of+science%22+%7C+%22topic+concentration%22+%7C+%22topic+diversity%22+%7C+%22research+diversification%22%29+%2B+%28%22science+of+science%22+%7C+bibliometric%2A%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 43,
+      "pages": 1,
+      "truncated": false,
+      "with_abstract": 35,
+      "same_title_dropped": 0
+    },
+    "total_hits": 43,
+    "returned": 25,
+    "retrieved_at": "2026-11-02T08:52:28+00:00"
+  },
+  "records": [
+    {
+      "title": "History and development of ABCA1.",
+      "year": 2023,
+      "doi": "10.1016/j.cpcardiol.2023.102036",
+      "arxiv_id": null,
+      "venue": "Current problems in cardiology",
+      "abstract": "ABCA1 is a key protein in the transport of intracellular cholesterol to the extracellular and plays an important role in reducing cholesterol accumulation in surrounding tissues. Bibliometric analysis refers to the cross-science of quantitative analysis of a variety of documents by mathematical and statistical methods. It combines an analysis of structural and temporal patterns in scholarly publications with a description of topic concentration and types of uncertainty. This paper analyzes the history, hotspot, and development trend of ABCA1 through bibliometrics. It will provide readers with the research status and development trend of ABCA1 and help the hot research in this field explore new research directions. After screening, the research on ABCA1 is still in a hot phase in the past 20 years. ABCA1 is emerging in previously unrelated disciplines such as cancer. There were 551 keywords and 6,888 breakout citations counted by Citespace. The relationship between cancer and cardiovascular disease has been linked by ABCA1. This review will guide readers who are not familiar with ABCA1 research to quickly understand the development process of ABCA1 and provide researchers with a possible future research focus on ABCA1.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 2.749,
+        "has_abstract": true,
+        "citations": 9
+      }
+    },
+    {
+      "title": "Knowledge Mapping of News Translation Studies: A Bibliometric Analysis",
+      "year": 2025,
+      "doi": "10.5539/ells.v15n1p16",
+      "arxiv_id": null,
+      "venue": "English Language and Literature Studies",
+      "abstract": "To gain an in-depth understanding of news translation studies and provide insights for future research directions, this study conducts a bibliometric analysis using VOSviewer and CiteSpace. Based on 255 journal articles from the Web of Science database, covering all records up to December 31, 2023, influential authors, countries, and journals are identified. CiteSpace is used for evolutionary analysis to track the developmental trajectories of keywords, while VOSviewer performs co-occurrence analysis to reveal associations among keywords and research topic concentrations. Additionally, cited references, authors, and journals are explored to deepen the understanding of the theoretical foundations of news translation studies. The results indicate significant growth in news translation research over the past two decades, particularly after 2010, with Robert A. Valdeón emerging as a highly influential scholar. An enhanced interdisciplinary trend is revealed, and the proportion of core authors is lower than Price’s expected 50%, indicating the field is still in its early developmental stage. Furthermore, the application of artificial intelligence and machine translation in current literature remains sparse. The combined results from VOSviewer and CiteSpace enhance comprehension of news translation studies and pave the way for future advancements in both theoretical and practical realms.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 2.674,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Make A Match Learning Model on Learning Outcomes in Elementary Schools: A Bibliometric Analysis",
+      "year": 2025,
+      "doi": "10.51574/ijrer.v5i1.4271",
+      "arxiv_id": null,
+      "venue": "ETDC: Indonesian Journal of Research and Educational Review",
+      "abstract": "This article will map the architecture and detect trends in scholarly papers on the Make a Match (MaM) Learning Model in Elementary Schools from 2020 to 2025. The goals of this study are to examine annual publication growth, identify the most prolific journals, map significant keyword networks, and detect new topic trends in this literature. The study employed bibliometrics. Data were obtained using Publish or Perish software from Google Scholar, Crossref, and OpenAlex by searching the keywords \"make a match,\" (\"hasil belajar\" or \"learning outcome\"), and (\"sd\" or \"elementary school\"). We reviewed and examined 130 items from 582 documents. VOSviewer created network, overlay, and density visualizations. The results showed that: (1) Publication Growth: There was a significant and accelerating increase in publications, reaching a peak in 2024 (36 documents, or 28%). (2) Central Focus: The main keywords are “Learning Outcomes” (56 occurrences, TLS 77) and “Make a Match” (52 occurrences, TLS 65), confirming a strong relationship between the two variables. (3) Topic Concentration: The density visualization highlights the two highest concentration areas: “learning outcomes” with “mathematics” and “make a match” with “make a match learning model.” (4) Development Trend: The overlay visualization shows a shift from basic studies (blue/green, 2022–2023) to topic specialization, which is shown by the rise of terms like \"Islamic education\" (yellow, 2023–2024). This study empirically supports the Make a Match Learning Model as the best pedagogical intervention to improve primary school learning outcomes in 2020–2025. These findings outline the mathematics focus and provide new topic development opportunities for future academics and practitioners.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 2.365,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Bibliometric analysis of robotic-assisted hepatobiliary and pancreaticosplenic surgery",
+      "year": 2025,
+      "doi": "10.1007/s11701-025-03108-4",
+      "arxiv_id": null,
+      "venue": "Journal of Robotic Surgery",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 0.177,
+        "has_abstract": false,
+        "citations": 3
+      }
+    },
+    {
+      "title": "Bibliometric Analysis of Theses Published in the Field of Radiation Oncology Specialization in Türkiye",
+      "year": 2025,
+      "doi": "10.5505/tjo.2025.4577",
+      "arxiv_id": null,
+      "venue": "Turkish Journal of Oncology",
+      "abstract": "OBJECTIVE This study aims to conduct a bibliometric analysis of radiation oncology residency theses written in Türkiye. It examines the distribution of theses by year and institution, research designs, topic diversity, and their conversion rates into scientific publications",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.99,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Diabetes: Bibliometric and Semantic Analysis with LDA Technology to Identify Current Trends in Research Directions",
+      "year": 2026,
+      "doi": "10.3390/info17080776",
+      "arxiv_id": null,
+      "venue": "Information",
+      "abstract": "Background: The rapid growth of the diabetes-related literature makes it difficult to characterize the thematic structure of the field using conventional bibliometric indicators alone. This study aimed to combine bibliometric network mapping with probabilistic topic modeling to describe major research directions in diabetes and their citation visibility. Methods: We analyzed 211,637 Scopus-indexed publications classified as articles, reviews, short surveys, or conference papers and published between January 2015 and May 2025. Bibliometric mapping was performed using VOSviewer, and semantic analysis was conducted on publication titles using Latent Dirichlet Allocation (LDA). Model interpretation was supported by coherence score, topic diversity, perplexity, dominant-topic assignment, and expert validation of topic labels. Field-Weighted Citation Impact (FWCI) was used descriptively to compare citation visibility across thematic areas over time. Results: VOSviewer identified seven keyword co-occurrence clusters, while LDA produced six broad semantic topics: cardiovascular and metabolic risks, diabetes management and quality of life, therapy approaches, diabetes complications, gestational diabetes, and pathophysiology and modeling. The six-topic LDA model showed c_v = 0.392, topic diversity = 0.73, and perplexity = −7.18. Publication-share and FWCI trajectories indicated that cardiovascular and metabolic risk research remained the largest thematic area, whereas quality of life and disease control showed the most marked increase in citation visibility. Conclusions: The integrated bibliometric–semantic workflow identified the main thematic domains and citation-visibility patterns shaping contemporary diabetes research. The findings highlight the continued dominance of cardiometabolic comorbidity research, the growing visibility of quality-of-life and disease-control topics, and the visibility of digital and Artificial Intelligence (AI)-assisted approaches in complication screening and monitoring. This framework provides an interpretable basis for tracking research priorities and emerging directions in diabetes-related scientific literature.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.709,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Tracking the transition of sustainable entrepreneurship: from a bibliometric analysis to current research trends and future research directions",
+      "year": 2025,
+      "doi": "10.1007/s43621-025-00803-y",
+      "arxiv_id": null,
+      "venue": "Discover Sustainability",
+      "abstract": "Sustainability in family businesses is an increasingly important and ever-evolving topic in business research, due to the demands of sustainable development agendas for all types of companies. This study conducts a comprehensive literature review on sustainable entrepreneurship (SE) using bibliometric analysis, content analysis, and a systematic literature review. The systematic literature review helps in finding the 554 SE-related articles. The bibliometric and content analysis was carried out on these articles. The study also analyzed the recent articles separately to identify research gaps and current trends. The study identifies the research to be diversified in six broad themes: ‘sustainable entrepreneurial enterprise’, ‘relationship between social entrepreneurship and the sustainable ecosystem’, ‘publications from different angles’, ‘model, framework, and conceptual papers’, ‘involvement of new entrants’, and ‘influence of financial support’ and ‘green start-ups’. The future research directions will help scholars identify clear research gaps to explore this area further. Researchers can focus on green agritourism, advanced recycling methods, eco-centric models, frameworks, operational procedures, financing partnerships, and transitioning into the digital era. Identifies research diversification in six themes and carried out literature review and content analysis. Article highlights five fresh research avenues. Several research directions in each broad research avenue are highlighted. Identifies research diversification in six themes and carried out literature review and content analysis. Article highlights five fresh research avenues. Several research directions in each broad research avenue are highlighted.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.696,
+        "has_abstract": true,
+        "citations": 13
+      }
+    },
+    {
+      "title": "Service supply chain: from bibliometric analysis to content analysis, current research trends and future research directions",
+      "year": 2020,
+      "doi": "10.1108/BIJ-04-2020-0137",
+      "arxiv_id": null,
+      "venue": "Benchmarking: An International Journal",
+      "abstract": "PurposeThe purpose of this study is to carry out the systematic literature review, bibliometric analysis and content analysis of extant literature of service supply chain (SSC).Design/methodology/approachSystematic literature review (SLR) technique was used for identifying the research papers. In the first step after reading titles, abstracts and keywords and, full-length articles wherever required, papers not related to SSC were removed. In second steps papers were read more critically and papers not related to SSC were removed. Finally on 502 papers bibliometric and content analysis was further carried out. Content analysis was based on the clusters formed by bibliographic coupling. Further, content analysis of the recent articles revealed the current research trends and research gaps.FindingsThis paper identified the six existing research diversifications in SSC as (1) logistics SSC, (2) model, framework and conceptual papers, (3) third-party logistics service providers, (4) articles from various perspective, (5) measurement of quality and performance on services and (6) impact of adoption of technology, cooperation and branding on logistics service providers. Further, six future research directions are also provided.Practical implicationsThis research provides a clear view of the progression of publication, research diversification, research themes of six identified clusters, sub-themes of clusters and content analysis of each cluster. Content analysis of recent articles reveals the current research trend and future research directions.Originality/valueThis is a first of its kind of study which presents the diversification of research areas within SSC, bibliometric analysis, content analysis and provides actionable future research direction.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.673,
+        "has_abstract": true,
+        "citations": 51
+      }
+    },
+    {
+      "title": "Bibliometric Review of Biodiversity Offsetting During 1992–2019",
+      "year": 2022,
+      "doi": "10.1007/s11769-022-1265-5",
+      "arxiv_id": null,
+      "venue": "Chinese Geographical Science",
+      "abstract": "Biodiversity offsetting plays a crucial role in managing the impacts of development on natural habitats. Developers, conservation groups, governments and financial institutions have used biodiversity offsetting to design measurable conservation actions to compensate for significant residual adverse biodiversity impacts arising from development. However, the concepts and methodologies of biodiversity offsetting have rarely been systematically reviewed, and best practices are still lacking. This hinders the development and applications of this field, and makes it difficult for new researchers to learn, develop, and apply biodiversity offsetting. This paper aims to review research progress on biodiversity offsetting during the period of 1992 to 2019. We mainly used bibliometric analysis and social network analysis methods to expose the topic diversity, development and promotion of this research field, and assess collaboration among biodiversity offsetting scholars. Our research identified 1190 records, and revealed that the total number of publications increased rapidly since 2002. The most productive journal, country, and author were Biological Conservation , USA, and Dr. Maron M of University of Queensland, respectively. Co-author analysis identified that the 23 authors most relevant to biodiversity offsetting were involved in a collaboration network. And they were mainly from 30 countries in a collaboration network, and the authors from USA, Australia and the United Kingdom have the most cooperation, which mainly driven by policy related to biodiversity offsetting. Our review shows that biodiversity offsetting research is at an early stage of rapid development with topically diverse and collaborative science domains. The majority of studies focus on terrestrial environments, which makes the implementation of aquatic ecosystem is more difficult. Theoretical problems and the implications of research evolution and social network in biodiversity offsetting are discussed, and further development of the theory and methodologies of biodiversity offsetting and management was recommend.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.667,
+        "has_abstract": true,
+        "citations": 7
+      }
+    },
+    {
+      "title": "Towards sustainable aquaponics: a bibliometric analysis of trends, scientific developments, and thematic evolution",
+      "year": 2025,
+      "doi": "10.1007/s10499-025-02100-x",
+      "arxiv_id": null,
+      "venue": "Aquaculture International",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 0.175,
+        "has_abstract": false,
+        "citations": 3
+      }
+    },
+    {
+      "title": "Bibliometric review of ecological network analysis: 2010–2016",
+      "year": 2018,
+      "doi": "10.1016/J.ECOLMODEL.2018.04.020",
+      "arxiv_id": null,
+      "venue": "Ecological Modelling",
+      "abstract": "Ecological Network Analysis (ENA) combines modeling and analysis used to investigate the structure, function, and evolution of ecosystems and other complex systems. ENA is applied to network models that trace the movement of thermodynamically conserved energy or matter through the system. Investigators use ENA to answer a range of questions such as the following. What is the impact of fishing on the marine food web? Which species control the flux of nitrogen in an estuary? What is the ecological relationship among species in the food web when direct and indirect influences are considered? Would a proposed regulation make a city more sustainable? The field has grown since its inception in the 1970s, but it has rarely been systematically reviewed. This absence of reviews likely hinders the development of the field as a whole, obscures the diversity of its applications, and makes it difficult for new investigators to learn, develop, and apply the techniques. The objective of the work presented in this paper was to systematically review ENA research published in 2010 through 2016 to (1) identify the topic diversity, (2) expose methodological development, (3) highlight applications, and (4) assess collaboration among ENA scholars. To accomplish this, we used a combination of bibliometric, network (e.g., social network), and feature analyses. Our search identified 186 records. A topic network built from the bibliographic records revealed eight major topic clusters. The largest groups centered on food webs, urban metabolism, and ecosystem theory. Co-author analysis identified 387 authors in a collaboration network with eight larger components. The largest component contained 56% of the authors. This review shows ENA to be a topically diverse and collaborative science domain, and suggests opportunities to further develop ENA to better address issues in theoretical ecology and for environmental impact assessment and management.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.657,
+        "has_abstract": true,
+        "citations": 122
+      }
+    },
+    {
+      "title": "Specialization versus diversification in research activities: the extent, intensity and relatedness of field diversification by individual scientists",
+      "year": 2017,
+      "doi": "10.1007/s11192-017-2426-7",
+      "arxiv_id": "1812.10521",
+      "venue": "Scientometrics",
+      "abstract": "We investigate whether and in what measure scientists tend to diversify their research activity, and if this tendency varies according to their belonging to different disciplinary areas. We analyze the nature of research diversification along three dimensions: extent of diversification, intensity of diversification, and degree of relatedness of topics in which researchers diversifies. For this purpose we propose three bibliometric indicators, based on the disciplinary placement of scientific output of individual scientists. The empirical investigation shows that the extent of diversification is lowest for scientists in Mathematics and highest in Chemistry; intensity of diversification is lowest in Earth sciences and highest in Industrial and information engineering; and degree of relatedness is lowest in Earth sciences and highest in Chemistry.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.497,
+        "has_abstract": true,
+        "citations": 21
+      }
+    },
+    {
+      "title": "Uncovering the identity of Electronic Markets research through text mining techniques",
+      "year": 2022,
+      "doi": "10.1007/s12525-022-00560-0",
+      "arxiv_id": null,
+      "venue": "Electronic Markets",
+      "abstract": "As an established academic journal in the e-commerce and digital platforms fields, Electronic Markets (EM) features a diverse range of topics and occupies a significant role in the information systems field. The study investigates EM’s topic diversity over the time period 2009–2020 using a text mining analysis and a bibliometric analysis and identifies 28 cluster groups. The analysis reveals that the top three topics are 1) service quality, 2) blockchain and other shared trust building solutions, their impact and credibility, as well as 3) consumer buying behavior and interactions. EM's core identity lies in a balanced set of core themes that bring technological, business or human/ social perspectives to the research of networked business and digital economy. This includes research on digital and smart services, applications, consumer behavior and business models, as well as technology and e-commerce data. Ethical and sustainability related topics are however still less present in EM.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.484,
+        "has_abstract": true,
+        "citations": 18
+      }
+    },
+    {
+      "title": "Research Method Usage across Academic Ages in Library and Information Science: An Empirical Study (1990-2023)",
+      "year": 2026,
+      "doi": "10.1016/j.lisr.2026.101414",
+      "arxiv_id": "2606.21862",
+      "venue": "Library &amp; Information Science Research",
+      "abstract": "Academic age critically shapes career development, influencing research behavior, output volume, and methodological choices. Analyzing method variation across academic ages offers a new theoretical lens on scholarly evolution and provides early-career researchers with practical guidance for method selection. A corpus of 26,677 articles published 1990-2023 in 14 authoritative Library and Information Science journals was compiled. The CogFT model automatically classified the research methods embedded in these articles, and Top2Vec generated the topic model. This process resulted in a comprehensive dataset linking research methods with topics. Author-name disambiguation enabled calculation of each scholar's academic age. Popularity and Shannon diversity indices for methods, together with topic diversity, were compared across academic age groups. Results reveal dynamic methodological trends: the share of theoretical approaches declined gradually, whereas experimental and bibliometric methods gained ground. Method popularity differs significantly among cohorts. Mid-career scholars exhibit the highest method diversity; late-career scholars the lowest.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.471,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Distinct paths of impact: A bibliometric analysis of research trends in surgery, medicine, and biology (1980-2020).",
+      "year": 2025,
+      "doi": "10.1016/j.amjsurg.2025.116798",
+      "arxiv_id": null,
+      "venue": "American Journal of Surgery",
+      "abstract": "BACKGROUND\nThis study characterizes temporal trends (1980-2020) of Surgery (SUR) research impact compared to Medicine (MED) and Biology (BIO) using Relative Citation Ratio (RCR), Field Citation Ratio (FCR), and Altmetric Attention Score. We hypothesize MED demonstrates significantly higher impact metrics than SUR.\n\n\nMETHODS\nThe 1000 most cited papers in SUR, MED, and BIO were retrieved for each decade (1980-2020) using Web of Science. RCR was generated via iCite; FCR and Attention Score from Dimensions AI API. Keywords were classified using UMLS Semantic Network subjects with MetaMap and entropy metrics assessed topic diversity.\n\n\nRESULTS\nAll metrics increased significantly in MED and BIO, while SUR RCR and FCR remained unchanged from 1980 to 1989. MED demonstrated greater collaboration and funding proportions than SUR. Entropy analysis revealed MED and BIO diversified research topics over time, while SUR concentrated in specialized areas.\n\n\nCONCLUSIONS\nSUR research shows declining broad relevance with concentrated influence compared to MED and BIO.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.465,
+        "has_abstract": true,
+        "citations": 2
+      }
+    },
+    {
+      "title": "Design Thinking: from Bibliometric Analysis to Content Analysis, Current Research Trends, and Future Research Directions",
+      "year": 2022,
+      "doi": "10.1007/s13132-022-00920-3",
+      "arxiv_id": null,
+      "venue": "Journal of the Knowledge Economy",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 0.174,
+        "has_abstract": false,
+        "citations": 56
+      }
+    },
+    {
+      "title": "Mapping talent agility: a bibliometric analysis and future research agenda",
+      "year": 2022,
+      "doi": "10.1108/md-06-2021-0788",
+      "arxiv_id": null,
+      "venue": "Management Decision",
+      "abstract": "PurposeThis study explores the concept of “talent agility” since its inception using bibliometric analysis and paves the way for future research agenda in the field of business and management.Design/methodology/approachThe articles were retrieved from the Scopus database comprising 67 publications from 2001 to September 2020. This study has applied bibliometric techniques such as citation analysis, co-citation analysis, bibliographic coupling, co-authorship analysis, and co-occurrence keyword analysis.FindingsThe bibliometric analysis reveals the publication trends, most influential authors, articles, journals, countries, and important keywords. Subsequently, it presents the network connections among them in the field of talent agility. It identified emerging research diversifications in the literature on talent agility.Research limitations/implicationsThe limitation of this study is the extraction of research articles from a single database, i.e. Scopus. This study provides insights to the researchers and practitioners on comprehensive understandings of the emerging concept “talent agility”, an overview of the publication trends, emerging research themes identified in the clusters, and suggests possible directions for further study.Originality/valueThis study provides the intellectual structure of talent agility literature and its advancement over the periods.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.389,
+        "has_abstract": true,
+        "citations": 19
+      }
+    },
+    {
+      "title": "A Systematic Literature Review and Bibliometric Analysis of Recycling Behavior",
+      "year": 2020,
+      "doi": "10.1080/08911762.2020.1765444",
+      "arxiv_id": null,
+      "venue": "Journal of Global Marketing",
+      "abstract": "Abstract As society moves closer to sustainability, recycling becomes one of the core concepts of sustainable behavior. Recycling behavior research is receiving extensive attention from various disciplines because of the increasing prioritization of resource recovery and management by policymakers and industry. This article provides a clear view of the progression of publications and research diversification within the domain. The 788 articles which focused on consumers’ or households’ recycling behavior were analyzed using software. Resources, Conservation and Recycling was the top contributing journal, and Stewart Barr was the top contributing author. With the help of citation analysis and bibliographic coupling, the intellectual structure of recycling behavior research was obtained, showing that the research had diversified into seven identifiable clusters. The research in the area was initially focused on environmental behaviors and their determinants, household recycling behavior and behavioral theories like the Theory of Planned Behavior. Other focus areas that aid in research progression were spillover effects, past behavior, habits and behavior change. These clusters further provided the base for research on recycling behavior toward specific product categories. The content analysis of the lead papers in each cluster further helps in disclosing the foundations of and future directions of research.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.284,
+        "has_abstract": true,
+        "citations": 103
+      }
+    },
+    {
+      "title": "GREEN FINANCE IN THE CONTEXT OF CLIMATE CHANGE: A BIBLIOMETRIC ANALYSIS OF THE ACADEMIC LITERATURE (2001–2025)",
+      "year": 2026,
+      "doi": "10.65631/jes.1.2026.3",
+      "arxiv_id": null,
+      "venue": "Annals of \"Constantin Brâncuși\" University of Târgu Jiu - Economy Series",
+      "abstract": "This article analyses the evolution, structure, and dynamics of the academic literature on green finance in the context of climate change, using a bibliometric approach applied to publications indexed in the Web of Science – Core Collection for the period 2001–2025. The methodology is based on descriptive and relational bibliometric indicators, including the analysis of scientific production, sources, authors' impact, co-authorship networks, and keyword co-occurrence, complemented by thematic maps and temporal analyses of emerging themes, conducted using the Bibliometrix package within the R environment. The results highlight an accelerated growth of academic interest after 2016, with a concentration of publications in economics and finance journals such as Energy Economics, Finance Research Letters, and International Review of Financial Analysis, as well as a polycentric structure of international collaborations dominated by East Asia and Europe. The conceptual analysis reveals three major thematic clusters: the performance and impact of green investments, energy transition and sustainable economic growth, and systemic risks and financial stability. The emergence of themes such as financial digitalisation, fintech, and artificial intelligence indicates recent directions of research diversification. The article contributes by providing a systematic mapping of a rapidly maturing field and by identifying epistemic gaps, highlighting the need to expand comparative studies, interdisciplinary approaches, and analyses of green finance in emerging and transition economies.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.284,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Temporal Topic Modeling and Multi-Topic Inference- A Bibliometric Analysis of Methods and Applications",
+      "year": 2025,
+      "doi": "10.1109/ICCIKE67021.2025.11318240",
+      "arxiv_id": null,
+      "venue": "2025 International Conference on Computational Intelligence and Knowledge Economy (ICCIKE)",
+      "abstract": "This paper presents a Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) grounded bibliometric survey of temporal topic modeling and document-level multi-topic inference. Despite rapid method growth, the field lacks a consolidated, reproducible map with normalized evaluation and clear cross-domain comparability. Using a dual-reviewer protocol across IEEE Xplore, Scopus, Web of Science, and ACM Digital Library (last search 2025-09-14), the review conducts quality appraisal, taxonomy synthesis, science mapping, and narrative synthesis with random-effects meta-analysis when metrics align. The protocol records timeslice granularity, alignment strategies, preprocessing, and vocabulary drift handling, and normalizes evaluation nomenclature. Evidence is organized across LDA/DTM, ETM/CTM, BER Topic, and dynamic embedding families and cataloged using coherence by Normalized Pointwise Mutual Information (NPMI), topic stability, topic diversity, alignment quality, and human intruder accuracy. The synthesis indicates that reported performance and mixture reliability are sensitive to preprocessing, alignment, and evaluation choices; stability across resampling and time is as critical as coherence; contextualized models often increase coherence yet may reduce temporal smoothness without explicit alignment; and adding human judgment frequently reshuffles model rankings. Coverage spans time-stamped benchmarks such as 20 Newsgroups temporal variants, Reuters RCV1/RCV2, arXiv and PubMed abstracts, social or news streams, and parliamentary and legal texts. The review delivers a taxonomy, a science map, and a standardized reporting and replication template. These outputs help researchers and practitioners design, evaluate, and compare temporal topic models more reliably across datasets and domains.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.274,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Digital engagement: Current insights and future directions from a bibliometric-content analysis",
+      "year": 2026,
+      "doi": "10.31893/multirev.2026367",
+      "arxiv_id": null,
+      "venue": "Multidisciplinary Reviews",
+      "abstract": "Engagement is an immensely important marketing construct, and the proliferation of digital platforms has further contributed to its importance. This review intends to integrate and synthesise all the extant literature on Digital engagement (DE), including blogs, miniblogs, websites, and social media. This study employed a systematic literature review (SLR) and bibliometric analysis to identify the existing literature on the topic indexed in the Scopus database. Moreover, content analysis was done on clusters formed through bibliographic coupling. A total of 655 articles were identified after employing various inclusion and exclusion criteria. This study has identified six themes within digital engagement literature: Digital engagement motivations and mechanisms for people and organisations; The role of engagement in promotion effectiveness and loyalty; Engagement and dynamic engagement strategies; Digital engagement’s role in public relations for profit and non-profit organisations; Impact of digital engagement on consumer decision, loyalty, and brand selection; and Constituents of digital engagement on brand pages. Furthermore, this study also offers seven specific future research avenues. Previous reviews of engagement in the digital context have overlooked digital platforms such as blogs, microblogs, and company websites. This study makes an original contribution to the literature by providing a first-of-its-kind comprehensive assessment of research diversification pertaining to digital engagement by utilising bibliometric and content analysis techniques. Additionally, it offers actionable recommendations for future research in the field.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.272,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "M EDIA R EPRESENTATION OF V ENEZUELAN M IGRANTS IN L ATIN A MERICA : A Bibliometric Analysis of Pre-and Post-Pandemic Studies",
+      "year": null,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 0.169,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Waning Breakthroughs? Investigating the State of Innovation in the Field of NLP",
+      "year": 2024,
+      "doi": "10.23919/PICMET64035.2024.10653413",
+      "arxiv_id": null,
+      "venue": "Portland International Conference on Management of Engineering and Technology",
+      "abstract": "In this study, we conducted a bibliometric analysis of the Natural Language Processing (NLP) community. Our research hinged on key theoretical frameworks, including Polanyi's republic of science, Kuhn's paradigm shifts, Popper's falsificationism, and Lakatos's scientific research programs. In this study, we hypothesized that authors with higher co-authorship centrality and greater topic diversity could indicate innovative research that contributes to paradigm shifts. Through an evaluation of author productivity, institutional contributions, thematic mapping, topic modeling and co-citation networks, we reveal the vital role of academic institutions, the centrality of specific research themes within the community as well as a shift in research focus from the early pioneering explorations on the foundations of AI to the more recent commercially focused engineering implementations of machine learning techniques. This exploration allowed us to assess the state of the NLP community, and to draw the potential steps necessary to avoid an excessive narrowing of focus in the community's research agendas and to preserve the long-term relevance of NLP-based AI research for the broader scientific community. Our proposed future investigations include expanding the datasets to better identify niche research programs and training deep learning models to analyze semantic content. With this research, we hope to inform researchers, policymakers and business leaders alike on the measures, incentives and research objectives necessary to make the NLP community a true republic of science.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.27,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Twenty-five years of computer-assisted language learning: A topic modeling analysis",
+      "year": 2021,
+      "doi": "10.64152/10125/73454",
+      "arxiv_id": null,
+      "venue": "Language Learning &amp; Technology",
+      "abstract": "The advance of educational technologies and digital devices have made computer-assisted language learning (CALL) an active interdisciplinary field with increasing research potential and topic diversity. Questions like “what topics and technologies attract the interest of the CALL community?,” “how have these topics and technologies evolved?,” and “what is the future of CALL?” are key to understanding where the CALL field has been and where it is going. To help answer these questions, the present review combined structural topic modeling, the Mann-Kendall trend test, and hierarchical clustering with bibliometrics to investigate the research status, trends, and prominent issues in CALL from 1,295 articles over the past 25 years ending in 2020. Major findings revealed that Social Sciences Citation Indexed journals such as Computer Assisted Language Learning, Language Learning & Technology, and ReCALL contributed most to the field. Topics that drew the most interest included mobile-assisted language learning, project-based learning, and blended learning. Topics drawing increasing research interest include mobile-assisted language learning, seamless learning, wiki-based learning, and virtual world and virtual reality. Additionally, the development of mobile devices, games, and virtual worlds continuously promote research attention. Finally, the review showed that scholars and educators are integrating different technologies, such as the mixed use of mobile technology and glosses/annotations for vocabulary learning, and their application into various contexts; one such context being the integration of digital multimodal composing into blended project-based learning.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.259,
+        "has_abstract": true,
+        "citations": 80
+      }
+    },
+    {
+      "title": "A bibliometric analysis of work-life balance policies on employee performance",
+      "year": 2025,
+      "doi": "10.56879/ijbm.v4i1.77",
+      "arxiv_id": null,
+      "venue": "International journal of business management",
+      "abstract": "Work-Life Balance (WLB) Policies aim to balance employees' work and family life is a growing concern in developing nations compared to developed economies. This paper aims to provide a clear view of current dynamics and research diversification of literature in the field of work-life balance (WBL) policies on employee performance by using bibliometric analysis. Scopus database has been used for carrying out the bibliometric analysis based on 100 research papers published from 2000 to 2023 to see the trends of publications. The prominence of research is evaluated by publication trend, publisher, country, universities/research institution, frequency of citation and different keywords related to work-life balance, policies, and employee performance. The number of publications continues to increase after the year 2008. The region of reviewed papers is Nigeria, Kenya, the USA, the Philippines, India, Spain, South Africa, Romania, Jordan, Australia, Netherlands, Sweden, Sri Lanka, Bangladesh, Canada, Pakistan, and Malaysia. The United States, Spain and Nigeria have the highest rate of research publications, and the USA, Kenya, Nigeria Spain Netherlands Sweden, Bangladesh, and Romania countries focused on variables work-life balance policies, flexible working arrangements, workplace support, employee performance, employee satisfaction, retention, and organizational performance. The most common term used in the research is work-life balance policies. The novelty of this research paper is on the subject of WLB policies on employee performance using varied bibliographic approaches. Future studies avenues and recommendations and the study's limitations were also examined.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.242,
+        "has_abstract": true,
+        "citations": 0
+      }
+    }
+  ]
+}

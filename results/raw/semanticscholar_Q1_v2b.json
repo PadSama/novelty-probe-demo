@@ -1,0 +1,427 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q1",
+    "purpose": "component",
+    "queries_file": "queries/queries_v2b.json",
+    "query_original": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(\"large language models\" | \"generative AI\") + (homogeniz* | homogenis* | \"algorithmic monoculture\" | \"collective diversity\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22large+language+models%22+%7C+%22generative+AI%22%29+%2B+%28homogeniz%2A+%7C+homogenis%2A+%7C+%22algorithmic+monoculture%22+%7C+%22collective+diversity%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 392,
+      "pages": 1,
+      "truncated": false,
+      "with_abstract": 359,
+      "same_title_dropped": 0
+    },
+    "total_hits": 392,
+    "returned": 25,
+    "retrieved_at": "2026-11-02T08:54:31+00:00"
+  },
+  "records": [
+    {
+      "title": "The convergence paradox: a constructivist account of perceived template convergence and originative agency under generative artificial intelligence",
+      "year": 2026,
+      "doi": "10.3389/fpsyg.2026.1924628",
+      "arxiv_id": null,
+      "venue": "Frontiers in Psychology",
+      "abstract": "Generative artificial intelligence (AI) has raised a widely shared concern that human cognitive and creative output is drifting toward common templates. The terms used to describe this drift, including algorithmic monoculture, outcome homogenization, and the loss of collective diversity, all characterize systems, populations, or model outputs. Psychology has not supplied a matching construct at the level of the individual, that is, a way to describe how a person perceives such convergence and how that perception reshapes agency. This article introduces and analyzes perceived template convergence (PTC), defined as a person’s appraisal that the construals available to her through generative AI are collapsing toward a shared template. Working from personal construct theory, the agentic strand of social cognitive theory, and research on meaningful work, the analysis argues that PTC is psychologically two-sided. The appraisal that raises a person’s confidence in producing competent output through AI can also weaken her sense of authorship and meaning, steering effort toward imitative production and away from the more demanding work of origination. We call this structure the convergence paradox, set it out as a propositional model with two mediators and two boundary conditions, distinguish PTC from neighboring constructs, and propose a measurement agenda. The contribution recasts algorithmic homogenization as a question about human construing rather than about outputs.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 7.933,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Strategic Algorithmic Monoculture: Experimental Evidence from Coordination Games",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2604.09502",
+      "arxiv_id": "2604.09502",
+      "venue": "arXiv.org",
+      "abstract": "AI agents increasingly operate in multi-agent environments where outcomes depend on coordination. We distinguish primary algorithmic monoculture -- baseline action similarity -- from strategic algorithmic monoculture, whereby agents adjust similarity in response to incentives. We implement a simple experimental design that cleanly separates these forces, and deploy it on human and large language model (LLM) subjects. LLMs exhibit high levels of baseline similarity (primary monoculture) and, like humans, they regulate it in response to coordination incentives (strategic monoculture). While LLMs coordinate extremely well on similar actions, they lag behind humans in sustaining heterogeneity when divergence is rewarded.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 7.586,
+        "has_abstract": true,
+        "citations": 9
+      }
+    },
+    {
+      "title": "Human diversity fuels collective creativity that large language models cannot simulate or sustain",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2607.26899",
+      "arxiv_id": "2607.26899",
+      "venue": "arXiv.org",
+      "abstract": "Diverse human groups produce diverse ideas, the raw material of innovation. Generative AI challenges this engine twice over: everyday AI assistance may homogenize what diverse people create, and AI-simulated diversity may replace the people altogether. We tested both challenges in a preregistered creative metaphor experiment with native (L1) and non-native (L2) English writers, who wrote without AI, with AI-generated ideas (AI ideation), or with AI refining their own ideas (AI refinement). L2 writers contributed more collective diversity than L1 writers, with native-language ideation showing the most diverse pools. AI ideation compressed collective diversity for everyone and left the L2 advantage undetectable, whereas AI refinement preserved both. We then simulated the entire writer pool using personas built from participants'real backgrounds, three model families, native-language prompting, and elevated sampling temperatures. Every simulated pool fell below every human pool, and pushing models further induced diversity only through degenerate text. However, at the individual level, AI ideation raised writers'ratings, pitting private incentives against the collective good, except when L2 writers used their native language, which benefited both. Human diversity remains a valuable creative resource that current AI cannot simulate or sustain; the design of human-AI collaborative workflows determines whether it survives.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 6.282,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Prompting a Large Language Model to Generate Diverse Motivational Messages: A Comparison with Human-Written Messages",
+      "year": 2023,
+      "doi": "10.1145/3623809.3623931",
+      "arxiv_id": "2308.13479",
+      "venue": "International Conference on Human-Agent Interaction",
+      "abstract": "Large language models (LLMs) are increasingly capable and prevalent, and can be used to produce creative content. The quality of content is influenced by the prompt used, with more specific prompts that incorporate examples generally producing better results. On from this, it could be seen that using instructions written for crowdsourcing tasks (that are specific and include examples to guide workers) could prove effective LLM prompts. To explore this, we used a previous crowdsourcing pipeline that gave examples to people to help them generate a collectively diverse corpus of motivational messages. We then used this same pipeline to generate messages using GPT-4, and compared the collective diversity of messages from: (1) crowd-writers, (2) GPT-4 using the pipeline, and (3 & 4) two baseline GPT-4 prompts. We found that the LLM prompts using the crowdsourcing pipeline caused GPT-4 to produce more diverse messages than the two baseline prompts. We also discuss implications from messages generated by both human writers and LLMs.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.879,
+        "has_abstract": true,
+        "citations": 22
+      }
+    },
+    {
+      "title": "Generative AI enhances individual creativity but reduces the collective diversity of novel content",
+      "year": 2023,
+      "doi": "10.1126/sciadv.adn5290",
+      "arxiv_id": "2312.00506",
+      "venue": "Science Advances",
+      "abstract": "Creativity is core to being human. Generative artificial intelligence (AI)—including powerful large language models (LLMs)—holds promise for humans to be more creative by offering new ideas, or less creative by anchoring on generative AI ideas. We study the causal impact of generative AI ideas on the production of short stories in an online experiment where some writers obtained story ideas from an LLM. We find that access to generative AI ideas causes stories to be evaluated as more creative, better written, and more enjoyable, especially among less creative writers. However, generative AI–enabled stories are more similar to each other than stories by humans alone. These results point to an increase in individual creativity at the risk of losing collective novelty. This dynamic resembles a social dilemma: With generative AI, writers are individually better off, but collectively a narrower scope of novel content is produced. Our results have implications for researchers, policy-makers, and practitioners interested in bolstering creativity.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.809,
+        "has_abstract": true,
+        "citations": 959
+      }
+    },
+    {
+      "title": "LLMs in Interpreting Legal Documents",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2512.09830",
+      "arxiv_id": "2512.09830",
+      "venue": "arXiv.org",
+      "abstract": "This chapter explores the application of Large Language Models in the legal domain, showcasing their potential to optimise and augment traditional legal tasks by analysing possible use cases, such as assisting in interpreting statutes, contracts, and case law, enhancing clarity in legal summarisation, contract negotiation, and information retrieval. There are several challenges that can arise from the application of such technologies, such as algorithmic monoculture, hallucinations, and compliance with existing regulations, including the EU's AI Act and recent U.S. initiatives, alongside the emerging approaches in China. Furthermore, two different benchmarks are presented.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.727,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Does Generative AI Stifle Creativity? Convergence and Homogenisation in Student Work",
+      "year": 2026,
+      "doi": "10.56831/psen-08-274",
+      "arxiv_id": null,
+      "venue": "PriMera Scientific Engineering",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.818,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "BIAS IN AI ADMISSION AND HIRING",
+      "year": 2026,
+      "doi": "10.68197/3071-9658/3.1.11",
+      "arxiv_id": null,
+      "venue": "European Journal of Interdisciplinary Issues",
+      "abstract": "The integration of artificial intelligence into admission and hiring systems offers modernizing efficiency yet entails significant risks regarding the automation of inequality. This paper examines the technical sources of algorithmic bias, including proxy variables, feedback loops and data provenance, within educational and workforce pipelines. Employing a critical synthesis methodology, the study provides a theoretical analysis of the intersection of deep learning architectures, emerging Generative AI (GenAI) capabilities and evolving regulatory frameworks such as the EU AI Act and NYC Local Law 144. The analysis highlights that “fairness through unawareness” is technically insufficient and that the deployment of Large Language Models (LLM) introduces new risks of algorithmic monoculture and sociolinguistic homogenization. Addressing the mathematical impossibility of simultaneously satisfying competing fairness metrics, the paper proposes a responsible AI governance framework. This framework emphasizes Algorithmic Impact Assessments (AIA), continuous disparate impact auditing, and a transition from Human-in-the-Loop to Human-in-Command architectures. The study concludes that responsible implementation requires shifting the role of AI from a gatekeeper to a decision-support scout, ensuring that automated systems meet rigorous standards of accountability and symbiotic human oversight.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.658,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Correlated Errors in Large Language Models",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2506.07962",
+      "arxiv_id": "2506.07962",
+      "venue": "International Conference on Machine Learning",
+      "abstract": "Diversity in training data, architecture, and providers is assumed to mitigate homogeneity in LLMs. However, we lack empirical evidence on whether different LLMs differ meaningfully. We conduct a large-scale empirical evaluation on over 350 LLMs overall, using two popular leaderboards and a resume-screening task. We find substantial correlation in model errors -- on one leaderboard dataset, models agree 60% of the time when both models err. We identify factors driving model correlation, including shared architectures and providers. Crucially, however, larger and more accurate models have highly correlated errors, even with distinct architectures and providers. Finally, we show the effects of correlation in two downstream tasks: LLM-as-judge evaluation and hiring -- the latter reflecting theoretical predictions regarding algorithmic monoculture.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.362,
+        "has_abstract": true,
+        "citations": 72
+      }
+    },
+    {
+      "title": "Incentives shape how humans co-create with generative AI",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2604.03529",
+      "arxiv_id": "2604.03529",
+      "venue": "arXiv.org",
+      "abstract": "Generative AI is quickly becoming an integral part of people's everyday workflows. Early evidence has shown that while generative AI can increase individual-level productivity, it does so at the cost of collective diversity, potentially narrowing the set of ideas and perspectives produced. Our research stands in contrast to this concern: through two pre-registered randomized control trials, we show that incentives can moderate AI's homogenizing force in two creative writing tasks where participants can use AI interactively. Participants rewarded for originality relative to peers produce collectively more diverse writing than those rewarded for quality alone. These participants continued to engage with AI, but ultimately incorporated less AI-generated text verbatim. Our results reveal that the effects of generative AI depend not only on the technology itself, but also the behavioral strategies and incentive structures surrounding its use. We release a rich, anonymized dataset capturing fine-grained trajectories of human-AI co-creation across both studies.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.301,
+        "has_abstract": true,
+        "citations": 3
+      }
+    },
+    {
+      "title": "Do Large Language Models Always Tell The Same Stories?",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2606.17350",
+      "arxiv_id": "2606.17350",
+      "venue": "arXiv.org",
+      "abstract": "Recent advances in large language models (LLMs) have enabled the generation of high-quality prose, yet whether these models are capable of generating diverse or creative artifacts remains a contested question. In this work, we investigate the diversity of LLM-generated stories through the framework of narrative similarity. Using a contrastive framework and a dataset of human-written stories and prompts from r/WritingPrompts, we collect narrative similarity judgments across 10 representative LLMs, utilizing both human evaluations and three different automatic annotation methods. Our findings reveal a clear trend: LLM-generated narratives are consistently more similar to each other than human-written stories are. We demonstrate that frontier models in particular converge on a\"mean\"generic narrative that approximates individual human stories but lacks the collective diversity of human authors. Finally, we show that common mitigation strategies, including negative prompting and temperature scaling, fail to meaningfully address this homogeneity.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.806,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Collective creativity in hybrid societies",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": "2609.02620",
+      "venue": null,
+      "abstract": "Generative AI is changing how cultural artifacts are created and circulated, and with it our understanding of creativity itself. Researchers disagree about whether these tools enrich or impoverish culture, and we argue that much of that disagreement comes from conflating two distinct components of creativity: novelty, a property of single artifacts, and diversity, a property of populations. We argue further that creativity in the context of generative AI is best understood as a property of hybrid collectives, or populations of interacting people and algorithms, rather than of individuals. AI-assisted ideation reliably raises the novelty of individual output while narrowing diversity in the aggregate, but this is not an inevitable consequence of putting machines in the loop. Because humans and models search in complementary ways, mixed groups can outperform and out-diversify groups of either kind alone, and machine-discovered solutions can enter human culture and persist there. What decides the outcome is composition: which agents are present, in what proportion, and how they are connected. The question is no longer whether AI helps or harms creativity, but which mixtures let individual gains accumulate without eroding collective diversity.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.595,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "MACS: A Cognitive Diversity Multi-Agent Consensus Framework for Bias Mitigation in Automated Evaluation Systems",
+      "year": 2025,
+      "doi": "10.1109/ICEEI68459.2025.11331239",
+      "arxiv_id": null,
+      "venue": "International Conference on Electrical Engineering and Informatics",
+      "abstract": "The reliance on single Large Language Models (LLMs) for automated academic assessment risks creating an algorithmic monoculture, where inherent model biases are amplified at scale. This paper introduces a novel framework, the Multi-Agent Consensus System (MACS), designed to mitigate this risk by simulating cognitive diversity. MACS orchestrates a heterogeneous ensemble of LLMs in a structured, adversarial peer-review workflow. The system comprises: (1) a VLM-driven multimodal extraction module for high-fidelity data retrieval from PDFs; (2) an initial review by a primary agent; (3) a critical challenge stage by secondary agents with diverse architectures; and (4) a final arbitration stage where a concluding agent synthesizes conflicting evaluations to form a robust consensus. By formalizing this process of structured disagreement and resolution, our framework moves beyond simple ensemble averaging. We introduce the Disagreement-Resolution Ratio (DRR) as a novel metric to quantify the system's ability to identify and correct initial scoring biases. Our experiments show that MACS achieves 92.3% scoring accuracy and reduces single-model scoring variance by 63%, demonstrating its superior robustness and fairness in automated academic evaluation.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.594,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Delayed Ai Access: Mitigating the Homogenising Effects of Generative Ai in Collaborative Problemsolving",
+      "year": 2025,
+      "doi": "10.1109/ICAITE68636.2025.11442590",
+      "arxiv_id": null,
+      "venue": "2025 2nd International Conference on Artificial Intelligence and Teacher Education (ICAITE)",
+      "abstract": "The rapid integration of generative artificial intelligence (GenAI) into collaborative learning environments raises a critical question about its impact on team creativity and idea diversity. This study investigates whether delaying the use of AI tools in collaborative problem-solving can mitigate the “homogenising effect” associated with immediate AI access. Using a quasi-experimental design, 36 students were assigned to three conditions (immediate AI access, delayed AI access, or no AI access) to solve a real-world problem-solving task. The results show a homogenising effect in the immediate AI access group, which produced significantly more similar solutions compared to the other groups, suggesting that continuous, early reliance on AI stifles idea diversity. In contrast, the No AI group achieved the lowest homogenisation score and the highest level of creativity. The Delayed AI group also showed a significantly lower homogenisation score than the immediate access group, supporting the argument that a period of unassisted, humancentric ideation is crucial for fostering novel and diverse solutions before using AI for refinement. These findings suggest that timing is critical for AI integration in education. By delaying AI access, educators can empower students to first engage in the creative struggle and socio-cognitive conflict essential for collaborative problem-solving, ensuring that AI serves as a tool for intentional augmentation rather than a replacement for original human thought. This approach promotes higher levels of learning and preserves human agency.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.496,
+        "has_abstract": true,
+        "citations": 3
+      }
+    },
+    {
+      "title": "Cultivating Pluralism In Algorithmic Monoculture: The Community Alignment Dataset",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2507.09650",
+      "arxiv_id": "2507.09650",
+      "venue": "arXiv.org",
+      "abstract": "How can large language models (LLMs) serve users with varying preferences that may conflict across cultural, political, or other dimensions? To advance this challenge, this paper establishes four key results. First, we demonstrate, through a large-scale multilingual human study with representative samples from five countries (N=15,000), that humans exhibit substantially more variation in preferences than the responses of 21 state-of-the-art LLMs. Second, we show that existing methods for preference dataset collection are insufficient for learning the diversity of human preferences even along two of the most salient dimensions of variability in global values, due to the underlying homogeneity of candidate responses. Third, we argue that this motivates the need for negatively-correlated sampling when generating candidate sets, and we show that simple prompt-based techniques for doing so greatly enhance the performance of alignment methods in learning heterogeneous preferences. Fourth, based on this novel candidate sampling approach, we collect and open-source Community Alignment} the largest and most representative multilingual and multi-turn preference dataset to date, featuring 233,319 comparisons from annotators spanning five countries. Overall, we hope that the Community Alignment dataset will be a valuable resource for improving the effectiveness of LLMs for a diverse global population.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.433,
+        "has_abstract": true,
+        "citations": 46
+      }
+    },
+    {
+      "title": "The Dynamics of Collective Creativity in Human-AI Hybrid Societies",
+      "year": 2025,
+      "doi": null,
+      "arxiv_id": "2502.17962",
+      "venue": "Annual Meeting of the Cognitive Science Society",
+      "abstract": "Generative AI is shaping an increasingly hybrid society, where ideas and cultural artefacs are created both by humans and intelligent machines. Human creativity is influenced in complex, nonlinear ways by the actions of AI-driven agents within their social networks, but these influences are difficult to measure using traditional methods. This study examines how human-AI interactions shape the evolution of collective creation within large-scale social network experiments, where human and AI participants collectively create stories. Participants (either humans or AI) joined 5x5 grid-based networks in which stories were selected, modified, and shared over many iterations. Initially, AI-only networks showed greater creativity (rated by a separate group of human raters) and collective diversity of stories than human-only and human-AI networks. However, over time, hybrid human-AI networks became more diverse in their creations than AI-only networks. In part, this is because AI agents retained little from the original stories, while human-only networks preserved continuity. These findings highlight the value of experimental social networks in understanding human-AI hybrid societies.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.377,
+        "has_abstract": true,
+        "citations": 13
+      }
+    },
+    {
+      "title": "How AI Ideas Affect the Creativity, Diversity, and Evolution of Human Ideas: Evidence From a Large, Dynamic Experiment",
+      "year": 2024,
+      "doi": "10.1145/3715928.3737481",
+      "arxiv_id": "2401.13481",
+      "venue": "International Conference on Climate Informatics",
+      "abstract": "Exposure to large language model output is rapidly increasing. How will seeing AI-generated ideas affect human ideas? We conducted a dynamic experiment (800+ participants, 40+ countries) where participants viewed creative ideas that were from ChatGPT or prior experimental participants, and then brainstormed their own idea. We varied the number of AI-generated examples (none, low, or high exposure) and if the examples were labeled as “AI” (disclosure). We find that high AI exposure (but not low AI exposure) did not affect the creativity of individual ideas but did increase the average amount and rate of change of collective idea diversity. AI made ideas different, not better. There were no main effects of disclosure. We also found that self-reported creative people were less influenced by knowing an idea was from AI and that participants may knowingly adopt AI ideas when the task is difficult. Our findings suggest that introducing AI ideas may increase collective diversity but not individual creativity.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.368,
+        "has_abstract": true,
+        "citations": 61
+      }
+    },
+    {
+      "title": "Design of a Dynamic Generation System for Personalized Learning Resources Based on Generative AI and Sparse Attention Mechanisms",
+      "year": 2025,
+      "doi": "10.1109/CSTE64638.2025.11091962",
+      "arxiv_id": null,
+      "venue": "2025 7th International Conference on Computer Science and Technologies in Education (CSTE)",
+      "abstract": "With the acceleration of the digital transformation of education, the breakthrough of Generative AI and large-scale pre-training model technology provides a brand new solution path to solve the traditional problems such as homogenisation of educational resources and low teaching efficiency. This paper proposes a dynamic resource generation framework based on Generative AI and NSA sparse attention mechanism, and constructs a dynamic generation system of personalised learning resources integrating NSA technology. It provides intelligent solutions for the education industry, helps teachers transform their role from ‘knowledge transmitter’ to ‘learning guide’, and ultimately promotes the double improvement of education equity and quality.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 3.953,
+        "has_abstract": true,
+        "citations": 2
+      }
+    },
+    {
+      "title": "Diversity and Homogenisation in Generative AI Translation: A Comparative Study of English-Dutch Translation Across Domains",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "European Association for Machine Translation Conferences/Workshops",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 4.741,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Beyond Polishing: The Compounding Dynamic of GenAI in Academic Writing",
+      "year": 2026,
+      "doi": "10.1515/dsll-2025-0016",
+      "arxiv_id": null,
+      "venue": "Digital Studies in Language and Literature",
+      "abstract": "Abstract Generative AI can reshape stance and voice in multilingual student writing, with effects that appear to be shifting over time. Using a random sample of English L2 master’s-level assignments at a UK university from two cohorts (2019 and 2025, N = 25 each), I first compared submitted drafts, then subjected parallel excerpts to GenAI “polishing” prompts. Across both cohorts, the technology consistently reduced hedging, suppressed self-mention, and reframed authorial stance into more categorical and impersonal forms. While these outcomes confirm existing critiques of homogenisation, the more revealing finding is a compounding dynamic. I use this term within an ecological view of writing and technological mediation to describe how AI-mediated drafting and AI-based polishing interact in the same writing environment. The 2025 students’ original texts, acknowledged by most to have been written with GenAI support, already resembled AI outputs, and polishing then reinforced the drift. Compared to the 2019 cohort, their drafts contained fewer hedges, greater lexical diversity, and syntactically simpler sentences. This longitudinal perspective shows how the stylistic fingerprints of GenAI are being internalised within writing practices, narrowing rhetorical space even before the tool is explicitly applied. I highlight the pedagogical imperative of critical AI literacy: that writers must be trained to use generative AI effectively by interrogating its outputs, resisting its homogenising pull, and preserving their intended stance.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 3.913,
+        "has_abstract": true,
+        "citations": 18
+      }
+    },
+    {
+      "title": "When AI performs, what remains? An integrative review of generative AI and cognitive capital in individuals and organizations",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": "2610.38647",
+      "venue": null,
+      "abstract": "Generative artificial intelligence is rapidly entering knowledge work, and its short-term productivity benefits are increasingly documented. Less is known about what happens, over time, to the knowledge, skills and judgment that remain in people and organizations. This integrative narrative review addresses that question through the construct of cognitive capital: the accumulated, renewable and depletable stock of knowledge, cognitive and metacognitive capabilities, and practices that enables an individual or an organization to learn, interpret information, exercise judgment, solve problems and adapt. We distinguish individual and organizational cognitive capital from the capability of the human-AI system, so that gains in joint performance and losses in human capability can be observed at the same time. Drawing on experimental, field and conceptual work, we propose four mechanisms through which interaction with AI affects cognitive capital: substitution of practice, scaffolding and feedback, metacognitive calibration, and organizational aggregation. Seven principles summarize the current evidence, including that assisted performance differs from retained competence, that the same technology can support or displace learning depending on design and use, and that individual gains can coexist with reduced collective diversity. For each mechanism we derive testable propositions, and we discuss five design levers for organizations as proposals to be validated rather than established practice. We conclude that cognitive capital offers a multilevel frame for governing AI adoption and outline a research agenda centered on longitudinal, multilevel measurement.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 3.888,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Repulsive Population Policy Gradients for Behaviorally Diverse Reinforcement Learning",
+      "year": 2026,
+      "doi": null,
+      "arxiv_id": "2610.36425",
+      "venue": null,
+      "abstract": "The goal of Quality-Diversity Reinforcement Learning (QD-RL) is to find a population of high-performing policies that solve a decision-making problem in diverse ways. Despite recent progress, QD-RL methods predominantly rely on evolutionary operators--including black-box optimizers, mutations, and crossovers--to facilitate exploration and induce diversity. Scaling these methods becomes increasingly costly as policies and behavior spaces grow larger. Building on the Soft QD view of quality-diversity optimization, we introduce \\textbf{Re}pulsive \\textbf{P}opulation \\textbf{P}olicy \\textbf{O}ptimization (\\textbf{RePPO}), which adapts PPO to jointly optimize a compact population of diverse, high-quality policies using a population-dependent, dynamically shaped reward. On standard continuous-control tasks, RePPO achieves a strong quality-diversity tradeoff compared with state-of-the-art QD-RL methods. Ablations further characterize this tradeoff by examining how each component affects individual quality and collective diversity. To assess RePPO's scalability, we extend our evaluation to learning from pixels and fine-tuning large language models. In pixel-based tasks, where large policies make most traditional QD-RL methods infeasible, RePPO maintains quality on par with standard PPO while achieving substantially higher diversity. Its successful application to language model fine-tuning further demonstrates, for the first time, that QD-RL methods can scale to this domain. Together, these results show that directly optimizing compact populations with RePPO provides a scalable approach to QD-RL across increasingly complex domains.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 3.809,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Intention Is All You Need",
+      "year": 2024,
+      "doi": "10.48550/arXiv.2410.18851",
+      "arxiv_id": "2410.18851",
+      "venue": "arXiv.org",
+      "abstract": "Among the many narratives of the transformative power of Generative AI is one that sees in the world a latent nation of programmers who need to wield nothing but intentions and natural language to render their ideas in software. In this paper, this outlook is problematised in two ways. First, it is observed that generative AI is not a neutral vehicle of intention. Multiple recent studies paint a picture of the\"mechanised convergence\"phenomenon, namely, that generative AI has a homogenising effect on intention. Second, it is observed that the formation of intention itself is immensely challenging. Constraints, materiality, and resistance can offer paths to design metaphors for intentional tools. Finally, existentialist approaches to intention are discussed and possible implications for programming are proposed in the form of a speculative, illustrative set of intentional programming practices.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 3.795,
+        "has_abstract": true,
+        "citations": 9
+      }
+    },
+    {
+      "title": "Watchdog or copycat? Examining news diversity in Slovenian journalism system",
+      "year": 2025,
+      "doi": "10.22572/mi.31.2.1",
+      "arxiv_id": null,
+      "venue": "Medijska Istraživanja",
+      "abstract": "The study examines the dynamics of news diversity within the Slovenian journalism system, a small and structurally constrained media market facing ownership concentration, political instrumentalisation, and resource limitations. Drawing on critical approaches to news diversity and the concept of the journalism system, the study conceptualises pluralisation and homogenisation as concurrent and interdependent processes that structure, enable, and limit democratic communication. The analysis investigates whether the Slovenian journalism system sustains a watchdog function that fosters plural public debate or gravitates toward a copycat logic marked by content uniformity. Empirically, we analysed 13,207 news items from television, radio, and online outlets using text-reuse detection, network clustering, and large language model–assisted source extraction. The findings reveal that news diversity in Slovenia is structurally conditioned, segmented, and unevenly distributed, shaped by intertwined ownership, organisational, and ideological factors. Pluralisation coexists with homogenisation, yet the symbolic power of dominant actors—political and institutional elites—remains largely intact, reproducing systemic inequalities in the journalism system. These results show that news diversity is fundamentally determined by broader political-economic relations that define who can speak and which perspectives are prominent. The study underscores the normative importance of news diversity as a cornerstone of democratic communication and calls for structural reforms to foster a more inclusive and pluralistic journalism system.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 3.607,
+        "has_abstract": true,
+        "citations": 2
+      }
+    },
+    {
+      "title": "INTEGRASI GENERATIVE ARTIFICIAL INTELLIGENCE DALAM PROSES PERANCANGAN ARSITEKTUR TROPIS",
+      "year": 2026,
+      "doi": "10.47532/abm9ed42",
+      "arxiv_id": null,
+      "venue": "Jurnal Ilmiah Vastuwidya",
+      "abstract": "Perkembangan Generative Artificial Intelligence telah membawa perubahan signifikan dalam berbagai bidang desain, termasuk arsitektur. Teknologi ini menawarkan kemampuan untuk menghasilkan berbagai alternatif desain secara cepat, adaptif, dan berbasis data, sehingga berpotensi meningkatkan efisiensi proses perancangan. Penelitian ini bertujuan untuk menganalisis integrasi Generative AI dalam proses perancangan arsitektur tropis serta mengidentifikasi peluang dan tantangan yang muncul dalam penerapannya. Metode yang digunakan adalah studi literatur dengan menelaah berbagai artikel ilmiah, buku, dan publikasi akademik yang relevan mengenai Generative AI dan arsitektur tropis. Hasil kajian menunjukkan bahwa Generative AI mampu mendukung eksplorasi desain yang lebih luas, mempercepat proses konseptualisasi, mengoptimalkan performa bangunan berdasarkan parameter lingkungan, serta membantu pengambilan keputusan desain yang lebih responsif terhadap kondisi iklim tropis. Selain itu, teknologi ini berkontribusi dalam pengembangan desain yang lebih berkelanjutan melalui simulasi dan evaluasi berbagai alternatif rancangan sejak tahap awal. Namun demikian, penerapan Generative AI juga menghadapi sejumlah tantangan, seperti keterbatasan kualitas data, risiko homogenisasi desain, isu etika terkait hak cipta, serta pentingnya peran arsitek dalam melakukan interpretasi dan validasi hasil yang dihasilkan oleh sistem kecerdasan buatan. Penelitian ini memberikan kontribusi konseptual dalam memahami potensi pemanfaatan Generative AI untuk mewujudkan desain arsitektur tropis yang inovatif, adaptif, dan berkelanjutan.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 3.557,
+        "has_abstract": true,
+        "citations": 0
+      }
+    }
+  ]
+}

@@ -7,7 +7,7 @@
 - 文献：`results/merged/candidates_v2.csv` 前 10 篇（按命中次数排序，见 `logs/RUN_LOG.md` Step 14）。排序反映两个来源是否都检索到，**不代表与研究问题的相关度**，所以这 10 篇只说明它们自身的情况。
 - 年份：各版本中最早的年份。
 - 作者：按 DOI 从 OpenAlex 查询（`scripts/authors.py` → `evidence/authors_v2.json`），超过 3 位作者时只列前 3 位。
-- verified 列：由 `scripts/verify.py` 写入，格式为"Crossref 结果；落地页结果"。两项检查都从 `https://doi.org/<DOI>` 出发并跟随跳转：Crossref 一项取登记的元数据，并把登记题目与表中题目对照；落地页一项记录出版商页面的 HTTP 状态与页面标题。BLOCKED 表示本环境的网络策略不允许访问该域名。
+- verified 列：由 `scripts/verify.py` 写入，格式为"Crossref 结果；落地页结果"；Crossref 一项失败时（如 arXiv 等由 DataCite 登记的 DOI），中间加一段按 DOI 查 OpenAlex 的结果（2026-11-02 起，见 `logs/RUN_LOG.md` Step 62–63）。两项检查都从 `https://doi.org/<DOI>` 出发并跟随跳转：Crossref 一项取登记的元数据，并把登记题目与表中题目对照；落地页一项记录出版商页面的 HTTP 状态与页面标题。BLOCKED 表示本环境的网络策略不允许访问该域名。
 
 **标注规则**（只依据摘要；没有摘要时，只在题目足以判断的面上标注，其余标 unknown）
 
@@ -35,7 +35,7 @@
 | 6 | Andreas Martin Jungherr | 2023 | Artificial Intelligence and Democracy: A Conceptual Framework | doi:10.1177/20563051231186353 | differ | differ | differ | differ | differ | Crossref HTTP 200 · 题目一致 · Artificial Intelligence and Democracy: A Conceptual Framework；落地页 BLOCKED at journals.sagepub.com (network policy, proxy 403) |
 | 7 | Ильдар Узбекович Зулькарнай | 2025 | Issues of using artificial intelligence in scientific research of socio-economic processes | doi:10.47309/2713-2358-2025-4-184-195 | differ | differ | overlap | differ | differ | Crossref HTTP 200 · 题目一致 · Issues of using artificial intelligence in scientific research of socio-economic processes；落地页 BLOCKED at elibrary.ru (network policy, proxy 403) |
 | 8 | Zhivar Sourati; Alireza S. Ziabari; Morteza Dehghani | 2025 | The homogenizing effect of large language models on human expression and thought | doi:10.1016/j.tics.2026.01.003 · arXiv:2508.01491 | overlap | overlap | differ | differ | overlap | Crossref HTTP 200 · 题目一致 · The homogenizing effect of large language models on human expression and thought；落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403) |
-| 9 | Meina Zhu; Lei Xu; Barbara Jane Ericson | 2025 | A systematic review of research on large language models for computer programming education | doi:10.48550/arxiv.2506.21818 · arXiv:2506.21818 | differ | differ | differ | overlap | differ | Crossref BLOCKED at data.crosscite.org (network policy, proxy 403)；落地页 BLOCKED at arxiv.org (network policy, proxy 403) |
+| 9 | Meina Zhu; Lei Xu; Barbara Jane Ericson | 2025 | A systematic review of research on large language models for computer programming education | doi:10.48550/arxiv.2506.21818 · arXiv:2506.21818 | differ | differ | differ | overlap | differ | Crossref BLOCKED at data.crosscite.org (network policy, proxy 403)；OpenAlex · 题目一致 · A systematic review of research on large language models for computer programming education；落地页 BLOCKED at arxiv.org (network policy, proxy 403) |
 | 10 | Ramesh Paudyal; Akash Deelip Shah; Oğuz Akın et al. | 2023 | Artificial Intelligence in CT and MR Imaging for Oncological Applications | doi:10.3390/cancers15092573 | differ | differ | differ | differ | differ | Crossref HTTP 200 · 题目一致 · Artificial Intelligence in CT and MR Imaging for Oncological Applications；落地页 BLOCKED at www.mdpi.com (network policy, proxy 403) |
 
 ## 判定依据
