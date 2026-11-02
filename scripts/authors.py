@@ -18,6 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
 from novelty_probe.paths import rel as _rel
+from novelty_probe.http import add_http_args, configure_from_args
 from novelty_probe.io import configure_console, write_json
 
 from search import get_json  # 复用 search.py 的请求与重试逻辑（OpenAlex key 由环境注入）
@@ -42,7 +43,9 @@ def main():
     ap.add_argument("--top", type=int, default=10)
     ap.add_argument("--candidates", type=Path, default=CANDIDATES_FILE)
     ap.add_argument("--out", type=Path, default=OUT_FILE)
+    add_http_args(ap)
     args = ap.parse_args()
+    client = configure_from_args(args)
     cand_file, out_file = args.candidates.resolve(), args.out.resolve()
     with cand_file.open(encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))[:args.top]
@@ -71,7 +74,7 @@ def main():
               f"title_matches={rec['title_matches']!s:<5} first={first}  {rec['error'] or ''}")
     meta = {"source": "OpenAlex /works/doi:<doi>", "script": "scripts/authors.py",
             "input": rel(cand_file), "top": args.top,
-            "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+            "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "http": client.stats_summary()}
     write_json(out_file, {"meta": meta, "records": out})
     print(f"written: {rel(out_file)}")
 

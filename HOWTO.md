@@ -192,6 +192,10 @@ For lines marked FAILED, fix the cause first (see Troubleshooting), then re-run 
 python3 scripts/logrun.py "T3 补跑" -- python3 scripts/search.py --ids Q3,Q4 --sources semanticscholar
 ```
 
+网络层：所有联网脚本都接受 `--http-mode cache`（先查本地缓存 `.cache/http`，省额度、少挨限流）与 `--refresh`（忽略缓存）；默认 `live`。OpenAlex 对格式错误的检索式不报错而静默改写（例如未配对的引号），脚本会核对它返回的解析结果，发现不一致就报错、不保存。
+
+Network layer: every networked script accepts `--http-mode cache` (check the local cache `.cache/http` first, saving budget and rate-limit hits) and `--refresh` (ignore the cache); the default is `live`. OpenAlex silently rewrites malformed queries (for example an unbalanced quote) instead of reporting an error; the script checks the parse OpenAlex returns and stops without saving if it does not match.
+
 可选：检查检索质量（每个结果文件中，标题 + 摘要满足原检索式的记录有多少；用 Porter 词干还原近似两个 API 的匹配，比例略偏高）：
 
 Optional: check search quality (how many records in each result file satisfy the original query in their title and abstract; Porter stemming approximates the APIs' matching, so the shares run slightly high):

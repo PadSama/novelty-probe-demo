@@ -98,5 +98,28 @@ class TestFacetAliases(unittest.TestCase):
                 self.assertEqual(snowball.seeds_from_evidence(p, 2), [("rank 2", "10.1126/sciadv.adn5290", "2312.00506")])
 
 
+class TestCompatibility(unittest.TestCase):
+    """静态检查：不使用 Python 3.9 没有的接口（本项目支持 3.9+；CI 以外的环境里只能这样把关）。"""
+    PATTERNS = [
+        (r"\.write_text\([^)]*newline=", "Path.write_text(newline=) 需要 3.10+，用 open(..., newline=) 代替"),
+        (r"\.removeprefix\(|\.removesuffix\(", "str.removeprefix/removesuffix 需要 3.9+（可用，但请确认不是 3.8 环境）"),
+        (r"^\s*match\s+\w+.*:\s*$", "match 语句需要 3.10+"),
+        (r"zip\([^)]*strict=", "zip(strict=) 需要 3.10+"),
+        (r"\bint\s*\|\s*None\b|\bstr\s*\|\s*None\b|\bdict\s*\|\s*None\b", "X | None 类型写法需要 3.10+（在运行时求值的位置）"),
+        (r"\bfrom zoneinfo import|\bimport tomllib\b", "zoneinfo / tomllib 需要 3.9+/3.11+"),
+    ]
+
+    def test_no_python_310_only_apis(self):
+        import re
+        offenders = []
+        for folder in ("novelty_probe", "scripts"):
+            for f in sorted((ROOT / folder).glob("*.py")):
+                for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+                    for pat, why in self.PATTERNS:
+                        if re.search(pat, line) and "removeprefix" not in pat:
+                            offenders.append(f"{f.relative_to(ROOT)}:{i}: {why}")
+        self.assertEqual(offenders, [])
+
+
 if __name__ == "__main__":
     unittest.main()

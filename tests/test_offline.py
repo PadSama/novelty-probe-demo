@@ -38,6 +38,9 @@ sys.path.insert(0, str(SCRIPTS))   # authors.py 里有 `from search import get_j
 sys.path.insert(0, str(ROOT))      # novelty_probe 包
 for _var in ("NO_PROXY", "no_proxy"):  # 模拟服务器在本机，不走代理
     os.environ[_var] = "127.0.0.1,localhost"
+_HTTP_CACHE = tempfile.mkdtemp(prefix="np-http-cache-")   # 测试中的 HTTP 缓存写到临时目录，不碰仓库的 .cache/
+os.environ["NP_HTTP_CACHE"] = _HTTP_CACHE
+os.environ.pop("NP_HTTP_MODE", None)
 CHILD_ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
 
 
@@ -221,7 +224,8 @@ class TestGetJson(unittest.TestCase):
                 search.get_json(self.server.url + "/forbidden")   # 其他错误：不重试
             self.assertEqual(slept, [])
             self.assertEqual(search.get_json(self.server.url + "/flaky"), {"ok": True})
-        self.assertEqual(slept, [2, 4])
+        self.assertEqual(len(slept), 2)                                        # 两次 429 后成功
+        self.assertTrue(1 <= slept[0] <= 2 and 2 <= slept[1] <= 4, slept)      # 退避 2、4 秒，带等抖动
 
 
 class TestSearchMain(unittest.TestCase):
@@ -372,6 +376,10 @@ class TestVerify(unittest.TestCase):
 
         def handle(h):
             path, wants_csl = h.path, csl_type in (h.headers.get("Accept") or "")
+            if path.startswith("/agency/"):                       # Crossref 的 /works/<doi>/agency
+                if path.endswith("/datacite/agency"):
+                    return reply(h, 200, json.dumps({"message": {"DOI": "x", "agency": {"id": "datacite"}}}), "application/json")
+                return reply(h, 404, "Resource not found.", "text/plain")
             if path.startswith("/10.0000/"):
                 key = path.rsplit("/", 1)[1]
                 if key == "missing":
@@ -404,7 +412,8 @@ class TestVerify(unittest.TestCase):
         self.server = MockServer(handle)
         self.patches = [mock.patch.object(verify, "DOI_RESOLVER", self.server.url + "/"),
                         mock.patch.object(verify, "OPENALEX_WORKS", self.server.url + "/works/doi:"),
-                        mock.patch.object(verify, "PAUSE", 0), mock.patch("time.sleep"),
+                        mock.patch.object(verify, "CROSSREF_AGENCY", self.server.url + "/agency/"),
+                        mock.patch("time.sleep"),
                         mock.patch.dict(os.environ, {"http_proxy": "", "HTTP_PROXY": ""})]
         for p in self.patches:
             p.start()
@@ -451,19 +460,14 @@ class TestVerify(unittest.TestCase):
     def test_openalex_fallback_and_no_landing(self):
         rc, cells = self.run_table("| rank | 题目 | DOI/arXiv | verified |",
                                    ["| 1 | DataCite Paper | doi:10.0000/datacite · arXiv:0000.00007 | 待核验 |"], "--no-landing")
-        self.assertTrue(cells["1"].startswith("Crossref ERROR at http://127.0.0.1:"), cells["1"])
-        self.assertTrue(cells["1"].endswith("；OpenAlex · 题目一致 · DataCite Paper；落地页 skipped"), cells["1"])
-        self.assertEqual(rc, 0)                                                     # OpenAlex 核验通过
+        self.assertEqual(cells["1"], "Crossref 无记录（Datacite 登记的 DOI）；OpenAlex · 题目一致 · DataCite Paper；落地页 skipped")
+        self.assertEqual(rc, 0)                                                     # 登记机构预检后直接走 OpenAlex，核验通过
+        self.assertFalse(any("/csl/datacite" in p for p in getattr(self, "csl_paths", [])))
 
-    def test_https_to_http_redirect_is_upgraded(self):
-        rec = verify.RecordingRedirects()
-        req = verify.urllib.request.Request("https://doi.org/10.1108/x")
-        new = rec.redirect_request(req, None, 302, "Found", {}, "http://www.emerald.com/a")
-        self.assertEqual(new.full_url, "https://www.emerald.com/a")
-        self.assertEqual(verify.hops({"chain": rec.chain, "upgraded": rec.upgraded}), "302 www.emerald.com (http→https)")
-        local = verify.urllib.request.Request("http://127.0.0.1:1/10.0000/ok")   # 原本就是 http 的不改
-        self.assertEqual(rec.redirect_request(local, None, 302, "Found", {}, "http://127.0.0.1:1/p").full_url,
-                         "http://127.0.0.1:1/p")
+    def test_hops_marks_upgraded_redirects(self):
+        self.assertEqual(verify.hops({"chain": [(302, "https://www.emerald.com/a")], "upgraded": ["https://www.emerald.com/a"]}),
+                         "302 www.emerald.com (http→https)")
+        self.assertEqual(verify.hops({"chain": [(302, "https://api.crossref.org/x")], "upgraded": []}), "302 api.crossref.org")
 
     def test_english_title_header(self):
         rc, cells = self.run_table("| rank | Authors | Year | Title | DOI/arXiv | verified |",

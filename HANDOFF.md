@@ -284,9 +284,12 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 | `compare.py` | 比较几轮结果、已知文献名次 | `--runs`、`--known`、`--ignore-phrases`、`--out` | 无 | 0 |
 | `logrun.py` | 运行命令并写日志 | `"<步骤名>" -- <命令>` | 无 | 与被运行的命令相同；用法错误时为 1 |
 
+所有联网脚本（search、authors、enrich、verify、snowball）共用 `novelty_probe/http.py` 的客户端，并接受同一组参数：`--http-mode live|cache|record|replay`（或环境变量 `NP_HTTP_MODE`）、`--cache-dir`（默认 `.cache/http`，已 gitignore）、`--cassette`（录制件路径）、`--refresh`。每个输出文件的 `meta.http` 记录请求数、缓存命中、重试、OpenAlex 额度头；`meta.warnings` 记录响应形状与解析核对的警告。S2 翻页与引文追踪的断点写在 `results/raw/.checkpoints/`，中断后重跑同一命令即续跑。
+
 值得知道的常量：
 
-- `search.py`：`TOP_N = 25`，`CONCURRENT_FROM_YEAR = 2023`，`MAX_RETRY_WAIT = 60`，`S2_MAX_RECORDS = 3000`，截断词表 `TRUNCATION`；
+- `search.py`：`TOP_N = 25`，`CONCURRENT_FROM_YEAR = 2023`，`S2_MAX_RECORDS = 3000`，截断词表 `TRUNCATION`；
+- `novelty_probe/http.py`：`POLICIES`（按主机：最小间隔、最多尝试次数、退避基数与上限、Retry-After 上限 60 秒、熔断阈值、缓存 TTL、密钥环境变量名）；
 - `merge.py`：`TOP_K = 20`，`MIN_TITLE_WORDS = 5`，`RRF_K = 60`，预印本版本规则 `PREPRINT_VERSION_RE`；
 - `textmatch.py`：BM25 的 `k1 = 1.2`、`b = 0.75`；版本识别的 `YEAR_WINDOW = 3` 与预印本、数据集 DOI 前缀表；
 - `snowball.py`：`MAX_FORWARD = 2000`，`TOP = 20`，`KEEP = 200`；

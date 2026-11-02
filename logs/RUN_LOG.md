@@ -3583,3 +3583,39 @@ python3 scripts/search.py --dry-run                                  # 6/6 queri
 ```
 
 **产出文件**：`novelty_probe/{__init__,io,paths,defaults}.py`、`tests/test_core.py`、`examples/tutorial/**`、`.gitattributes`（新增）；`scripts/*.py`、`tests/test_offline.py`、`tests/test_pipeline.py`、`HOWTO.md`、`.gitignore`（修改）
+
+---
+
+## [2026-11-02 15:29 UTC] Step 68 — 工具层迭代阶段 1：统一 HTTP 客户端、缓存与录制回放、响应校验
+
+按 `docs/ARCHITECTURE_REVIEW.md` 第 5 节的阶段 1 实施。
+
+**新增**（`novelty_probe/`，纯标准库）
+
+- `http.py`：Client，四种模式 live / cache / record / replay；按主机限速（S2 1.1 秒，含重试与翻页）；读 Retry-After；退避 = 基数 × 2^(n+1)、封顶、等抖动；Retry-After > 60 秒或 OpenAlex "Insufficient budget" → 不重试；连续 429 熔断；跟随跳转时逐跳限速与重试，https → http 改用 https；错误分类（ClientError / NotFound / RateLimited / BudgetExhausted / ServerError / NetworkError / BlockedByPolicy / ContentError / ReplayMiss），非 JSON 错误体只取去标签后的摘要；密钥按主机加在请求头（OPENALEX_API_KEY → Bearer，S2_API_KEY → x-api-key），不落盘；OpenAlex 额度头与 Crossref 限速头进 stats；paginate()（cursor / token / offset）带断点续跑，令牌失效则从头再来。
+- `cache.py`：内容寻址缓存与录制件同一条目格式；键 = sha256(method, 规范化 URL（去 api_key / mailto）, Accept, 请求体)；头部白名单；429 / 5xx 不缓存。
+- `schemas.py`：OpenAlex 列表 / 记录、S2 bulk / batch / citations、Crossref works / agency、CSL JSON、本项目原始结果文件的形状校验（返回警告，不中断）。
+
+**接入**：search（OpenAlex 校验 `x_query`：运算符被当成引号内的词 → 报错不保存；有排除组却无 NOT → 报错；oqo 解析树的词集合与发送的不同 → 警告；S2 用 paginate 翻页并写断点）、verify（先查 Crossref 的 /works/<doi>/agency：非 Crossref 登记的 DOI 直接记 "Crossref 无记录（DataCite 登记的 DOI）" 并走 OpenAlex，不再走 data.crosscite.org 那一跳）、snowball（翻页断点；ID 批量请求先排序再分批，保证请求确定）、enrich、authors；所有脚本新增 `--http-mode / --cache-dir / --cassette / --refresh`，输出 meta 带 `http` 统计与 `warnings`。
+
+**命令：实时冒烟并录制（record 模式，写入会话临时目录）**
+
+```
+search --ids Q3,Q4（v1 检索式）：4/4 requests succeeded；OpenAlex Q3 warnings: []，credits_used 10，remaining 6728；
+  S2 Q3：1 次 429 后重试成功（sleep 1.83 s），pool retrieved 9
+verify 3 行（Science Advances / arXiv / Emerald）：Crossref 题目一致 ×2；arXiv DOI → agency=datacite → OpenAlex 题目一致；
+  落地页三家均 BLOCKED（本环境网络策略）；Crossref 限速头 10/1s
+snowball 一步（种子 doi:10.1145/3635636.3656204，--max-forward 30）：pool 79；共被引（scientist*）：185 篇引用者中 1 篇通过过滤
+```
+
+录制件（已去除密钥）存入 `tests/fixtures/cassettes/`（4 个，1.3 MB），回放测试在禁网状态下跑完 search / verify / snowball 的主流程并逐条校验录制响应的形状。
+
+**命令：自检**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests   # 3.13: Ran 76 tests … OK；3.9: OK
+```
+
+新增 `tests/test_http.py`（假传输层：退避序列、Retry-After、预算、403/404 不重试、BlockedByPolicy、S2 间隔含重试、熔断、密钥只发给对应主机、跳转链与 https 升级、缓存命中与过期回退、录制 → 回放、键规范化、分页断点与令牌失效、形状校验）、`tests/test_replay.py`（录制件回放与契约）；`tests/test_core.py` 加 3.9 兼容性的静态检查（本轮即抓到 Path.write_text(newline=) 需 3.10+ 的问题）。
+
+**产出文件**：`novelty_probe/{http,cache,schemas}.py`、`tests/{test_http,test_replay}.py`、`tests/fixtures/cassettes/*.json`、`tests/fixtures/verify_table_recorded.md`（新增）；`scripts/{search,verify,snowball,enrich,authors}.py`、`tests/{test_offline,test_pipeline,test_core}.py`、`HOWTO.md`、`HANDOFF.md`（修改）

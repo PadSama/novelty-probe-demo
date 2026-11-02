@@ -26,6 +26,10 @@
                     "前 25 条"按被引次数从高到低取（sort=citationCount:desc）。
   purpose 为 concurrent 的检索式只取 2023 年起的文献（facets/facets.md 中的约定）。
 
+HTTP 层（novelty_probe/http.py）：按主机限速、重试、缓存与录制回放，命令行 --http-mode / --cache-dir / --cassette / --refresh；
+  每个输出文件的 meta.http 记录请求数、缓存命中、重试、OpenAlex 额度头；meta.warnings 记录响应形状与解析核对的警告。
+  OpenAlex 对格式错误的检索式不报错而静默改写（如未配对引号让运算符变成词、小写 not 变成普通词），
+  check_openalex_interpretation() 核对 x_query 后才保存结果。
 可选环境变量（不会写进输出文件）：
   OPENALEX_API_KEY  本云环境中 key 已由 Network secrets 在代理层注入，无需设置；在本机运行时才需要。
   S2_API_KEY        不设也能运行，但匿名请求共用限流池，容易返回 429。本云环境中研究者已为 api.semanticscholar.org
@@ -40,11 +44,8 @@
   python3 scripts/search.py --dry-run                        # 不联网，只检查检索式语法
 """
 import argparse
-import json
-import os
 import re
 import sys
-import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -52,6 +53,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe import schemas
+from novelty_probe.http import Token, add_http_args, configure_from_args, default_client
 from novelty_probe.paths import rel
 from novelty_probe.io import configure_console, load_json_lenient, write_json
 
@@ -63,16 +66,13 @@ RAW_DIR = ROOT / "results" / "raw"
 
 TOP_N = 25
 CONCURRENT_FROM_YEAR = 2023
-USER_AGENT = "novelty-probe/0.1 (literature search script)"
 OPENALEX_URL = "https://api.openalex.org/works"
 OPENALEX_SORT = "relevance_score:desc"
 S2_URL = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
 S2_FIELDS = "title,year,externalIds,venue,journal,abstract,citationCount"
 S2_SORT = "citationCount:desc"
 S2_MAX_RECORDS = 3000  # 本地重排时最多取多少条（bulk 每页最多 1000 条，用 token 翻页）
-S2_HOST = "api.semanticscholar.org"
-S2_MIN_INTERVAL = 1.1  # S2 的限额：每秒 1 个请求，所有接口合计；留一点余量
-MAX_RETRY_WAIT = 60  # 服务端要求等待超过这么多秒（如 OpenAlex 每日额度用完）就不重试，直接报错
+# 限速、重试、Retry-After 上限等见 novelty_probe/http.py 的 POLICIES（S2：每秒 1 个请求，所有接口合计）
 
 # 截断词 → 完整词（只用于 OpenAlex）。遇到未登记的截断词就报错，避免悄悄改变检索含义。
 TRUNCATION = {
@@ -179,59 +179,44 @@ def to_s2_bulk(query):
 
 # ---------- HTTP ----------
 
-def api_error(e):
-    """从 HTTP 错误响应里取出简短说明（优先取 JSON 的 message / error 字段）。"""
-    raw = e.read(2000).decode("utf-8", "replace")
-    try:
-        body = json.loads(raw)
-        msg = body.get("message") or body.get("error") or raw
-    except (ValueError, AttributeError):
-        msg = raw
-    msg = " ".join(str(msg).split())
-    return msg[:200] + ("…" if len(msg) > 200 else "")
+def get_json(url, headers=None, retries=None):
+    """GET 并解析 JSON，经由 novelty_probe.http 的统一客户端（缓存、按主机限速、重试、错误分类；密钥由客户端按主机加上）。
+    保留这个函数名是为了兼容其他脚本与测试；retries 参数已由客户端策略决定，忽略。"""
+    return default_client().get_json(url, headers=headers)
 
 
-_last_s2_request = [float("-inf")]
+_QUOTED_OPERATOR_RE = re.compile(r'"(?:AND|OR|NOT|and|or|not)"')
 
 
-def throttle(url):
-    """发往 Semantic Scholar 的请求之间至少间隔 S2_MIN_INTERVAL 秒（每个请求、每次重试都算一次）。"""
-    if urllib.parse.urlsplit(url).hostname != S2_HOST:
-        return
-    wait = _last_s2_request[0] + S2_MIN_INTERVAL - time.monotonic()
-    if wait > 0:
-        time.sleep(wait)
-    _last_s2_request[0] = time.monotonic()
+def check_openalex_interpretation(query_sent, api_meta):
+    """核对 OpenAlex 对检索式的解析（meta.x_query）。返回警告列表；明显错误直接抛 RuntimeError：
+    - 运算符被当成了引号内的词（如未配对的引号：("a OR b) AND c → (a "OR" b "AND" c)），结果与意图完全不同；
+    - 有排除组却没有解析出 NOT（如小写 not）；
+    - 解析树（oqo）里的检索词集合与发送的不同（警告，不中断）。"""
+    xq = api_meta.get("x_query") or {}
+    oql = xq.get("oql") or ""
+    if _QUOTED_OPERATOR_RE.search(oql):
+        raise RuntimeError(f"OpenAlex 把运算符当成了检索词（检索式可能有未配对的引号或括号；oql: {oql[:160]}），结果未保存")
+    include, exclude = parse_query(query_sent)
+    if exclude and oql and " NOT " not in oql:
+        raise RuntimeError(f"OpenAlex 没有把排除组解析为 NOT（oql: {oql[:160]}），结果未保存")
+    warnings = []
+    leaves = set()
 
-
-def get_json(url, headers=None, retries=5):
-    """GET 并解析 JSON。429、5xx、超时、连接被重置时指数退避重试；
-    服务端要求等待超过 MAX_RETRY_WAIT 秒时不重试。其他错误直接抛出
-    （包括代理拒绝连接：那是网络策略问题，重试没有用）。发往 S2 的请求先经 throttle() 节流。"""
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})
-    for attempt in range(retries + 1):
-        wait = 2 ** (attempt + 1)
-        throttle(url)
-        try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                return json.load(resp)
-        except urllib.error.HTTPError as e:
-            retry_after = e.headers.get("Retry-After", "")
-            retry_after = int(retry_after) if retry_after.isdigit() else 0
-            if (e.code == 429 or e.code >= 500) and attempt < retries and retry_after <= MAX_RETRY_WAIT:
-                time.sleep(max(wait, retry_after))
-                continue
-            raise RuntimeError(f"HTTP {e.code}: {api_error(e)}") from None
-        except (TimeoutError, ConnectionResetError) as e:
-            if attempt < retries:
-                time.sleep(wait)
-                continue
-            raise RuntimeError(f"{type(e).__name__}: {e}") from None
-        except urllib.error.URLError as e:
-            if isinstance(e.reason, (TimeoutError, ConnectionResetError)) and attempt < retries:
-                time.sleep(wait)
-                continue
-            raise RuntimeError(f"network error: {e.reason}") from None
+    def walk(node):
+        if isinstance(node, dict):
+            if "value" in node and isinstance(node["value"], str):
+                leaves.add(node["value"].strip().strip('"').lower())
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+    walk((xq.get("oqo") or {}).get("filter_rows"))
+    ours = {t.strip().strip('"').lower() for g in include + exclude for t in g}
+    if leaves and leaves != ours:
+        warnings.append(f"OpenAlex 解析出的检索词与发送的不同：多出 {sorted(leaves - ours)}，缺少 {sorted(ours - leaves)}")
+    return warnings
 
 
 # ---------- 记录整理 ----------
@@ -305,24 +290,20 @@ def search_openalex(q, year_from):
     if year_from:
         filters.append(f"from_publication_date:{year_from}-01-01")
     params = {"filter": ",".join(filters), "sort": OPENALEX_SORT, "per-page": TOP_N, "page": 1}
-    key = os.environ.get("OPENALEX_API_KEY")
-    headers = {"Authorization": f"Bearer {key}"} if key else {}  # key 放请求头，不进 URL
     url = f"{OPENALEX_URL}?{urllib.parse.urlencode(params)}"
-    data = get_json(url, headers)
-    time.sleep(0.2)
+    data = get_json(url)  # key 由客户端放进请求头，不进 URL
     api_meta = data.get("meta") or {}
-    oql = (api_meta.get("x_query") or {}).get("oql")
-    if parse_query(q["query"])[1] and oql and " NOT " not in oql:
-        # 例如 not 写成了小写：OpenAlex 会静默改按 AND 处理，把要排除的内容变成必须包含
-        raise RuntimeError(f"OpenAlex 没有把排除组解析为 NOT（oql: {oql[:160]}），结果未保存")
+    warnings = schemas.openalex_list(data) + check_openalex_interpretation(query_sent, api_meta)
     records = [openalex_record(w, q["id"]) for w in (data.get("results") or [])[:TOP_N]]
     meta = {
         "conversion": "boolean kept; truncated words -> full words; matched on title and abstract",
         "query_sent": query_sent,
         "api_interpretation": (api_meta.get("x_query") or {}).get("oql"),
+        "api_parse_tree": (api_meta.get("x_query") or {}).get("oqo"),
         "request_url": url,
         "sort": OPENALEX_SORT,
         "total_hits": api_meta.get("count"),
+        "warnings": warnings,
     }
     return meta, records
 
@@ -366,23 +347,25 @@ def s2_local_rank(papers, query, top_n=TOP_N):
     return [(i, info[i]) for i in order]
 
 
-def search_s2(q, year_from):
-    key = os.environ.get("S2_API_KEY")
-    headers = {"x-api-key": key} if key else {}
+def search_s2(q, year_from, checkpoint=None):
     params = {"query": to_s2_bulk(q["query"]), "fields": S2_FIELDS, "sort": S2_SORT}
     if year_from:
         params["year"] = f"{year_from}-"
     url = f"{S2_URL}?{urllib.parse.urlencode(params)}"
-    papers, total, token, pages = [], None, None, 0
-    while True:  # 翻页取回记录（最多 S2_MAX_RECORDS 条），再在本地按相关度重排
-        page_url = url + (f"&{urllib.parse.urlencode({'token': token})}" if token else "")
-        data = get_json(page_url, headers)  # 节流在 get_json 中统一处理
+    papers, total, pages, warnings, token = [], None, 0, [], None
+    # 翻页取回记录（最多 S2_MAX_RECORDS 条；中断后可从断点续跑），再在本地按相关度重排
+    fetch = lambda base, p: get_json(f"{base}?{urllib.parse.urlencode(p)}")  # noqa: E731  保留 get_json 封装（可被测试替换）
+    for page, items in default_client().paginate(S2_URL, params, scheme=Token(), max_items=S2_MAX_RECORDS,
+                                                 checkpoint=checkpoint, fetch=fetch):
+        if page.get("_resumed"):
+            pages += page.get("pages", 0)
+            papers.extend(items)
+            continue
         pages += 1
-        total = data.get("total") if total is None else total
-        papers.extend(data.get("data") or [])
-        token = data.get("token")
-        if not token or len(papers) >= S2_MAX_RECORDS:
-            break
+        warnings.extend(schemas.s2_bulk(page))
+        total = page.get("total") if total is None else total
+        papers.extend(items)
+        token = page.get("token")
     papers = papers[:S2_MAX_RECORDS]
     ranked = s2_local_rank(papers, q["query"])
     records = [{**s2_record(papers[i], q["id"]), "local_rank": info} for i, info in ranked]
@@ -398,6 +381,7 @@ def search_s2(q, year_from):
                  "with_abstract": sum(1 for p in papers if p.get("abstract")),
                  "same_title_dropped": sum(info.get("same_title_dropped", 0) for _, info in ranked)},
         "total_hits": total,
+        "warnings": warnings,
     }
     return meta, records
 
@@ -442,7 +426,9 @@ def main():
     ap.add_argument("--queries", type=Path, default=QUERIES_FILE, help="检索式文件，默认 queries/queries.json")
     ap.add_argument("--suffix", default="", help="输出文件名后缀，如 _v2")
     ap.add_argument("--dry-run", action="store_true", help="不联网：只检查检索式语法并打印各来源实际会发送的检索串")
+    add_http_args(ap)
     args = ap.parse_args()
+    client = configure_from_args(args)
 
     try:
         queries = load_queries(args.queries)
@@ -482,15 +468,22 @@ def main():
         year_from = CONCURRENT_FROM_YEAR if q["purpose"] == "concurrent" else None
         for src in sources:
             try:
-                meta, records = SEARCHERS[src](q, year_from)
+                if src == "semanticscholar":
+                    ck = RAW_DIR / ".checkpoints" / f"semanticscholar_{q['id']}{args.suffix}.json"
+                    meta, records = search_s2(q, year_from, checkpoint=ck)
+                else:
+                    meta, records = SEARCHERS[src](q, year_from)
             except Exception as e:  # 单个请求失败不影响其他请求
                 failed += 1
                 row(q["id"], q["purpose"], src, "-", "-", "-", f"FAILED: {e}")
                 continue
+            for w in meta.get("warnings") or []:
+                print(f"      warning [{q['id']} {src}]: {w}")
             meta = {"source_api": src, "query_id": q["id"], "purpose": q["purpose"],
                     "queries_file": qfile,
                     "query_original": q["query"], "year_from": year_from, **meta,
-                    "returned": len(records), "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+                    "returned": len(records), "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    "http": client.stats_summary()}
             path = RAW_DIR / f"{src}_{q['id']}{args.suffix}.json"
             write_json(path, {"meta": meta, "records": records})
             no_id = sum(1 for r in records if not r["doi"] and not r["arxiv_id"])

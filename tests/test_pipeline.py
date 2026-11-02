@@ -149,21 +149,6 @@ class TestS2LocalRank(unittest.TestCase):
         self.assertEqual(len(ranked), 2)                                   # 四条同题启事只留一条
         self.assertEqual(sum(info.get("same_title_dropped", 0) for _, info in ranked), 3)
 
-    def test_s2_requests_are_throttled(self):
-        clock, sleeps = [100.0], []
-
-        def fake_sleep(t):
-            sleeps.append(round(t, 2))
-            clock[0] += t
-        with mock.patch.object(search, "_last_s2_request", [float("-inf")]), \
-                mock.patch.object(search.time, "monotonic", lambda: clock[0]), \
-                mock.patch.object(search.time, "sleep", fake_sleep):
-            search.throttle("https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=a")
-            clock[0] += 0.3                                                  # 0.3 秒后发下一个请求
-            search.throttle("https://api.semanticscholar.org/graph/v1/paper/X")
-            search.throttle("https://api.openalex.org/works?filter=x")       # 其他主机不节流
-        self.assertEqual(sleeps, [round(search.S2_MIN_INTERVAL - 0.3, 2)])
-
     def test_pagination_and_cap(self):
         pages = {None: {"total": 5, "token": "t2", "data": [self.paper(f"ChatGPT narrowing {i}", "ChatGPT narrowing")
                                                            for i in range(3)]},
@@ -326,8 +311,7 @@ class TestSnowball(unittest.TestCase):
         (out / "merged_t.json").write_text(json.dumps({"records": [
             {"merged_id": "M007", "doi": "10.1/w21", "arxiv_id": None, "alt_ids": [], "title": "x"}]}), encoding="utf-8")
         self.patches = [mock.patch.object(snowball, "OPENALEX_URL", self.server.url + "/works"),
-                        mock.patch.object(snowball, "RAW_DIR", out), mock.patch.object(snowball, "OUT_DIR", out),
-                        mock.patch.object(snowball, "PAUSE", 0)]
+                        mock.patch.object(snowball, "RAW_DIR", out), mock.patch.object(snowball, "OUT_DIR", out)]
         for p in self.patches:
             p.start()
 
@@ -397,8 +381,7 @@ class TestSnowballCocite(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         out = Path(self.tmp.name)
         self.patches = [mock.patch.object(snowball, "OPENALEX_URL", self.server.url + "/works"),
-                        mock.patch.object(snowball, "RAW_DIR", out), mock.patch.object(snowball, "OUT_DIR", out),
-                        mock.patch.object(snowball, "PAUSE", 0)]
+                        mock.patch.object(snowball, "RAW_DIR", out), mock.patch.object(snowball, "OUT_DIR", out)]
         for p in self.patches:
             p.start()
 

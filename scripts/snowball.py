@@ -29,22 +29,23 @@ query_blocks / conform 对照检索式文件给出满足的 AND 组比例与是�
 """
 import argparse
 import csv
+import hashlib
 import math
-import os
 import re
 import sys
-import time
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe import schemas
 from novelty_probe.defaults import facet_columns
+from novelty_probe.http import Cursor, add_http_args, configure_from_args, default_client
 from novelty_probe.paths import rel as _rel
 from novelty_probe.io import configure_console, load_json_lenient, read_text, write_json
 
 import search
-from search import get_json, openalex_record
+from search import openalex_record
 from textmatch import (Doc, centroid, content_terms, cosine, groups_matched, is_notice, query_match, tfidf_vectors,
                        title_key, version_title_match)
 
@@ -58,7 +59,6 @@ MAX_FORWARD = 2000
 TOP = 20
 KEEP = 200
 BATCH = 50
-PAUSE = 0.15
 DOI_IN_CELL = re.compile(r"doi:(10\.\d{4,9}/[^\s·|]+)", re.I)
 ARXIV_IN_CELL = re.compile(r"arxiv:\s*([\w./-]+?\d)(?=\s|·|$)", re.I)
 CSV_COLUMNS = ["path", "rank", "openalex_id", "links", "support", "norm_support", "seeds", "similarity",
@@ -71,18 +71,23 @@ def rel(path):
     return _rel(path, ROOT)
 
 
-def headers():
-    key = os.environ.get("OPENALEX_API_KEY")
-    return {"Authorization": f"Bearer {key}"} if key else {}
-
-
-def oa_get(path_or_url, params=None):
+def oa_get(path_or_url, params=None, validate=None):
+    """OpenAlex 请求，经统一客户端（限速、重试、缓存；key 由客户端加在请求头）。"""
     url = path_or_url if path_or_url.startswith("http") else OPENALEX_URL + path_or_url
     if params:
         url += "?" + urllib.parse.urlencode(params)
-    data = get_json(url, headers())
-    time.sleep(PAUSE)
-    return data
+    return default_client().get_json(url, validate=validate)
+
+
+def oa_pages(flt, select, limit, label):
+    """按 cursor 翻页取 OpenAlex 列表（每页 200 条，最多 limit 条）；断点写在 results/raw/.checkpoints/ 下，可续跑。"""
+    ck = RAW_DIR / ".checkpoints" / f"chase_{label}.json"
+    params = {"filter": flt, "select": select, "per-page": min(200, max(1, limit))}
+    out = []
+    fetch = lambda base, p: oa_get(base, p, validate=schemas.openalex_list)  # noqa: E731
+    for _, items in default_client().paginate(OPENALEX_URL, params, scheme=Cursor(), max_items=limit, checkpoint=ck, fetch=fetch):
+        out.extend(items)
+    return out[:limit]
 
 
 def short_id(openalex_id):
@@ -138,19 +143,14 @@ def resolve_seed(doi, arxiv_id):
 # ---------- 追踪 ----------
 
 def forward(work_ids, limit):
-    """引用这些 OpenAlex 记录的文献（cursor 分页）。"""
-    out, cursor = [], "*"
-    while cursor and len(out) < limit:
-        data = oa_get("", {"filter": "cites:" + "|".join(work_ids), "select": FIELDS,
-                           "per-page": 200, "cursor": cursor})
-        out.extend(data.get("results") or [])
-        cursor = (data.get("meta") or {}).get("next_cursor")
-    return out[:limit]
+    """引用这些 OpenAlex 记录的文献（cursor 分页，可续跑）。"""
+    return oa_pages("cites:" + "|".join(work_ids), FIELDS, limit, "forward_" + "_".join(work_ids)[:60])
 
 
 def fetch_by_ids(ids):
+    """按 OpenAlex ID 批量取元数据。ID 先排序再分批：请求确定，缓存与录制件才能命中。"""
     out = []
-    ids = list(ids)
+    ids = sorted(set(ids))
     for i in range(0, len(ids), BATCH):
         chunk = [short_id(x) for x in ids[i:i + BATCH]]
         data = oa_get("", {"filter": "openalex_id:" + "|".join(chunk), "select": FIELDS, "per-page": BATCH})
@@ -194,12 +194,8 @@ def citing_works(seed_ids, expr, limit):
     total = (oa_get("", {"filter": flt, "per-page": 1, "select": "id"}).get("meta") or {}).get("count")
     if expr:
         flt += ",title_and_abstract.search:" + search.to_openalex(expr)
-    out, cursor = [], "*"
-    while cursor and len(out) < limit:
-        data = oa_get("", {"filter": flt, "select": FIELDS + ",referenced_works", "per-page": 200, "cursor": cursor})
-        out.extend(data.get("results") or [])
-        cursor = (data.get("meta") or {}).get("next_cursor")
-    return out[:limit], total
+    out = oa_pages(flt, FIELDS + ",referenced_works", limit, "citers_" + hashlib.sha1(flt.encode()).hexdigest()[:12])
+    return out, total
 
 
 def version_groups(works):
@@ -322,7 +318,9 @@ def main():
     ap.add_argument("--label", help="输出文件标签，默认一步模式 C1、共被引模式 C2")
     ap.add_argument("--top", type=int, default=TOP)
     ap.add_argument("--keep", type=int, default=KEEP, help="原始结果文件保存排序后的前多少条（默认 200；全部条数记在 meta）")
+    add_http_args(ap)
     args = ap.parse_args()
+    client = configure_from_args(args)
     label = args.label or ("C2" if args.cocite else "C1")
     if args.citer_filter:
         search.parse_query(args.citer_filter)  # 语法检查，写法与检索式相同
@@ -383,7 +381,7 @@ def main():
             "seeds": [info for _, _, info in seeds_resolved], **stats, "queries_file": rel(args.queries),
             "sort": ("cocited: support desc, support/sqrt(cited_by_count) desc; citers: similarity to seeds desc"
                      if args.cocite else "links desc, similarity to seeds desc"),
-            "total_hits": len(out), "returned": min(len(out), args.keep),
+            "total_hits": len(out), "returned": min(len(out), args.keep), "http": client.stats_summary(),
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     raw_path = RAW_DIR / f"chase_{label}{args.suffix}.json"
     write_json(raw_path, {"meta": meta, "records": [{k: v for k, v in x.items() if k != "in_search"} for x in out[:args.keep]]})
