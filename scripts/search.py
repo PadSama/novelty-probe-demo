@@ -88,10 +88,11 @@ def expand_truncation(text):
     return re.sub(r"[A-Za-z][\w-]*\*", repl, text)
 
 
-def and_groups(query):
-    """'A AND (B OR C)' → [['A'], ['B', 'C']]。
-    只支持当前检索式的写法：顶层用 AND 连接，括号内只用 OR，不嵌套、不用 NOT；其他写法直接报错。"""
-    groups, cur, depth = [], [], 0
+def parse_query(query):
+    """'A AND (B OR C) AND NOT (D OR E)' → ([['A'], ['B', 'C']], [['D', 'E']])，即（包含组，排除组）。
+    写法：顶层用 AND 连接若干组；组是单个词或括号内用 OR 连接的词；排除组写成 AND NOT 组，放在包含组之后。
+    不支持嵌套括号、括号内的 AND、括号外的 OR；其他写法直接报错。"""
+    include, exclude, cur, depth, negate = [], [], [], 0, False
     for tok in TOKEN_RE.findall(query):
         if tok == "(":
             depth += 1
@@ -99,22 +100,35 @@ def and_groups(query):
                 raise ValueError("不支持嵌套括号")
         elif tok == ")":
             depth -= 1
+            if depth < 0:
+                raise ValueError("括号不配对")
         elif tok == "AND":
             if depth:
                 raise ValueError("不支持括号内的 AND")
-            groups.append(cur)
-            cur = []
+            (exclude if negate else include).append(cur)
+            cur, negate = [], False
         elif tok == "OR":
             if not depth:
                 raise ValueError("不支持括号外的 OR")
         elif tok == "NOT":
-            raise ValueError("不支持 NOT")
+            if not include and not cur:
+                raise ValueError("检索式不能以 NOT 开头")
+            if depth or cur or negate:
+                raise ValueError('NOT 只能写在 AND 之后、作为一个组的开头，例如 … AND NOT ("a" OR "b")')
+            negate = True
         else:
             cur.append(tok)
-    groups.append(cur)
-    if depth or not all(groups):
-        raise ValueError("括号不配对或存在空的 AND 组")
-    return groups
+    (exclude if negate else include).append(cur)
+    if depth or not all(include) or not all(exclude):
+        raise ValueError("括号不配对或存在空的组")
+    if not include:
+        raise ValueError("至少需要一个不带 NOT 的组")
+    return include, exclude
+
+
+def and_groups(query):
+    """检索式的包含组（排除组见 parse_query）。"""
+    return parse_query(query)[0]
 
 
 def to_openalex(query):

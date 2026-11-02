@@ -17,7 +17,7 @@
 
 | 面 | 本想法（facets/facets_v2.md） | 记 overlap 的条件 |
 |---|---|---|
-| 研究问题 | 研究者使用 AI 工具，学科层面的选题范围是否收窄 | 研究 AI 使用对科研选题或研究方向的范围、多样性的影响（不限学科，学科差异记在研究情境） |
+| 研究问题 | 研究者使用 AI 工具，学科层面的选题范围是否收窄 | 去掉研究情境后问题相同：个人使用 AI，集体层面的产出（选题、内容、想法）是否趋同、多样性是否下降；对象与学科不同记在研究情境（研究者确定的标准，见文末修订记录） |
 | 作用机制 | 同质化、算法单一化、路灯效应、探索–利用、马太效应 | 摘要提出或检验了其中一种机制 |
 | 研究情境 | 管理学与经济学研究者使用生成式 AI（2022 年底以后） | 管理学或经济学的研究情境，且涉及生成式 AI 工具的使用；只满足其一记 differ |
 | 数据与方法 | 大规模论文数据：测 AI 使用、测选题范围、因果识别 | 用论文数据做文献计量或主题分析 |
@@ -28,13 +28,13 @@
 | rank | 作者 | 年份 | 题目 | DOI/arXiv | 研究问题 | 作用机制 | 研究情境 | 数据与方法 | 预期发现 | verified |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | Wim A. Naudé | 2023 | Artificial Intelligence and the Economics of Decision-Making | doi:10.2139/ssrn.4389118 | differ | differ | differ | differ | differ | Crossref HTTP 200 · 题目一致 · Artificial Intelligence and the Economics of Decision-Making；落地页 BLOCKED at www.ssrn.com (network policy, proxy 403) |
-| 2 | Anil Rajnikant Doshi; Oliver Hauser | 2023 | Generative AI enhances individual creativity but reduces the collective diversity of novel content | doi:10.1126/sciadv.adn5290 · arXiv:2312.00506 | differ | overlap | differ | differ | overlap | Crossref HTTP 200 · 题目一致 · Generative AI enhances individual creativity but reduces the collective diversity of novel content；落地页 BLOCKED at www.science.org (network policy, proxy 403) |
+| 2 | Anil Rajnikant Doshi; Oliver Hauser | 2023 | Generative AI enhances individual creativity but reduces the collective diversity of novel content | doi:10.1126/sciadv.adn5290 · arXiv:2312.00506 | overlap | overlap | differ | differ | overlap | Crossref HTTP 200 · 题目一致 · Generative AI enhances individual creativity but reduces the collective diversity of novel content；落地页 BLOCKED at www.science.org (network policy, proxy 403) |
 | 3 | Qianyue Hao; Fengli Xu; Yong Li et al. | 2026 | Artificial intelligence tools expand scientists’ impact but contract science’s focus | doi:10.1038/s41586-025-09922-y | overlap | overlap | differ | overlap | overlap | Crossref HTTP 200 · 题目一致 · Artificial intelligence tools expand scientists’ impact but contract science’s focus；落地页 BLOCKED at www.nature.com (network policy, proxy 403) |
-| 4 | Barrett R. Anderson; Jash Hemant Shah; Max Kreminski | 2024 | Homogenization Effects of Large Language Models on Human Creative Ideation | doi:10.1145/3635636.3656204 · arXiv:2402.01536 | differ | overlap | differ | differ | overlap | Crossref HTTP 200 · 题目一致 · Homogenization Effects of Large Language Models on Human Creative Ideation；落地页 BLOCKED at dl.acm.org (network policy, proxy 403) |
+| 4 | Barrett R. Anderson; Jash Hemant Shah; Max Kreminski | 2024 | Homogenization Effects of Large Language Models on Human Creative Ideation | doi:10.1145/3635636.3656204 · arXiv:2402.01536 | overlap | overlap | differ | differ | overlap | Crossref HTTP 200 · 题目一致 · Homogenization Effects of Large Language Models on Human Creative Ideation；落地页 BLOCKED at dl.acm.org (network policy, proxy 403) |
 | 5 | Hanadi Aldreabi; Mohammad Alhur; Manaf Al‐Okaily et al. | 2025 | Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliometric study | doi:10.1016/j.caeai.2025.100456 | differ | differ | differ | overlap | differ | Crossref HTTP 200 · 题目一致 · Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliome…；落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403) |
 | 6 | Andreas Martin Jungherr | 2023 | Artificial Intelligence and Democracy: A Conceptual Framework | doi:10.1177/20563051231186353 | differ | differ | differ | differ | differ | Crossref HTTP 200 · 题目一致 · Artificial Intelligence and Democracy: A Conceptual Framework；落地页 BLOCKED at journals.sagepub.com (network policy, proxy 403) |
 | 7 | Ильдар Узбекович Зулькарнай | 2025 | Issues of using artificial intelligence in scientific research of socio-economic processes | doi:10.47309/2713-2358-2025-4-184-195 | differ | differ | overlap | differ | differ | Crossref HTTP 200 · 题目一致 · Issues of using artificial intelligence in scientific research of socio-economic processes；落地页 BLOCKED at elibrary.ru (network policy, proxy 403) |
-| 8 | Zhivar Sourati; Alireza S. Ziabari; Morteza Dehghani | 2025 | The homogenizing effect of large language models on human expression and thought | doi:10.1016/j.tics.2026.01.003 · arXiv:2508.01491 | differ | overlap | differ | differ | overlap | Crossref HTTP 200 · 题目一致 · The homogenizing effect of large language models on human expression and thought；落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403) |
+| 8 | Zhivar Sourati; Alireza S. Ziabari; Morteza Dehghani | 2025 | The homogenizing effect of large language models on human expression and thought | doi:10.1016/j.tics.2026.01.003 · arXiv:2508.01491 | overlap | overlap | differ | differ | overlap | Crossref HTTP 200 · 题目一致 · The homogenizing effect of large language models on human expression and thought；落地页 BLOCKED at linkinghub.elsevier.com (network policy, proxy 403) |
 | 9 | Meina Zhu; Lei Xu; Barbara Jane Ericson | 2025 | A systematic review of research on large language models for computer programming education | doi:10.48550/arxiv.2506.21818 · arXiv:2506.21818 | differ | differ | differ | overlap | differ | Crossref BLOCKED at data.crosscite.org (network policy, proxy 403)；落地页 BLOCKED at arxiv.org (network policy, proxy 403) |
 | 10 | Ramesh Paudyal; Akash Deelip Shah; Oğuz Akın et al. | 2023 | Artificial Intelligence in CT and MR Imaging for Oncological Applications | doi:10.3390/cancers15092573 | differ | differ | differ | differ | differ | Crossref HTTP 200 · 题目一致 · Artificial Intelligence in CT and MR Imaging for Oncological Applications；落地页 BLOCKED at www.mdpi.com (network policy, proxy 403) |
 
@@ -52,7 +52,7 @@
 - 预期发现 differ："using EUT restricts AI systems to narrow applications"，指 AI 系统的适用范围，不是选题收窄。
 
 **2 · M027**（同 v1 证据表 rank 2）
-- 研究问题 differ：研究 "the causal impact of generative AI ideas on the production of short stories"，对象是故事内容，不是科研选题。
+- 研究问题 overlap（修订，原为 differ）：研究 "the causal impact of generative AI ideas on the production of short stories"，问的是个人使用生成式 AI 之后集体是否趋同："writers are individually better off, but collectively a narrower scope of novel content is produced"。对象是故事而不是科研选题，这一差异记在研究情境。
 - 作用机制 overlap："generative AI-enabled stories are more similar to each other than stories by humans alone"，并提到 "anchoring on generative AI ideas"（同质化）。
 - 研究情境 differ：写作者使用 LLM 提供的故事创意，不是管理学或经济学研究者。
 - 数据与方法 differ："an online experiment"。
@@ -67,7 +67,7 @@
 - 预期发现 overlap："a collective narrowing of scientific focus"；"a contraction in collective science's reach"。
 
 **4 · M021**（同 v1 证据表 rank 4）
-- 研究问题 differ：研究 LLM 作为创意支持工具对用户创意构思的影响，对象不是科研选题。
+- 研究问题 overlap（修订，原为 differ）：假设使用 LLM 会 "homogenize the ideas suggested by different users"，问的是个人使用 LLM 之后不同用户之间是否趋同。对象是创意构思而不是科研选题，这一差异记在研究情境。
 - 作用机制 overlap：结果 "in accordance with the homogenization hypothesis"。
 - 研究情境 differ："a 36-participant comparative user study"，使用 ChatGPT，任务是创意构思，摘要未说明参与者是研究者。
 - 数据与方法 differ：对照用户研究。
@@ -95,7 +95,7 @@
 - 预期发现 differ：结论是需要开发 "specialized, so-called narrow systems of AI"，指专用 AI，不是选题收窄。
 
 **8 · M016**
-- 研究问题 differ：研究 LLM 对人类表达与思维多样性的影响，对象不是科研选题。
+- 研究问题 overlap（修订，原为 differ）：问的是人们普遍依赖 LLM 之后，语言与思维是否趋同："they risk standardizing language and reasoning"，"amplifying convergence as all people increasingly rely on the same models across contexts"。对象是一般人群的表达与思维而不是科研选题，这一差异记在研究情境。
 - 作用机制 overlap："amplifying convergence as all people increasingly rely on the same models across contexts"（同质化、算法单一化）。
 - 研究情境 differ：一般人群，不是管理学或经济学研究者。
 - 数据与方法 differ：跨学科证据综述（"We synthesize evidence across linguistics, psychology, cognitive science, and computer science"），不分析论文数据。
@@ -114,3 +114,7 @@
 - 研究情境 differ：临床肿瘤影像，不是管理学或经济学研究；AI 不限于生成式 AI。
 - 数据与方法 differ：叙述性综述，不分析论文数据。
 - 预期发现 differ："new AI tools for narrow-specific tasks" 指窄任务 AI，不是选题收窄。
+
+## 修订记录
+
+- 2026-11-02：按研究者在 `evidence/difference_statement.md` 第 2 节提出的标准修改"研究问题"面的 overlap 条件："去掉情境之后，问题是同一个——个人用 AI，集体是否趋同"。原条件要求研究对象是科研选题，对象不同的论文一律记 differ；新条件只看去掉研究情境后的问题，对象差异记在"研究情境"面。rank 2（M027）、rank 4（M021）、rank 8（M016）的研究问题面由 differ 改为 overlap，判定依据中相应条目注明"修订"；其余各篇按新条件复核，标注不变。rank 8 是助手按同一标准的推断（研究者在第 2 节只点名了 v1 的 rank 2、rank 4），请研究者确认。记录见 `logs/RUN_LOG.md` Step 25。

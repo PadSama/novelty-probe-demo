@@ -1737,3 +1737,113 @@ script commands checked: 26; unknown scripts/flags: none
 - `scripts/search.py`、`scripts/merge.py`、`scripts/authors.py`、`HOWTO.md`、`README.md`、`PROJECT.md`（修改）
 
 **备注**：推送到分支 `claude/vigilant-faraday-odzwe4`，需研究者通过 PR 合并。下一步编号为 Step 24。
+
+---
+
+## [2026-11-02 07:48 UTC] Step 24 — 针对遗留问题的调研（进行中）与先行改进：文本匹配、质量检查、核验回退、版本补全
+
+**研究者要求（本轮）**：自行解决 `HANDOFF.md` 第 9 节列出的遗留问题；可以查 GitHub 上的类似项目和论文；先调研、再计划、最后执行。
+
+本步只做了不依赖调研结论、风险低的部分；检索式 NOT 的语法转换、排序、预印本合并、引文追踪等待调研完成后写入改进计划再实施。
+
+**命令 1：网络与 API 探测（python3 内联脚本，只读）**
+
+```
+可访问：api.openalex.org（key 由环境注入）、api.semanticscholar.org（无 key，限流）、api.crossref.org、doi.org、
+        api.github.com、raw.githubusercontent.com
+被网络策略拦截：export.arxiv.org、api.datacite.org、data.crosscite.org、www.ebi.ac.uk、api.unpaywall.org、出版商站点
+```
+
+**命令 2：缺摘要候选的补全来源（python3 内联脚本，只读）**
+
+```
+candidates without abstract: 5 (v1+v2 top-20)
+  v1 rank  1 M010 doi=10.1038/s41586-025-09640-5 | abstract chars: crossref 0, openalex 0, s2 0
+  v1 rank 12 M037 doi=10.1007/978-981-15-1420-3_90 | abstract chars: crossref 0, openalex 0, s2 0
+  v1 rank 14 M034 doi=10.1007/s13132-022-00920-3 | abstract chars: crossref 0, openalex 0, s2 0
+  _v2 rank 3 M003 doi=10.1038/s41586-025-09922-y | abstract chars: crossref 0, openalex 0, s2 0
+  _v2 rank 13 M030 doi=10.5465/amj.2008.34789630 | abstract chars: crossref 0, openalex 0, s2 0
+```
+
+按 DOI 从三个来源都取不到这 5 篇的摘要。改为按题目在 OpenAlex 查同一研究的其他版本：v2 M003（Hao 等，Nature）找到 arXiv 预印本（doi:10.48550/arxiv.2412.07727，有摘要）；同一结果里还有一封题为 "Re: Artificial Intelligence Tools Expand …" 的读者来信（doi:10.1016/j.eururo.2026.04.004），不是同一研究，须排除。
+
+**命令 3：Porter 词干还原的独立实现与 snowballstemmer 3.1.1（"porter"）逐词对照（python3 内联脚本）**
+
+```
+words compared: 9034; mismatches vs snowballstemmer 'porter': 0 []
+fixture pairs saved: 321
+```
+
+**命令 4：新增与修改的脚本**
+
+```
+# 新增 scripts/textmatch.py：只用标准库的文本匹配模块——Porter 词干还原；按词干匹配短语、按前缀匹配截断词；
+#   判断记录是否满足检索式（含 NOT 组）；BM25 打分；识别同一研究的不同版本（去掉末尾版本说明括注后标题相同，
+#   且不是 Re:、更正、回复、评论等独立条目）
+# 新增 scripts/qa.py：检索质量检查（第 9 节问题 8）。逐个原始结果文件统计标题+摘要满足原检索式的记录数
+# 新增 scripts/enrich.py：从同一研究的其他版本补摘要与 arXiv ID（第 9 节问题 5）。按题目查 OpenAlex，要求标题相同
+#   （≥6 个词）、年份相差 ≤3、至少一位作者同姓；结果连同来源写到 evidence/enrichment{suffix}.json，不改动 results/
+# scripts/verify.py：Crossref 核验失败时改查 OpenAlex（按 DOI），解决 arXiv 等 DataCite DOI 无法核验（问题 7）；
+#   落地页从 https:// 跳到 http:// 时改用 https://（Emerald、IEEE，问题 6）；新增 --no-landing
+# scripts/search.py：新增 parse_query()，可解析 "… AND NOT (a OR b)" 形式的排除组（只做解析；
+#   到 OpenAlex、S2 语法的转换尚未实现，暂不要在检索式里使用 NOT）
+```
+
+**命令 5：试运行（写入临时目录，不改动仓库文件）**
+
+```
+verify.py --no-landing，临时表（v2 rank 3、9）：
+  [9] doi:10.48550/arxiv.2506.21818
+      crossref:  302 data.crosscite.org -> Crossref BLOCKED at data.crosscite.org (network policy, proxy 403)
+      openalex:  -> OpenAlex · 题目一致 · A systematic review of research on large language models for computer programming education
+verify.py，临时表（v1 rank 6、8）：
+  [6] landing: 302 www.emerald.com (http→https) -> 落地页 BLOCKED at www.emerald.com (network policy, proxy 403)
+  [8] landing: 302 ieeexplore.ieee.org (http→https) -> 落地页 BLOCKED at ieeexplore.ieee.org (network policy, proxy 403)
+  （原先为 "ERROR at http://…: Name or service not known"；现在与其他出版商一样，只是被本环境拦截）
+enrich.py，v2 前 20：missing abstracts: 2 → added from another version: 1（M003，来自 arXiv 2412.07727，作者核对 shared）；
+  arXiv IDs added: 1
+enrich.py，v1 前 20：missing abstracts: 3 → added: 0（M010、M037、M034 在 OpenAlex 中没有其他版本）
+qa.py 复现 Step 4、13、15 的内联检查结果：v1 177/217（有摘要者 169/178）；v2 181/235（170/170）
+```
+
+**命令 6：离线自检**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests
+```
+
+```
+Ran 35 tests in 3.984s
+
+OK
+```
+
+新增 `tests/test_pipeline.py`（词干还原与 snowballstemmer 的 321 对对照、检索词匹配、BM25、版本标题识别、NOT 解析、qa.py 复现已记录的数字、enrich.py 的版本筛选），`tests/fixtures/porter_pairs.json`；`tests/test_offline.py` 增加 OpenAlex 回退、--no-landing、http→https 的测试，核验测试不再访问真实的 OpenAlex。
+
+**产出文件**
+
+- `scripts/textmatch.py`、`scripts/qa.py`、`scripts/enrich.py`、`tests/test_pipeline.py`、`tests/fixtures/porter_pairs.json`（新增）
+- `scripts/verify.py`、`scripts/search.py`、`tests/test_offline.py`（修改）
+
+---
+
+## [2026-11-02 08:05 UTC] Step 25 — 按研究者的标准修订证据表的"研究问题"面
+
+**研究者意见**（`evidence/difference_statement.md` 第 2 节）："证据表把 rank 2、rank 4 的'研究问题'标为 differ，我不同意：去掉情境之后，问题是同一个——个人用 AI，集体是否趋同。"
+
+**做了什么**
+
+- 两张证据表的标注规则中，"研究问题"面的 overlap 条件改为：去掉研究情境后问题相同（个人使用 AI，集体层面的产出是否趋同、多样性是否下降）；对象与学科的不同记在"研究情境"面。
+- 按新条件逐篇复核两张表的 20 行（依据摘要原文）：
+  - v1：rank 2（M031，Doshi & Hauser）、rank 4（M024，Anderson 等）differ → overlap；
+  - v2：rank 2（M027，同 v1 rank 2）、rank 4（M021，同 v1 rank 4）、rank 8（M016，Sourati 等，"amplifying convergence as all people increasingly rely on the same models across contexts"）differ → overlap；
+  - 其余各篇不变（问的不是"个人用 AI、集体是否趋同"：如概念框架、文献计量综述、AI 应用综述）。
+- v2 rank 8 是助手按同一标准做的推断，研究者只点名了 v1 的 rank 2、rank 4，已在表中注明请研究者确认。
+- 判定依据中改动的条目注明"修订，原为 differ"；两张表末尾新增"修订记录"。
+- `evidence/difference_statement.md` 第 1 节：rank 2、rank 4 两行按修订后的证据表重新复制，选择规则中的面数由 2 改为 3，加修订说明；入选的三篇不变。第 2、3 节（研究者填写）未改动。
+
+**校验**：`python3 -m unittest tests.test_offline.TestRepositoryData` → OK（两张表各 10 行，五个面的取值合法）。
+
+**产出文件**
+
+- `evidence/evidence_table.md`、`evidence/evidence_table_v2.md`、`evidence/difference_statement.md`（修改）
