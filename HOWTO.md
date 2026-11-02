@@ -4,9 +4,9 @@
 
 **Probing the literature for a new idea with novelty-probe**
 
-> 给第一次拿到本目录的同学。**你只需要改 `idea/idea.md`**，其余文件由下面的命令（脚本）或 AI 助手（在本目录里运行的 Claude Code）生成。
+> 给第一次拿到本目录的同学。**你只需要改 `idea/idea.md`**，其余文件由下面的命令（脚本）或 AI 编程助手（在本目录里运行，如 ZCode + GLM、Claude Code）生成。
 >
-> For first-time users of this directory. **The only file you edit is `idea/idea.md`.** Everything else is produced by the commands below (scripts) or by an AI assistant (Claude Code running in this directory).
+> For first-time users of this directory. **The only file you edit is `idea/idea.md`.** Everything else is produced by the commands below (scripts) or by an AI coding assistant running in this directory (for example ZCode with GLM, or Claude Code).
 >
 > 规则见 `PROJECT.md`：不判断新颖性，只找证据；每条文献要有 DOI 或 arXiv ID，否则标 UNVERIFIED；每一步的命令和产出都追加到 `logs/RUN_LOG.md`。
 >
@@ -27,9 +27,9 @@
 
   Run every command from this directory (the project root). Commands are written for a macOS / Linux shell; on Windows, use WSL or replace `python3` with `python`.
 
-- **AI 助手步骤**：在本目录启动 Claude Code，把对应的提示词原样粘贴进去（每个提示词都有中文和英文两个版本，任选其一）。也可以手工完成，按提示词里的格式写文件。
+- **AI 助手步骤**：在本目录启动你的 AI 编程助手（如 ZCode + GLM、Claude Code），先让它读 `AGENTS.md`，再把对应的提示词原样粘贴进去（每个提示词都有中文和英文两个版本，任选其一）。也可以手工完成，按提示词里的格式写文件。
 
-  **AI assistant steps**: start Claude Code in this directory and paste the corresponding prompt as is (each prompt comes in a Chinese and an English version; use either). You can also do these steps by hand, writing the files in the format the prompt describes.
+  **AI assistant steps**: start your AI coding assistant in this directory (for example ZCode with GLM, or Claude Code), have it read `AGENTS.md` first, then paste the corresponding prompt as is (each prompt comes in a Chinese and an English version; use either). You can also do these steps by hand, writing the files in the format the prompt describes.
 
 - **脚本步骤**：每条命令都包在 `python3 scripts/logrun.py "<步骤名>" -- …` 里。它照常运行命令，同时把命令和输出追加到 `logs/RUN_LOG.md`。
 
@@ -45,9 +45,17 @@
 python3 --version
 ```
 
-**网络**：需要能访问下列域名。在自己电脑上运行通常不用处理；在 Claude Code 云环境中运行，要在环境设置的 Network access 里放行。
+**离线自检**（几秒，不联网）：全部显示 OK，说明环境和脚本都正常。
 
-**Network**: the domains below must be reachable. On your own computer this usually needs no action; in a Claude Code cloud environment, allow them under Network access in the environment settings.
+**Offline self-test** (a few seconds, no network): if every test reports OK, your environment and the scripts work.
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+**网络**：需要能访问下列域名。在自己电脑上运行通常不用处理；在云端沙箱环境（如 Claude Code 的云环境）中运行，要在环境设置的 Network access 里放行。
+
+**Network**: the domains below must be reachable. On your own computer this usually needs no action; in a cloud sandbox (such as a Claude Code cloud environment), allow them under Network access in the environment settings.
 
 | 域名<br>Domain | 用于<br>Used for |
 |---|---|
@@ -119,9 +127,9 @@ In one or two sentences, state who does what with which tool, what outcome you e
 
 ## 3. T2 拆面与检索式（AI 助手）｜ T2 Facets and queries (AI assistant)
 
-把下面任一版本的提示词粘贴给 Claude Code：
+把下面任一版本的提示词粘贴给 AI 助手：
 
-Paste either version of the prompt below into Claude Code:
+Paste either version of the prompt below into the AI assistant:
 
 ```text
 读 idea/idea.md。按 PROJECT.md 的规则：
@@ -215,9 +223,9 @@ Look up authors (the search results do not include authors):
 python3 scripts/logrun.py "T5 查作者" -- python3 scripts/authors.py --top 10
 ```
 
-把下面任一版本的提示词粘贴给 Claude Code：
+把下面任一版本的提示词粘贴给 AI 助手：
 
-Paste either version of the prompt below into Claude Code:
+Paste either version of the prompt below into the AI assistant:
 
 ```text
 读 results/merged/candidates.csv 前 10 篇的摘要（作者见 evidence/authors.json），对照 facets/facets.md，逐面标 overlap / differ / unknown，写到 evidence/evidence_table.md。
@@ -247,9 +255,9 @@ The verified column reads "Crossref result；landing-page result" (落地页 = l
 
 ## 7. T6 差异陈述（AI 助手 + 你）｜ T6 Difference statement (AI assistant + you)
 
-把下面任一版本的提示词粘贴给 Claude Code：
+把下面任一版本的提示词粘贴给 AI 助手：
 
-Paste either version of the prompt below into Claude Code:
+Paste either version of the prompt below into the AI assistant:
 
 ```text
 生成 evidence/difference_statement.md，三节：
@@ -326,6 +334,8 @@ python3 scripts/logrun.py "T5 v2 DOI 核验" -- python3 scripts/verify.py --tabl
 | 路径<br>Path | 内容<br>Contents |
 |---|---|
 | `README.md` | 英文项目介绍<br>Project overview in English |
+| `AGENTS.md` | 给 AI 编程助手的说明（中文）<br>Instructions for AI coding assistants (Chinese) |
+| `HANDOFF.md` | 交接文档：现状、数据约定、设计决策、已知问题（中文）<br>Handoff notes: status, data contracts, design decisions, known issues (Chinese) |
 | `PROJECT.md` | 助手的角色与三条硬规则（中文）<br>The assistant's role and three rules (Chinese) |
 | `idea/idea.md` | 你的想法（唯一需要你改的文件）<br>Your idea (the only file you edit) |
 | `facets/`、`queries/` | T2 产出<br>T2 outputs |
@@ -337,3 +347,4 @@ python3 scripts/logrun.py "T5 v2 DOI 核验" -- python3 scripts/verify.py --tabl
 | `scripts/authors.py` | T5 查作者（`--top`、`--candidates`、`--out`）<br>T5 author lookup (`--top`, `--candidates`, `--out`) |
 | `scripts/verify.py` | T5 DOI 核验（`--table`）<br>T5 DOI verification (`--table`) |
 | `scripts/logrun.py` | 运行一条命令，同时写入 `logs/RUN_LOG.md`<br>Runs a command and records it in `logs/RUN_LOG.md` |
+| `tests/` | 离线自检（`python3 -m unittest discover -s tests -v`）<br>Offline self-test |

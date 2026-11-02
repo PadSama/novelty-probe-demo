@@ -63,6 +63,12 @@ CSV_COLUMNS = ["rank", "merged_id", "hits", "n_queries", "n_sources", "mean_rank
                "id_status", "doi", "arxiv_id", "title", "year", "venue", "title_linked", "raw_refs", "abstract"]
 
 
+def rel(path):
+    """项目内的路径显示为相对路径，项目外的显示为绝对路径。"""
+    p = Path(path).resolve()
+    return str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+
+
 def doi_key(doi):
     d = doi.strip().lower()
     m = PREPRINT_VERSION_RE.match(d)
@@ -104,7 +110,7 @@ def load_raw(suffix=""):
     for path in raw_files(suffix):
         d = json.loads(path.read_text(encoding="utf-8"))
         m = d["meta"]
-        inputs.append({"file": str(path.relative_to(ROOT)),
+        inputs.append({"file": rel(path),
                        **{k: m.get(k) for k in ("source_api", "query_id", "conversion", "sort",
                                                  "total_hits", "returned", "retrieved_at")}})
         for rank, r in enumerate(d["records"], 1):
@@ -271,7 +277,7 @@ def main():
         "inputs": inputs,
         "counts": counts,
         "candidates": {
-            "file": str(cand_file.relative_to(ROOT)),
+            "file": rel(cand_file),
             "top_k": TOP_K,
             "sort": "hits desc, n_queries desc, n_sources desc, mean_rank asc, merged_id",
             "cutoff_hits": cutoff,
@@ -296,7 +302,7 @@ def main():
           + f"   (works hit by more than one query: {counts['in_multiple_queries']})")
     print("hits:       " + " | ".join(f"{h} hit(s): {n} works" for h, n in counts["hits_distribution"].items())
           + "   (hits = number of query x source result lists containing the work)")
-    print(f"written:    {out_file.relative_to(ROOT)}, {cand_file.relative_to(ROOT)} (top {len(candidates)})")
+    print(f"written:    {rel(out_file)}, {rel(cand_file)} (top {len(candidates)})")
     if len(ranked) > TOP_K:
         print(f"cutoff:     #{len(candidates)} has hits={cutoff}; {tied_total} works have hits={cutoff}, "
               f"{tied_out} of them fall outside the top {TOP_K} (decided by n_queries, n_sources, mean_rank)")

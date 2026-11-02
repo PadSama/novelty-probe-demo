@@ -23,6 +23,12 @@ CANDIDATES_FILE = ROOT / "results" / "merged" / "candidates.csv"
 OUT_FILE = ROOT / "evidence" / "authors.json"
 
 
+def rel(path):
+    """项目内的路径显示为相对路径，项目外的显示为绝对路径。"""
+    p = Path(path).resolve()
+    return str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+
+
 def norm(t):
     return " ".join(re.findall(r"\w+", re.sub(r"<[^>]+>", " ", t or "").lower()))
 
@@ -34,7 +40,8 @@ def main():
     ap.add_argument("--out", type=Path, default=OUT_FILE)
     args = ap.parse_args()
     cand_file, out_file = args.candidates.resolve(), args.out.resolve()
-    rows = list(csv.DictReader(cand_file.open(encoding="utf-8-sig", newline="")))[:args.top]
+    with cand_file.open(encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))[:args.top]
     out = []
     for r in rows:
         rec = {"rank": int(r["rank"]), "merged_id": r["merged_id"], "doi": r["doi"] or None,
@@ -59,12 +66,12 @@ def main():
         print(f"{rec['rank']:>3} {rec['merged_id']:<5} n_authors={rec['n_authors']!s:<4} "
               f"title_matches={rec['title_matches']!s:<5} first={first}  {rec['error'] or ''}")
     meta = {"source": "OpenAlex /works/doi:<doi>", "script": "scripts/authors.py",
-            "input": str(cand_file.relative_to(ROOT)), "top": args.top,
+            "input": rel(cand_file), "top": args.top,
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     out_file.parent.mkdir(parents=True, exist_ok=True)
     out_file.write_text(json.dumps({"meta": meta, "records": out}, ensure_ascii=False, indent=2) + "\n",
                         encoding="utf-8")
-    print(f"written: {out_file.relative_to(ROOT)}")
+    print(f"written: {rel(out_file)}")
 
 
 if __name__ == "__main__":
