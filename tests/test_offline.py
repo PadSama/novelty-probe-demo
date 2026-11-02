@@ -104,7 +104,7 @@ class TestQueries(unittest.TestCase):
         self.assertEqual(search.to_s2_bulk('(a-b OR "c-d") AND e'), '("a b" | "c-d") + e')
 
     def test_syntax_guards(self):
-        for bad in ['"a" OR "b"', '(a OR (b OR c))', '(a AND b)', 'a AND NOT b', '(a OR b', '() AND a']:
+        for bad in ['"a" OR "b"', '(a OR (b OR c))', '(a AND b)', 'NOT a', '(a OR b', '() AND a']:
             with self.subTest(query=bad), self.assertRaises(ValueError):
                 search.and_groups(bad)
         with self.assertRaises(ValueError):
@@ -293,10 +293,11 @@ class TestMerge(unittest.TestCase):
                 self.assertEqual([p.name for p in merge.raw_files("_v2")], ["openalex_Q1_v2.json"])
 
     def test_reproduces_committed_merge_outputs(self):
-        """用仓库里已提交的 results/raw 重跑合并，须与已提交的 merged*.json、candidates*.csv 一致。"""
+        """用仓库里已提交的 results/raw 按旧方法（--legacy）重跑合并，须与已提交的 merged*.json、candidates*.csv 一致。"""
         for suffix in ("", "_v2"):
             with self.subTest(round=suffix or "v1"), tempfile.TemporaryDirectory() as d:
-                with mock.patch.object(merge, "OUT_DIR", Path(d)), mock.patch.object(sys, "argv", ["merge.py", "--suffix", suffix]), \
+                with mock.patch.object(merge, "OUT_DIR", Path(d)), \
+                        mock.patch.object(sys, "argv", ["merge.py", "--suffix", suffix, "--legacy"]), \
                         contextlib.redirect_stdout(io.StringIO()):
                     merge.main()
                 new = json.loads((Path(d) / f"merged{suffix}.json").read_text(encoding="utf-8"))
@@ -340,7 +341,7 @@ class TestVerify(unittest.TestCase):
             "for dynamic topic evolution analysis in academic papers")
 
     def setUp(self):
-        self.retry_calls = 0
+        self.retry_calls, self.openalex_calls = 0, []
         dead = f"http://127.0.0.1:{dead_port()}/x"
         csl_type = verify.CSL_ACCEPT
 
@@ -354,10 +355,18 @@ class TestVerify(unittest.TestCase):
                 key = path.rsplit("/", 1)[1]
                 if key == "missing":
                     return reply(h, 404, "<title>Not found</title>")
-                if wants_csl:
+                if wants_csl and key != "datacite":
                     return reply(h, 302, headers=[("Location", f"/csl/{key}")])
-                landing = {"ok": "/page/ok", "mismatch": "/page/forbidden", "retry": dead, "long": dead, "en": "/page/en"}
+                landing = {"ok": "/page/ok", "mismatch": "/page/forbidden", "retry": dead, "long": dead, "en": "/page/en",
+                           "datacite": "/page/ok"}
+                if wants_csl and key == "datacite":   # 像 arXiv DOI 被转到不可达的 data.crosscite.org
+                    return reply(h, 302, headers=[("Location", dead)])
                 return reply(h, 302, headers=[("Location", landing[key])])
+            if path.startswith("/works/doi:"):        # OpenAlex 备用核验
+                self.openalex_calls.append(path)
+                if "/datacite" in path:
+                    return reply(h, 200, json.dumps({"id": "W1", "display_name": "DataCite Paper"}), "application/json")
+                return reply(h, 404, json.dumps({"error": "Not found"}), "application/json")
             if path == "/csl/retry":
                 self.retry_calls += 1
                 return reply(h, 429) if self.retry_calls <= 2 else reply(h, 200, csl("Retry <i>Paper</i>"), csl_type)
@@ -373,6 +382,7 @@ class TestVerify(unittest.TestCase):
 
         self.server = MockServer(handle)
         self.patches = [mock.patch.object(verify, "DOI_RESOLVER", self.server.url + "/"),
+                        mock.patch.object(verify, "OPENALEX_WORKS", self.server.url + "/works/doi:"),
                         mock.patch.object(verify, "PAUSE", 0), mock.patch("time.sleep"),
                         mock.patch.dict(os.environ, {"http_proxy": "", "HTTP_PROXY": ""})]
         for p in self.patches:
@@ -383,12 +393,13 @@ class TestVerify(unittest.TestCase):
             p.stop()
         self.server.close()
 
-    def run_table(self, header, rows):
+    def run_table(self, header, rows, *flags):
         with tempfile.TemporaryDirectory() as d:
             table = Path(d) / "t.md"
             sep = "|---" * (header.count("|") - 1) + "|"
             table.write_text("\n".join(["intro", header, sep, *rows, "", "tail"]) + "\n", encoding="utf-8")
-            with mock.patch.object(sys, "argv", ["verify.py", "--table", str(table)]), contextlib.redirect_stdout(io.StringIO()):
+            with mock.patch.object(sys, "argv", ["verify.py", "--table", str(table), *flags]), \
+                    contextlib.redirect_stdout(io.StringIO()):
                 rc = verify.main()
             lines = table.read_text(encoding="utf-8").splitlines()
         self.assertEqual((lines[0], lines[-1]), ("intro", "tail"))   # 表外内容不变
@@ -410,9 +421,28 @@ class TestVerify(unittest.TestCase):
         self.assertEqual(self.retry_calls, 3)                                      # 两次 429 后成功
         self.assertTrue(cells["4"].startswith("Crossref HTTP 200 · 题目一致 · A temporal adaptive"))  # 长题目用全文比对
         self.assertIn("…；", cells["4"])                                            # 只在显示时截短
-        self.assertEqual(cells["5"], "Crossref HTTP 404 (127.0.0.1)；落地页 HTTP 404 (127.0.0.1) · Not found")
+        self.assertEqual(cells["5"], "Crossref HTTP 404 (127.0.0.1)；OpenAlex HTTP 404 (未收录该 DOI)；"
+                                     "落地页 HTTP 404 (127.0.0.1) · Not found")    # Crossref 失败后查 OpenAlex，也查不到
         self.assertEqual(cells["6"], "UNVERIFIED")
-        self.assertEqual(rc, 1)                                                     # rank 5 的 Crossref 检查失败
+        self.assertEqual(len(self.openalex_calls), 1)                               # Crossref 成功的行不查 OpenAlex
+        self.assertEqual(rc, 1)                                                     # rank 5 两项元数据核验都失败
+
+    def test_openalex_fallback_and_no_landing(self):
+        rc, cells = self.run_table("| rank | 题目 | DOI/arXiv | verified |",
+                                   ["| 1 | DataCite Paper | doi:10.0000/datacite · arXiv:0000.00007 | 待核验 |"], "--no-landing")
+        self.assertTrue(cells["1"].startswith("Crossref ERROR at http://127.0.0.1:"), cells["1"])
+        self.assertTrue(cells["1"].endswith("；OpenAlex · 题目一致 · DataCite Paper；落地页 skipped"), cells["1"])
+        self.assertEqual(rc, 0)                                                     # OpenAlex 核验通过
+
+    def test_https_to_http_redirect_is_upgraded(self):
+        rec = verify.RecordingRedirects()
+        req = verify.urllib.request.Request("https://doi.org/10.1108/x")
+        new = rec.redirect_request(req, None, 302, "Found", {}, "http://www.emerald.com/a")
+        self.assertEqual(new.full_url, "https://www.emerald.com/a")
+        self.assertEqual(verify.hops({"chain": rec.chain, "upgraded": rec.upgraded}), "302 www.emerald.com (http→https)")
+        local = verify.urllib.request.Request("http://127.0.0.1:1/10.0000/ok")   # 原本就是 http 的不改
+        self.assertEqual(rec.redirect_request(local, None, 302, "Found", {}, "http://127.0.0.1:1/p").full_url,
+                         "http://127.0.0.1:1/p")
 
     def test_english_title_header(self):
         rc, cells = self.run_table("| rank | Authors | Year | Title | DOI/arXiv | verified |",

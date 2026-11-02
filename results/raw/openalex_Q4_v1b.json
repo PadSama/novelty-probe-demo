@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "source_api": "openalex",
+    "query_id": "Q4",
+    "purpose": "application",
+    "queries_file": "queries/queries.json",
+    "query_original": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"AI for science\" OR \"large language models\" OR \"generative AI\") AND scientist*",
+    "year_from": null,
+    "conversion": "boolean kept; truncated words -> full words; matched on title and abstract",
+    "query_sent": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"AI for science\" OR \"large language models\" OR \"generative AI\") AND scientists",
+    "api_interpretation": "get works with (scientists AND (stemmed \"AI for science\" OR stemmed \"generative AI\" OR stemmed \"large language models\") AND (stemmed \"Matthew effect\" OR stemmed \"exploration-exploitation\" OR stemmed \"streetlight effect\")) in the title or abstract",
+    "request_url": "https://api.openalex.org/works?filter=title_and_abstract.search%3A%28%22streetlight+effect%22+OR+%22Matthew+effect%22+OR+%22exploration-exploitation%22%29+AND+%28%22AI+for+science%22+OR+%22large+language+models%22+OR+%22generative+AI%22%29+AND+scientists&sort=relevance_score%3Adesc&per-page=25&page=1",
+    "sort": "relevance_score:desc",
+    "total_hits": 1,
+    "returned": 1,
+    "retrieved_at": "2026-11-02T08:53:04+00:00"
+  },
+  "records": [
+    {
+      "title": "A multimodal robotic platform for multi-element electrocatalyst discovery",
+      "year": 2025,
+      "doi": "10.1038/s41586-025-09640-5",
+      "arxiv_id": null,
+      "venue": "Nature",
+      "abstract": null,
+      "source_api": "openalex",
+      "query_id": "Q4"
+    }
+  ]
+}

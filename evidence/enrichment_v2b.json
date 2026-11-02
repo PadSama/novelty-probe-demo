@@ -1,0 +1,317 @@
+{
+  "meta": {
+    "source": "OpenAlex title.search (other versions of the same work)",
+    "script": "scripts/enrich.py",
+    "input": "results/merged/candidates_v2b.csv",
+    "top": 20,
+    "max_year_gap": 3,
+    "retrieved_at": "2026-11-02T08:55:49+00:00",
+    "counts": {
+      "candidates": 20,
+      "missing_abstract": 3,
+      "abstract_added": 0,
+      "arxiv_id_added": 0,
+      "doi_suggested": 0
+    }
+  },
+  "records": [
+    {
+      "rank": 1,
+      "merged_id": "M001",
+      "title": "Qualitative Insights Tool (QualIT): LLM Enhanced Topic Modeling",
+      "needs": [],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 2,
+      "merged_id": "M031",
+      "title": "Cognitive Tendencies in International Business Research: Implications of a “Narrow Vision”",
+      "needs": [
+        "abstract",
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 3,
+      "merged_id": "M006",
+      "title": "Artificial intelligence tools expand scientists’ impact but contract science’s focus",
+      "needs": [],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 4,
+      "merged_id": "M025",
+      "title": "Learning About and Against Generative AI Through Mapping Generative AI’s Ecologies and Developing a Luddite Praxis",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 5,
+      "merged_id": "M024",
+      "title": "Generative AI enhances individual creativity but reduces the collective diversity of novel content",
+      "needs": [],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 6,
+      "merged_id": "M030",
+      "title": "WHAT ECONOMISTS DO: TRENDS IN ECONOMIC RESEARCH",
+      "needs": [
+        "arxiv_id",
+        "doi"
+      ],
+      "versions": [
+        {
+          "openalex_id": "https://openalex.org/W306052754",
+          "doi": null,
+          "arxiv_id": null,
+          "type": "article",
+          "year": 2004,
+          "title": "WHAT ECONOMISTS DO: TRENDS IN ECONOMIC RESEARCH",
+          "author_check": "unknown",
+          "abstract_chars": 3928
+        }
+      ],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 7,
+      "merged_id": "M029",
+      "title": "From the Editors Beyond Contextualization: Using Context Theories to Narrow the Micro-Macro Gap in Management Research",
+      "needs": [
+        "abstract",
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 8,
+      "merged_id": "M004",
+      "title": "Analysis of Generative AI Research Trends in Korean Business Administration: Using Bibliometric Analysis and Topic Modeling",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 9,
+      "merged_id": "M022",
+      "title": "Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliometric study",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 10,
+      "merged_id": "M026",
+      "title": "ARTS: autonomous research topic selection system using word embeddings and network analysis",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 11,
+      "merged_id": "M002",
+      "title": "Artificial Intelligence and the Economics of Decision-Making",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [
+        {
+          "openalex_id": "https://openalex.org/W4327517997",
+          "doi": "10.2139/ssrn.4389118",
+          "arxiv_id": null,
+          "type": "preprint",
+          "year": 2023,
+          "title": "Artificial Intelligence and the Economics of Decision-Making",
+          "author_check": "shared",
+          "abstract_chars": 0
+        }
+      ],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 12,
+      "merged_id": "M013",
+      "title": "Regulating the Artificial Intelligence Economy: A Systematic Search and Mechanism‐based Review of Legal Institutions, Regulatory Mechanisms, Economic Trade‐offs, and Welfare Consequences",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 13,
+      "merged_id": "M023",
+      "title": "CYBERSECURITY IN TOURISM AND HOSPITALITY MANAGEMENT RESEARCH: CURRENT ISSUES, TRENDS, AND AN AGENDA FOR FUTURE RESEARCH",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 14,
+      "merged_id": "M007",
+      "title": "Artificial Intelligence-Embedded Restructuring of Enterprise Decision Authority: A Re-examination from the Perspective of Management Theory",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 15,
+      "merged_id": "M008",
+      "title": "Does Generative AI Stifle Creativity? Convergence and Homogenisation in Student Work",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 16,
+      "merged_id": "M005",
+      "title": "Artificial Intelligence in English Language Teaching (2018–2025): A Bibliometric Analysis and LDA Topic Modeling",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 17,
+      "merged_id": "M020",
+      "title": "Large language models reshape the language of science",
+      "needs": [],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 18,
+      "merged_id": "M028",
+      "title": "Where does business research go from here? Food-for-thought on academic papers in business research",
+      "needs": [
+        "abstract",
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 19,
+      "merged_id": "M003",
+      "title": "AI Tools in Scientific Research: Boosting Individuals at the Expense of Collective Progress",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    },
+    {
+      "rank": 20,
+      "merged_id": "M015",
+      "title": "Toward AI-Enabled Process Model Selection for IT Projects: A Self-Enforcing Network Approach",
+      "needs": [
+        "arxiv_id"
+      ],
+      "versions": [],
+      "abstract": null,
+      "abstract_source": null,
+      "arxiv_id_from_version": null,
+      "doi_from_version": null,
+      "error": null
+    }
+  ]
+}

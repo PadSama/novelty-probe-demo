@@ -48,7 +48,11 @@ import re
 import sys
 from collections import Counter
 from datetime import datetime, timezone
+from itertools import combinations
 from pathlib import Path
+
+from search import parse_query
+from textmatch import BM25, PREPRINT_DOI_RE, Doc, norm_doi, query_match, version_decision, version_summary
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "results" / "raw"
@@ -61,6 +65,10 @@ ARXIV_DOI_RE = re.compile(r"^10\.48550/arxiv\.(.+)$", re.I)
 PREPRINT_VERSION_RE = re.compile(r"^(10\.\d+/(?:osf\.io/\w+?|techrxiv\.[\d.]+|rs\.\d+\.rs-\d+))[_/]v\d+$", re.I)
 CSV_COLUMNS = ["rank", "merged_id", "hits", "n_queries", "n_sources", "mean_rank", "query_ids", "sources",
                "id_status", "doi", "arxiv_id", "title", "year", "venue", "title_linked", "raw_refs", "abstract"]
+RRF_K = 60
+CSV_COLUMNS_RANKED = ["rank", "merged_id", "rrf", "bm25", "n_conform", "hits", "n_queries", "n_sources", "mean_rank",
+                      "query_ids", "sources", "id_status", "doi", "arxiv_id", "title", "year", "year_first", "venue",
+                      "title_linked", "review", "raw_refs", "abstract"]
 
 
 def rel(path):
@@ -220,9 +228,192 @@ def write_candidates(candidates, path):
             })
 
 
+# ---------- 默认方法：版本识别、正式发表年份、RRF 排序 ----------
+
+def clean_doi(doi):
+    """显示用的 DOI：去掉误入 DOI 字段的 URL 查询串与落地页后缀（如 /full/html?utm_source=…），保留大小写。"""
+    if not doi:
+        return doi
+    d = re.split(r"[?#]", doi.strip())[0]
+    return re.sub(r"/(?:full|abstract|pdf|epdf|html)(?:/html)?/?$", "", d, flags=re.I) or doi
+
+
+def ranked_doi_key(doi):
+    d = norm_doi(doi)
+    m = PREPRINT_VERSION_RE.match(d) if d else None
+    return m.group(1) if m else d
+
+
+def id_roots(recs):
+    """并查集：按 DOI（规范化）与 arXiv ID 判重，返回每条记录所属组的根。"""
+    parent = list(range(len(recs)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    seen = {}
+    for i, r in enumerate(recs):
+        keys = ([("doi", ranked_doi_key(r["doi"]))] if r["doi"] else []) + \
+               ([("arxiv", r["arxiv_id"].strip().lower())] if r["arxiv_id"] else [])
+        for k in keys:
+            if k in seen:
+                a, b = find(seen[k]), find(i)
+                if a != b:
+                    parent[max(a, b)] = min(a, b)
+            else:
+                seen[k] = i
+    return [find(i) for i in range(len(recs))]
+
+
+def link_versions(recs, roots):
+    """在 DOI / arXiv ID 分组之间按 textmatch.version_decision 识别同一研究的不同版本。
+    返回 (每条记录的最终根, 合并记录 [(根a, 根b, 原因)], 待核对 [(根a, 根b, 原因)])。"""
+    members = {}
+    for i, r in enumerate(roots):
+        members.setdefault(r, []).append(i)
+    summ = {r: version_summary([recs[i] for i in idx]) for r, idx in members.items()}
+    parent = {r: r for r in members}
+
+    def find(r):
+        while parent[r] != r:
+            parent[r] = parent[parent[r]]
+            r = parent[r]
+        return r
+
+    merges, reviews = [], []
+    for a, b in combinations(sorted(members), 2):
+        decision, reason = version_decision(summ[a], summ[b])
+        if decision == "merge":
+            merges.append((a, b, reason))
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[max(ra, rb)] = min(ra, rb)
+        elif decision == "review":
+            reviews.append((a, b, reason))
+    final = [find(r) for r in roots]
+    reviews = [(a, b, why) for a, b, why in reviews if find(a) != find(b)]
+    return final, merges, reviews
+
+
+def build_ranked(members, recs, roots_id):
+    """在 build() 的基础上：正式发表版本优先作主 DOI；year 取正式发表版本的年份，year_first 取最早年份。"""
+    x = build(members, recs, roots_id)
+    rs = sorted((recs[i] for i in members), key=lambda r: r["_order"])
+    dois = list(dict.fromkeys(r["doi"] for r in rs if r["doi"]))
+    pub = [d for d in dois if not PREPRINT_DOI_RE.match(norm_doi(d))]
+    if pub and pub[0] != x["doi"]:
+        old = x["doi"]
+        x["doi"] = pub[0]
+        x["alt_ids"] = [a for a in x["alt_ids"] if a.lower() != f"doi:{pub[0]}".lower()] + ([f"doi:{old}"] if old else [])
+    years = [r["year"] for r in rs if r["year"]]
+    x["year_first"] = min(years) if years else None
+    if x["doi"] and not PREPRINT_DOI_RE.match(norm_doi(x["doi"])):
+        # 带正式发表 DOI 的记录：同时带 arXiv ID 的记录是预印本与正式版合成的一条，年份可能取自预印本
+        # （S2 常见，如 Science Advances 2024 的论文记为 2023）；所以先取不带 arXiv ID 的记录的最早年份，
+        # 没有这样的记录时取 OpenAlex 的年份（按正式发表），再不行取这些记录的最早年份
+        same = [r for r in rs if r["doi"] and norm_doi(r["doi"]) == norm_doi(x["doi"]) and r["year"]]
+        plain = [r["year"] for r in same if not r["arxiv_id"]]
+        oa = [r["year"] for r in same if r["source_api"] == "openalex"]
+        x["year"] = min(plain or oa or [r["year"] for r in same] or years or [None])
+    return x
+
+
+def load_queries_from_raw(suffix):
+    """各结果文件 meta 中的原检索式：{query_id: (包含组, 排除组)}。"""
+    out = {}
+    for path in raw_files(suffix):
+        m = json.loads(path.read_text(encoding="utf-8"))["meta"]
+        out.setdefault(m["query_id"], parse_query(m["query_original"]))
+    return out
+
+
+def merge_ranked(recs, suffix):
+    for r in recs:
+        r["doi"] = clean_doi(r["doi"])
+    roots_id = id_roots(recs)
+    roots_all, merges, reviews = link_versions(recs, roots_id)
+    groups = {}
+    for i, root in enumerate(roots_all):
+        groups.setdefault(root, []).append(i)
+    built = {root: build_ranked(m, recs, roots_id) for root, m in groups.items()}
+    order = sorted(built, key=lambda r: (-len(built[r]["query_ids"]), -len(built[r]["sources"]),
+                                         -(built[r]["year"] or 0), (built[r]["title"] or "").lower()))
+    mid = {root: f"M{i:03d}" for i, root in enumerate(order, 1)}
+    for root, x in built.items():
+        x["review"] = []
+    for a, b, why in reviews:
+        ra, rb = roots_all[a], roots_all[b]
+        built[ra]["review"].append({"with": mid[rb], "reason": why})
+        built[rb]["review"].append({"with": mid[ra], "reason": why})
+
+    queries = load_queries_from_raw(suffix)
+    terms = list(dict.fromkeys(t for inc, _ in queries.values() for g in inc for t in g))
+    ignore = list(dict.fromkeys(t for _, exc in queries.values() for g in exc for t in g))
+    merged = [{"merged_id": mid[root], **built[root]} for root in order]
+    docs = [Doc(x["title"], x["abstract"]) for x in merged]
+    bm = BM25(docs, terms)
+    for i, (x, d) in enumerate(zip(merged, docs)):
+        x["rrf"] = round(sum(1 / (RRF_K + r) for r in list_ranks(x["raw_refs"]).values()), 6)
+        x["bm25"] = round(bm.score(i, ignore), 3)
+        x["n_conform"] = sum(query_match(inc, d, exc, ignore) for inc, exc in queries.values())
+    info = {
+        "version_links": [{"records": [recs[a]["_ref"], recs[b]["_ref"]], "merged_id": mid[roots_all[a]], "reason": why}
+                          for a, b, why in merges],
+        "review_pairs": [{"merged_ids": [mid[roots_all[a]], mid[roots_all[b]]], "reason": why} for a, b, why in reviews],
+        "bm25_terms": terms, "ignored_phrases": ignore,
+    }
+    return merged, info
+
+
+def review_clusters(pairs):
+    """把两两的待核对关系并成组，便于显示：[(merged_id 列表, 原因列表)]。"""
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for p in pairs:
+        a, b = (find(m) for m in p["merged_ids"])
+        if a != b:
+            parent[max(a, b)] = min(a, b)
+    clusters = {}
+    for p in pairs:
+        c = clusters.setdefault(find(p["merged_ids"][0]), [set(), []])
+        c[0].update(p["merged_ids"])
+        if p["reason"] not in c[1]:
+            c[1].append(p["reason"])
+    return [(sorted(ids), reasons) for ids, reasons in sorted(clusters.values(), key=lambda c: min(c[0]))]
+
+
+def write_candidates_ranked(candidates, path):
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=CSV_COLUMNS_RANKED)
+        w.writeheader()
+        for rank, x in enumerate(candidates, 1):
+            w.writerow({
+                "rank": rank, "merged_id": x["merged_id"], "rrf": x["rrf"], "bm25": x["bm25"], "n_conform": x["n_conform"],
+                "hits": x["hits"], "n_queries": x["n_queries"], "n_sources": x["n_sources"], "mean_rank": x["mean_rank"],
+                "query_ids": ";".join(x["query_ids"]), "sources": ";".join(x["sources"]),
+                "id_status": x["id_status"], "doi": x["doi"] or "", "arxiv_id": x["arxiv_id"] or "",
+                "title": x["title"] or "", "year": x["year"] or "", "year_first": x["year_first"] or "",
+                "venue": x["venue"] or "", "title_linked": "true" if x["title_linked"] else "false",
+                "review": "; ".join(f"{v['with']}: {v['reason']}" for v in x["review"]),
+                "raw_refs": ";".join(x["raw_refs"]), "abstract": x["abstract"] or "",
+            })
+
+
 def main():
     ap = argparse.ArgumentParser(description="Merge and dedupe search results; write top candidates.")
     ap.add_argument("--suffix", default="", help="只处理这个后缀的结果文件，如 _v2（默认无后缀，即 v1）")
+    ap.add_argument("--legacy", action="store_true",
+                    help="用 Step 6 / Step 14 当时的方法（按命中次数排序、只按完全相同的标题合并），复现已提交的 v1、v2 结果")
     args = ap.parse_args()
     out_file = OUT_DIR / f"merged{args.suffix}.json"
     cand_file = OUT_DIR / f"candidates{args.suffix}.csv"
@@ -236,6 +427,8 @@ def main():
     mixed = {s: sorted(c) for s, c in methods.items() if len(c) > 1}
     if mixed:
         sys.exit(f"results/raw/ 中同一来源混有不同检索方式的结果，请先重跑 search.py：{mixed}")
+    if not args.legacy:
+        return main_ranked(args, recs, inputs, out_file, cand_file)
 
     roots_id = group(recs, use_title=False)
     roots_all = group(recs, use_title=True)
@@ -315,5 +508,77 @@ def main():
               f"{x['mean_rank']:>9}  {ident[:42]:<42} {title}")
 
 
+def main_ranked(args, recs, inputs, out_file, cand_file):
+    merged, info = merge_ranked(recs, args.suffix)
+    ranked = sorted(merged, key=lambda x: (-x["rrf"], -x["bm25"], x["merged_id"]))
+    candidates = ranked[:TOP_K]
+    cut = candidates[-1]
+    tied_at_cut = sum(1 for x in merged if (x["rrf"], x["bm25"]) == (cut["rrf"], cut["bm25"]))
+    qids = sorted({r["query_id"] for r in recs}, key=qnum)
+    cand_per_query = Counter(q for x in candidates for q in x["query_ids"])
+    counts = {
+        "raw_records": len(recs),
+        "merged_records": len(merged),
+        "duplicates_removed": len(recs) - len(merged),
+        "title_linked_groups": sum(x["title_linked"] for x in merged),
+        "review_pairs": len(info["review_pairs"]),
+        "in_multiple_queries": sum(len(x["query_ids"]) > 1 for x in merged),
+        "id_status": dict(Counter(x["id_status"] for x in merged)),
+        "sources": dict(Counter("+".join(x["sources"]) for x in merged)),
+        "per_query": {q: sum(q in x["query_ids"] for x in merged) for q in qids},
+        "hits_distribution": {str(h): n for h, n in sorted(Counter(x["hits"] for x in merged).items(), reverse=True)},
+    }
+    meta = {
+        "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "script": "scripts/merge.py",
+        "method": "default (version linking, version-of-record year, RRF ranking); --legacy reproduces Steps 6/14",
+        "dedup_rules": ["same DOI (normalized: case, URL query and landing-page suffix ignored; "
+                        "OSF/TechRxiv/Research Square version suffix ignored)",
+                        "same arXiv ID (version stripped)",
+                        "versions of one work: same normalized title (trailing publication-status notes stripped, "
+                        ">= 5 words), no notice/variant word on one side only, no two different non-preprint DOIs, "
+                        "no data-repository DOI, year gap <= 3, abstract word Jaccard >= 0.5 when both have abstracts",
+                        "near-identical titles and same-title pairs failing a check are flagged for review, not merged"],
+        "year": "year of the version of record (non-preprint DOI; OpenAlex year preferred); year_first = earliest",
+        "inputs": inputs,
+        "counts": counts,
+        **info,
+        "candidates": {
+            "file": rel(cand_file),
+            "top_k": TOP_K,
+            "sort": f"RRF over result lists (k={RRF_K}) desc, BM25 over all query terms desc, merged_id",
+            "works_tied_with_cutoff": tied_at_cut,
+            "per_query": {q: cand_per_query[q] for q in qids},
+        },
+    }
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    out_file.write_text(json.dumps({"meta": meta, "records": merged}, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8")
+    write_candidates_ranked(candidates, cand_file)
+
+    st, src = counts["id_status"], counts["sources"]
+    print(f"inputs:     {len(inputs)} files, {counts['raw_records']} raw records")
+    print(f"merged:     {counts['merged_records']} works (duplicates removed: {counts['duplicates_removed']}; "
+          f"groups linked as versions by title: {counts['title_linked_groups']}; pairs flagged for review: "
+          f"{counts['review_pairs']} in {len(review_clusters(info['review_pairs']))} cluster(s))")
+    for v in info["version_links"]:
+        print(f"  version link  {v['merged_id']}: {' + '.join(v['records'])}")
+    for ids, reasons in review_clusters(info["review_pairs"]):
+        print(f"  review        {', '.join(ids)}: {'; '.join(reasons)}")
+    print(f"id_status:  DOI {st.get('DOI', 0)} | arXiv {st.get('arXiv', 0)} | UNVERIFIED {st.get('UNVERIFIED', 0)}")
+    print(f"sources:    openalex only {src.get('openalex', 0)} | semanticscholar only {src.get('semanticscholar', 0)} | "
+          f"both {src.get('openalex+semanticscholar', 0)}")
+    print("per query:  " + " | ".join(f"{q} {n}" for q, n in counts["per_query"].items()))
+    print(f"written:    {rel(out_file)}, {rel(cand_file)} (top {len(candidates)}; sorted by RRF, then BM25)")
+    print(f"cutoff:     works sharing the #{len(candidates)} score (RRF and BM25): {tied_at_cut}")
+    print(f"\n{'rank':>4}  {'id':<5} {'rrf':>7} {'bm25':>6} {'conf':>4} {'hits':>4} {'year':>4}  {'identifier':<40} title")
+    for rank, x in enumerate(candidates, 1):
+        ident = (f"doi:{x['doi']}" if x["doi"] else f"arXiv:{x['arxiv_id']}" if x["arxiv_id"] else "UNVERIFIED")
+        title = (x["title"] or "")[:58] + ("…" if len(x["title"] or "") > 58 else "")
+        print(f"{rank:>4}  {x['merged_id']:<5} {x['rrf']:>7.4f} {x['bm25']:>6.2f} {x['n_conform']:>4} {x['hits']:>4} "
+              f"{x['year'] or '':>4}  {ident[:40]:<40} {title}")
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q4",
+    "purpose": "application",
+    "queries_file": "queries/queries.json",
+    "query_original": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"AI for science\" OR \"large language models\" OR \"generative AI\") AND scientist*",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(\"streetlight effect\" | \"Matthew effect\" | \"exploration-exploitation\") + (\"AI for science\" | \"large language models\" | \"generative AI\") + scientist*",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22streetlight+effect%22+%7C+%22Matthew+effect%22+%7C+%22exploration-exploitation%22%29+%2B+%28%22AI+for+science%22+%7C+%22large+language+models%22+%7C+%22generative+AI%22%29+%2B+scientist%2A&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 1,
+      "pages": 1,
+      "truncated": false,
+      "with_abstract": 0,
+      "same_title_dropped": 0
+    },
+    "total_hits": 1,
+    "returned": 1,
+    "retrieved_at": "2026-11-02T08:53:20+00:00"
+  },
+  "records": [
+    {
+      "title": "A multimodal robotic platform for multi-element electrocatalyst discovery",
+      "year": 2025,
+      "doi": "10.1038/s41586-025-09640-5",
+      "arxiv_id": null,
+      "venue": "Nature",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q4",
+      "local_rank": {
+        "groups_matched": 0,
+        "bm25": 0.0,
+        "has_abstract": false,
+        "citations": 99
+      }
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "(v1)": {
+    "method": "hits (legacy)",
+    "merged": 161,
+    "ties_at_cutoff": 42,
+    "known": {
+      "doi:10.1038/s41586-025-09922-y": {
+        "rank": null,
+        "in_top": false,
+        "chase": []
+      },
+      "arxiv:2412.07727": {
+        "rank": null,
+        "in_top": false,
+        "chase": []
+      }
+    },
+    "top10": {
+      "n": 10,
+      "conform": 9,
+      "noise": 0,
+      "genai": 5,
+      "abstract": 9,
+      "year_median": 2023.0,
+      "before_2015": 1
+    },
+    "top20": {
+      "n": 20,
+      "conform": 17,
+      "noise": 0,
+      "genai": 11,
+      "abstract": 17,
+      "year_median": 2023.5,
+      "before_2015": 1
+    }
+  },
+  "_v1b": {
+    "method": "RRF",
+    "merged": 164,
+    "ties_at_cutoff": 1,
+    "known": {
+      "doi:10.1038/s41586-025-09922-y": {
+        "rank": null,
+        "in_top": false,
+        "chase": [
+          "C2/cocited #1"
+        ]
+      },
+      "arxiv:2412.07727": {
+        "rank": null,
+        "in_top": false,
+        "chase": []
+      }
+    },
+    "top10": {
+      "n": 10,
+      "conform": 8,
+      "noise": 0,
+      "genai": 8,
+      "abstract": 8,
+      "year_median": 2025.5,
+      "before_2015": 0
+    },
+    "top20": {
+      "n": 20,
+      "conform": 17,
+      "noise": 0,
+      "genai": 10,
+      "abstract": 17,
+      "year_median": 2025.0,
+      "before_2015": 1
+    }
+  }
+}

@@ -1,0 +1,428 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q2",
+    "purpose": "component",
+    "queries_file": "queries/queries_v2b.json",
+    "query_original": "(narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"research diversification\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\") AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(narrowing | \"topic diversity\" | \"topic concentration\" | \"research diversification\") + (economist* | \"economic research\" | \"management research\" | \"business research\") + -(\"narrow AI\" | \"narrow artificial intelligence\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28narrowing+%7C+%22topic+diversity%22+%7C+%22topic+concentration%22+%7C+%22research+diversification%22%29+%2B+%28economist%2A+%7C+%22economic+research%22+%7C+%22management+research%22+%7C+%22business+research%22%29+%2B+-%28%22narrow+AI%22+%7C+%22narrow+artificial+intelligence%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 2160,
+      "pages": 3,
+      "truncated": false,
+      "with_abstract": 471,
+      "same_title_dropped": 6
+    },
+    "total_hits": 2160,
+    "returned": 25,
+    "retrieved_at": "2026-11-02T08:55:00+00:00"
+  },
+  "records": [
+    {
+      "title": "Cognitive Tendencies in International Business Research: Implications of a “Narrow Vision”",
+      "year": 1998,
+      "doi": "10.1057/PALGRAVE.JIBS.8490055",
+      "arxiv_id": null,
+      "venue": "Journal of International Business Studies",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 8.557,
+        "has_abstract": false,
+        "citations": 68
+      }
+    },
+    {
+      "title": "Достижимость узких целевых групп в социально-экономических исследованиях методом онлайн опроса (Reachability of Narrow Target Groups in Socio-Economic Research Using Online Survey)",
+      "year": 2019,
+      "doi": "10.2139/ssrn.3362309",
+      "arxiv_id": null,
+      "venue": "Social Science Research Network",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 7.594,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Qualitative Insights Tool (QualIT): LLM Enhanced Topic Modeling",
+      "year": 2024,
+      "doi": "10.48550/arXiv.2409.15626",
+      "arxiv_id": "2409.15626",
+      "venue": "arXiv.org",
+      "abstract": "Topic modeling is a widely used technique for uncovering thematic structures from large text corpora. However, most topic modeling approaches e.g. Latent Dirichlet Allocation (LDA) struggle to capture nuanced semantics and contextual understanding required to accurately model complex narratives. Recent advancements in this area include methods like BERTopic, which have demonstrated significantly improved topic coherence and thus established a new standard for benchmarking. In this paper, we present a novel approach, the Qualitative Insights Tool (QualIT) that integrates large language models (LLMs) with existing clustering-based topic modeling approaches. Our method leverages the deep contextual understanding and powerful language generation capabilities of LLMs to enrich the topic modeling process using clustering. We evaluate our approach on a large corpus of news articles and demonstrate substantial improvements in topic coherence and topic diversity compared to baseline topic modeling techniques. On the 20 ground-truth topics, our method shows 70% topic coherence (vs 65%&57% benchmarks) and 95.5% topic diversity (vs 85%&72% benchmarks). Our findings suggest that the integration of LLMs can unlock new opportunities for topic modeling of dynamic and complex text data, as is common in talent management research contexts.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 9.621,
+        "has_abstract": true,
+        "citations": 19
+      }
+    },
+    {
+      "title": "CER-ETH – Center of Economic Research at ETH Zurich Narrowing the energy efficiency gap: The impact of educational programs, online support tools and energy-related investment literacy",
+      "year": 2017,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 6.894,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "From the Editors Beyond Contextualization: Using Context Theories to Narrow the Micro-Macro Gap in Management Research",
+      "year": 2008,
+      "doi": "10.5465/AMJ.2008.34789630",
+      "arxiv_id": null,
+      "venue": "Academy of Management Journal",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 6.753,
+        "has_abstract": false,
+        "citations": 600
+      }
+    },
+    {
+      "title": "WHAT ECONOMISTS DO: TRENDS IN ECONOMIC RESEARCH",
+      "year": 2004,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": "Journal of Economics and Economic Education Research",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 8.28,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Tracking the transition of sustainable entrepreneurship: from a bibliometric analysis to current research trends and future research directions",
+      "year": 2025,
+      "doi": "10.1007/s43621-025-00803-y",
+      "arxiv_id": null,
+      "venue": "Discover Sustainability",
+      "abstract": "Sustainability in family businesses is an increasingly important and ever-evolving topic in business research, due to the demands of sustainable development agendas for all types of companies. This study conducts a comprehensive literature review on sustainable entrepreneurship (SE) using bibliometric analysis, content analysis, and a systematic literature review. The systematic literature review helps in finding the 554 SE-related articles. The bibliometric and content analysis was carried out on these articles. The study also analyzed the recent articles separately to identify research gaps and current trends. The study identifies the research to be diversified in six broad themes: ‘sustainable entrepreneurial enterprise’, ‘relationship between social entrepreneurship and the sustainable ecosystem’, ‘publications from different angles’, ‘model, framework, and conceptual papers’, ‘involvement of new entrants’, and ‘influence of financial support’ and ‘green start-ups’. The future research directions will help scholars identify clear research gaps to explore this area further. Researchers can focus on green agritourism, advanced recycling methods, eco-centric models, frameworks, operational procedures, financing partnerships, and transitioning into the digital era. Identifies research diversification in six themes and carried out literature review and content analysis. Article highlights five fresh research avenues. Several research directions in each broad research avenue are highlighted. Identifies research diversification in six themes and carried out literature review and content analysis. Article highlights five fresh research avenues. Several research directions in each broad research avenue are highlighted.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 9.206,
+        "has_abstract": true,
+        "citations": 13
+      }
+    },
+    {
+      "title": "Where does business research go from here? Food-for-thought on academic papers in business research",
+      "year": 2011,
+      "doi": "10.1016/J.JBUSRES.2010.11.005",
+      "arxiv_id": null,
+      "venue": "Journal of Business Research",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 7.133,
+        "has_abstract": false,
+        "citations": 22
+      }
+    },
+    {
+      "title": "Business Research Methods",
+      "year": 2008,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 6.585,
+        "has_abstract": false,
+        "citations": 27
+      }
+    },
+    {
+      "title": "An introduction to Business Research Methods",
+      "year": 2018,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 6.445,
+        "has_abstract": false,
+        "citations": 45
+      }
+    },
+    {
+      "title": "The Inexhaustible Mine?",
+      "year": 2025,
+      "doi": "10.1002/soej.70002",
+      "arxiv_id": null,
+      "venue": "Southern Economic Journal",
+      "abstract": "Why study the history of economic thought (HET)? We offer two novel contributions to the literature justifying HET. First, we provide a broad survey of the historical and contemporary justifications for HET, distilling three central categories of arguments: (1) HET fosters economic research, (2) it is useful for understanding the sociology of the organization and evolution of economics, and (3) it helps economists serve as more effective public intellectuals. Second, we address the critique of HET that it is akin to prospecting a stripped mine whose valuable insights have long since been extracted and incorporated into modern research. We argue that the notion of diminishing returns to HET applies only in a narrow, Malthusian sense. Economists are not uniform inputs, technological advances have lowered the costs of studying HET, and the field continues to grow as new influences on key thinkers emerge and economic thought evolves. Far from exhaustion, our survey and extension demonstrate that HET remains a productive resource for economists.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 6.097,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Family Business Research as a Boundary-Spanning Platform",
+      "year": 2018,
+      "doi": "10.1177/0894486518758712",
+      "arxiv_id": null,
+      "venue": "Family Business Review",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 6.356,
+        "has_abstract": false,
+        "citations": 61
+      }
+    },
+    {
+      "title": "The Dynamics of International Business Research: A Relational Cluster Perspective",
+      "year": 2013,
+      "doi": "10.5465/AMBPP.2013.17446ABSTRACT",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 6.269,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Advancing Organization Studies in Family Business Research: Exploring the Multilevel Complexity of Family Organizations",
+      "year": 2015,
+      "doi": "10.1177/0170840615588741a",
+      "arxiv_id": null,
+      "venue": "Organization Studies",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 6.101,
+        "has_abstract": false,
+        "citations": 2,
+        "same_title_dropped": 6
+      }
+    },
+    {
+      "title": "Longitudinal Family Business Research – Review of the Literature",
+      "year": 2023,
+      "doi": "10.7172/1644-9584.99.1",
+      "arxiv_id": null,
+      "venue": "Problemy Zarządzania - Management Issues",
+      "abstract": "Purpose: Cross-sectional research methods are not able to grasp the special characteristics and unique operation modes of family businesses. The aim of the study is to map the type of topics examined and methodologies used in longitudinal empirical studies in family business research. The study examines the topics and methodologies covered in the literature and the advantages and challenges of each methodological approach. Design/methodology/approach: We conducted a literature review and drew conclusions based on a detailed analysis of 99 articles. The paper presents the distribution of topics, the applied methodology, and evaluates quantitative and qualitative methods. Findings: Within seven topics identified, most studies were published on family business governance, operation, succession, and the internationalization of family firms. The majority of longitudinal family business research is based on quantitative methodologies, but the proportion of studies using qualitative approaches is also gaining momentum, while the use of mixed-method approaches is negligible. Limitations: We collected the data from the Web of Science database and our study may reflect the limitations of this database. Two of our researchers conducted the article selection process manually and, despite the greatest care, it is possible that valuable articles were left out of the analysis. Due to the applied selection and analysis methods, the comparability of our results with more comprehensive literature reviews on family businesses is limited. The results relate to longitudinal, empirical research papers only. The time span covered by our research is narrow, there are more comprehensive and up-to-date literature reviews available. Originality/value: The study contributes to longitudinal family business research.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.917,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Where do we go from here? Food for thought on academic papers in business research",
+      "year": 2010,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 6.061,
+        "has_abstract": false,
+        "citations": 1
+      }
+    },
+    {
+      "title": "How Much Does Journal Reputation Tell Us About the Academic Interest and Relevance of Economic Research? Empirical Analysis and Implications for Environmental Economic Research",
+      "year": 2010,
+      "doi": "10.14512/GAIA.19.2.13",
+      "arxiv_id": null,
+      "venue": "Gaia-ecological Perspectives for Science and Society",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 5.904,
+        "has_abstract": false,
+        "citations": 7
+      }
+    },
+    {
+      "title": "Call for Papers Special Issue on Advancing Organization Studies in Family Business Research: Exploring the Multilevel Complexity of Family Organizations",
+      "year": 2015,
+      "doi": "10.1177/0170840615588740a",
+      "arxiv_id": null,
+      "venue": "Organization Studies",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 5.866,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "MANAGEMENT RESEARCH THAT MAKES A DIFFERENCE: BROADENING THE MEANING OF IMPACT",
+      "year": 2023,
+      "doi": "10.37547/tajmei/volume05issue05-01",
+      "arxiv_id": null,
+      "venue": "The American Journal of Management and Economics Innovations",
+      "abstract": "The impact of management research has traditionally been measured in terms of its academic contributions, such as publishing in top-tier journals and citations. However, this narrow focus has been criticized for not adequately addressing the broader societal impact of research. This paper aims to broaden the meaning of impact in management research and discuss the importance of impact beyond academia. Based on a literature review, the paper suggests that impact should also be measured in terms of its societal and practical applications, including its ability to promote diversity, equity, and inclusion. The paper concludes that a broader perspective of impact is essential to address real-world problems and improve people's lives.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.73,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Introduction: Baltic economic research",
+      "year": 2000,
+      "doi": "10.1080/01629770000000281",
+      "arxiv_id": null,
+      "venue": "Journal of Baltic Studies",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 5.581,
+        "has_abstract": false,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Investment Management and Economic Research",
+      "year": 1964,
+      "doi": "10.2469/FAJ.V20.N1.15",
+      "arxiv_id": null,
+      "venue": "Financial Analysts Journal",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 5.541,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "International Journal of Social Science and Economic Research",
+      "year": 2020,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 5.425,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Professional, scholar, or knowledge worker? Identity construction of Chinese management researchers amid the research–practice gap",
+      "year": 2024,
+      "doi": "10.1371/journal.pone.0306833",
+      "arxiv_id": null,
+      "venue": "PLoS ONE",
+      "abstract": "We move beyond discussing the desirability and feasibility of bridging the research–practice gap to introducing an identity perspective to explore how Chinese management researchers make sense of the research–practice gap and what kinds of career identities are constructed. We conducted a qualitative study among 34 Chinese management researchers working at or studying for a PhD at research-oriented business schools in China. The findings show that management researchers in typical Chinese higher education institutions prefer constructing a single identity (i.e., professional, scholar, or knowledge worker identity) rather than a hybrid identity such as \"academic-practitioner\" as studies of their Western counterparts suggest. Moreover, before seeking and emulating role models to construct their desired career identities, researchers in China studying management reflexively search for referent groups by identifying either with a narrow disciplinary group (US mainstream management researchers or traditional intellectuals) or a broad group of knowledge workers. Furthermore, this study delineates how researchers with varying career identity narratives adopt corresponding identity work strategies (i.e., redefinition, defense, and distance) suggesting that identity work strategies do not always lead to achieving or preserving positive identity.",
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 5.567,
+        "has_abstract": true,
+        "citations": 3
+      }
+    },
+    {
+      "title": "The Development of the Russian Iron and Steel Industry. By Robert J. Holloway. (Stanford University Graduate School of Business, Business Research Studies, No. 6.) Stanford: Stanford University Press, 1952. Pp. 59. $1.00",
+      "year": 1957,
+      "doi": "10.1017/S0022050700080530",
+      "arxiv_id": null,
+      "venue": "Journal Economic History",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 5.414,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Heretical Musings on the Importance of Legal and Economic Research (Hebrew)",
+      "year": 2009,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q2",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 5.314,
+        "has_abstract": false,
+        "citations": 0
+      }
+    }
+  ]
+}

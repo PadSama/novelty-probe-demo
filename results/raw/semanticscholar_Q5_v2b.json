@@ -1,0 +1,427 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q5",
+    "purpose": "method",
+    "queries_file": "queries/queries_v2b.json",
+    "query_original": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometric*) AND (\"large language models\" OR \"generative AI\")",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(\"LLM-generated text\" | \"topic modeling\" | \"difference-in-differences\") + (\"science of science\" | bibliometric*) + (\"large language models\" | \"generative AI\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22LLM-generated+text%22+%7C+%22topic+modeling%22+%7C+%22difference-in-differences%22%29+%2B+%28%22science+of+science%22+%7C+bibliometric%2A%29+%2B+%28%22large+language+models%22+%7C+%22generative+AI%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 45,
+      "pages": 1,
+      "truncated": false,
+      "with_abstract": 40,
+      "same_title_dropped": 0
+    },
+    "total_hits": 45,
+    "returned": 25,
+    "retrieved_at": "2026-11-02T08:55:23+00:00"
+  },
+  "records": [
+    {
+      "title": "LLM-Driven Bibliometric Analysis of ChatGPT’s Impact on AI Research: A Dynamic Difference-in-Differences Study",
+      "year": 2025,
+      "doi": "10.1109/CEII67787.2025.00040",
+      "arxiv_id": null,
+      "venue": "2025 8th Asia Conference on Cognitive Engineering and Intelligent Interaction (CEII)",
+      "abstract": "This study investigates how artificial intelligence technologies, particularly ChatGPT's November 2022 deployment, catalyzed AI-driven research transformations in management academia. Leveraging hierarchical large language model classification distinguishing methodologies, architectures, and applications integrated with dynamic difference-in-differences causal inference, we systematically analyzed 4,500 scholarly articles from premier management journals (2009-2025) to quantify AI research structural evolution patterns. Our granular analytical framework reveals statistically significant acceleration in AI-focused scholarship post-ChatGPT: 4.8 percentage points surge in 2023 (p=0.032) and 4.3 points elevation in 2024-2025 (p=0.026), reflecting 45-50% relative expansion from baseline computational research levels. Pre-treatment parallel trends validate our causal identification strategy, while robust standard errors confirm classification stability across model specifications. Notably, placebo tests uncover that AI research momentum initiated before ChatGPT's release, evidencing cumulative innovation effects from predecessor language model architectures (GPT-3, DALLE). Our findings illuminate artificial intelligence's paradigm-shifting influence on academic knowledge production while pioneering taxonomic breakthroughs capturing AI subfield heterogeneity for enhanced bibliometric explanatory depth. These insights advance understanding of machine learning-driven scholarly evolution.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 4.794,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Do LLMs Read for Free? Auditing the Open Access Bias in AI-Mediated Science",
+      "year": 2026,
+      "doi": "10.1145/3785651.3831551",
+      "arxiv_id": null,
+      "venue": "Proceedings of the 2026 Companion of the Computer-Supported Cooperative Work and Social Computing",
+      "abstract": "How large language models affect various social activities has been widely discussed; however, how large language models themselves influence the mechanisms of scientific knowledge production remains unclear. To investigate this question, this paper designs a quasi-experimental study based on a large-scale bibliometric dataset. Using a Difference-in-Differences model and analyzing citation records from 64,841 articles across 120 communication journals, we find that the emergence of large language models is associated with a widening of the visibility gap between Open Access (OA) and non-OA articles. Specifically, OA articles experienced a significant post-ChatGPT citation acceleration of approximately 0.84% per month, accumulating to roughly 10% over 12 months. Importantly, this estimate represents a conservative lower bound, as gradual LLM adoption and journal review lags attenuate the measured treatment intensity. The findings are consistent with the view that, while LLMs may promote knowledge dissemination, they also risk exacerbating inequality in academic knowledge production—though the precise mechanism behind this pattern remains an important direction for future research.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 4.156,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Topic Identification and Comparative Analysis on LLM Research",
+      "year": 2025,
+      "doi": "10.1109/PRAI67447.2025.11412484",
+      "arxiv_id": null,
+      "venue": "2025 IEEE 8th International Conference on Pattern Recognition and Artificial Intelligence (PRAI)",
+      "abstract": "The rapid advancement of large language models (LLMs) has significantly enhanced performance across NLP, computer vision, and multimodal tasks. Fueled by growing demands for efficient and capable generative AI, LLM research and applications are rapidly evolving, driving an exponential surge in scholarly publications. Understanding LLM research hotspots, evolutionary trends, and interdisciplinary integration is therefore critical both for academic research and industrial applications. However, existing literature reviews predominantly focus on core technical challenges and solutions, lacking quantitative analysis of topic evolution. This study analyzes LLM papers (2021-2025) from the Web of Science and arXiv. Using bibliometrics, LDA topic modeling, and comparative analysis, we identify key research directions, topic distributions over the fiveyear period, and reveal that conference and journal papers showcase partially complementary topic distributions. Furthermore, cross-period analysis of topic evolution demonstrates the inheritance and development of quarterly topics, clarifying their evolutionary trajectories and emerging technical frontiers.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.658,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "A MIXED METHODS MAPPING OF AI AND LLM ENHANCED LANGUAGE LEARNING RESEARCH IN HIGHER EDUCATION FROM 2008 TO 2025",
+      "year": 2026,
+      "doi": "10.46827/ejes.v13i8.6901",
+      "arxiv_id": null,
+      "venue": "European Journal of Education Studies",
+      "abstract": "Artificial intelligence (AI), especially large language models (LLMs), is increasingly transforming higher education, offering opportunities for personalized learning, adaptive assessment, and innovative instructional design. This study maps research on AI- and LLM-Enhanced Language Learning in higher education (AIHEd) from 2008 to 2025, using bibliometrix, structural topic modeling (STM), and VOSviewer network analyses. With bibliometric analyses, publication results show modest production before 2015, steady growth from 2016 to 2022, and a sharp surge after 2023, peaking at 1,078 articles, reflecting accelerating interest in AI and LLMs in higher education. Research articles are mainly published in journals such as Education and Information Technologies, BMC Medical Education, and Interactive Learning Environments, with institutions including Monash University and the University of Hong Kong serving as major collaboration hubs. China leads in total output, while the US and UK demonstrate higher per-article impact. Highly cited studies published in 2023–2024 cluster around generative AI, learning analytics, and educational technology. Keyword analyses reveal a clear thematic progression from foundational AI (2008–2013), to data-driven and personalized learning (2014–2019), and to generative AI applications (2020–2025). STM identifies eight latent topics spanning technical development and learner-centered pedagogy. VOSviewer co-occurrence networks further reveal four major clusters, namely, technological innovation, pedagogical integration, ethical and policy issues, and AI literacy and adoption, highlighting the growing prominence of ethical and responsible AI use alongside technological advancement. By mapping publication trends, thematic structures, and collaboration networks, the findings provide actionable guidance for policymakers, institutions, and educators in curriculum development, research planning, and ethical decision-making in AIHEd.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.571,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Dynamic Knowledge Map of Artificial Intelligence Literature: Longitudinal Trend Analysis Using Latent Dirichlet Allocation",
+      "year": 2026,
+      "doi": "10.34148/teknika.v15i2.1470",
+      "arxiv_id": null,
+      "venue": "Teknika",
+      "abstract": "The rapid growth of Artificial Intelligence (AI) publications has increased the complexity of identifying thematic structures and understanding the evolution of research trends. Conventional citation-based bibliometric approaches are often limited in capturing semantic relationships within large-scale textual data. This study aims to analyze the knowledge structure and longitudinal dynamics of AI literature using a topic modeling approach within a knowledge mapping framework. The dataset consists of publication abstracts from the arXiv repository spanning 2015–2024, and the Latent Dirichlet Allocation (LDA) algorithm is employed with coherence-based evaluation to extract latent topics. The results indicate that the optimal model configuration consists of nine topic clusters, achieving a peak coherence score of 0.4605. Longitudinal analysis suggests a notable shift in research focus after 2021, marked by the rapid growth of Large Language Models (LLMs) and generative AI. This shift reflects a process of thematic integration, where foundational areas such as deep learning architectures are increasingly incorporated into more advanced domains. In addition, topics such as Graph Neural Networks (GNNs) exhibit relatively stable trends, which may indicate technological maturity rather than a decline in relevance. Overall, the findings provide data-driven insights into the evolving landscape of AI research and may support researchers and institutions in identifying emerging research directions within the scope of the analyzed dataset.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.433,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Artificial Intelligence in Journalism and Media Practice: A Systematic Review of Applications, Limitations, and Research Approaches",
+      "year": 2026,
+      "doi": "10.3390/journalmedia7030164",
+      "arxiv_id": null,
+      "venue": "Journalism and Media",
+      "abstract": "This systematic review investigates the application of artificial intelligence (AI) and machine learning (ML) in journalism and media practice from 2020 to 2026. Following PRISMA guidelines, we analysed 121 peer-reviewed articles from Scopus and Web of Science using a multi-method approach that combined qualitative thematic analysis, structural topic modelling (STM), and bibliometric network analysis. Four primary research domains emerged: news production and automation (38.0%), audience perception and content analysis (24.8%), ethical and legal considerations (19.8%), and meta-research and implementation studies (17.4%). Publication output accelerated sharply from 2023 onward, driven by the emergence of large language models and generative AI. The STM analysis confirmed the four-domain structure and revealed that legal-regulatory vocabulary pervades the literature across all categories, indicating a field-wide preoccupation with the institutional implications of AI. Key findings demonstrate that successful AI adoption depends on workflow redesign and human–machine collaboration rather than full automation; that audience evaluations of AI-generated content vary significantly across cultural contexts, with the machine heuristic—originating from Sundar’s MAIN model—playing a central mediating role; and that copyright frameworks for AI-generated news remain contested across jurisdictions. This study develops an integrated theoretical framework that maps directional relationships among the four research domains, identifies cultural context and disclosure practices as key moderators, and generates testable propositions for future investigation.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.405,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Unveiling the dynamics of generative AI adoption: A business intelligence analysis through topic modeling-based bibliometric study",
+      "year": 2025,
+      "doi": "10.1016/j.caeai.2025.100456",
+      "arxiv_id": null,
+      "venue": "Computers and Education: Artificial Intelligence",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.379,
+        "has_abstract": false,
+        "citations": 6
+      }
+    },
+    {
+      "title": "Analysis of Generative AI Research Trends in Korean Business Administration: Using Bibliometric Analysis and Topic Modeling",
+      "year": 2026,
+      "doi": "10.32599/apjb.17.1.202603.1",
+      "arxiv_id": null,
+      "venue": "The Institute of Management and Economy Research",
+      "abstract": "<jats:p/>",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.383,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Generative AI and financial crimes: a quantitative systematic literature review",
+      "year": 2026,
+      "doi": "10.1186/s40163-026-00268-y",
+      "arxiv_id": null,
+      "venue": "Crime Science",
+      "abstract": "\n \n \n The proliferation of large language models (LLMs) and generative artificial intelligence (GenAI) applications has provided ample opportunities for crime, including technology-facilitated financial crimes. The present study conducted a quantitative systematic literature review to examine the evolving intersection of GenAI and financial crime. Specifically, the study identified keyword concentrations, latent research topics, and thematic relationships within this emerging domain to explore how current scholarship understands the role of GenAI in financial crimes.\n \n \n \n Guided by the Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) 2020, this systematic literature review employed three quantitative analytical methods—bibliometric analysis, topic modelling, and knowledge graph analysis—to reveal trends, concentrations, and connections of prominent keywords and topics that emerged from the extant literature.\n \n \n \n With the assistance of the PRISMA 2020 framework, a total of 94 studies were incorporated for the quantitative systematic review. The bibliometric analysis identified five keyword clusters, while the topic modelling and knowledge graph revealed six latent research topics with nuanced patterns, highlighting a growing concentration on automated financial crimes that are distinctive from human-centric social engineering. The results also revealed the dual-use nature of GenAI in both facilitating and preventing financial crimes. On one hand, GenAI has been widely misused in financial cybercrimes such as algorithmic fraud, deepfake attacks, and smart contract exploitation. On the other hand, GenAI has enhanced crime prevention capacities, such as detection capabilities and vulnerability screening.\n \n \n \n While GenAI facilitates various criminal opportunities for financial crime, it also provides insight into effective crime prevention strategies. This study demonstrated that research is increasingly focused on the technical and adversarial dimensions of the dual-use nature of GenAI, outlining a structural distinction between human-centric social engineering and automated financial crimes. The findings shed light on the importance of recognising the evolutionary landscape of financial crimes enabled by GenAI and the significance of embracing forward-looking governance frameworks for regulatory compliance in decentralised financial (DeFi) systems.\n",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.289,
+        "has_abstract": true,
+        "citations": 4
+      }
+    },
+    {
+      "title": "Artificial Intelligence for Digital Literacy in Higher Education: A Systematic Literature Network Analysis and Bibliometric Analysis",
+      "year": 2026,
+      "doi": "10.55463/issn.1674-2974.53.6.9",
+      "arxiv_id": null,
+      "venue": "Journal of Hunan University Natural Sciences",
+      "abstract": "This study aims to map the intellectual structure, research trends, and future directions of Artificial Intelligence (AI) for Digital Literacy in Higher Education using a Systematic Literature Network Analysis (SLNA) approach. Data were collected from the Scopus database following the PRISMA 2020 protocol, resulting in 242 journal articles published between 2019 and 2025. Bibliometric mapping was conducted using VOSviewer, while Latent Dirichlet Allocation (LDA) topic modelling was applied to identify thematic patterns and emerging research themes. The findings reveal a substantial increase in publications after 2023, coinciding with the rapid growth of generative AI technologies. Six major thematic clusters were identified, covering AI-based digital literacy, academic integrity and ethics, human-centered factors, pedagogical adoption, digital competence, and AI-supported learning technologies. Topic modelling further revealed ten dominant research themes, with generative AI emerging as the most influential topic in recent years. The study highlights a shift from technology-oriented perspectives toward more pedagogical, ethical, and human-centered approaches. By integrating SLNA, bibliometric network analysis, and LDA topic modelling, this research provides a comprehensive overview of the evolving research landscape and offers strategic directions for future research and policy development in higher education.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.24,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Hello Social: Intellectual Transitions in Artificial Intelligence, Generative AI, and Society - A Bibliometric Analysis (1972–2026*)",
+      "year": 2026,
+      "doi": "10.5958/2249-7137.2026.00039.x",
+      "arxiv_id": null,
+      "venue": "ACADEMICIA An International Multidisciplinary Research Journal",
+      "abstract": "Artificial Intelligence (AI) has evolved beyond a predominantly technical field into an increasingly interdisciplinary domain with significant societal implications. This study presents a scientometric mapping of intellectual transitions in Artificial Intelligence, Generative AI and society over the period 1972–2026. Using about 29,000 bibliographic records from Scopus and OpenAlex, the study identifies AI publications demonstrating explicit societal relevance through the terms society, social, societal, and societies. The analysis combines quantitative text mining, text cleaning, normalisation, TF–IDF, topic modelling, network analysis and temporal trend analysis to examine the changing intellectual structure of AI–society scholarship. Titles, abstracts and keywords/concepts are used to identify dominant themes, conceptual relationships and patterns of societal engagement. Results indicate that societal AI research constitutes a relatively small component of the overall AI literature but has expanded substantially, particularly since the late 2010s and during the 2020s. Social concerns dominate the thematic structure, accompanied by ethics, public issues, policy, governance, trust, sustainability and inequality. The conceptual and disciplinary analyses reveal strong linkages among Computer Science, Artificial Intelligence, Psychology, Political Science, Sociology, Law, Engineering and Social Sciences. Generative AI emerges as an important recent inflection point in this intellectual transition. The study provides evidence-based insights into the evolving AI–society interface and its relevance to responsible AI, public policy and societal well-being.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.23,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Artificial Intelligence in English Language Teaching (2018–2025): A Bibliometric Analysis and LDA Topic Modeling",
+      "year": 2026,
+      "doi": "10.37630/bijee.v4i1.4446",
+      "arxiv_id": null,
+      "venue": "Bima Journal of Elementary Education",
+      "abstract": "The rapid advancement of artificial intelligence (AI), particularly generative AI tools such as ChatGPT, has fundamentally reshaped English Language Teaching (ELT) practices worldwide, yet the intellectual landscape of this research domain remains fragmented at a global scale. This study aims to map the development, intellectual structure, and emerging thematic trends of AI research in ELT from 2018 to 2025. A bibliometric analysis combined with Latent Dirichlet Allocation (LDA) topic modeling was performed on 1,622 articles retrieved from Scopus and Web of Science following the PRISMA 2020 protocol. Performance analysis and science mapping were conducted using VOSviewer 1.6.20 and the Bibliometrix R-package, while LDA topic modeling was implemented in Python (Gensim 4.3). Results reveal an exponential growth of publications, with a 168% increase following the release of ChatGPT in November 2022. The United States, China, and the United Kingdom dominate productivity, while Indonesia and Kazakhstan emerge as growing contributors within the Asian collaboration cluster. LDA identified eight dominant topics (k=8, C_v coherence score=0.61), with \"Generative AI and Writing Feedback\" and \"Chatbots and Conversational Practice\" representing the most active post-2022 research fronts. The study contributes a comprehensive intellectual map of AI-ELT research and identifies underexplored areas as priorities for future research",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.211,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Learning with Generative AI (GenAI): A Bibliometric and Synthesis of Equity Issue in English as a Foreign Language (EFL) Learning  ",
+      "year": 2026,
+      "doi": "10.46328/ijonse.5828",
+      "arxiv_id": null,
+      "venue": "International Journal of Studies in Education",
+      "abstract": "Effective implementation of Generative AI (GenAI) in education requires deeper insights into its implications for equity. This bibliometric and synthesis study investigates studies on GenAI in English as a Foreign Language (EFL) learning through quantitative bibliometric analysis, topic modelling, and mixed method genre analysis. The study maps the publication panorama, identifies research hotspots, and examines how equity issues are addressed in extant studies. Results find a rapidly increasing publication trend since 2022, with key journals, authors, and highly cited works highlighted. Seven dominant research topics are identified through topic modelling and Equity and Access ranks the fifth, suggesting a lack of sufficient attention on the issue. A further analysis of 20 closely equity-related studies revealed that equity-expressions indicating challenges to equity appear more in Literature review and Findings, whereas contributions mostly appear in Introductions. Only one study focuses on equity issue in Methodology section, suggesting that equity is not a central research concern in the literature analyzed. Overall, GenAI in EFL is framed as both opportunities and challenges to equity, but they are only mentioned rather than enquired. The study calls for more explicit attention to equity to ensure a more inclusive integration of GenAI into EFL learning and teaching.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.192,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Navigating the Disruption: A Bibliometric Analysis of Generative AI in Accounting Education Research (2022-2025)",
+      "year": 2026,
+      "doi": "10.57178/atestasi.v9i1.2322",
+      "arxiv_id": null,
+      "venue": "ATESTASI : Jurnal Ilmiah Akuntansi",
+      "abstract": "Purpose: The rapid development of Generative AI (GenAI), particularly following the launch of ChatGPT in 2022, has triggered significant disruption in global higher education. In accounting education, this technology presents complex challenges regarding academic integrity and information accuracy, while also offering significant opportunities to personalize learning and enhance operational efficiency. This study aims to conduct a bibliometric analysis to visualize the evolution of research, identify key contributors, and map critical themes in GenAI and accounting education from 2022 to 2025. \nResearch Design and Methodology: This study uses a bibliometric approach to integrate performance analysis and science mapping. Fifty-eight Scopus-indexed documents were analyzed via VOSviewer and Bibliometrix. Key visualization techniques, including co-authorship, co-citation, keyword co-occurrence, and topic modeling, were applied to identify and map dominant research themes. \nFindings and Discussion: A publication surge with an 87.58% annual growth rate. Southeast Asian nations (Indonesia, Malaysia, Vietnam) have emerged as major contributors, rivaling Western output on GenAI integration in accounting. Thematic analysis identifies a shift in focus from technical aspects to student competencies such as critical thinking, AI literacy, and adaptive assessment. Identifying the Journal of Accounting Education and Issues in Accounting Education as core references bridging pedagogy and technology, this study provides a roadmap for curricular reform in the Industry 4.0 era. \nImplications: GenAI integration forces a redefinition of graduate competencies amidst rapid literary expansion. The focus is shifting from procedural mastery to educational psychology, ethics, and human-machine collaboration to prevent the erosion of foundational skills. Ultimately, successful transformation depends on curriculum developers embedding digital literacy to maintain graduate relevance in the Society 5.0 landscape.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.045,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Tracing the research trends in the application of digital technology in cultural heritage: A bibliometric analysis integrating large language models",
+      "year": 2025,
+      "doi": "10.1177/01655515251373084",
+      "arxiv_id": null,
+      "venue": "Journal of information science",
+      "abstract": "Numerous bibliometric studies have explored digital technologies in cultural heritage, yet key research concerns and contributors remain underexplored. It primarily concentrates on the utilisation of discrete digital technologies in the domain of cultural heritage research, and is devoid of an overarching perspective on the deployment of digital technologies in cultural heritage research. This study identifies research trends, contributors, and collaborations in digital technologies applied to cultural heritage through a bibliometric and topic modelling analysis of 1,153 articles from the Web of Science database. The analysis revealed that these documents commenced in the year 2000, which can be attributed to the influence of the advent of digital technologies. This study employs structural topic modelling, supported by large language models, to examine annual trends and topic relevance. The analysis also explores potential future directions in this domain. The study identifies future research directions and inter-topic connections using annual topic proportions and relevance. A comparison is made of the principal research questions published in this field in various high-producing countries. The analysis reveals that research predominantly originates from developed regions, identifies 15 key topics, and highlights five emerging areas with significant growth from 2000 to 2024. The findings provide actionable insights for advancing the application of digital technologies in cultural heritage research and identifying future priorities. These findings benefit researchers and readers interested in digital technology applications in cultural heritage, as they facilitate a comprehensive understanding of the current state of digital technology in cultural heritage research and inform the future direction.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.016,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "A systematic review of research on large language models for computer programming education",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2506.21818",
+      "arxiv_id": "2506.21818",
+      "venue": "arXiv.org",
+      "abstract": "Given the increasing demands in computer programming education and the rapid advancement of large language models (LLMs), LLMs play a critical role in programming education. This study provides a systematic review of selected empirical studies on LLMs in computer programming education, published from 2023 to March 2024. The data for this review were collected from Web of Science (SCI/SSCI), SCOPUS, and EBSCOhost databases, as well as three conference proceedings specialized in computer programming education. In total, 42 studies met the selection criteria and were reviewed using methods, including bibliometric analysis, thematic analysis, and structural topic modeling. This study offers an overview of the current state of LLMs in computer programming education research. It outlines LLMs'applications, benefits, limitations, concerns, and implications for future research and practices, establishing connections between LLMs and their practical use in computer programming education. This review also provides examples and valuable insights for instructional designers, instructors, and learners. Additionally, a conceptual framework is proposed to guide education practitioners in integrating LLMs into computer programming education. This study suggests future research directions from various perspectives, emphasizing the need to expand research methods and topics in computer programming education as LLMs evolve. Additionally, future research in the field should incorporate collaborative, interdisciplinary, and transdisciplinary efforts on a large scale, focusing on longitudinal research and development initiatives.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.989,
+        "has_abstract": true,
+        "citations": 7
+      }
+    },
+    {
+      "title": "Machine learning-based research of AI marketing: topic analysis and model construction",
+      "year": 2025,
+      "doi": "10.1186/s43093-025-00686-5",
+      "arxiv_id": null,
+      "venue": "Future Business Journal",
+      "abstract": "Artificial intelligence (AI) has emerged as a transformative force in the marketing landscape, significantly altering consumer engagement, decision-making processes, and strategic management practices. However, despite the substantial expansion of research on AI in marketing, a comprehensive and systematic understanding of its underlying knowledge structure and the evolution of its thematic domains remains insufficient. Therefore, we synthesize qualitative insights with bibliometric science mapping by applying CiteSpace and latent Dirichlet allocation (LDA) topic modeling to 564 Web of Science Core Collection articles (2019–May 2025). The analysis yields three core findings. First, China and the USA anchor the field’s knowledge production, with the UK, Australia, and India as secondary hubs. Second, LDA reveals five topics: (1) Digitalization Transformation and Marketing Strategy, which explores the impact of digital technologies on reshaping traditional marketing approaches; (2) Consumer Behavior and Experience, focusing on how AI influences consumer decision-making and engagement; (3) Business Value and Innovation Research, examining how AI contributes to business value creation and the development of innovative marketing practices; (4) Machine Learning Algorithms and Technological Applications, addressing the technical foundations and practical implementations of AI in marketing; and (5) Generative AI Content and Applications, highlighting the emerging role of generative AI in content creation and personalization. Third, we develop an integrative value chain framework that explicates how AI permeates and transforms distinct stages of the marketing process, offering a holistic perspective on AI’s role in modern marketing practices. Building on these results, we advance a dual co-evolutionary framework—Consumer–Technology–Market and Technology–Economy–Society—that consolidates dispersed streams, clarifies the field’s intellectual structure. For managers, we map the AI–marketing technology landscape, identify high-yield opportunities in customer experience and service automation, and delineate risks involving data privacy, bias, and ethical guardrails, thereby informing effective and responsible adoption of AI in marketing strategy.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.987,
+        "has_abstract": true,
+        "citations": 3
+      }
+    },
+    {
+      "title": "Fake news in elections: leveraging large language models using semantic analyses to extract insights from academic research",
+      "year": 2025,
+      "doi": "10.1080/09540091.2025.2587447",
+      "arxiv_id": null,
+      "venue": "Connection science",
+      "abstract": "ABSTRACT This paper examines the delicate balance between fake news and freedom of speech by analyzing academic research at the intersection of “fake news” and “election.” Using 568 publications from the Web of Science database, the research applies data analytics and natural language processing (NLP) methods to uncover geographical patterns, thematic trends and sentiment in the scholarly discourse. Named Entity Recognition identifies the most studied countries and platforms, while topic modeling reveals recurring themes such as political misinformation, media influence and the role of artificial intelligence in fake news detection. The originality of this work lies in its integration of bibliometric analysis with advanced NLP-driven semantic, large language models and sentiment approaches, offering a multidimensional view of how fake news is framed in academic contexts. Unlike prior studies, it quantifies emerging trends using Compound Annual Growth Rate (CAGR), identifies propagation mechanisms like “sharing” and “engagement,” and bridges computational and social science perspectives. Findings show a strong research focus on misinformation during elections since 2016, with Brazil, Spain and the United States as leading contributors, and Twitter® and Facebook® as the most frequently studied platforms. Our research contributes to a deeper understanding of how misinformation and freedom of speech are debated in scholarly literature and underscores the need for interdisciplinary approaches to safeguard democratic integrity in the digital era.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.984,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Decoding business applications of generative AI: A bibliometric Decoding business applications of generative AI: A bibliometric analysis and text mining approach analysis and text mining approach",
+      "year": null,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.29,
+        "has_abstract": false,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Generative AI in Transportation Analytics: Foundations, Deep Generative Models, and Practical Use Cases",
+      "year": 2026,
+      "doi": "10.3390/infrastructures11080270",
+      "arxiv_id": null,
+      "venue": "Infrastructures",
+      "abstract": "Generative artificial intelligence (Gen-AI) is rapidly reshaping transportation analytics by enabling data synthesis, uncertainty modeling, and decision-oriented reasoning under sparse and complex conditions. This study presents a systematic, use-case-driven review of 142 empirical transportation studies published between 2018 and August 2025, synthesizing how Gen-AI has been adapted, evaluated, and integrated into real transportation workflows. This study distinguishes two dominant model families, deep generative models and foundation models, and show that they serve fundamentally different yet increasingly complementary roles: the former addressing data scarcity and distributional learning, and the latter enabling reasoning, coordination, and decision support. Through bibliometric analysis, topic modeling, and application mapping, this study identifies major adoption trends, persistent limitations, and research gaps related to generalization, validation, scalability, and trust. The findings reveal a field-level shift from prediction-centric modeling toward generative, decision-aware transportation intelligence and outline a roadmap for responsible, domain-grounded deployment of Gen-AI in safety-critical transportation systems.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.949,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Recommender Systems: Emerging Trends from Four Decades of Research Using Bibliometric Analysis and Transformer-Based Models",
+      "year": 2026,
+      "doi": "10.3390/electronics15040763",
+      "arxiv_id": null,
+      "venue": "Electronics",
+      "abstract": "Recommender systems represent an essential infrastructure for digital platforms. To understand their evolution, we analyze 15,944 Web of Science publications (1980–2025) using bibliometric techniques, generative and transformer models for sentiment analysis and latent topic modeling. Our analysis yields three major findings. First, e-commerce recommendation research exhibits rapid growth in advanced representation techniques, with compound annual growth rates for contrastive learning (187%), graph neural networks (89%) and federated learning (72%). Second, algorithmic fairness and privacy preservation have emerged as critical research directions. Third, collaborative networks indicate a geographical shift, with Asia–Pacific regions becoming influential research hubs. The methodology integrates CAGR analysis with Latent Dirichlet Allocation (LDA, coherence score = 0.687) and BERTopic for thematic mapping and network analysis. Additionally, we employ sentiment analysis (VADER, TextBlob and a sentiment analysis pipeline from Hugging Face Transformers) and temporal heatmaps to capture research narratives. Topic modeling with LDA identifies five core themes: (1) Collaborative Filtering; (2) Machine Learning and Educational Systems; (3) Web Services and Business Applications; (4) Content and Multimedia Recommendations; (5) Graph Neural Networks and Advanced Models. BERTopic provides eight more nuanced themes based on semantics. Citation patterns follow the Pareto principle, where the top 1% of articles account for 29.1% of all citations, confirming a highly skewed impact distribution. Notably, established keywords show declining trajectories, indicating a methodological evolution toward newer, deep learning and generative AI-based paradigms.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.895,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "From Research to Impact: Assessing a Decade of CDCs Public Health Science by Topic Area, 2014-2023",
+      "year": 2025,
+      "doi": "10.1101/2025.03.07.25323572",
+      "arxiv_id": null,
+      "venue": "medRxiv",
+      "abstract": "ObjectivesThis study provides an objective, in-depth overview of a large body of science output addressing public health. We apply topic modeling and bibliometric tools to explore the relevance and impact of a decade of CDC-authored publications.\n\nMethodsWe identified 34,104 scientific publications from 2014-2023 with [≥]1 CDC-affiliated author using Science Clips, a CDC library database. We applied a large language modeling framework using BERTopic to publication titles and abstracts to identify public health topic themes. We obtained data from Altmetric, Dimensions, and BMJ Impact Analytics for these publications to bibliometric indicators. We assessed the percent with attention, academic citations, and policy citations using appropriate publication year ranges. We assessed the median Altmetric attention score, median academic citations, and the percent with policy citations for publications by topic area.\n\nResultsOf publications from 2014-2020, 95% were cited by academic papers and 52% were cited in clinical guidance or policy. Of publications from 2014-2023, 84% garnered online attention. CDC-authored publications clustered into 46 public health topic themes. Among these, fungal infections had the highest median number of academic citations (36.5), mining safety and health had the highest proportion of papers with policy citations (92.5%), and substance abuse or opioids received the highest median public attention (Altmetric Attention Score = 14). Nearly a third of topics ranked highly (in the top 5) for at least one bibliometric indicator.\n\nConclusionsPublications in this collection addressed an array of public health topic themes and demonstrated resonance within academic and policy arenas as well as with the public.\n\nSUMMARY1) What is the current understanding of this subject?Public health science should address strategic priorities and translate to public health impact. CDCs scientists publish over 3,400 articles per year on average, making it difficult to summarize the breadth of topics covered by these articles and how they affect downstream health outcomes.\n\n2) What does this report add to the literature?We used cutting-edge large language modeling techniques to categorize CDC-authored publications into 46 topic themes. These topic themes span both infectious and non-infectious disease, and cover topics involved in strategic priorities like emergency response. We assess simple indicators like academic citations, policy citations, and media attention by topic area to show that all topic themes have had measurable impact. Across all topic areas, CDC-authored publications are also highly cited in policy and clinical guidance, an indicator of translation to public health impact.\n\n3) What are the implications for public health practice?Public health research programs can use advances in large language modeling as well as simple indicators of reach and impact to better understand whether their publications address priority topics and translate to improving health outcomes. This overview of CDC research additionally promotes transparency about the activities of the nations foremost public health agency.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.891,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "AI content detection in student text assignments, false positive rates, and academic integrity",
+      "year": 2026,
+      "doi": "10.1007/s44217-026-02307-x",
+      "arxiv_id": null,
+      "venue": "Discover Education",
+      "abstract": "Universities increasingly use AI content detection tools to identify student assignments potentially produced by generative AI, yet concerns remain regarding their reliability and false-positive classification of human-written work. This systematic review examines the causes, consequences, and mitigation of false-positive AI detection in academic contexts. The review covers literature published between 2020 and 2026 and includes 90 eligible studies, comprising 81 Scopus-indexed publications and nine studies identified through Google Scholar. Bibliometric mapping using VOSviewer was combined with Structural Topic Modelling to examine keyword relationships, latent research themes, and temporal development, while qualitative synthesis identified major causes, impacts, and mitigation strategies. The findings reveal three broader themes concerning academic integrity and student assessment, plagiarism and responsible AI governance, and detection accuracy, reliability, and false positives. False-positive outcomes vary substantially across tools and evaluation settings, limiting direct quantitative comparison. Major contributing factors include algorithmic and language bias, limited contextual understanding, surface-level linguistic features, and insufficiently diverse training data. The evidence further highlights risks to assessment fairness, student confidence, and institutional decision-making. Effective responses therefore require transparent detection practices, human review, AI literacy, clear institutional policies, and accessible appeal procedures.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.89,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "The Intellectual Structure and Thematic Evolution of Trust in AI Research: A BERTopic Analysis",
+      "year": 2026,
+      "doi": "10.1109/ACCESS.2026.3709620",
+      "arxiv_id": null,
+      "venue": "IEEE Access",
+      "abstract": "As AI is increasingly used across social and organizational domains, trust in AI has emerged as an important research topic. This study analyzes 605 articles from 2016 to 2025 to examine the intellectual structure and thematic evolution of the field. Bibliometric and BERTopic analyses were used to identify transitions before and after generative AI (GenAI). The results show that AI trust research expanded rapidly after GenAI, with notable growth in publications and citations. International collaboration analysis reveals a hub-oriented structure in which the United Kingdom holds the most extensive collaborative ties and the United States plays a prominent bridging role across country groups, while Asian countries have grown more visible in recent years. Topic modeling identified 13 topics across six research areas: AI governance and trustworthiness, organizational and service contexts, XAI and trust, medical AI and trust, AI trust in education, and AI trust in media. Prior to GenAI, research was concentrated around governance, human-AI collaboration, and XAI. Since then, scholarly attention has broadened toward education, media, and the public sector. These findings suggest that AI trust research has expanded toward broader social application domains in the post-GenAI period.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.89,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "A Quantitative Review of Ancient Chinese Book Digitization: Research Trends and Development Based on DeepSeek-V3 and BER Topic",
+      "year": 2025,
+      "doi": "10.22161/ijels.106.17",
+      "arxiv_id": null,
+      "venue": "International Journal of English Literature and Social Sciences",
+      "abstract": "This study conducts a comprehensive quantitative analysis of the development and research trends of ancient Chinese book digitization over the past three decades. By employing advanced tools such as CiteSpace for bibliometric analysis, the BERTopic deep learning model for topic modeling, and the large language model DeepSeek-V3 for semantic trend interpretation, the research identifies the developmental stages of the field, eight major thematic areas, and emerging directions such as gamification, knowledge services, and AI model integration. Drawing upon a corpus of 562 peer-reviewed journal articles retrieved from the CNKI database, the study applies both statistical and semantic techniques to uncover key author clusters, topic evolution, and knowledge networks. This work contributes to the understanding of how digital and intelligent technologies are transforming the preservation, dissemination, and reuse of ancient texts, and provides theoretical support for the innovative transmission of traditional Chinese culture in the digital era.",
+      "source_api": "semanticscholar",
+      "query_id": "Q5",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.869,
+        "has_abstract": true,
+        "citations": 1
+      }
+    }
+  ]
+}

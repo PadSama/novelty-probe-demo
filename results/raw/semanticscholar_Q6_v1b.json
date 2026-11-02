@@ -1,0 +1,380 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q6",
+    "purpose": "concurrent",
+    "queries_file": "queries/queries.json",
+    "query_original": "(\"AI in science\" OR \"large language models\" OR \"generative AI\") AND (\"topic diversity\" OR \"narrowing of science\" OR \"collective diversity\" OR disruptiveness OR \"research diversification\") AND (scientist* OR \"science of science\")",
+    "year_from": 2023,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |, AND NOT -> + -); phrases and prefix * kept; re-ranked locally",
+    "query_sent": "(\"AI in science\" | \"large language models\" | \"generative AI\") + (\"topic diversity\" | \"narrowing of science\" | \"collective diversity\" | disruptiveness | \"research diversification\") + (scientist* | \"science of science\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22AI+in+science%22+%7C+%22large+language+models%22+%7C+%22generative+AI%22%29+%2B+%28%22topic+diversity%22+%7C+%22narrowing+of+science%22+%7C+%22collective+diversity%22+%7C+disruptiveness+%7C+%22research+diversification%22%29+%2B+%28scientist%2A+%7C+%22science+of+science%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract%2CcitationCount&sort=citationCount%3Adesc&year=2023-",
+    "sort": "local: include groups matched, BM25 (title+abstract), citations; records without abstract ranked separately and interleaved by their share",
+    "retrieval_sort": "citationCount:desc",
+    "pool": {
+      "retrieved": 23,
+      "pages": 1,
+      "truncated": false,
+      "with_abstract": 21,
+      "same_title_dropped": 1
+    },
+    "total_hits": 23,
+    "returned": 22,
+    "retrieved_at": "2026-11-02T08:53:32+00:00"
+  },
+  "records": [
+    {
+      "title": "AI Tools in Scientific Research: Boosting Individuals at the Expense of Collective Progress",
+      "year": 2026,
+      "doi": "10.71097/ijsat.v17.i1.10159",
+      "arxiv_id": null,
+      "venue": "International Journal for Sciences and Technology",
+      "abstract": "Artificial intelligence (AI) tools have revolutionized scientific research by dramatically enhancing individual productivity, enabling researchers to produce more publications and achieve greater career acceleration. Empirical evidence from millions of papers shows AI adopters publish 3.02 times more and receive 4.84 times more citations, with junior scientists advancing 1.37 years faster. However, this individual empowerment comes with systemic costs: AI narrows research topic diversity by 4.63%, reduces interdisciplinary collaboration by 22%, and concentrates efforts in data-rich domains, potentially stunting the broader scientific enterprise. Drawing on large-scale analyses of 41.3 million papers and 2.28 million careers, this paper elucidates the mechanisms, quantifies trade-offs, and proposes policy interventions to mitigate collective limitations while preserving gains. Findings reveal a classic social dilemma, akin to generative AI's effects on creativity, urging a balanced approach to AI integration in science",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 4.313,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "China’s New Regulations on Generative AI: Implications for Bioethics",
+      "year": 2023,
+      "doi": "10.1080/15265161.2023.2249854",
+      "arxiv_id": null,
+      "venue": "American Journal of Bioethics",
+      "abstract": "Conroy, G. 2023. Scientists used ChatGPT to generate an entire paper from scratch—but is it any good? Nature 619 (7970):443–4. doi: 10.1038/d41586-023-02218-z. Dastin, J. 2018. Amazon scraps secret AI recruiting tool that showed bias against women. Reuters, October 10. https://www.reuters.com/article/us-amazon-com-jobsautomation-insight-idUSKCN1MK08G Gold, E. R. 2021. The fall of the innovation empire and its possible rise through open science. Research Policy 50 (5): 104226. doi: 10.1016/j.respol.2021.104226. Hosseini, M., C. A. Gao, D. M. Liebovitz, A. M. Carvalho, F. S. Ahmad, Y. Luo, N. MacDonald, K. L. Holmes, 2023. An exploratory survey about using ChatGPT in education, healthcare, and research. MedRxiv: The Preprint Server for Health Sciences doi: 10.1101/2023.03.31. 23287979. Hosseini, M., D. B. Resnik, and K. Holmes. 2023. The ethics of disclosing the use of artificial intelligence in tools writing scholarly manuscripts. Research Ethics doi: 10.1177/ 17470161231180449. Jones, D. 2021. Facebook apologizes after its AI labels black men as ’primates’. NPR, September 4. https://www.npr. org/2021/09/04/1034368231/facebook-apologizes-ai-labelsblack-men-primates-racial-bias Lipenkova, J. 2023. Overcoming the limitations of large language models: How to enhance LLMs with human-like cognitive skills. Towards Data Science, January 23, https://towardsdatascience.com/overcoming-the-limitations-of-large-language-models-9d4e92ad9823 Lubell, J. 2023. ChatGPT passed the USMLE. What does it mean for med ed? AMA, March 3. https://www.ama-assn. org/practice-management/digital/chatgpt-passed-usmlewhat-does-it-mean-med-ed National Academies of Science, Engineering, and Medicine. 2017. Fostering Research Integrity. National Academies Press, Washington, DC. Park, M., E. Leahey, and R. J. Funk. 2023. Papers and patents are becoming less disruptive over time. Nature 613 (7942):138–44. doi: 10.1038/s41586-022-05543-x. Porsdam Mann, S., B. D. Earp, N. Møller, S. Vynn, and J. Savulescu. 2023. AUTOGEN: A personalized large language model for academic enhancement—ethics and proof of principle. The American Journal of Bioethics 23 (10):28–41. doi:10.1080/15265161.2023.2233356. Shamoo, A. E., and D. B. Resnik. 2022. Responsible conduct of research. 4th ed. New York: Oxford University Press. Weiss, D. C. 2023. Latest version of ChatGPT aces bar exam with score nearing 90th percentile. ABA Journal, March 16. https://www.abajournal.com/web/article/latestversion-of-chatgpt-aces-the-bar-exam-with-score-in-90thpercentile",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.102,
+        "has_abstract": true,
+        "citations": 5
+      }
+    },
+    {
+      "title": "The rise of Generative AI and possible effects on the economy",
+      "year": 2023,
+      "doi": "10.18559/ebr.2023.2.732",
+      "arxiv_id": null,
+      "venue": "Economics and Business Review",
+      "abstract": "Abstract The aim of the paper is to analyse the likely implications of Generative AI (GAI) on various aspects of business and the economy. Amid the rapid growth and maturing of Generative AI technologies such as Large Language Models (like ChatGPT by OpenAI) a rapid growth of both immediate and potential applications can be seen. The implications for the economy and industries of this technological shift will be discussed. The foreseeable scenarios for the level and types of adoption that GAI might achieve—from useful analytical tool, invaluable assistant to the white-collar workers of the world to being trusted with a wide array of business and life-critical decision making. Both disruptive and premium service opportunities are foreseen. For instance, general purpose models may provide quality service—such as copywriting—to overserved customers leaving human writers as the premium option. In this context, overserved customers would be those who would be satisfied with a non-human, potentially less creative content. On the other hand highly specialized models—specifically trained in a given domain and with access to proprietary knowledge can possibly provide a premium service over that provided by human experts. It is expected that some jobs will be replaced by new AI applications. However, new workplaces will emerge. Not only the obvious expert-level data scientist roles but also low grade, “model supervisors”—people training the models, assessing the quality of responses given and handling escalations. Lastly new cybercrime risks emerging from the rise of GAI are discussed.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 2.057,
+        "has_abstract": true,
+        "citations": 42
+      }
+    },
+    {
+      "title": "Towards Diverse Scientific Hypothesis Search with Large Language Models",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2606.10587",
+      "arxiv_id": "2606.10587",
+      "venue": "arXiv.org",
+      "abstract": "Large language models (LLMs) are on the rise for accelerating scientific discovery, most recently in advanced tasks such as generating valid scientific hypotheses. Yet in many discovery settings, the goal is not to identify a single best hypothesis since validation can be noisy and expensive, and scientists benefit from a set of high-quality alternative hypotheses that hedge against downstream uncertainty for the best solutions. Nevertheless, commonly used evolutionary search recipes tend to prioritize optimization over exploration in hypothesis generation, and the resulting selection pressure during the search process leads to diversity collapse. Motivated by these limitations, we formulate hypothesis search as a sampling problem, where the objective is to efficiently produce diverse, high-quality hypotheses under a fixed validation budget. Building on this perspective, we propose \\ours, an evolutionary framework inspired by the classical parallel tempering algorithm that searches hypotheses at multiple temperature levels and enables principled information exchange across temperatures to improve exploration without disrupting convergence. Across domains including molecular discovery, equation discovery, and algorithm discovery, our approach consistently improves both hypothesis quality and diversity under the same validation budget, and produces candidates that remain robust under more expensive downstream computational validations.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.834,
+        "has_abstract": true,
+        "citations": 3
+      }
+    },
+    {
+      "title": "BloClaw: An Omniscient, Multi-Modal Agentic Workspace for Next-Generation Scientific Discovery",
+      "year": 2026,
+      "doi": "10.48550/arXiv.2604.00550",
+      "arxiv_id": "2604.00550",
+      "venue": "arXiv.org",
+      "abstract": "The integration of Large Language Models (LLMs) into life sciences has catalyzed the development of\"AI Scientists.\"However, translating these theoretical capabilities into deployment-ready research environments exposes profound infrastructural vulnerabilities. Current frameworks are bottlenecked by fragile JSON-based tool-calling protocols, easily disrupted execution sandboxes that lose graphical outputs, and rigid conversational interfaces inherently ill-suited for high-dimensional scientific data.We introduce BloClaw, a unified, multi-modal operating system designed for Artificial Intelligence for Science (AI4S). BloClaw reconstructs the Agent-Computer Interaction (ACI) paradigm through three architectural innovations: (1) An XML-Regex Dual-Track Routing Protocol that statistically eliminates serialization failures (0.2% error rate vs. 17.6% in JSON); (2) A Runtime State Interception Sandbox that utilizes Python monkey-patching to autonomously capture and compile dynamic data visualizations (Plotly/Matplotlib), circumventing browser CORS policies; and (3) A State-Driven Dynamic Viewport UI that morphs seamlessly between a minimalist command deck and an interactive spatial rendering engine. We comprehensively benchmark BloClaw across cheminformatics (RDKit), de novo 3D protein folding via ESMFold, molecular docking, and autonomous Retrieval-Augmented Generation (RAG), establishing a highly robust, self-evolving paradigm for computational research assistants. The open-source repository is available at https://github.com/qinheming/BloClaw.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.494,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "ChatGPT Isn't Magic",
+      "year": 2023,
+      "doi": "10.5204/mcj.3004",
+      "arxiv_id": null,
+      "venue": "M/C Journal",
+      "abstract": "Introduction\nAuthor Arthur C. Clarke famously argued that in science fiction literature “any sufficiently advanced technology is indistinguishable from magic” (Clarke). On 30 November 2022, technology company OpenAI publicly released their Large Language Model (LLM)-based chatbot ChatGPT (Chat Generative Pre-Trained Transformer), and instantly it was hailed as world-changing. Initial media stories about ChatGPT highlighted the speed with which it generated new material as evidence that this tool might be both genuinely creative and actually intelligent, in both exciting and disturbing ways. Indeed, ChatGPT is part of a larger pool of Generative Artificial Intelligence (AI) tools that can very quickly generate seemingly novel outputs in a variety of media formats based on text prompts written by users. Yet, claims that AI has become sentient, or has even reached a recognisable level of general intelligence, remain in the realm of science fiction, for now at least (Leaver). That has not stopped technology companies, scientists, and others from suggesting that super-smart AI is just around the corner. Exemplifying this, the same people creating generative AI are also vocal signatories of public letters that ostensibly call for a temporary halt in AI development, but these letters are simultaneously feeding the myth that these tools are so powerful that they are the early form of imminent super-intelligent machines.\nFor many people, the combination of AI technologies and media hype means generative AIs are basically magical insomuch as their workings seem impenetrable, and their existence could ostensibly change the world. This article explores how the hype around ChatGPT and generative AI was deployed across the first six months of 2023, and how these technologies were positioned as either utopian or dystopian, always seemingly magical, but never banal. We look at some initial responses to generative AI, ranging from schools in Australia to picket lines in Hollywood. We offer a critique of the utopian/dystopian binary positioning of generative AI, aligning with critics who rightly argue that focussing on these extremes displaces the more grounded and immediate challenges generative AI bring that need urgent answers. Finally, we loop back to the role of schools and educators in repositioning generative AI as something to be tested, examined, scrutinised, and played with both to ground understandings of generative AI, while also preparing today’s students for a future where these tools will be part of their work and cultural landscapes.\nHype, Schools, and Hollywood\nIn December 2022, one month after OpenAI launched ChatGPT, Elon Musk tweeted: “ChatGPT is scary good. We are not far from dangerously strong AI”. Musk’s post was retweeted 9400 times, liked 73 thousand times, and presumably seen by most of his 150 million Twitter followers. This type of engagement typified the early hype and language that surrounded the launch of ChatGPT, with reports that “crypto” had been replaced by generative AI as the “hot tech topic” and hopes that it would be “‘transformative’ for business” (Browne). By March 2023, global economic analysts at Goldman Sachs had released a report on the potentially transformative effects of generative AI, saying that it marked the “brink of a rapid acceleration in task automation that will drive labor cost savings and raise productivity” (Hatzius et al.). Further, they concluded that “its ability to generate content that is indistinguishable from human-created output and to break down communication barriers between humans and machines reflects a major advancement with potentially large macroeconomic effects” (Hatzius et al.). Speculation about the potentially transformative power and reach of generative AI technology was reinforced by warnings that it could also lead to “significant disruption” of the labour market, and the potential automation of up to 300 million jobs, with associated job losses for humans (Hatzius et al.). In addition, there was widespread buzz that ChatGPT’s “rationalization process may evidence human-like cognition” (Browne), claims that were supported by the emergent language of ChatGPT. The technology was explained as being “trained” on a “corpus” of datasets, using a “neural network” capable of producing “natural language“” (Dsouza), positioning the technology as human-like, and more than ‘artificial’ intelligence. Incorrect responses or errors produced by the tech were termed “hallucinations”, akin to magical thinking, which OpenAI founder Sam Altman insisted wasn’t a word that he associated with sentience (Intelligencer staff). Indeed, Altman asserts that he rejects moves to “anthropomorphize” (Intelligencer staff) the technology; however, arguably the language, hype, and Altman’s well-publicised misgivings about ChatGPT have had the combined effect of shaping our understanding of this generative AI as alive, vast, fast-moving, and potentially lethal to humanity.\nUnsurprisingly, the hype around the transformative effects of ChatGPT and its ability to generate ‘human-like’ answers and sophisticated essay-style responses was matched by a concomitant panic throughout educational institutions. The beginning of the 2023 Australian school year was marked by schools and state education ministers meeting to discuss the emerging problem of ChatGPT in the education system (Hiatt). Every state in Australia, bar South Australia, banned the use of the technology in public schools, with a “national expert task force” formed to “guide” schools on how to navigate ChatGPT in the classroom (Hiatt). Globally, schools banned the technology amid fears that students could use it to generate convincing essay responses whose plagiarism would be undetectable with current software (Clarence-Smith). Some schools banned the technology citing concerns that it would have a “negative impact on student learning”, while others cited its “lack of reliable safeguards preventing these tools exposing students to potentially explicit and harmful content” (Cassidy). ChatGPT investor Musk famously tweeted, “It’s a new world. Goodbye homework!”, further fuelling the growing alarm about the freely available technology that could “churn out convincing essays which can't be detected by their existing anti-plagiarism software” (Clarence-Smith). Universities were reported to be moving towards more “in-person supervision and increased paper assessments” (SBS), rather than essay-style assessments, in a bid to out-manoeuvre ChatGPT’s plagiarism potential. Seven months on, concerns about the technology seem to have been dialled back, with educators more curious about the ways the technology can be integrated into the classroom to good effect (Liu et al.); however, the full implications and impacts of the generative AI are still emerging.\nIn May 2023, the Writer’s Guild of America (WGA), the union representing screenwriters across the US creative industries, went on strike, and one of their core issues were “regulations on the use of artificial intelligence in writing” (Porter). Early in the negotiations, Chris Keyser, co-chair of the WGA’s negotiating committee, lamented that “no one knows exactly what AI’s going to be, but the fact that the companies won’t talk about it is the best indication we’ve had that we have a reason to fear it” (Grobar). At the same time, the Screen Actors’ Guild (SAG) warned that members were being asked to agree to contracts that stipulated that an actor’s voice could be re-used in future scenarios without that actor’s additional consent, potentially reducing actors to a dataset to be animated by generative AI technologies (Scheiber and Koblin). In a statement issued by SAG, they made their position clear that the creation or (re)animation of any digital likeness of any part of an actor must be recognised as labour and properly paid, also warning that any attempt to legislate around these rights should be strongly resisted (Screen Actors Guild). Unlike the more sensationalised hype, the WGA and SAG responses to generative AI are grounded in labour relations. These unions quite rightly fear the immediate future where human labour could be augmented, reclassified, and exploited by, and in the name of, algorithmic systems. Screenwriters, for example, might be hired at much lower pay rates to edit scripts first generated by ChatGPT, even if those editors would really be doing most of the creative work to turn something clichéd and predictable into something more appealing. Rather than a dystopian world where machines do all the work, the WGA and SAG protests railed against a world where workers would be paid less because executives could pretend generative AI was doing most of the work (Bender).\nThe Open Letter and Promotion of AI Panic\nIn an open letter that received enormous press and media uptake, many of the leading figures in AI called for a pause in AI development since “advanced AI could represent a profound change in the history of life on Earth”; they warned early 2023 had already seen “an out-of-control race to develop and deploy ever more powerful digital minds that no one – not even their creators – can understand, predict, or reliably control” (Future of Life Institute). Further, the open letter signatories called on “all AI labs to immediately pause for at least 6 months the training of AI systems more powerful than GPT-4”, arguing that “labs and independent experts should use this pause to jointly develop and implement a set of shared safety protocols for advanced AI design and development that are rigorously audited and overseen by independent outside experts” (Future of Life Institute). Notably, many of the signatories work for the very companies involved in the “out-of-control race”. Indeed, while this letter could be read as a moment of ethical clarity for the AI industry, a more cynical reading might just be that in warning that their AIs could effectively destroy the world, th",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.233,
+        "has_abstract": true,
+        "citations": 36
+      }
+    },
+    {
+      "title": "Peer Review and Scientific Publication at a Crossroads: Call for Research for the 10th International Congress on Peer Review and Scientific Publication.",
+      "year": 2023,
+      "doi": "10.1001/jama.2023.17607",
+      "arxiv_id": null,
+      "venue": "Journal of the American Medical Association (JAMA)",
+      "abstract": "The way science is assessed, published, and disseminated has markedly changed since 1986, when the launch of a new Congress focused on the science of peer review was first announced. There have been 9 International Peer Review Congresses since 1989, typically running on an every-4-year cycle, and most recently in 2022 after a 1-year delay due to the COVID-19 pandemic.1 Here, we announce that the 10th International Congress on Peer Review and Scientific Publication will be held in Chicago, Illinois, on September 3-5, 2025. The congresses have been enormously productive, incentivizing and publicizing important empirical work into how science is produced, evaluated, published, and disseminated.2-4 However, peer review and scientific publication are currently at a crossroads and their future more difficult than ever to predict. After decades of experience and research in these fields, we have learned a lot about a wide range of aspects of peer review and scientific publication.2-5 We have accumulated a large body of empirical evidence on how systems function and how they can malfunction. There is also growing evidence on how to make peer review, publication, and dissemination processes more efficient, fair, open, transparent, reliable, and equitable.6-15 Experimental randomized evaluations of peer review practices are only a small part of the literature, but their numbers have been growing since the early trials of anonymized peer review.16-22 Research has revealed a rapidly growing list of biases, inefficiencies, and threats to the trustworthiness of published research, some now well recognized, others deserving of more attention.2,3 Moreover, practices continue to change and diversify in response to new needs, tools, and technologies as well as the persistent “publish or perish” pressures on scientists-as-authors. With the continued evolution of electronic platforms and tools—most recently the emergence and use of large language models and artificial intelligence (AI)—peer review and scientific publication are rapidly evolving to address new opportunities and threats.23,24 Moreover, a lot of money is at stake; scientific publishing is a huge market with one of the highest profit margins among all business enterprises, and it supports a massive biomedical and broader science economy. Many stakeholders try to profit from or influence the scientific literature in ways that do not necessarily serve science or enhance its benefits to society. The number of science journal titles and articles is steadily increasing25; many millions of scientists coauthor scientific papers, and perverse reward systems do not help improve the quality of this burgeoning corpus. Furthermore, principled mandates for immediate and open access to research and data may not be fully understood, accepted, or funded. Many other new, often disruptive, ideas abound on how to improve dissemination of and access to science, some more speculative, utopian, or selfserving than others. In addition, deceptive, rogue actors, such as predatory and pirate publishers, fake reviewers, and paper mills continue to threaten the integrity of peer review and scientific publication. Careful testing of the many proposals to improve peer review and publication and of interventions and processes to address threats to their integrity in a rigorous and timely manner are essential to the future of science and the scholarly publishing enterprise. Proposed remedies for several of the problems and biases have been evaluated,4 but many are untested or have inconclusive evidence for or against their use. New biases continue to appear (or at least to be recognized). In addition, there is tension about how exactly to correct the scientific literature, where a large share of what is published may not be replicable or is obviously false.26 Even outright fraud may be becoming more common—or may simply be recognized and reported more frequently than before.27,28 By their very nature, peer review and scientific publication practices are in a state of flux and may be unstable as they struggle to serve rapidly changing circumstances, technologies, and stakeholder needs and goals. Therefore, some unease would exist even in the absence of major perturbations, even if all the main stakeholders (authors, journals, publishers, funders) simply wanted to continue business as usual. However, the emergence of additional rapid changes further exacerbates the challenges, while also providing opportunities to improve the system at large. The COVID-19 crisis was one major quake that shook the way research is designed, conducted, evaluated, published, disseminated, and accessed.29,30 Advances in AI and large language models may be another, potentially even larger, seismic force, with some viewing the challenge posed by these new developments as another hyped tempest in a teapot and others believing them to be an existential threat to truth and all of humanity. Scientific publication should fruitfully absorb this energy.23,24 Research has never been needed more urgently to properly examine, test, and correct (in essence: peer review) scientific and nonscientific claims for the sake of humanity’s best interests. The premise of all Peer Review Congresses is that peer review and scientific publication must be properly examined, tested, and corrected in the Opinion",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.194,
+        "has_abstract": true,
+        "citations": 20
+      }
+    },
+    {
+      "title": "Generative AI meets copyright",
+      "year": 2023,
+      "doi": "10.1126/science.adi0656",
+      "arxiv_id": null,
+      "venue": "Science",
+      "abstract": "Description Ongoing lawsuits could affect everyone who uses generative AI Generative artificial intelligence (AI) is a disruptive technology that is widely adopted by members of the general public as well as scientists and technologists who are enthusiastic about the potential to accelerate research in a wide variety of fields. But some professional artists, writers, and programmers fiercely object to the use of their creations as training data for generative AI systems and to outputs that may compete with or displace their works (1, 2). Lack of attribution and compensation for use of their original creations are other sources of aggravation to critics of generative AI. Copyright lawsuits that are now underway in the United States have substantial implications for the future of generative AI systems. If the plaintiffs prevail, the only generative AI systems that may be lawful in the United States would be those trained on public domain works or under licenses, which will affect everyone who deploys generative AI, integrates it into their products, and uses it for scientific research.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 1.108,
+        "has_abstract": true,
+        "citations": 274
+      }
+    },
+    {
+      "title": "Prompt‐a‐Scientist: Using Generative\n AI\n to Disrupt Stereotypical Conceptions in Science Education",
+      "year": 2026,
+      "doi": "10.1111/ssm.70041",
+      "arxiv_id": null,
+      "venue": "School Science and Mathematics",
+      "abstract": "\n Stereotypical conceptions of scientists shape how students experience science, develop science identities, and make career choices. While instruments such as the Draw‐A‐Scientist Test (DAST) have been widely used to elicit these conceptions, fewer approaches focus on actively disrupting them. This paper introduces Prompt‐a‐Scientist, a pedagogical activity that uses generative Artificial Intelligence (AI) to support undergraduate students in recognizing and deconstructing their stereotypical views of scientists. In the activity, students first authored detailed narratives of a stereotype‐disrupting scientist and then translated these into prompts for AI image generation. Analysis of the resulting narratives, prompts, and images reveals a dual mediation process: students' conscious deconstruction efforts interacted with and were constrained by the AI's own default stereotypes. Results show that while AI can circumvent some clichés, it often reconstitutes others and struggles with nuanced identities like nonbinary gender. The subsequent collective reflection proved crucial, enabling students to problematize both the AI's biases and their own internalized assumptions. The activity complements rather than replaces existing instruments such as the DAST by shifting the pedagogical function from diagnostic assessment to a critical formative practice, offering a promising tool for both teaching and future research.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.961,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "AI-Generated Images as an Emergent Record Format",
+      "year": 2023,
+      "doi": "10.1109/BigData59044.2023.10386946",
+      "arxiv_id": null,
+      "venue": "BigData Congress [Services Society]",
+      "abstract": "AI-generated Images are disrupting existing approaches to verifying the trustworthiness of visual media. The application of generative AI in fields in which images are trusted visual evidence of persons, actions and events is drawing the attention of archival scientists and AI researchers. A literature review of AI-generated images as an emergent record format, identified an absence of archival and recordkeeping knowledge. Analysis of the results revealed six thematic categories: authenticity and verifiability; manipulation and misinformation; bias and representation; attribution and intellectual property; transparency and explainability; and ethical considerations. These themes inform the development of research questions and the next phase of the study that includes the application of theory and methods of archival diplomatics and computational archival science.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.903,
+        "has_abstract": true,
+        "citations": 9
+      }
+    },
+    {
+      "title": "Disrupt, Ally, Resist, Embrace (DARE): Action Items for Computational Social Scientists in a Changing World",
+      "year": 2023,
+      "doi": null,
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 0.449,
+        "has_abstract": false,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Plenary: Education in the Age of Generative AI: Embracing Digital Transformation",
+      "year": 2025,
+      "doi": "10.1109/EDUNINE62377.2025.10981392",
+      "arxiv_id": null,
+      "venue": "2025 IEEE Engineering Education World Conference (EDUNINE)",
+      "abstract": "May be the main challenge of using AI in education is ensuring that its use does not compromise the originality or credibility of the research. In addition, there is a risk that excessive use of AI could lead to ethical issues, such as plagiarism, obvious inaccuracies, or a general dilution of the intellectual contribution. In an effort to mitigate these risks, institutions should provide additional guidelines on the ethical use of AI and promote best practices among researchers.AI has the potential to enrich academic research by increasing productivity, improving communication, and in some ways making research more available. The key element will be the ethical responsibility by the scientists and researchers in the use of AI as a helper more than a science producer. As any other disruptive technology available the human beings will certainly take the best of AI as it has happening along the history of new Technologies.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.863,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Optimizing Secure AI Lifecycle Model Management With Innovative Generative AI Strategies",
+      "year": 2025,
+      "doi": "10.1109/ACCESS.2024.3491373",
+      "arxiv_id": null,
+      "venue": "IEEE Access",
+      "abstract": "Generative AI (GAI) is one of the significant components that can efficiently improve and augment the AI cycle model’s robustness when it comes to different threats, weaknesses, and abnormalities detection. When applied in this field, GAI is very useful in emulating the various forms of security violations in actual adversarial settings. These scenarios are important when different aspects of an AI system are tested on how robust they are and thus permit the developers to amend any vulnerability that may be induced before the time it could be utilized in practice. Data and model manipulation, data theft, and adversarial attacks as well as model inference threats which we do a systematic analysis to disrupt the integrity, confidentiality as well as availability of AI models. Considering the current weaknesses and threats related to GAI we provide a systematic approach to how safety concerns that are currently relevant can be integrated with every stage of Artificial Intelligence (AI) lifecycle management: from continuous monitoring to the application of cybersecurity trends and practices, etc. In our approach, the emphasis is placed on the multi-level security management strategy that incorporates the improvement of coding practices, validation and testing, and the implementation of advanced intrusion detection systems. Before proceeding to further analysis and discussion of the given topic, it is also critical to mention the aspect of regulation and ethical concern as the major drivers of GAI usage. Additionally, organizations can involve GAI in the lifecycle to address security needs, during the development, acquisition, deployment, updating, maintenance, and decommissioning of the AI system, making them reliable, safe, and secure all through their lifecycle. Toward these ends, the goal of this work is to present a set of canonical recommendations for the many scientists, engineers, managers, technologists, and policymakers who will play a key role in constructing a sound and secure AI future.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.853,
+        "has_abstract": true,
+        "citations": 26
+      }
+    },
+    {
+      "title": "The AI Value Playbook",
+      "year": 2024,
+      "doi": "10.5040/bci-0kgm",
+      "arxiv_id": null,
+      "venue": null,
+      "abstract": "Business leaders are challenged by the speed of AI innovation and how to navigate disruption and uncertainty. This book is a crucial resource for those who want to understand how to leverage AI to drive business value, drawn from the firsthand experience of those who have been implementing this technology successfully.\n The AI Value Playbook focuses on questions frequently posed by leaders and boards. How can businesses adapt to these emerging technologies? How can they start building and deploying AI as a strategic asset to drive efficiency? What risks or threats need to be considered? How quickly can value be created?\n This book is a response to those demands. In a series of in-depth and wide-ranging conversations with practitioners, from CEOs leading new generative AI-based companies to Data Scientists and CFOs working in more traditional companies. Our experts share their hard-earned wisdom, talking candidly about their successes and failures, and what excites them about the future. These interviews offer unique insights for business leaders to apply to their own organizations. The book distils a value-driven playbook for how AI can be put to work today.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.828,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Intelligent Conversations: A Theoretical Framework for Understanding Natural Language Processing within Artificial Intelligence Systems",
+      "year": 2024,
+      "doi": "10.36948/ijfmr.2024.v06i04.22618",
+      "arxiv_id": null,
+      "venue": "International Journal For Multidisciplinary Research",
+      "abstract": "The present study paper presents a theoretical framework for understanding the language capabilities of artificial intelligence (AI) systems, with a particular emphasis on natural language processing (NLP). The proposed framework, known as the Framework of Key Performative Attributes in AI Discourse (FKPA-AID), is based on a survey of pertinent linguistic theories and AI literature. It specifies six essential dimensions for modeling intelligent conversations: linguistic precision, contextual adaptation, fluid dialogue management, self-learning capacities, socio-emotional sensitivity, and continuity. The study also uses FKPA-AID to assess the strengths and weaknesses of present AI chat capabilities, and uses this analysis to propose prospective research directions for improving machine-based language mastery to better mimic human discourses. The study conducts a literature review of current breakthroughs in AI, notably in the field of natural language processing. It investigates AI's disruptive influence across industries and its role in driving digital transformation, with a particular emphasis on mobile technology applications. The paper also dives into the development of Generative AI (GAI) and Natural Language Processing (NLP), explaining its intricacies, models, applications, and recent advances. Furthermore, it emphasizes the use of AI and NLP in voice-controlled homes and healthcare, with a focus on designing intuitive interfaces and analyzing health data. The primary goal of this literature review is to provide a complete knowledge of the emerging landscape shaped by the combination of AI and NLP. The findings from the studied literature highlight the disruptive potential, ethical difficulties, and practical applicability across multiple disciplines. The paper emphasizes the importance of responsible development in the dynamic and ever-changing world of AI and NLP, and calls for collaborative efforts from interdisciplinary experts such as linguists, computer scientists, psychologists, sociologists, and philosophers to guide future research in this field. The proposed FKPA-AID framework is positioned as a theory-based systematic tool for assessing AI conversation capabilities, contributing to overall improvements in the field.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.782,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "Empirical Study on Generative Artificial Intelligence-Driven Project-Based Learning in Health Big Data Course Education",
+      "year": 2025,
+      "doi": "10.1145/3775073.3775133",
+      "arxiv_id": null,
+      "venue": "Proceedings of the 2025 2nd International Symposium on Artificial Intelligence for Education",
+      "abstract": "The growth of the health big data that is exponential in nature is going to require new opportunities of education preparing future medical workers and data scientists. This elaborate empirical research focuses on the disruptive power of generative artificial intelligence (GenAI) technologies in transforming project-based learning (PBL) pedagogy in teaching health big data courses. We created and deployed an advanced GenAI-based learning system that uses GPT-4, model-based on domain-specific health knowledge, and intelligent tutoring systems to develop individualized and adaptive learning situations. The high standard of our experimental inquiry was established by means of 120 undergraduate respondents across 4 academic institutions during the course of 2 consecutive semesters, through the application of the randomized controlled trial methodology and a thorough pre- and post-assessment design. The PBL framework that was equipped with GenAI showed the considerable change in various learning aspects: There was a 34-percent increment in student engagement, 28-percent increment in critical thinking capacities, 41-percent improvement in health data analytics technical proficiency, and 31-percent improvement in problem-solving capabilities. Also, the instructor workload decreased by 45% with no drop in the superior educational quality and a 89% student satisfaction level. Such empirical outcomes are the convincing evidence that generative AI technologies have a potential to successfully enhance the traditional pedagogy methods and generate the scalable, individualised learning environments and, therefore, a bridge between theoretical knowledge and practical skills of working with complex health care data.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.764,
+        "has_abstract": true,
+        "citations": 4
+      }
+    },
+    {
+      "title": "Climate Change Communication in the Age of Artificial Intelligence",
+      "year": 2026,
+      "doi": "10.1002/wcc.70073",
+      "arxiv_id": null,
+      "venue": "WIREs Climate Change",
+      "abstract": "Artificial intelligence (AI), and especially generative AI (GenAI), is rapidly reshaping climate change communication (CCC). Once dominated by news coverage and public campaigns, CCC now extends across scientists, NGOs, corporations, journalists, influencers, and citizens—all increasingly encountering and adopting AI tools. This article provides a comprehensive review of scholarship on the nexus of AI and CCC, synthesizing insights scattered across disciplines from social and computer science, and interdisciplinary fields like environmental and science studies. It identifies robust patterns alongside significant gaps, highlighting areas where future research is needed. Based on existing evidence, it shows that AI—as of now—functions less as a disruptive replacement of established communication and information‐seeking practices rather than as an assistive layer in CCC: accelerating routine newsroom tasks, enabling personalized and multilingual outreach, and generating new textual, visual, and multimodal representations of climate change. Stakeholders use AI to monitor discourse, expose greenwashing, and broaden access to climate information, though systematic research on uptake and effects remains limited. Journalists experiment cautiously with AI, emphasizing human oversight, while influencers and content creators are understudied despite their growing role. The potential of AI‐driven systems for fact‐checking, policy analysis, and creative engagement has been explored, yet studies remain heavily English‐centric and focused on text. Citizen studies reveal promises and risks: generative dialogues can reduce skepticism and foster engagement, but biases, misinformation, and equity concerns persist. Advancing the field requires comparative and interdisciplinary agendas that integrate computational and traditional methods, foreground transparency and inclusion, and address how AI can equitably support awareness, trust, and climate action.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.757,
+        "has_abstract": true,
+        "citations": 4
+      }
+    },
+    {
+      "title": "Decolonization Projects",
+      "year": 2023,
+      "doi": "10.52214/vib.v9i.11940",
+      "arxiv_id": null,
+      "venue": "Voices in Bioethics",
+      "abstract": "Photo ID 279661800 © Sidewaypics|Dreamstime.com\nABSTRACT\nDecolonization is complex, vast, and the subject of an ongoing academic debate. While the many efforts to decolonize or dismantle the vestiges of colonialism that remain are laudable, they can also reinforce what they seek to end. For decolonization to be impactful, it must be done with epistemic and cultural humility, requiring decolonial scholars, project leaders, and well-meaning people to be more sensitive to those impacted by colonization and not regularly included in the discourse.\nINTRODUCTION\nDecolonization is complex. To successfully achieve decolonization, projects should incorporate the voices of those subjugated or silenced. Including such voices requires sincerely exploring who has been affected by colonialism or neocolonialism and how, as well as cultural sensitivity. In its basic use, decolonization refers to countries under colonial rule gaining independence or freedom from forms of subjugation. Additionally, scholars use the term to refer to efforts to dismantle neocolonialism and vestiges of colonialism. The process includes de-silencing subjugated voices.[1] I use decolonization in the latter way to refer to countries with technical independence.\nWhile arguably colonization ended formally with independence from colonizing powers, neocolonialism is the indirect, informal, and sometimes subtle control of the people, their economy, and political life despite formal independence from colonizing authorities. I conceptualize neocolonialism as a system that involves direct and involuntary control of another’s political, economic, or social life, impacting their worldview and ways of encountering the world.\nDecolonization may target actions, places, or systems like health care or AI to overcome the ills of colonialism and neocolonialism. It also may target knowledge and require rethinking how people develop their knowledge base. For example, if people grew up seeing an outside colonizer as superior, they would need to change their knowledge of superiority. Decolonization may target power, for example, changing who owns and distributes COVID-19 vaccines and who distributors exclude in the distribution of vaccines. Decolonization could require looking at those disempowered in the distribution process. Additionally, decolonization may target autonomy of persons by freeing people, ensuring human and individual rights, and respecting cultural traditions.\nDecolonization projects that try to de-silence by including the voices of those affected by colonialism and neocolonialism must examine inclusiveness in the context of the culture of the subrogated individuals. Examples of decolonization projects include making datasets inclusive of diverse peoples and places, returning to traditional food and eating practices, making sure hospitals in developing countries are led by locals and respectful of cultural traditions, returning unethically obtained artefacts or objects. Another project would be laying the groundwork for equality in formerly colonized countries to ensure that business ownership, education, and financial success will flow fairly to those previously victimized by colonization. Summarily, there are many strategies for decolonizing. However, it is worth asking whether the strategies have risks that undermine the goal of decolonization.  \nI.     Understanding Decolonization Discourses\nMany fields, from AI to politics, economics, health care, aviation, and academia, discuss decolonization. The content of the discourse on decolonization depends on the region and field discussing it. Rather than just reporting on decolonization, the discussions may be calls to action. For example, decolonization discourses reflect activism for cognitive justice, such as equal consideration of Indian or African knowledge systems in global health discourses.[2] \nIn politics and political science, some scholars frame decolonization as an anti-western, anti-colonial movement by Africans to emancipate Africa/ns from subjugation or shift the continent to postcolonialism and post-neo-colonialism. This framing walls off non-African participants and may undermine their capacity to benefit the conversation.[3] There are other political scientists who actively support decolonization and see it as a field of activism in support of anyone and countries where colonization harmed people and development.[4] The point is that two ways of conceptualizing decolonization in politics and political science are discernible. One conceptualization is less inclusive since it alienates scholars and professionals from Western, high-income, or developed countries. The other is more inclusive.\nIn humanitarian studies, including philosophy, some decolonization articles and conversations are efforts to end the destructive force of colonization. They focus on either the form, such as ecocide, genocide, and many others, or the geographic location, such as Africa, Asia, Latin America, and Oceania.[5]\nFinally, the feelings one brings into this conversation can adversely impact how one engages in them and who they listen to or are willing to hear from. For example, anger, rage, bitterness, and hatred are emotions that are not uncommon in spaces of decolonization conversations. Decolonization conversations that originate from a place of negativity risk deepening the psychological state of victimhood and prevent people from disrupting constructively or critically engaging in the conversation.[6]\nII.     Understanding Decolonization Strategies\nDecolonization strategies mainly aim to de-silence victims of domination or subjugation. People have proposed many strategies for decolonizing. These strategies may be informed by what the target is for decolonization. Decolonization can target power relations in global health. For example, during the COVID-19 pandemic, public health organizations noted the power imbalance in vaccine distribution. Decolonization could involve de-silencing those affected by neocolonialism to bring about a more balanced distribution of power and a more fair distribution of the vaccine.  By analyzing who was adversely impacted by the distribution and who ought to wield power, those engaged in decolonizing advocated for positive change and equitable power relations.\nEqually, when being is the target of decolonization, the language of unlearning or relearning and mental decolonization take centre stage in the decolonization discourse. For example, the quest to decolonize colonized minds aims to demythologize African inferiority and Western superiority. Demythologizing African inferiority enables those engaged in the decolonization discourse to cultivate and foster African agency.[7]\nFinally, when knowledge production is the target of decolonization, scholars use inclusion and cognitive justice. For example, they try to alter the knowledge that underlies global health ethics.[8] “[D]decolonizing researchers aim to respectfully understand and integrate theory from Other(ed) perspectives, while also critically examining the underlying assumptions that inform their Western research framework.”[9]\nOne common strategy that scholars use in decolonization is inclusion. It is worth asking, does including people who have been subrogated foster decolonization?  Whether that is effective depends on whether included people are more heard or whether the strategies to include them create new forms of silencing.\nIII.     Inclusion and the Quest to Decolonize\nEvaluating how effective inclusion is in the quest to de-silence subjugated voices is important. First, inclusive strategies are not neutral. They are epistemically situated. This situatedness constrains meaning-making in different ways: how and what questions are asked, how social roles are constructed, organized or assigned, and who is admitted to the room where these conversations occur.[10] Inclusion strategies may reinforce (unchallenged) assumptions. For example, to address prejudices and stereotypes in global health images, Arsenii Alenichev and his colleagues[11] successfully inverted “one stereotypical global health image” by prompting a generative AI to produce “an image of a traditional Indian or African healer healing a White Child.” Although there were some problems with the image of the White child, this innovation is a significant, useful effort to de-embed or strip global health images of problematic pictures that mythologize White superiority and Black inferiority. Yet it is possible that using categories like traditional Indian or African reinforces unchallenged assumptions, raising key questions regarding how language and words create new stereotypes. It is common to define traditional as non-conventional, unorthodox, and informal. Yet studies continue to reveal that non-scientifically appraised healing approaches in India or Africa are not only effective but also real, meaningful, fundamental, and primary care-seeking behaviours in many communities in these regions.[12]\nSuppose inclusive strategies are not un-situated. These conversations may be had within the structures, language, and spaces built by or connected to colonialism. The spaces, language, places, and structures in which these conversations occur can limit who can participate and how they participate. Importantly, some conditions are not conducive to participation as equals. The allocated time for the discussion could also constrain how individuals express themselves. It is unclear who is ultimately heard.\nFurthermore, epistemic situatedness of inclusion can impact decolonization conversations when participants are beneficiaries of, products of, and trained by structures and systems they seek to dismantle. To enhance the decolonization project and its goals, a pressing task is to unveil and question how the circumstances may inhibit activism. If the vestiges of colonialism continue to structure the decolonization discourse invisibly, the vestiges may undermine dec",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 3,
+        "bm25": 0.326,
+        "has_abstract": true,
+        "citations": 5,
+        "same_title_dropped": 1
+      }
+    },
+    {
+      "title": "In Abu Dhabi, the Oil and Gas Industry Gets a Glimpse of the Future",
+      "year": 2024,
+      "doi": "10.2118/1224-0018-jpt",
+      "arxiv_id": null,
+      "venue": "Journal of Petroleum Technology",
+      "abstract": "Over the past 12 months, JPT has celebrated its 75-year anniversary through an anthology of articles highlighting the publication’s long legacy of sharing industry knowledge.\n Contributions from current and former editors, along with long-time collaborators, provided unique perspectives on the ideas and innovators that have shaped SPE’s flagship publication since its launch in 1949. We encourage you to check out the collection here.\n As this retrospective series draws to a close, we will sharpen our focus once again on what the future holds for the industry. But first, it’s worth quickly revisiting a period that JPT chronicled extensively in the latter half of the past decade—just before the energy transition became the upstream sector’s top talking point.\n At that time, the industry was nearly overflowing with excitement about digital transformation and conquering the big data challenge. Large operators moved quickly to hire data scientists, form analytics teams, and partner with emerging software providers offering machine learning platforms with sleek, user-friendly interfaces.\n JPT spotlighted startups developing chatbots and “cognitive” programs designed to help petroleum engineers retrieve critical production data or predict issues like sand production in wells.\n Some of the would-be disruptors delivered on their promises, while many pivoted to less-complex industries or faded away. Yet, despite the mixed bag of outcomes, their combined vision for artificial intelligence (AI) in oil and gas looks remarkably prescient, even if slightly ahead of its time.\n We are now once again swimming in industry optimism thanks to the rapid commercial success of large language models which have unlocked the productivity-boosting power of generative AI.\n The momentum of this shift was impossible to ignore at the recent Abu Dhabi International Petroleum Exhibition and Conference (ADIPEC) in the UAE’s capital, where the SPE served as the technical program organizer.\n Held over 4 days in November, the 40th edition of this annual event saw more than 205,000 pass through the doors. Event officials declared it a record-breaking crowd for an upstream conference—a milestone that underscores the relevance and resilience of in-person gatherings in a post-pandemic world.\n Beyond an unprecedented number of human participants, ADIPEC may have also set a new bar for non-sentient ones. Competing for space across the sprawling exhibition was a parade of four-legged robots, multipurpose drones, virtual reality headset demos, and holographic presenters—apparently based on real people and those digitally created.\n For seasoned industry conferencegoers, the sight of most of this gadgetry was nothing new, but its abundance likely was.\n ADIPEC also distinguished itself further as likely becoming the first upstream conference to feature a flying taxi, the recently debuted Tesla Cybertruck, and even a prototype of the electric carmaker’s yet-to-be-released humanoid Tesla Bot—albeit a lifeless, stationary one.\n But perhaps the most notable harbinger of things to come was hidden inside a 6-ft-tall server rack showcased on the floor by AIQ—a technology joint venture between the Abu Dhabi National Oil Company (ADNOC) and Abu Dhabi-based tech firm Presight.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.234,
+        "has_abstract": true,
+        "citations": 0
+      }
+    },
+    {
+      "title": "AI and blockchain framework for healthcare applications",
+      "year": 2024,
+      "doi": "10.2298/fuee2401169r",
+      "arxiv_id": null,
+      "venue": "Facta universitatis - series Electronics and Energetics",
+      "abstract": "Artificial Intelligence (AI) has impacted global economy, workforce\n productivity, smart health, smart cities, smart transport, and much more to\n come. Large Language Models (LLM) such as ChatGPT and Google?s Gemini, have\n been widely adopted in various applications. Blockchain Technology stands as\n a towering disruptor in today's tech landscape, offering assurances of\n enhanced security and scalability for various applications. Within the realm\n of healthcare, its adoption has surged, spanning from streamlined\n recordkeeping to bolstered clinical trials, fortified medical supply chains,\n and vigilant patient monitoring. These applications harness the intrinsic\n attributes of blockchain to elevate standards of safety, privacy, and\n security within the healthcare sector. The combined power of AI and\n blockchain has the potential to revolutionize healthcare delivery, ensuring\n improved security, transparency, and efficiency. Nevertheless, Porru et al.\n [1] have highlighted deficiencies in the processes, tools, and techniques\n within this domain. Hence, this paper aims to furnish a structured framework\n that ensures both security and sustainability in the development of\n healthcare blockchain applications. This paper also provides an overview of\n societal impact on both technologies. This article has evolved best practice\n guidelines and a systematic development framework for AI-Blockchain\n integration, known as AI-BlockchainOps. This research has also developed a\n reference architecture, exemplifying the modeling of an Electronic Health\n Record (EHR) using BPMN and simulation. Within this Electronic Health Record\n (EHR) scenario encompassing 100 user requests, the simulation absorbed\n 97.09% of cloud resources, with 76.33% allocated to knowledge discovery, and\n a utilization rate of 93.20% for blockchain scientists, alongside various\n other contributing factors.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 1.166,
+        "has_abstract": true,
+        "citations": 11
+      }
+    },
+    {
+      "title": "Artificial Intelligence Reshapes Microwave Photonics",
+      "year": 2026,
+      "doi": "10.1002/lpor.71267",
+      "arxiv_id": "2605.21224",
+      "venue": "Laser &amp; Photonics Reviews",
+      "abstract": "As a rapidly emerging interdisciplinary field that intrinsically integrates microwave and photonics, microwave photonics (MWP) provides disruptive solutions to overcome the fundamental bandwidth of conventional electronic systems. By exploiting the inherently ultra‐wide bandwidth and low‐loss characteristics of photonic technologies, MWP enables the generation, transmission, processing, and detection of microwave, millimeter‐wave, and terahertz signals. Representative breakthroughs include fully photonic microwave radar systems, photonic analog‐to‐digital converters with bandwidth up to 320 GHz, and photonic wireless communication systems achieving data rate as high as 616 Gbit/s. Meanwhile, the rapid growth of artificial intelligence (AI) is reshaping scientific research, engineering, and daily life in unprecedented ways, such as AI for science/engineering and AI co‐scientist/assistant. Correspondingly, AI is profoundly reshaping MWP in all aspects, ranging from signal generation, transmission to signal processing and detection. AI has revolutionized the design, simulation, fabrication, testing, deployment, and maintenance of MWP systems, delivering autonomous operation and exceptional efficiency beyond traditional systems. Motivated by these developments, this Review Paper provides the first comprehensive overview of AI‐enabled MWP, systematically summarizing the state‐of‐the‐art advances and presenting insights for both the academic community and the broader public.",
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 2,
+        "bm25": 0.345,
+        "has_abstract": true,
+        "citations": 1
+      }
+    },
+    {
+      "title": "Large language model for molecular chemistry",
+      "year": 2023,
+      "doi": "10.1038/s43588-023-00399-1",
+      "arxiv_id": null,
+      "venue": "Nature Computational Science",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q6",
+      "local_rank": {
+        "groups_matched": 1,
+        "bm25": 1.553,
+        "has_abstract": false,
+        "citations": 42
+      }
+    }
+  ]
+}
