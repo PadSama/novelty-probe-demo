@@ -3519,3 +3519,42 @@ S2 requests: 11 gaps (s): [2.48, 1.17, 2.31, 1.34, 2.32, 4.34, 8.31, 1.25, 2.2, 
 **文档**：HOWTO（中英双语：准备一节与常见问题）、HANDOFF（API key 表、已知问题 8a、编号）、README（Requirements）说明 S2 的限额与节流。
 
 **产出文件**：`scripts/search.py`、`tests/test_pipeline.py`、`HOWTO.md`、`HANDOFF.md`、`README.md`（修改）
+
+---
+
+## [2026-11-02 15:01 UTC] Step 66 — 工具层架构审视与迭代计划
+
+**研究者要求（本轮）**：教程部分到此为止，不再迭代某轮结果；迭代承重层工具本身的准确性、稳定性、适配性。先理解需求，再以架构师视角审视、调研成熟项目、制定计划、最后实施。另：今后决策点都附处置建议与理由。
+
+**命令 1：代码盘点（python3 / grep 内联，只读）**
+
+```
+10 scripts 2736 lines; 2 test files 1037 lines; ~95 top-level constants in 9 files; 19 path constants bound to ROOT
+cross-imports: 12; HTTP implementations: 2 (search.get_json, verify.fetch), 11 call sites; no cache
+Chinese literals in output/error/help code lines: search 29, snowball 13, compare 5, merge 4, logrun 4, verify 4
+Python 3.9+ API: Path.is_relative_to (5 sites)
+```
+
+**命令 2：兼容性矩阵（uv 安装 3.9、3.10 到会话临时目录；系统自带 3.11–3.13）**
+
+```
+python3.9 / 3.10 / 3.11 / 3.12 / 3.13 (Linux): Ran 46 tests … OK（每个版本）
+```
+
+**命令 3：三个并行调研子任务**（成熟项目架构；HTTP 层与测试；适配性），报告存档于会话临时目录。主会话复核其关键结论：
+
+```
+OpenAlex: filter=title_and_abstract.search:("generative AI OR ChatGPT) AND science → HTTP 200, count 21344,
+  oql: get works with (generative AI "OR" ChatGPT "AND" science)   ← 未配对引号被静默改写，运算符成了词
+OpenAlex: meta.x_query 含结构化 oqo（get_rows, filter_rows）；/works/doi:<不存在> → 404 text/html
+OpenAlex 响应头: X-Ratelimit-Limit 10000, X-Ratelimit-Remaining 6738, X-Ratelimit-Reset 32570, X-Ratelimit-Cost-Usd 0（单条查询免费）
+Crossref /works/<doi>/agency：本次请求遇 429（子任务当日实测返回 agency.id = datacite / crossref）
+snowball.seeds_from_evidence：中文表头 → 1 个种子；同一行换英文表头 → []（复现）
+json.loads(带 BOM 的文件) → JSONDecodeError: Unexpected UTF-8 BOM（复现）
+```
+
+子任务还发现主会话给它的提示里凭记忆写的 PRISMA-S DOI 有误（…01542-5），正确为 doi:10.1186/s13643-020-01542-z（Crossref 核对）。记录在此，作为规则 2 的反例。
+
+**产出文件**：`docs/ARCHITECTURE_REVIEW.md`（新增：现状、问题清单、成熟项目做法、目标架构、五个阶段的计划、决策点）。
+
+**备注**：阶段 0、1 不涉及研究者决策，接着实施；阶段 2 起的决策点列在该文件第 6 节。
