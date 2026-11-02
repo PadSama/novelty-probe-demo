@@ -3472,3 +3472,50 @@ OK
 - 本轮评估产出：`queries/queries_v2b.json`；`results/raw/*_v1b.json`、`*_v2b.json`（含 `chase_*`）；`results/merged/merged_v1b.json`、`merged_v2b.json`、`candidates_v1b.csv`、`candidates_v2b.csv`、`chase_*_v1b.csv`、`chase_*_v2b.csv`、`compare_v1_v1b.json`、`compare_v2_v2b.json`；`evidence/enrichment_v1b.json`、`enrichment_v2b.json`
 
 **备注**：推送到分支 `claude/vigilant-faraday-odzwe4`，需研究者通过 PR 合并。下一步编号为 Step 65。
+
+---
+
+## [2026-11-02 09:38 UTC] Step 65 — Semantic Scholar 配置 key 后的限速处理
+
+**研究者告知与要求（本轮）**：PR #4 已合并。研究者已在云环境中为 api.semanticscholar.org 完成配置，限额为"每秒 1 个请求，所有接口合计"。今后列出决策点时，都要附上助手的处置建议与简要原因。
+
+**命令 1：确认 key 生效（curl 与 python3 内联脚本，只读）**
+
+```
+环境变量 S2_API_KEY 未设置；请求头中故意带一个错误的 x-api-key 仍返回 200 → 代理会用配置的 key 覆盖请求头
+GET /datasets/v1/release/latest/dataset/abstracts（只有带有效 key 才能取得下载链接）→ HTTP 200，files listed: 30
+（返回的下载链接未保存）
+```
+
+**命令 2：不同请求间隔下的 429 次数（python3 内联脚本，同一个只读请求各发 8 次）**
+
+```
+start-to-start interval 2.0s: [429, 200, 200, 429, 200, 429, 429, 200]  (429s: 4)
+start-to-start interval 1.5s: [429, 429, 429, 200, 429, 200, 429, 200]  (429s: 5)
+start-to-start interval 1.1s: [200, 429, 429, 200, 429, 200, 429, 429]  (429s: 5)
+429 正文：{"message": "Too Many Requests. Please wait and try again or apply for a key for higher rate limits. …", "code": "429"}
+```
+
+即使间隔 2 秒，也有约一半请求返回 429，间隔再大也没有明显改善；像是这个 key 的额度同时被别处占用（原因无法从本环境确认）。
+
+**命令 3：脚本修改**
+
+```
+# search.py：新增 throttle()，get_json() 对发往 api.semanticscholar.org 的每个请求（含翻页与每次重试）先节流，
+#   相邻两个 S2 请求的间隔不少于 S2_MIN_INTERVAL = 1.1 秒；去掉原来零散的 S2_PAUSE。429 仍按 2、4、8… 秒退避重试
+# tests/test_pipeline.py：新增节流测试（模拟时钟）
+```
+
+**命令 4：实时检查（写入临时目录）**：v2b 检索式的 Q2（3 页）、Q3（1 页）只查 S2：
+
+```
+Q2 semanticscholar total_hits 2160 saved 25；Q3 semanticscholar total_hits 111 saved 25；2/2 requests succeeded
+S2 requests: 11 gaps (s): [2.48, 1.17, 2.31, 1.34, 2.32, 4.34, 8.31, 1.25, 2.2, 4.3] min gap: 1.17
+（4 个页面请求成功，其余 7 次为 429 后的重试）
+```
+
+**命令 5：离线自检**：`python3 -W error::ResourceWarning -m unittest discover -s tests` → Ran 46 tests … OK。
+
+**文档**：HOWTO（中英双语：准备一节与常见问题）、HANDOFF（API key 表、已知问题 8a、编号）、README（Requirements）说明 S2 的限额与节流。
+
+**产出文件**：`scripts/search.py`、`tests/test_pipeline.py`、`HOWTO.md`、`HANDOFF.md`、`README.md`（修改）

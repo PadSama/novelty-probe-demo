@@ -40,7 +40,7 @@ Steps that need judgment are done by an AI coding assistant run in this director
 - Network access to `api.openalex.org`, `api.semanticscholar.org`, `doi.org` and `api.crossref.org`.
 - API keys, read from environment variables:
   - `OPENALEX_API_KEY`: strongly recommended. The free key avoids OpenAlex's shared daily budget.
-  - `S2_API_KEY`: optional.
+  - `S2_API_KEY`: optional. With a key, Semantic Scholar allows 1 request per second across all endpoints; `search.py` throttles every Semantic Scholar request (including pages and retries) to stay within it.
 
 **Steps**
 

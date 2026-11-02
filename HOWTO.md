@@ -78,9 +78,9 @@ python3 -m unittest discover -s tests -v
 export OPENALEX_API_KEY="你的 key / your key"
 ```
 
-- **Semantic Scholar：可选**，申请地址 https://www.semanticscholar.org/product/api#api-key-form 。不带 key 时共用匿名限流池，偶尔返回 429。脚本会自动重试，仍失败的可以单独补跑（见 T3）。
+- **Semantic Scholar：可选**，申请地址 https://www.semanticscholar.org/product/api#api-key-form 。不带 key 时共用匿名限流池，偶尔返回 429。有 key 时的限额是每秒 1 个请求、所有接口合计，脚本对每个发往 S2 的请求（含翻页与重试）自动节流。脚本会自动重试，仍失败的可以单独补跑（见 T3）。
 
-  **Semantic Scholar: optional.** Apply at https://www.semanticscholar.org/product/api#api-key-form . Without a key, you share an anonymous rate-limit pool and occasionally get HTTP 429. The script retries automatically; anything that still fails can be re-run on its own (see T3).
+  **Semantic Scholar: optional.** Apply at https://www.semanticscholar.org/product/api#api-key-form . Without a key, you share an anonymous rate-limit pool and occasionally get HTTP 429. With a key, the limit is 1 request per second across all endpoints, and the script throttles every Semantic Scholar request (including pages and retries) accordingly. The script retries automatically; anything that still fails can be re-run on its own (see T3).
 
 ```bash
 export S2_API_KEY="你的 key / your key"
@@ -378,7 +378,7 @@ That is how the tutorial's v1b and v2b rounds were re-run with the improved pipe
 |---|---|---|
 | `FAILED: network error: Tunnel connection failed: 403`，或 `BLOCKED at <域名>`<br>`FAILED: network error: Tunnel connection failed: 403`, or `BLOCKED at <domain>` | 云环境未放行该域名<br>The cloud environment does not allow that domain | 在 Network access 中放行（见"准备"）<br>Allow it under Network access (see Setup) |
 | `HTTP 429: Insufficient budget …`（OpenAlex） | 没带 key，共用的每日额度已用完<br>No key, and the shared daily budget is used up | 设置 OpenAlex key 后重跑<br>Set an OpenAlex key and re-run |
-| `HTTP 429: Too Many Requests …`（Semantic Scholar） | 匿名限流池繁忙<br>The anonymous rate-limit pool is busy | 等几分钟后用 `--ids`、`--sources` 补跑，或申请 S2 key<br>Wait a few minutes and re-run with `--ids` / `--sources`, or get an S2 key |
+| `HTTP 429: Too Many Requests …`（Semantic Scholar） | 匿名限流池繁忙；有 key 时限额为每秒 1 个请求（所有接口合计），同一 key 被别处同时使用也会触发<br>The anonymous rate-limit pool is busy; with a key the limit is 1 request per second across all endpoints, and other use of the same key also counts | 脚本已节流并自动重试；仍失败时等几分钟后用 `--ids`、`--sources` 补跑，或申请 S2 key，不要同时运行两个访问 S2 的脚本<br>The script throttles and retries automatically; if it still fails, wait a few minutes and re-run with `--ids` / `--sources`, or get an S2 key, and do not run two S2-using scripts at once |
 | `INVALID: 未登记的截断词 …`、`不支持括号外的 OR` 等<br>`INVALID: 未登记的截断词 …` (unregistered truncation), `不支持括号外的 OR` (OR outside parentheses), etc. | 检索式写法不符合要求<br>The query does not follow the required format | 按 T2 的格式修改 `queries/queries.json`，再跑 `--dry-run`<br>Fix `queries/queries.json` to the T2 format and run `--dry-run` again |
 | `results/raw/ 中同一来源混有不同检索方式的结果`<br>(results from different search methods mixed for one source) | 混有旧脚本或旧想法留下的结果<br>Leftover results from an older script or a previous idea | 按第 1 步清空 `results/raw/`，重跑 T3<br>Clear `results/raw/` as in step 1 and re-run T3 |
 | 某条检索式在某个来源命中 0 条<br>A query returns 0 hits from one source | 组合太严<br>The combination is too strict | 可以接受；或让助手放宽这条检索式<br>Acceptable; or ask the assistant to loosen that query |

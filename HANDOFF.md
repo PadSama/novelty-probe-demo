@@ -25,7 +25,7 @@
 | v1.0.0 之后的改动 | CITATION.cff 加入 ORCID、标题大小写修正；交接文档 `AGENTS.md`、`HANDOFF.md`、`tests/`（Step 23）；针对第 9 节遗留问题的改进（Step 24–64，见 `docs/IMPROVEMENT_PLAN.md`）：NOT、S2 本地重排、版本识别与 RRF 排序、补摘要、引文追踪、核验回退、质量检查与结果比较脚本 |
 | 默认分支 | `main`，受规则集保护：禁止删除、禁止强推、必须通过 PR 合并（审批人数 0） |
 | 引用信息 | `CITATION.cff`：作者 Yuan, Quan；ORCID 0009-0009-3011-3739；version 1.0.0 |
-| 示例运行 | v1（未限定学科）与 v2（管理学与经济学）两轮的全部产出都在仓库里（用旧方法生成，`merge.py --legacy` 可逐字节复现）；v1b、v2b 是用改进后的流程重跑的评估轮（检索、合并、补摘要、引文追踪与比较，没有证据表）；全过程见 `logs/RUN_LOG.md` Step 0–64 |
+| 示例运行 | v1（未限定学科）与 v2（管理学与经济学）两轮的全部产出都在仓库里（用旧方法生成，`merge.py --legacy` 可逐字节复现）；v1b、v2b 是用改进后的流程重跑的评估轮（检索、合并、补摘要、引文追踪与比较，没有证据表）；全过程见 `logs/RUN_LOG.md` Step 0–65 |
 
 ## 3. 本地环境准备
 
@@ -58,7 +58,7 @@ Windows 上用 `python` 或 `py -3`，并建议设置环境变量 `PYTHONUTF8=1`
 | 变量 | 是否必需 | 说明 |
 |---|---|---|
 | `OPENALEX_API_KEY` | 实际上必需 | 免费申请：https://help.openalex.org/api/authentication/ 。没有 key 时共用每日额度，很容易遇到 429 |
-| `S2_API_KEY` | 可选 | https://www.semanticscholar.org/product/api#api-key-form |
+| `S2_API_KEY` | 可选 | https://www.semanticscholar.org/product/api#api-key-form 。有 key 时的限额是**每秒 1 个请求，所有接口合计**；`search.py` 对发往 S2 的每个请求（含翻页与重试）统一节流（间隔 ≥ `S2_MIN_INTERVAL` = 1.1 秒），不要同时运行两个访问 S2 的脚本。云环境中研究者已在网络设置里为 api.semanticscholar.org 配置 key（2026-11-02，由代理注入） |
 
 macOS / Linux（只对当前终端有效；写进 `~/.zshrc` 或 `~/.bashrc` 可长期有效）：
 
@@ -267,7 +267,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 
 - **只追加**：新条目一律写在末尾，不改写已有条目。
 - **条目格式**：以 `---` 分隔，标题写成 `## [YYYY-MM-DD HH:MM UTC] Step N — 标题`，正文包含研究者的要求、命令、输出、产出文件、备注。
-- **编号**：下一步是 **Step 65**。
+- **编号**：下一步是 **Step 66**。
 - **旧哈希**：Step 20 之前的条目里引用的是改写历史之前的提交哈希，按 Step 20 的对照表查新哈希。
 
 ## 7. 脚本速查
@@ -326,6 +326,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 6. **落地页核验**：云端被网络策略拦截；本地出版商常对脚本返回 403（可用 `--no-landing` 只核验元数据）。
 7. **质量检查是近似**：`qa.py` 用 Porter 词干还原，两个 API 更像 KStem，比例略偏高。
 8. **OpenAlex 额度**：云端注入的 key 有每日 1 美元的上限，且可能与其他任务共用；带检索条件的请求每次 0.001 美元。
+8a. **S2 的 429**：云端的 S2 key 已确认生效（只有带有效 key 才能访问的数据集接口返回 200），但请求间隔 2 秒时仍有约一半返回 429（Step 65），像是这个 key 的额度同时被别处占用。`search.py` 会按 2、4、8… 秒退避重试，最终成功，只是更慢。
 9. **待研究者确认**：v2 证据表 rank 8 的"研究问题"面按研究者标准改为 overlap 是助手的推断（Step 25）；v1b、v2b 没有证据表，是否以它们替代 v1、v2 由研究者决定。
 
 ## 10. Git 与发布

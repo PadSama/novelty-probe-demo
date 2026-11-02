@@ -28,7 +28,10 @@
 
 可选环境变量（不会写进输出文件）：
   OPENALEX_API_KEY  本云环境中 key 已由 Network secrets 在代理层注入，无需设置；在本机运行时才需要。
-  S2_API_KEY        不设也能运行，但匿名请求共用限流池，容易返回 429。
+  S2_API_KEY        不设也能运行，但匿名请求共用限流池，容易返回 429。本云环境中研究者已为 api.semanticscholar.org
+                    配置了 key（2026-11-02）。有 key 时的限额是每秒 1 个请求、所有接口合计，所以脚本对发往
+                    api.semanticscholar.org 的每个请求（含翻页与重试）统一节流，间隔不少于 S2_MIN_INTERVAL 秒。
+                    不要同时运行两个会访问 S2 的脚本。
 
 用法：
   python3 scripts/search.py                                  # 全部检索式 × 两个来源
@@ -63,7 +66,8 @@ S2_URL = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
 S2_FIELDS = "title,year,externalIds,venue,journal,abstract,citationCount"
 S2_SORT = "citationCount:desc"
 S2_MAX_RECORDS = 3000  # 本地重排时最多取多少条（bulk 每页最多 1000 条，用 token 翻页）
-S2_PAUSE = 1.1  # 不带 API key 时 S2 限流较严，请求之间留间隔
+S2_HOST = "api.semanticscholar.org"
+S2_MIN_INTERVAL = 1.1  # S2 的限额：每秒 1 个请求，所有接口合计；留一点余量
 MAX_RETRY_WAIT = 60  # 服务端要求等待超过这么多秒（如 OpenAlex 每日额度用完）就不重试，直接报错
 
 # 截断词 → 完整词（只用于 OpenAlex）。遇到未登记的截断词就报错，避免悄悄改变检索含义。
@@ -183,13 +187,27 @@ def api_error(e):
     return msg[:200] + ("…" if len(msg) > 200 else "")
 
 
+_last_s2_request = [float("-inf")]
+
+
+def throttle(url):
+    """发往 Semantic Scholar 的请求之间至少间隔 S2_MIN_INTERVAL 秒（每个请求、每次重试都算一次）。"""
+    if urllib.parse.urlsplit(url).hostname != S2_HOST:
+        return
+    wait = _last_s2_request[0] + S2_MIN_INTERVAL - time.monotonic()
+    if wait > 0:
+        time.sleep(wait)
+    _last_s2_request[0] = time.monotonic()
+
+
 def get_json(url, headers=None, retries=5):
     """GET 并解析 JSON。429、5xx、超时、连接被重置时指数退避重试；
     服务端要求等待超过 MAX_RETRY_WAIT 秒时不重试。其他错误直接抛出
-    （包括代理拒绝连接：那是网络策略问题，重试没有用）。"""
+    （包括代理拒绝连接：那是网络策略问题，重试没有用）。发往 S2 的请求先经 throttle() 节流。"""
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})
     for attempt in range(retries + 1):
         wait = 2 ** (attempt + 1)
+        throttle(url)
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:
                 return json.load(resp)
@@ -354,8 +372,7 @@ def search_s2(q, year_from):
     papers, total, token, pages = [], None, None, 0
     while True:  # 翻页取回记录（最多 S2_MAX_RECORDS 条），再在本地按相关度重排
         page_url = url + (f"&{urllib.parse.urlencode({'token': token})}" if token else "")
-        data = get_json(page_url, headers)
-        time.sleep(S2_PAUSE)
+        data = get_json(page_url, headers)  # 节流在 get_json 中统一处理
         pages += 1
         total = data.get("total") if total is None else total
         papers.extend(data.get("data") or [])
