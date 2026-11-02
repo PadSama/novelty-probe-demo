@@ -35,6 +35,9 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe.io import configure_console, read_text, write_text
+
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TABLE = ROOT / "evidence" / "evidence_table.md"
 DOI_RESOLVER = "https://doi.org/"
@@ -206,11 +209,12 @@ def split_row(line):
 
 
 def main():
+    configure_console()
     ap = argparse.ArgumentParser(description="Verify DOIs in the evidence table via doi.org and Crossref.")
     ap.add_argument("--table", type=Path, default=DEFAULT_TABLE)
     ap.add_argument("--no-landing", action="store_true", help="不检查出版商落地页，只做元数据核验")
     args = ap.parse_args()
-    lines = args.table.read_text(encoding="utf-8").splitlines()
+    lines = read_text(args.table).splitlines()
 
     header = next((i for i, l in enumerate(lines)
                    if (c := split_row(l)) and "verified" in c and "DOI/arXiv" in c), None)
@@ -265,7 +269,7 @@ def main():
         lines[i] = "| " + " | ".join(cells) + " |"
         i += 1
 
-    args.table.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    write_text(args.table, "\n".join(lines) + "\n")
     print("\nsummary crossref: " + " | ".join(f"{k}: {v}" for k, v in sorted(tally_cr.items())))
     print("summary landing:  " + " | ".join(f"{k}: {v}" for k, v in sorted(tally_land.items())))
     print(f"written: verified column in {args.table}")

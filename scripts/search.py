@@ -51,6 +51,10 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe.paths import rel
+from novelty_probe.io import configure_console, load_json_lenient, write_json
+
 from textmatch import BM25, Doc, groups_matched, title_key
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -405,10 +409,7 @@ ID_RE = re.compile(r"^Q\d+$")  # merge.py 只读取 {source}_Q<数字>{suffix}.j
 
 def load_queries(path):
     """读取并校验检索式文件；有问题时抛出 ValueError，列出所有问题。"""
-    try:
-        queries = json.loads(Path(path).read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        raise ValueError(f"{path} 不是合法的 JSON（第 {e.lineno} 行）：{e.msg}") from None
+    queries = load_json_lenient(path)  # 容忍 BOM 与 ```json 围栏
     if not isinstance(queries, list) or not queries:
         raise ValueError(f"{path} 应为非空的 JSON 数组")
     problems, seen = [], set()
@@ -434,6 +435,7 @@ def load_queries(path):
 # ---------- 主流程 ----------
 
 def main():
+    configure_console()
     ap = argparse.ArgumentParser(description="Run queries/queries.json against OpenAlex and Semantic Scholar.")
     ap.add_argument("--ids", help="只跑这些检索式，逗号分隔，如 Q1,Q3")
     ap.add_argument("--sources", default=",".join(SEARCHERS), help="逗号分隔：openalex,semanticscholar")
@@ -447,8 +449,7 @@ def main():
     except (OSError, ValueError) as e:
         print(e)
         return 2
-    qfile = args.queries.resolve()
-    qfile = str(qfile.relative_to(ROOT)) if qfile.is_relative_to(ROOT) else str(qfile)
+    qfile = rel(args.queries, ROOT)
     if args.ids:
         wanted = set(args.ids.split(","))
         missing = wanted - {q["id"] for q in queries}
@@ -491,10 +492,9 @@ def main():
                     "query_original": q["query"], "year_from": year_from, **meta,
                     "returned": len(records), "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
             path = RAW_DIR / f"{src}_{q['id']}{args.suffix}.json"
-            path.write_text(json.dumps({"meta": meta, "records": records}, ensure_ascii=False, indent=2) + "\n",
-                            encoding="utf-8")
+            write_json(path, {"meta": meta, "records": records})
             no_id = sum(1 for r in records if not r["doi"] and not r["arxiv_id"])
-            note = str(path.relative_to(ROOT)) if path.resolve().is_relative_to(ROOT) else str(path)
+            note = rel(path, ROOT)
             if year_from:
                 note += f"  [year>={year_from}]"
             row(q["id"], q["purpose"], src, meta["total_hits"], len(records), no_id, note)

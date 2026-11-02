@@ -18,6 +18,7 @@ import importlib.util
 import io
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -31,8 +32,10 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
+EXAMPLE = ROOT / "examples" / "tutorial"   # 教程示例的产出副本：测试件从这里读，不依赖项目目录里的实时数据
 sys.dont_write_bytecode = True     # 不在 scripts/ 下生成 __pycache__
 sys.path.insert(0, str(SCRIPTS))   # authors.py 里有 `from search import get_json`
+sys.path.insert(0, str(ROOT))      # novelty_probe 包
 for _var in ("NO_PROXY", "no_proxy"):  # 模拟服务器在本机，不走代理
     os.environ[_var] = "127.0.0.1,localhost"
 CHILD_ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
@@ -112,12 +115,23 @@ class TestQueries(unittest.TestCase):
         with self.assertRaises(ValueError):
             search.to_openalex('"a, b" AND c')      # 逗号会破坏 OpenAlex 的 filter
 
-    def test_repository_query_files_are_valid(self):
+    def test_example_query_files_are_valid(self):
         for name in ("queries.json", "queries_v2.json"):
             with self.subTest(file=name):
-                queries = search.load_queries(ROOT / "queries" / name)
+                queries = search.load_queries(EXAMPLE / "queries" / name)
                 self.assertEqual([q["id"] for q in queries], [f"Q{i}" for i in range(1, 7)])
                 for q in queries:
+                    search.to_openalex(q["query"])
+                    search.to_s2_bulk(q["query"])
+
+    def test_project_query_files_are_valid(self):
+        """项目目录里的检索式文件（如果有）也要能通过校验与转换；研究者清空示例后这里没有文件，跳过。"""
+        files = sorted((ROOT / "queries").glob("queries*.json"))
+        if not files:
+            self.skipTest("queries/ 中没有检索式文件")
+        for path in files:
+            with self.subTest(file=path.name):
+                for q in search.load_queries(path):
                     search.to_openalex(q["query"])
                     search.to_s2_bulk(q["query"])
 
@@ -131,12 +145,17 @@ class TestQueries(unittest.TestCase):
                 search.load_queries(p)
             for part in ("'q1'", "缺少 query", "'concurent'", "id Q2 重复"):
                 self.assertIn(part, str(cm.exception))
-            p.write_text("```json\n[]\n```", encoding="utf-8")   # 助手把 JSON 包进了代码块
+            good = [{"id": "Q1", "query": "a AND b", "purpose": "method"}]
+            p.write_text("```json\n" + json.dumps(good) + "\n```", encoding="utf-8")   # 助手把 JSON 包进了代码块：容忍
+            self.assertEqual(search.load_queries(p), good)
+            p.write_bytes(b"\xef\xbb\xbf" + json.dumps(good).encode())                   # Windows 记事本的 BOM：容忍
+            self.assertEqual(search.load_queries(p), good)
+            p.write_text("[{", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "不是合法的 JSON"):
                 search.load_queries(p)
 
     def test_dry_run_cli(self):
-        r = run_script(SCRIPTS / "search.py", "--dry-run")
+        r = run_script(SCRIPTS / "search.py", "--queries", EXAMPLE / "queries" / "queries.json", "--dry-run")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn("6/6 queries valid", r.stdout)
 
@@ -147,7 +166,7 @@ class TestQueries(unittest.TestCase):
             r = run_script(SCRIPTS / "search.py", "--queries", p, "--dry-run")
             self.assertEqual(r.returncode, 1)
             self.assertIn("INVALID", r.stdout)
-        r = run_script(SCRIPTS / "search.py", "--ids", "Q9", "--dry-run")
+        r = run_script(SCRIPTS / "search.py", "--queries", EXAMPLE / "queries" / "queries.json", "--ids", "Q9", "--dry-run")
         self.assertEqual(r.returncode, 2)
         self.assertIn("Q9", r.stderr)
 
@@ -219,7 +238,8 @@ class TestSearchMain(unittest.TestCase):
             raw = Path(d) / "raw"
             with mock.patch.object(search, "ROOT", Path(d)), mock.patch.object(search, "RAW_DIR", raw), \
                     mock.patch.object(search, "get_json", fake_get_json), mock.patch("time.sleep"), \
-                    mock.patch.object(sys, "argv", ["search.py", "--suffix", "_t"]), \
+                    mock.patch.object(sys, "argv", ["search.py", "--queries", str(EXAMPLE / "queries" / "queries.json"),
+                                                    "--suffix", "_t"]), \
                     contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(search.main(), 0)
             self.assertEqual(len(list(raw.glob("*_t.json"))), 12)
@@ -292,20 +312,21 @@ class TestMerge(unittest.TestCase):
                 self.assertEqual([p.name for p in merge.raw_files("")], ["openalex_Q1.json", "semanticscholar_Q12.json"])
                 self.assertEqual([p.name for p in merge.raw_files("_v2")], ["openalex_Q1_v2.json"])
 
-    def test_reproduces_committed_merge_outputs(self):
-        """用仓库里已提交的 results/raw 按旧方法（--legacy）重跑合并，须与已提交的 merged*.json、candidates*.csv 一致。"""
+    def test_reproduces_example_merge_outputs(self):
+        """用示例的 results/raw 按旧方法（--legacy）重跑合并，须与示例的 merged*.json、candidates*.csv 一致。"""
         for suffix in ("", "_v2"):
             with self.subTest(round=suffix or "v1"), tempfile.TemporaryDirectory() as d:
-                with mock.patch.object(merge, "OUT_DIR", Path(d)), \
+                with mock.patch.object(merge, "RAW_DIR", EXAMPLE / "results" / "raw"), \
+                        mock.patch.object(merge, "OUT_DIR", Path(d)), \
                         mock.patch.object(sys, "argv", ["merge.py", "--suffix", suffix, "--legacy"]), \
                         contextlib.redirect_stdout(io.StringIO()):
                     merge.main()
                 new = json.loads((Path(d) / f"merged{suffix}.json").read_text(encoding="utf-8"))
-                old = json.loads((ROOT / "results" / "merged" / f"merged{suffix}.json").read_text(encoding="utf-8"))
+                old = json.loads((EXAMPLE / "results" / "merged" / f"merged{suffix}.json").read_text(encoding="utf-8"))
                 self.assertEqual(new["records"], old["records"])
                 self.assertEqual(new["meta"]["counts"], old["meta"]["counts"])
                 self.assertEqual((Path(d) / f"candidates{suffix}.csv").read_bytes(),
-                                 (ROOT / "results" / "merged" / f"candidates{suffix}.csv").read_bytes())
+                                 (EXAMPLE / "results" / "merged" / f"candidates{suffix}.csv").read_bytes())
 
 
 # ---------- 作者 ----------
@@ -472,20 +493,38 @@ class TestLogrun(unittest.TestCase):
 # ---------- 仓库数据文件 ----------
 
 class TestRepositoryData(unittest.TestCase):
-    FACETS = ["研究问题", "作用机制", "研究情境", "数据与方法", "预期发现"]
+    @staticmethod
+    def check_table(path, n_rows=None):
+        from novelty_probe.defaults import LABELS, facet_columns, find_column
+        lines = path.read_text(encoding="utf-8").splitlines()
+        h = next(i for i, l in enumerate(lines) if l.startswith("| rank |"))
+        cols = verify.split_row(lines[h])
+        rows = [verify.split_row(l) for l in lines[h + 2:] if l.startswith("| ") and verify.split_row(l)[0].isdigit()]
+        facets = facet_columns(cols)                       # 接受中文或英文的面标签
+        i_ver = find_column(cols, "verified")
+        if find_column(cols, "id") is None or i_ver is None or len(facets) != 5:
+            raise AssertionError(f"{path.name}: 列不完整 {cols}")
+        if n_rows is not None and len(rows) != n_rows:
+            raise AssertionError(f"{path.name}: {len(rows)} 行，预期 {n_rows}")
+        for r in rows:
+            if not all(r[i] in LABELS for i in facets.values()):
+                raise AssertionError(f"{path.name}: 面的取值不合法 {r}")
+            if not re.match(r"^(Crossref |UNVERIFIED)", r[i_ver]):
+                raise AssertionError(f"{path.name}: verified 列格式 {r[i_ver][:40]}")
 
-    def test_evidence_tables(self):
+    def test_example_evidence_tables(self):
         for name in ("evidence_table.md", "evidence_table_v2.md"):
             with self.subTest(file=name):
-                lines = (ROOT / "evidence" / name).read_text(encoding="utf-8").splitlines()
-                h = next(i for i, l in enumerate(lines) if l.startswith("| rank |"))
-                cols = verify.split_row(lines[h])
-                rows = [verify.split_row(l) for l in lines[h + 2:] if l.startswith("| ") and verify.split_row(l)[0].isdigit()]
-                self.assertTrue({"DOI/arXiv", "verified", *self.FACETS} <= set(cols))
-                self.assertEqual(len(rows), 10)
-                for r in rows:
-                    self.assertTrue(all(r[cols.index(f)] in {"overlap", "differ", "unknown"} for f in self.FACETS))
-                    self.assertRegex(r[cols.index("verified")], r"^(Crossref |UNVERIFIED)")
+                self.check_table(EXAMPLE / "evidence" / name, n_rows=10)
+
+    def test_project_evidence_tables(self):
+        """项目目录里的证据表（如果有）格式也要合法；清空示例后没有文件，跳过。"""
+        files = sorted((ROOT / "evidence").glob("evidence_table*.md"))
+        if not files:
+            self.skipTest("evidence/ 中没有证据表")
+        for path in files:
+            with self.subTest(file=path.name):
+                self.check_table(path)
 
     def test_citation_and_license(self):
         cff = (ROOT / "CITATION.cff").read_text(encoding="utf-8")

@@ -43,13 +43,16 @@ merged.json 中每篇记录的字段：
 """
 import argparse
 import csv
-import json
 import re
 import sys
 from collections import Counter
 from datetime import datetime, timezone
 from itertools import combinations
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe.paths import rel as _rel
+from novelty_probe.io import configure_console, load_json_lenient, write_json
 
 from search import parse_query
 from textmatch import BM25, PREPRINT_DOI_RE, Doc, norm_doi, query_match, version_decision, version_summary
@@ -72,9 +75,8 @@ CSV_COLUMNS_RANKED = ["rank", "merged_id", "rrf", "bm25", "n_conform", "hits", "
 
 
 def rel(path):
-    """项目内的路径显示为相对路径，项目外的显示为绝对路径。"""
-    p = Path(path).resolve()
-    return str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+    """项目内的路径显示为相对路径（正斜杠），项目外的显示为绝对路径。"""
+    return _rel(path, ROOT)
 
 
 def doi_key(doi):
@@ -116,7 +118,7 @@ def raw_files(suffix=""):
 def load_raw(suffix=""):
     recs, inputs = [], []
     for path in raw_files(suffix):
-        d = json.loads(path.read_text(encoding="utf-8"))
+        d = load_json_lenient(path)
         m = d["meta"]
         inputs.append({"file": rel(path),
                        **{k: m.get(k) for k in ("source_api", "query_id", "conversion", "sort",
@@ -213,6 +215,7 @@ def candidate_key(x):
 
 
 def write_candidates(candidates, path):
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
         w.writeheader()
@@ -325,7 +328,7 @@ def load_queries_from_raw(suffix):
     """各结果文件 meta 中的原检索式：{query_id: (包含组, 排除组)}。"""
     out = {}
     for path in raw_files(suffix):
-        m = json.loads(path.read_text(encoding="utf-8"))["meta"]
+        m = load_json_lenient(path)["meta"]
         out.setdefault(m["query_id"], parse_query(m["query_original"]))
     return out
 
@@ -393,6 +396,7 @@ def review_clusters(pairs):
 
 
 def write_candidates_ranked(candidates, path):
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS_RANKED)
         w.writeheader()
@@ -410,6 +414,7 @@ def write_candidates_ranked(candidates, path):
 
 
 def main():
+    configure_console()
     ap = argparse.ArgumentParser(description="Merge and dedupe search results; write top candidates.")
     ap.add_argument("--suffix", default="", help="只处理这个后缀的结果文件，如 _v2（默认无后缀，即 v1）")
     ap.add_argument("--legacy", action="store_true",
@@ -479,9 +484,7 @@ def main():
             "per_query": {q: cand_per_query[q] for q in qids},
         },
     }
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    out_file.write_text(json.dumps({"meta": meta, "records": merged}, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8")
+    write_json(out_file, {"meta": meta, "records": merged})
     write_candidates(candidates, cand_file)
 
     st, src = counts["id_status"], counts["sources"]
@@ -551,9 +554,7 @@ def main_ranked(args, recs, inputs, out_file, cand_file):
             "per_query": {q: cand_per_query[q] for q in qids},
         },
     }
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    out_file.write_text(json.dumps({"meta": meta, "records": merged}, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8")
+    write_json(out_file, {"meta": meta, "records": merged})
     write_candidates_ranked(candidates, cand_file)
 
     st, src = counts["id_status"], counts["sources"]

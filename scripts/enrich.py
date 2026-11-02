@@ -17,12 +17,16 @@
 """
 import argparse
 import csv
-import json
 import re
+import sys
 import unicodedata
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe.paths import rel as _rel
+from novelty_probe.io import configure_console, write_json
 
 from search import get_json, rebuild_abstract
 from textmatch import title_search_words, version_title_match
@@ -37,8 +41,8 @@ PREPRINT_TYPES = {"preprint", "posted-content"}
 
 
 def rel(path):
-    p = Path(path).resolve()
-    return str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+    """项目内的路径显示为相对路径（正斜杠），项目外的显示为绝对路径。"""
+    return _rel(path, ROOT)
 
 
 def bare_doi(doi):
@@ -107,6 +111,7 @@ def find_versions(title, year, own_doi, own_arxiv=None):
 
 
 def main():
+    configure_console()
     ap = argparse.ArgumentParser(description="Enrich top candidates from other versions of the same work (OpenAlex).")
     ap.add_argument("--top", type=int, default=20)
     ap.add_argument("--candidates", type=Path, default=CANDIDATES_FILE)
@@ -153,8 +158,7 @@ def main():
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "counts": {"candidates": len(records), "missing_abstract": sum("abstract" in r["needs"] for r in records),
                        "abstract_added": n_abs, "arxiv_id_added": n_arx, "doi_suggested": n_doi}}
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    out_file.write_text(json.dumps({"meta": meta, "records": records}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    write_json(out_file, {"meta": meta, "records": records})
     c = meta["counts"]
     print(f"\nmissing abstracts: {c['missing_abstract']} → added from another version: {c['abstract_added']}; "
           f"arXiv IDs added: {c['arxiv_id_added']}; DOIs suggested (verify before use): {c['doi_suggested']}")

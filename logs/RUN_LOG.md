@@ -3558,3 +3558,28 @@ json.loads(带 BOM 的文件) → JSONDecodeError: Unexpected UTF-8 BOM（复现
 **产出文件**：`docs/ARCHITECTURE_REVIEW.md`（新增：现状、问题清单、成熟项目做法、目标架构、五个阶段的计划、决策点）。
 
 **备注**：阶段 0、1 不涉及研究者决策，接着实施；阶段 2 起的决策点列在该文件第 6 节。
+
+---
+
+## [2026-11-02 15:09 UTC] Step 67 — 工具层迭代阶段 0：卫生类修复
+
+按 `docs/ARCHITECTURE_REVIEW.md` 第 5 节的阶段 0 实施，不改变任何检索、合并、核验的结果。
+
+**做了什么**
+
+- 新增包 `novelty_probe/`（纯标准库）：`io.py`（读 JSON 容忍 BOM 与 ```json 围栏；写文本固定 \n 换行；原子写；控制台 UTF-8 守卫）、`paths.py`（find_root、rel 输出正斜杠）、`defaults.py`（面的 key 与中英文标签、证据表列名别名）。
+- 各脚本接入：所有 JSON 读取改用 load_json_lenient；所有 JSON 输出改用原子写；main() 开头 configure_console()；rel() 统一到 paths.rel。snowball 识别证据表的面时接受中文或英文标签（修复英文表头零种子）。logrun 保持独立（不依赖包），日志里的命令按系统引用规则生成并附 argv 的 JSON，换行固定 \n。
+- `.gitattributes`（text=auto eol=lf）；`.gitignore` 加 `.cache/`。
+- 教程产出复制到 `examples/tutorial/`（idea、facets、queries、v1/v2 的 results 与 evidence），测试件改从那里读；读取项目目录实时数据的测试在文件不存在时跳过。HOWTO §1 相应改写（不必手工备份）。
+- 新增 `tests/test_core.py`（BOM/围栏、LF 与原子写、写失败不破坏旧文件、rel、find_root、面标签别名、英文表头种子）。
+
+**命令：自检与"清空示例后"的模拟**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests      # 3.13: Ran 56 tests … OK；3.9: OK
+# 在会话临时目录复制仓库，按 HOWTO §1 删除 facets/queries/results/evidence 的示例文件并重置日志后：
+python3 -m unittest discover -s tests                                # OK (skipped=2)
+python3 scripts/search.py --dry-run                                  # 6/6 queries valid
+```
+
+**产出文件**：`novelty_probe/{__init__,io,paths,defaults}.py`、`tests/test_core.py`、`examples/tutorial/**`、`.gitattributes`（新增）；`scripts/*.py`、`tests/test_offline.py`、`tests/test_pipeline.py`、`HOWTO.md`、`.gitignore`（修改）

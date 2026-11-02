@@ -1,0 +1,18 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q4",
+    "purpose": "application",
+    "queries_file": "queries/queries_v2.json",
+    "query_original": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |); phrases and prefix * kept",
+    "query_sent": "(\"streetlight effect\" | \"Matthew effect\" | \"exploration-exploitation\") + (\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (economist* | \"economic research\" | \"management research\" | \"business research\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22streetlight+effect%22+%7C+%22Matthew+effect%22+%7C+%22exploration-exploitation%22%29+%2B+%28%22artificial+intelligence%22+%7C+%22AI+tools%22+%7C+%22generative+AI%22+%7C+%22large+language+models%22%29+%2B+%28economist%2A+%7C+%22economic+research%22+%7C+%22management+research%22+%7C+%22business+research%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract&sort=citationCount%3Adesc",
+    "sort": "citationCount:desc",
+    "total_hits": 0,
+    "returned": 0,
+    "retrieved_at": "2026-10-31T16:54:33+00:00"
+  },
+  "records": []
+}

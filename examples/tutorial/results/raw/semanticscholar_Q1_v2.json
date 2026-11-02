@@ -1,0 +1,269 @@
+{
+  "meta": {
+    "source_api": "semanticscholar",
+    "query_id": "Q1",
+    "purpose": "component",
+    "queries_file": "queries/queries_v2.json",
+    "query_original": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+    "year_from": null,
+    "conversion": "boolean -> S2 bulk syntax (AND -> +, OR -> |); phrases and prefix * kept",
+    "query_sent": "(\"large language models\" | \"generative AI\") + (homogeniz* | homogenis* | \"algorithmic monoculture\" | \"collective diversity\")",
+    "request_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=%28%22large+language+models%22+%7C+%22generative+AI%22%29+%2B+%28homogeniz%2A+%7C+homogenis%2A+%7C+%22algorithmic+monoculture%22+%7C+%22collective+diversity%22%29&fields=title%2Cyear%2CexternalIds%2Cvenue%2Cjournal%2Cabstract&sort=citationCount%3Adesc",
+    "sort": "citationCount:desc",
+    "total_hits": 392,
+    "returned": 25,
+    "retrieved_at": "2026-10-31T16:54:01+00:00"
+  },
+  "records": [
+    {
+      "title": "Generative AI enhances individual creativity but reduces the collective diversity of novel content",
+      "year": 2023,
+      "doi": "10.1126/sciadv.adn5290",
+      "arxiv_id": "2312.00506",
+      "venue": "Science Advances",
+      "abstract": "Creativity is core to being human. Generative artificial intelligence (AI)—including powerful large language models (LLMs)—holds promise for humans to be more creative by offering new ideas, or less creative by anchoring on generative AI ideas. We study the causal impact of generative AI ideas on the production of short stories in an online experiment where some writers obtained story ideas from an LLM. We find that access to generative AI ideas causes stories to be evaluated as more creative, better written, and more enjoyable, especially among less creative writers. However, generative AI–enabled stories are more similar to each other than stories by humans alone. These results point to an increase in individual creativity at the risk of losing collective novelty. This dynamic resembles a social dilemma: With generative AI, writers are individually better off, but collectively a narrower scope of novel content is produced. Our results have implications for researchers, policy-makers, and practitioners interested in bolstering creativity.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenization Effects of Large Language Models on Human Creative Ideation",
+      "year": 2024,
+      "doi": "10.1145/3635636.3656204",
+      "arxiv_id": "2402.01536",
+      "venue": "Creativity & Cognition",
+      "abstract": "Large language models (LLMs) are now being used in a wide variety of contexts, including as creativity support tools (CSTs) intended to help their users come up with new ideas. But do LLMs actually support user creativity? We hypothesized that the use of an LLM as a CST might make the LLM’s users feel more creative, and even broaden the range of ideas suggested by each individual user, but also homogenize the ideas suggested by different users. We conducted a 36-participant comparative user study and found, in accordance with the homogenization hypothesis, that different users tended to produce less semantically distinct ideas with ChatGPT than with an alternative CST. Additionally, ChatGPT users generated a greater number of more detailed ideas, but felt less responsible for the ideas they generated. We discuss potential implications of these findings for users, designers, and developers of LLM-based CSTs.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "AI Suggestions Homogenize Writing Toward Western Styles and Diminish Cultural Nuances",
+      "year": 2024,
+      "doi": "10.1145/3706598.3713564",
+      "arxiv_id": "2409.11360",
+      "venue": "International Conference on Human Factors in Computing Systems",
+      "abstract": "Large language models (LLMs) are being increasingly integrated into everyday products and services, such as coding tools and writing assistants. As these embedded AI applications are deployed globally, there is a growing concern that the AI models underlying these applications prioritize Western values. This paper investigates what happens when a Western-centric AI model provides writing suggestions to users from a different cultural background. We conducted a cross-cultural controlled experiment with 118 participants from India and the United States who completed culturally grounded writing tasks with and without AI suggestions. Our analysis reveals that AI provided greater efficiency gains for Americans compared to Indians. Moreover, AI suggestions led Indian participants to adopt Western writing styles, altering not just what is written but also how it is written. These findings show that Western-centric AI models homogenize writing toward Western norms, diminishing nuances that differentiate cultural expression.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Perils and opportunities in using large language models in psychological research",
+      "year": 2024,
+      "doi": "10.1093/pnasnexus/pgae245",
+      "arxiv_id": null,
+      "venue": "PNAS Nexus",
+      "abstract": "Abstract The emergence of large language models (LLMs) has sparked considerable interest in their potential application in psychological research, mainly as a model of the human psyche or as a general text-analysis tool. However, the trend of using LLMs without sufficient attention to their limitations and risks, which we rhetorically refer to as “GPTology”, can be detrimental given the easy access to models such as ChatGPT. Beyond existing general guidelines, we investigate the current limitations, ethical implications, and potential of LLMs specifically for psychological research, and show their concrete impact in various empirical studies. Our results highlight the importance of recognizing global psychological diversity, cautioning against treating LLMs (especially in zero-shot settings) as universal solutions for text analysis, and developing transparent, open methods to address LLMs’ opaque nature for reliable, reproducible, and robust inference from AI-generated data. Acknowledging LLMs’ utility for task automation, such as text annotation, or to expand our understanding of human psychology, we argue for diversifying human samples and expanding psychology’s methodological toolbox to promote an inclusive, generalizable science, countering homogenization, and over-reliance on LLMs.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Comparing Generative AI and teacher feedback: student perceptions of usefulness and trustworthiness",
+      "year": 2025,
+      "doi": "10.1080/02602938.2025.2502582",
+      "arxiv_id": null,
+      "venue": "Assessment &amp; Evaluation in Higher Education",
+      "abstract": "Abstract The rapid integration of Generative Artificial Intelligence (GenAI) into educational contexts has presented both opportunities and challenges for students seeking and using feedback. While AI-generated feedback can offer increased access, timely responses and personalised insights, concerns about the quality of AI-generated feedback still persist, including issues of bias, factual inaccuracies, and homogenisation. This study investigates how students use, value and trust AI-generated feedback compared to feedback from educators. This paper draws on a large-scale cross-sectional survey administered across four major Australian universities. A quantitative analysis of 6960 respondents revealed that half of the students sought feedback from GenAI. Overall, students reported teacher feedback to be more helpful, and especially trustworthy. This paper also reports on the thematic analysis of 8642 open-ended responses, providing deeper insights into students’ experiences. This includes findings that students valued the feedback from GenAI because of its ease of access, timeliness, volume, understandability and that it was perceived to be less risky than seeking feedback from teachers. At the same time, students were concerned about GenAI’s reliability as well as contextual and disciplinary expertise. We argue that GenAI and teacher feedback appear to serve different needs, and therefore are complementary but not interchangeable.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Do large language models have a legal duty to tell the truth?",
+      "year": 2024,
+      "doi": "10.1098/rsos.240197",
+      "arxiv_id": null,
+      "venue": "Royal Society Open Science",
+      "abstract": "Careless speech is a new type of harm created by large language models (LLM) that poses cumulative, long-term risks to science, education and shared social truth in democratic societies. LLMs produce responses that are plausible, helpful and confident, but that contain factual inaccuracies, misleading references and biased information. These subtle mistruths are poised to cumulatively degrade and homogenize knowledge over time. This article examines the existence and feasibility of a legal duty for LLM providers to create models that ‘tell the truth’. We argue that LLM providers should be required to mitigate careless speech and better align their models with truth through open, democratic processes. We define careless speech against ‘ground truth’ in LLMs and related risks including hallucinations, misinformation and disinformation. We assess the existence of truth-related obligations in EU human rights law and the Artificial Intelligence Act, Digital Services Act, Product Liability Directive and Artificial Intelligence Liability Directive. Current frameworks contain limited, sector-specific truth duties. Drawing on duties in science and academia, education, archives and libraries, and a German case in which Google was held liable for defamation caused by autocomplete, we propose a pathway to create a legal truth duty for providers of narrow- and general-purpose LLMs.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "AI-Augmented Surveys: Leveraging Large Language Models and Surveys for Opinion Prediction",
+      "year": 2023,
+      "doi": null,
+      "arxiv_id": "2305.09620",
+      "venue": null,
+      "abstract": "Nationally representative surveys track public opinion, yet they ask only a limited set of questions each year, limiting its potential to capture historical changes. To fill this gap, we develop a large language model (LLM)-based framework for predicting missing responses in repeated cross-sectional surveys by incorporating embeddings for questions, respondents, and survey periods. We introduce two new applications of LLMs to survey research: retrodiction (predicting year-level missing opinions) and unasked opinion prediction (predicting entirely missing opinions). Using data from the 1972-2021 General Social Surveys, our LLM-based models perform strongly in retrodicting masked GSS opinions through cross-validation and public opinions measured by other organizations in years when the GSS did not ask them. These capabilities enable us to recover missing trends and pinpoint when public attitudes changed, such as the rising support for same-sex marriage. However, performance remains modest for unasked opinion prediction. We show when our models outperform established benchmarks, examine which opinions and and respondents are more predictable, and evaluate whether our approach reduces LLMs'tendency to homogenize predicted responses. Our study demonstrates that LLMs and surveys can mutually enhance each other: LLMs broaden survey potential, while surveys calibrate LLMs for simulating human opinions.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The Homogenizing Effect of Large Language Models on Human Expression and Thought",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2508.01491",
+      "arxiv_id": "2508.01491",
+      "venue": "Trends in Cognitive Sciences",
+      "abstract": "Cognitive diversity, reflected in variations of language, perspective, and reasoning, is essential to creativity and collective intelligence. This diversity is rich and grounded in culture, history, and individual experience. Yet, as large language models (LLMs) become deeply embedded in people's lives, they risk standardizing language and reasoning. We synthesize evidence across linguistics, psychology, cognitive science, and computer science to show how LLMs reflect and reinforce dominant styles while marginalizing alternative voices and reasoning strategies. We examine how their design and widespread use contribute to this effect by mirroring patterns in their training data and amplifying convergence as all people increasingly rely on the same models across contexts. Unchecked, this homogenization risks flattening the cognitive landscapes that drive collective intelligence and adaptability.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Prevalence and Prevention of Large Language Model Use in Crowd Work",
+      "year": 2025,
+      "doi": "10.1145/3685527",
+      "arxiv_id": null,
+      "venue": "Communications of the ACM",
+      "abstract": "Crowd workers often use LLMs, but this can have a homogenizing effect on their output. How can we—and should we—prevent LLM use in crowd work?",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Homogenizing effect of large language models (LLMs) on creative diversity: An empirical comparison of human and ChatGPT writing",
+      "year": 2025,
+      "doi": "10.1016/j.chbah.2025.100207",
+      "arxiv_id": null,
+      "venue": "Comput. Hum. Behav. Artif. Humans",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Exploring learners’ experiences and perceptions of ChatGPT as a learning tool in higher education",
+      "year": 2024,
+      "doi": "10.1007/s10639-024-13065-4",
+      "arxiv_id": null,
+      "venue": "Education and Information Technologies : Official Journal of the IFIP technical committee on Education",
+      "abstract": null,
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Rethinking Model Evaluation as Narrowing the Socio-Technical Gap",
+      "year": 2023,
+      "doi": "10.48550/arXiv.2306.03100",
+      "arxiv_id": "2306.03100",
+      "venue": "arXiv.org",
+      "abstract": "The recent development of generative large language models (LLMs) poses new challenges for model evaluation that the research community and industry have been grappling with. While the versatile capabilities of these models ignite much excitement, they also inevitably make a leap toward homogenization: powering a wide range of applications with a single, often referred to as ``general-purpose'', model. In this position paper, we argue that model evaluation practices must take on a critical task to cope with the challenges and responsibilities brought by this homogenization: providing valid assessments for whether and how much human needs in diverse downstream use cases can be satisfied by the given model (\\textit{socio-technical gap}). By drawing on lessons about improving research realism from the social sciences, human-computer interaction (HCI), and the interdisciplinary field of explainable AI (XAI), we urge the community to develop evaluation methods based on real-world contexts and human requirements, and embrace diverse evaluation methods with an acknowledgment of trade-offs between realisms and pragmatic costs to conduct the evaluation. By mapping HCI and current NLG evaluation methods, we identify opportunities for evaluation methods for LLMs to narrow the socio-technical gap and pose open questions.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Correlated Errors in Large Language Models",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2506.07962",
+      "arxiv_id": "2506.07962",
+      "venue": "International Conference on Machine Learning",
+      "abstract": "Diversity in training data, architecture, and providers is assumed to mitigate homogeneity in LLMs. However, we lack empirical evidence on whether different LLMs differ meaningfully. We conduct a large-scale empirical evaluation on over 350 LLMs overall, using two popular leaderboards and a resume-screening task. We find substantial correlation in model errors -- on one leaderboard dataset, models agree 60% of the time when both models err. We identify factors driving model correlation, including shared architectures and providers. Crucially, however, larger and more accurate models have highly correlated errors, even with distinct architectures and providers. Finally, we show the effects of correlation in two downstream tasks: LLM-as-judge evaluation and hiring -- the latter reflecting theoretical predictions regarding algorithmic monoculture.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "AlphaAgent: LLM-Driven Alpha Mining with Regularized Exploration to Counteract Alpha Decay",
+      "year": 2025,
+      "doi": "10.1145/3711896.3736838",
+      "arxiv_id": "2502.16789",
+      "venue": "Knowledge Discovery and Data Mining",
+      "abstract": "Alpha mining, a critical component in quantitative investment, focuses on discovering predictive signals for future asset returns in increasingly complex financial markets. However, the pervasive issue of alpha decay-where factors lose their predictive power over time-poses a significant challenge for alpha mining. Traditional methods such as genetic programming are prone to rapid alpha decay, primarily due to their susceptibility to overfitting. At the same time, approaches driven by Large Language Models (LLMs), despite their promise, often fail to impose regularization against factor homogenization-resulting in crowded signals and accelerated decay. To address this challenge, we propose AlphaAgent, an autonomous framework that effectively integrates LLM-driven agents with ad hoc regularization for mining decay-resistant alpha factors. AlphaAgent employs three key mechanisms: (i) originality enforcement through a similarity measure based on abstract syntax trees (ASTs) against existing alphas(ii) hypothesis-factor alignment via LLM-evaluated semantic consistency between market hypotheses and generated factors, and (iii) complexity control via AST-based structural constraints, preventing over-engineered constructions that are prone to overfitting. These mechanisms collectively guide the alpha generation process to balance originality, financial rationale, and adaptability to evolving market conditions, mitigating the risk of alpha decay. Extensive evaluations show that AlphaAgent outperforms traditional and LLM-based methods in mitigating alpha decay across bull and bear markets, consistently delivering significant alpha in Chinese CSI 500 and U.S. S&P 500 markets over the past four years. Notably, AlphaAgent showcases remarkable resistance to alpha decay, elevating the potential for yielding powerful factors.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Generative AI Meets Open-Ended Survey Responses: Research Participant Use of AI and Homogenization",
+      "year": 2025,
+      "doi": "10.1177/00491241251327130",
+      "arxiv_id": null,
+      "venue": "Sociological Methods &amp; Research",
+      "abstract": "The growing popularity of generative artificial intelligence (AI) tools presents new challenges for data quality in online surveys and experiments. This study examines participants’ use of large language models to answer open-ended survey questions and describes empirical tendencies in human versus large language model (LLM)-generated text responses. In an original survey of research participants recruited from a popular online platform for sourcing social science research subjects, 34 percent reported using LLMs to help them answer open-ended survey questions. Simulations comparing human-written responses from three pre-ChatGPT studies with LLM-generated text reveal that LLM responses are more homogeneous and positive, particularly when they describe social groups in sensitive questions. These homogenization patterns may mask important underlying social variation in attitudes and beliefs among human subjects, raising concerns about data validity. Our findings shed light on the scope and potential consequences of participants’ LLM use in online research.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Empirical evidence of Large Language Model's influence on human spoken communication",
+      "year": 2024,
+      "doi": "10.48550/arXiv.2409.01754",
+      "arxiv_id": "2409.01754",
+      "venue": "arXiv.org",
+      "abstract": "From the printing press to social media, innovations in communication technology have repeatedly reshaped how ideas spread through human culture. Chatbots powered by generative artificial intelligence constitute a new medium, encoding cultural patterns in their neural representations and disseminating them in conversations with hundreds of millions of people. Whether these patterns transmit into human language, and ultimately shape human culture, is a fundamental question. While fully quantifying the causal impact of a chatbot like ChatGPT on human culture is challenging, lexical shifts in human spoken communication may offer an early indicator. Here we show that words preferentially generated by ChatGPT, such as delve, showcase, boast, intricacies and meticulous, increased abruptly in spontaneous human speech. A synthetic-control analysis of 737,083 hours of conversation from 824,634 podcast episodes, screened for unscripted speech, causally links this shift to ChatGPT's release. The measurable influence on spontaneous speech suggests that humans internalize the lexical choices of large language models (LLMs). A preregistered experiment (N = 496) confirms they do, as a brief chatbot interaction led participants to adopt its words as their own, persisting past a distractor task and confirmed in forced lexical choice, indicating entrenchment in the active vocabulary. Together these results show that machines trained on human data now feed their own traits back into human language, integrating LLMs into the ongoing processes of cultural evolution.. This coupling raises concerns about linguistic homogenization and the capacity of a few major AI providers for latent cultural influence at scale.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "How AI Ideas Affect the Creativity, Diversity, and Evolution of Human Ideas: Evidence From a Large, Dynamic Experiment",
+      "year": 2024,
+      "doi": "10.1145/3715928.3737481",
+      "arxiv_id": "2401.13481",
+      "venue": "International Conference on Climate Informatics",
+      "abstract": "Exposure to large language model output is rapidly increasing. How will seeing AI-generated ideas affect human ideas? We conducted a dynamic experiment (800+ participants, 40+ countries) where participants viewed creative ideas that were from ChatGPT or prior experimental participants, and then brainstormed their own idea. We varied the number of AI-generated examples (none, low, or high exposure) and if the examples were labeled as “AI” (disclosure). We find that high AI exposure (but not low AI exposure) did not affect the creativity of individual ideas but did increase the average amount and rate of change of collective idea diversity. AI made ideas different, not better. There were no main effects of disclosure. We also found that self-reported creative people were less influenced by knowing an idea was from AI and that participants may knowingly adopt AI ideas when the task is difficult. Our findings suggest that introducing AI ideas may increase collective diversity but not individual creativity.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Improving Diversity of Demographic Representation in Large Language Models via Collective-Critiques and Self-Voting",
+      "year": 2023,
+      "doi": "10.48550/arXiv.2310.16523",
+      "arxiv_id": "2310.16523",
+      "venue": "Conference on Empirical Methods in Natural Language Processing",
+      "abstract": "A crucial challenge for generative large language models (LLMs) is diversity: when a user's prompt is under-specified, models may follow implicit assumptions while generating a response, which may result in homogenization of the responses, as well as certain demographic groups being under-represented or even erased from the generated responses. In this paper, we formalize diversity of representation in generative LLMs. We present evaluation datasets and propose metrics to measure diversity in generated responses along people and culture axes. We find that LLMs understand the notion of diversity, and that they can reason and critique their own responses for that goal. This finding motivated a new prompting technique called collective-critique and self-voting (CCSV) to self-improve people diversity of LLMs by tapping into its diversity reasoning capabilities, without relying on handcrafted examples or prompt tuning. Extensive empirical experiments with both human and automated evaluations show that our proposed approach is effective at improving people and culture diversity, and outperforms all baseline methods by a large margin.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "AI-generated faces influence gender stereotypes and racial homogenization",
+      "year": 2024,
+      "doi": "10.1038/s41598-025-99623-3",
+      "arxiv_id": "2402.01002",
+      "venue": "Scientific Reports",
+      "abstract": "Text-to-image generative AI models such as Stable Diffusion are used daily by millions worldwide. However, the extent to which these models exhibit racial and gender stereotypes is not yet fully understood. Here, we document significant biases in Stable Diffusion across six races, two genders, 32 professions, and eight attributes. Additionally, we examine the degree to which Stable Diffusion depicts individuals of the same race as being similar to one another. This analysis reveals significant racial homogenization, e.g., depicting nearly all Middle Eastern men as bearded, brown-skinned, and wearing traditional attire. We then propose debiasing solutions that allow users to specify the desired distributions of race and gender when generating images while minimizing racial homogenization. Finally, using a preregistered survey experiment, we find evidence that being presented with inclusive AI-generated faces reduces people’s racial and gender biases, while being presented with non-inclusive ones increases such biases, regardless of whether the images are labeled as AI-generated. Taken together, our findings emphasize the need to address biases and stereotypes in text-to-image models.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Cultivating Pluralism In Algorithmic Monoculture: The Community Alignment Dataset",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2507.09650",
+      "arxiv_id": "2507.09650",
+      "venue": "arXiv.org",
+      "abstract": "How can large language models (LLMs) serve users with varying preferences that may conflict across cultural, political, or other dimensions? To advance this challenge, this paper establishes four key results. First, we demonstrate, through a large-scale multilingual human study with representative samples from five countries (N=15,000), that humans exhibit substantially more variation in preferences than the responses of 21 state-of-the-art LLMs. Second, we show that existing methods for preference dataset collection are insufficient for learning the diversity of human preferences even along two of the most salient dimensions of variability in global values, due to the underlying homogeneity of candidate responses. Third, we argue that this motivates the need for negatively-correlated sampling when generating candidate sets, and we show that simple prompt-based techniques for doing so greatly enhance the performance of alignment methods in learning heterogeneous preferences. Fourth, based on this novel candidate sampling approach, we collect and open-source Community Alignment} the largest and most representative multilingual and multi-turn preference dataset to date, featuring 233,319 comparisons from annotators spanning five countries. Overall, we hope that the Community Alignment dataset will be a valuable resource for improving the effectiveness of LLMs for a diverse global population.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "The shrinking landscape of linguistic diversity in the age of large language models",
+      "year": 2025,
+      "doi": "10.1038/s41562-026-02550-0",
+      "arxiv_id": "2502.11266",
+      "venue": "Nature Human Behaviour",
+      "abstract": "Language is far more than a communication tool; it encodes a wealth of information about a person’s identity, psychological state and social context, providing valuable insights for diverse fields including psychology, marketing and healthcare. Across three studies spanning seven datasets in different domains and over 880,000 texts, we show that the widespread adoption of large language models (LLMs) as writing assistants is linked to declines in linguistic diversity, interfering with the societal and psychological insights language provides. While core content is retained when LLMs polish and rewrite texts, LLMs also homogenize writing styles, reducing writing-complexity variance by a statistically significant 21–50% across datasets and models (P ≤ 0.05), and amplify patterns associated with dominant characteristics while suppressing others, emphasizing conformity over individuality. These trends hold across different LLMs, prompts and contexts, with potential implications for diagnostic processes, personalization efforts, hiring assessments and cultural preservation. Sourati et al. find that variance in writing complexity dropped on social media, news and scientific writing after ChatGPT’s release, a shift from individuality towards uniformity. LLM polishing strips cues to gender, age, ideology and moral values.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "RL Squeezes, SFT Expands: A Comparative Study of Reasoning LLMs",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2509.21128",
+      "arxiv_id": "2509.21128",
+      "venue": "arXiv.org",
+      "abstract": "Large language models (LLMs) are typically trained by reinforcement learning (RL) with verifiable rewards (RLVR) and supervised fine-tuning (SFT) on reasoning traces to improve their reasoning abilities. However, how these methods shape reasoning capabilities remains largely elusive. Going beyond an accuracy-based investigation of how these two components sculpt the reasoning process, this paper introduces a novel analysis framework that quantifies reasoning paths and captures their qualitative changes under each training process (with models of 1.5B, 7B, and 14B parameters on mathematical domains). Specifically, we investigate the reasoning process at two levels of granularity: the trajectory-level, which examines complete reasoning outputs, and the step-level, which analyzes reasoning graphs whose nodes correspond to individual reasoning steps. Notably, clustering of unique reasoning trajectories shows complementary effects: RL compresses incorrect trajectories, whereas SFT expands correct ones. Step-level analysis reveals that RL steepens (about 2.5 times), while SFT flattens (reduced to about one-third), the decay rates of node visitation frequency, degree, and betweenness centrality distributions in the reasoning graph. This indicates that RL concentrates reasoning functionality into a small subset of steps, while SFT homogenizes it across many steps. Furthermore, by evaluating the reasoning graph topologies from multiple perspectives, we delineate the shared and distinct characteristics of RL and SFT. Our work presents a novel reasoning path perspective that explains why the current best practice of two-stage training, with SFT followed by RL, is successful, and offers practical implications for data construction and more efficient learning approaches.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Navigating the Alpha Jungle: An LLM-Powered MCTS Framework for Formulaic Factor Mining",
+      "year": 2025,
+      "doi": "10.48550/arXiv.2505.11122",
+      "arxiv_id": "2505.11122",
+      "venue": "AAAI Conference on Artificial Intelligence",
+      "abstract": "Alpha factor mining is pivotal in quantitative investment for identifying predictive signals from complex financial data. While traditional formulaic alpha mining relies on human expertise, contemporary automated methods, such as those based on genetic programming or reinforcement learning, often struggle with search inefficiency or yield alpha factors that are difficult to interpret. This paper introduces a novel framework that integrates Large Language Models (LLMs) with Monte Carlo Tree Search (MCTS) to overcome these limitations. Our framework leverages the LLM's instruction-following and reasoning capability to iteratively generate and refine symbolic alpha formulas within an MCTS-driven exploration. A key innovation is the guidance of MCTS exploration by rich, quantitative feedback from financial backtesting of each candidate factor, enabling efficient navigation of the vast search space. Furthermore, a frequent subtree avoidance mechanism is introduced to enhance search diversity and prevent formulaic homogenization, further improving performance. Experimental results on real-world stock market data demonstrate that our LLM-based framework outperforms existing methods by mining alphas with superior predictive accuracy and trading performance. The resulting formulas are also more amenable to human interpretation, establishing a more effective and efficient paradigm for formulaic alpha mining.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Large Language Models for Ontology Engineering: A Systematic Literature Review",
+      "year": 2026,
+      "doi": "10.1177/22104968261465514",
+      "arxiv_id": null,
+      "venue": "Semantic Web: – Interoperability, Usability, Applicability",
+      "abstract": "Ontology engineering (OE) is a complex task in knowledge representation that relies heavily on domain experts to accurately define concepts and precise relationships in a domain of interest, as well as to maintain logical consistency throughout the resultant ontology. Recent advances in large language models (LLMs) have created new opportunities to automate and enhance various stages of ontology development. This article presents a systematic literature review on the use of LLMs in OE, focusing on their roles in core development activities, input–output characteristics, evaluation methods, and application domains. We analyze 36 papers covering 49 task-level studies to identify common tasks where LLMs have been applied, spanning ontology requirements specification, implementation, publication, and maintenance. Our findings indicate that LLMs primarily act as ontology engineers, domain experts, and evaluators, using models such as Generative Pretrained Transformer, Large Language Model Meta AI, and Text-to-Text Transfer Transformer. Different approaches rely on zero-shot and few-shot prompting to process heterogeneous inputs (e.g., Web Ontology Language ontologies, natural language text, and competency questions) and generate task-specific outputs (e.g., axioms, mappings, and documentation). Our review also reveals a lack of homogenization in task definitions, dataset selection, evaluation metrics, and experimental workflows. In addition, several studies do not release their complete evaluation protocols or code, making their results difficult to reproduce and their methods insufficiently transparent. Addressing these gaps through standardized benchmarks and hybrid workflows that integrate LLM automation with human expertise represents an important challenge for future research.",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    },
+    {
+      "title": "Language is not a data set—Why overcoming ideologies of dataism is more important than ever in the age of AI",
+      "year": 2024,
+      "doi": "10.1111/josl.12680",
+      "arxiv_id": null,
+      "venue": "Journal of Sociolinguistics",
+      "abstract": "Meaning, then, is derived not through content or data or even theory in a Western context, which by nature is decontextualized knowledge, but through a compassionate web of interdependent relationships that are different and valuable because of difference. (Simpson, 2014, p. 11) Helen Kelly-Holmes’ call to explore the implications for sociolinguistics arising from the increased commercially driven digitalization of society is very timely. Like Kelly-Holmes, we share the view that the growing prevalence of online and artificial intelligence (AI) technologies in all aspects of our lives requires a critical assessment of assumptions, approaches, and practices that have grounded sociolinguistic research since its inception. While our discussion confirms Helen's observations, we also urge the development of a general critical attitude toward understanding language as digital data. The starting point for our argument is Helen's claim that there is an erasure of “authentic” languages from public digital spaces, “making it more difficult to gather data on real usage because it would be necessary to rely on public areas and/or negotiate access to these private spaces” (p. 5). For us, her observation brings to the fore that treating language as data has always been problematic. We want to raise two issues: the general epistemological limitations of using digital user data as a representation of language and community, and the consequent need for methods that take seriously the study of language in its social, political, and technological context. We suggest ethnography as a method for understanding what speakers actually do, and an opening of language research to also consider the workings and socio-political embeddings of digital and generative AI language technologies. Our discussion is in the spirit of a joint fruitful and constructive debate. Let us start with a general critique of approaching language as “data” that correlates with social groups, which is so far a neglected aspect in the debates surrounding language, sociolinguistics, and AI. Historically, this discussion links to the colonial backgrounds of Western science and linguistics specifically. Colonial or missionary linguistic research (e.g., Deumert & Storch, 2020; Errington, 2008) demonstrates that dominant Western epistemologies of language and research methods in linguistics were shaped during the period of European colonialism. An important legacy of European colonialism is that it “sought to fundamentally change and reorganize the social and economic order of the societies it colonized, as opposed to satisfy itself with extracting tribute” (Couldry & Mejias, 2019, p. 70). Part of this endeavor involved language “development” activities aimed at the goal of Bible translation and turning the colonized into Christian disciples. This was based on constructions of language that are still dominant today. They developed on the grounds of “collecting data” (in colonial times, often from single speakers) and then transforming the human capacity of embodied, interactive and collaborative meaning-making into word lists, grammar books, or dictionaries (e.g., Deumert & Storch, 2020; Gal & Irvine, 2019, Chap. 9). Linguistic research is therefore grounded in what is now called the ideology of “dataism” (Bode & Goodlad, 2023). This is the belief in data as representing human behavior. In the age of digital technologies, this is coupled with the aim of tracking human behavior to predict and ultimately shape social life (Rushkoff, 2019). Dataism implies assumptions such as the belief in objectivity of quantification and trust in data processing agents. The resulting datafication of everyday life then consists of extracting information from the flow of social life, matching it to imagined social realities and categories and fixing such relationships. In the context of linguistics, the understanding of language as data, collected from oral practices transformed into writing, led to conceptualizing language as referential code and languages as “natural,” given objects that are systematically and neatly structured (e.g., Pennycook, 2004). The outcomes of these activities are summarized in typologies, developmental hierarchies, and a canon of methods for optimal data extraction and analysis (for critical discussion, see Deumert & Storch, 2020). Sociolinguistics is part of this tradition. But unlike missionaries who aimed to impose their social imaginations on people through their linguistic activities, sociolinguists’ goal is to discover and explain what people do with language, specifically variation, to deepen our understanding of language and its sociocultural embeddedness and to raise awareness and fight discrimination. Early work aggregated people's practices into externally defined, homogenizing macro social (e.g., age, class) and structural linguistic categories and derived meaning from statistical correlations between them. Over time, however, sociolinguistics has also successively questioned objectification. Subsequent research emphasized the construction of meaning as a local, interactional process that required understanding people's actions and views and advocated for detailed participant observation of people's everyday activities and semi-guided discussion. The aim is to discover locally relevant social and linguistic categories (e.g., practices, linguistic phenomena) and their local indexicalities and relationships in a holistic manner (Eckert, 2012). It is now widely accepted that social and linguistic categories are complex and dynamic across contexts and interactions. Language is a fuzzy network of social acts whose meanings emerge in context as it is fundamentally pragmatic and indexical, and meaning-making is a localized process (Eckert, 2008; Gal & Irvine, 2019; Silverstein, 2014). People are social agents who pick linguistic practices based on their identity, on the goals that they want to (temporarily) foreground, and on their current understanding of an interaction based on the indexicalities that they perceive. In addition, humans “dynamically reshape the context that provides organization for their actions within the interaction itself” (Duranti & Goodwin, 1992, p. 5), and in literate cultures, writing and printing have co-constructed these contexts, in particular, normative ideas and epistemological approaches (Linell, 2005). Overall, sociolinguistic diversity is therefore rich and dynamic and defies neat correlative relationships. What does all this suggest for the future of sociolinguistic research in a digital and AI technology enriched environment? The short answer is that we cannot limit our analyses to the study of digital language data, be it the effect of user interaction or the output of generative AI. On the one hand, we need to continue and enhance what we have been doing: observing people, understanding meaning-making in practice and considering the social embeddedness of language, while critically assessing, critiquing, and recalibrating our tools to avoid essentializing practices, contexts, and communities. The current social reality, ripe with unfamiliar tools, processes, and logics, requires us to upskill and engage. Ethnography's dedication to a multi-perspective and holistic understanding is well suited to grasp, for example, how, when, and where people actually use generative AI tools and how it impacts on language attitudes and language ideologies and therefore contributes to sociolinguistic realities. Instead of only examining the outputs of technological applications, that is, the linguistic data, we need to cast our net more widely. Given their intertwined nature, we have to explore people's offline and online experiences, activities and ideologies, the technological infrastructures and affordances, and their intersections in an integrated manner. Ethnography is here useful to study micro-practices, but at the same time, as it is limited to the observation of locally visible conditions, it needs to be complemented by other methodological approaches. The social, cultural, political, technological, and interactional situatedness and dynamic nature of any language activity need to be embraced in a multi-methodological fashion (e.g., Page et al., 2022). For example, young(er) people in the Global North often stay connected throughout most of their waking hours and frequently blend offline activities with simultaneous online activity, leading to at times intensely intertwined experiences because the technological and social contingencies of their public, private, and educational lives “allow” or even mandate a convergence of online and offline activities. For others, there might be a greater difference between online and offline worlds due to the lack of appropriate devices, data or network coverage, non-digitized contexts, or just a preference for offline interaction (Deumert, 2014, Chap. 3). Due to being involved in different communities of online and offline practice, individuals also develop, use, and learn to interpret linguistic and sociopragmatic indexicalities differently and develop different metapragmatic realities. Language is also not the only meaning-making resource. Type of technology, ways of using technologies (e.g., voice vs. written messages; multimodal vs. plain text) may also become contextualization cues and their indexicalities are not constant as different contexts have different affordances in terms of devices, literacy, and ideologies of language and media (Gershon, 2010). Without ethnographic observation and a consideration of the social and technological contexts, local meanings of language and the social indexicality of language and technology choices can easily be misinterpreted. This also applies to the linguistic output of AI tools, which is typically edited by users, according to their audiences and language ideologies, the latter increasingly influenced by the ascription of authority to data an",
+      "source_api": "semanticscholar",
+      "query_id": "Q1"
+    }
+  ]
+}

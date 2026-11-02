@@ -1,0 +1,38 @@
+[
+  {
+    "id": "Q1",
+    "facets_used": ["mechanism", "context", "expected_findings"],
+    "query": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+    "purpose": "component"
+  },
+  {
+    "id": "Q2",
+    "facets_used": ["research_question", "expected_findings", "data_method"],
+    "query": "(\"narrowing of science\" OR \"topic concentration\" OR \"topic diversity\" OR \"research diversification\") AND (\"science of science\" OR bibliometric*)",
+    "purpose": "component"
+  },
+  {
+    "id": "Q3",
+    "facets_used": ["research_question", "context"],
+    "query": "(\"AI in science\" OR \"AI for science\" OR \"large language models\" OR \"machine learning\") AND (\"research topic selection\" OR \"problem choice\" OR \"direction of science\")",
+    "purpose": "application"
+  },
+  {
+    "id": "Q4",
+    "facets_used": ["mechanism", "context"],
+    "query": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"AI for science\" OR \"large language models\" OR \"generative AI\") AND scientist*",
+    "purpose": "application"
+  },
+  {
+    "id": "Q5",
+    "facets_used": ["data_method", "context"],
+    "query": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometric*) AND (\"large language models\" OR \"generative AI\")",
+    "purpose": "method"
+  },
+  {
+    "id": "Q6",
+    "facets_used": ["research_question", "context", "expected_findings", "data_method"],
+    "query": "(\"AI in science\" OR \"large language models\" OR \"generative AI\") AND (\"topic diversity\" OR \"narrowing of science\" OR \"collective diversity\" OR disruptiveness OR \"research diversification\") AND (scientist* OR \"science of science\")",
+    "purpose": "concurrent"
+  }
+]

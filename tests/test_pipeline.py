@@ -13,7 +13,7 @@ from pathlib import Path
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from test_offline import ROOT, MockServer, load, reply  # noqa: E402  共用 test_offline 的工具
+from test_offline import EXAMPLE, ROOT, MockServer, load, reply  # noqa: E402  共用 test_offline 的工具
 
 textmatch, qa, enrich, search, snowball, merge, compare = (load("textmatch"), load("qa"), load("enrich"),
                                                            load("search"), load("snowball"), load("merge"),
@@ -207,7 +207,7 @@ class TestQA(unittest.TestCase):
     def test_reproduces_documented_totals(self):
         """与 RUN_LOG 里记录的质量检查结果一致（v1：177/217，有摘要者 169/178；v2：181/235，170/170）。"""
         for suffix, expected in (("", (177, 217, 169, 178)), ("_v2", (181, 235, 170, 170))):
-            with self.subTest(suffix=suffix or "v1"):
+            with self.subTest(suffix=suffix or "v1"), mock.patch.object(qa.merge, "RAW_DIR", EXAMPLE / "results" / "raw"):
                 rows = [qa.check_file(p) for p in qa.merge.raw_files(suffix)]
                 got = tuple(sum(r[k] for r in rows) for k in ("conform", "records", "conform_with_abstract", "with_abstract"))
                 self.assertEqual(got, expected)
@@ -338,7 +338,8 @@ class TestSnowball(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_backward_and_forward_links(self):
-        argv = ["snowball.py", "--seeds", "10.1/seed1,10.1/seed2", "--suffix", "_t", "--top", "10"]
+        argv = ["snowball.py", "--seeds", "10.1/seed1,10.1/seed2", "--suffix", "_t", "--top", "10",
+                "--queries", str(EXAMPLE / "queries" / "queries.json")]
         with mock.patch.object(sys, "argv", argv), mock.patch("sys.stdout"):
             self.assertEqual(snowball.main(), 0)
         out = Path(self.tmp.name)
@@ -409,7 +410,7 @@ class TestSnowballCocite(unittest.TestCase):
 
     def test_cocitation_through_filtered_citers(self):
         argv = ["snowball.py", "--seeds", "10.1/seed1,10.1/seed2", "--suffix", "_t", "--cocite",
-                "--citer-filter", "scientist*"]
+                "--citer-filter", "scientist*", "--queries", str(EXAMPLE / "queries" / "queries.json")]
         with mock.patch.object(sys, "argv", argv), mock.patch("sys.stdout"):
             self.assertEqual(snowball.main(), 0)
         data = json.loads((Path(self.tmp.name) / "chase_C2_t.json").read_text(encoding="utf-8"))

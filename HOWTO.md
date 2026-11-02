@@ -92,13 +92,9 @@ export S2_API_KEY="你的 key / your key"
 
 This directory still holds the outputs of the tutorial example (v1 and v2). Clear them before starting your own idea; otherwise old results will mix with new ones.
 
-可选：先把示例备份到 `examples/`。
+教程示例的副本已经在 `examples/tutorial/` 里（离线自检从那里读取），不必另行备份。
 
-Optional: back up the example to `examples/` first.
-
-```bash
-mkdir -p examples && cp -r facets queries results evidence logs examples/
-```
+A copy of the tutorial example is already kept in `examples/tutorial/` (the offline self-test reads from there), so no backup is needed.
 
 清空旧产出（`.gitkeep` 是隐藏文件，不会被删除）：
 

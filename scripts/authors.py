@@ -10,11 +10,15 @@ search.py 保存的字段不含作者，所以这里按 DOI 逐条查询 OpenAle
 """
 import argparse
 import csv
-import json
 import re
+import sys
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe.paths import rel as _rel
+from novelty_probe.io import configure_console, write_json
 
 from search import get_json  # 复用 search.py 的请求与重试逻辑（OpenAlex key 由环境注入）
 
@@ -24,9 +28,8 @@ OUT_FILE = ROOT / "evidence" / "authors.json"
 
 
 def rel(path):
-    """项目内的路径显示为相对路径，项目外的显示为绝对路径。"""
-    p = Path(path).resolve()
-    return str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+    """项目内的路径显示为相对路径（正斜杠），项目外的显示为绝对路径。"""
+    return _rel(path, ROOT)
 
 
 def norm(t):
@@ -34,6 +37,7 @@ def norm(t):
 
 
 def main():
+    configure_console()
     ap = argparse.ArgumentParser(description="Fetch authors from OpenAlex for the top candidates.")
     ap.add_argument("--top", type=int, default=10)
     ap.add_argument("--candidates", type=Path, default=CANDIDATES_FILE)
@@ -68,9 +72,7 @@ def main():
     meta = {"source": "OpenAlex /works/doi:<doi>", "script": "scripts/authors.py",
             "input": rel(cand_file), "top": args.top,
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    out_file.write_text(json.dumps({"meta": meta, "records": out}, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8")
+    write_json(out_file, {"meta": meta, "records": out})
     print(f"written: {rel(out_file)}")
 
 

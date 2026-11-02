@@ -23,10 +23,12 @@ chase_*{suffix}.csv 与 results/raw 中的原检索式，输出：
 """
 import argparse
 import csv
-import json
 import statistics
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe.io import configure_console, load_json_lenient, write_json
 
 import merge
 from textmatch import Doc, norm_doi, query_match, term_in
@@ -38,7 +40,7 @@ GENAI_TERMS = ["LLM", "LLMs", "ChatGPT", "GPT", "Gemini", "Claude", "OpenAI", "A
 
 
 def ranked_records(suffix):
-    data = json.loads((OUT_DIR / f"merged{suffix}.json").read_text(encoding="utf-8"))
+    data = load_json_lenient(OUT_DIR / f"merged{suffix}.json")
     recs = data["records"]
     if "method" in data["meta"]:
         recs = sorted(recs, key=lambda x: (-x["rrf"], -x["bm25"], x["merged_id"]))
@@ -100,6 +102,7 @@ def chase_ranks(suffix, expanded):
 
 
 def main():
+    configure_console()
     ap = argparse.ArgumentParser(description="Compare runs: known-item ranks, top-k composition, ties.")
     ap.add_argument("--runs", required=True, help='逗号分隔的后缀，v1 写空字符串，如 ",_v1b"')
     ap.add_argument("--known", default="", help="逗号分隔的已知文献 DOI 或 arXiv:<ID>")
@@ -142,7 +145,7 @@ def main():
         for m in ("conform", "noise", "genai", "abstract", "year_median", "before_2015"):
             print(f"{block + ' ' + m:<34}" + "".join(f"{str(report[c][block][m]):>22}" for c in cols))
     if args.out:
-        args.out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        write_json(args.out, report)
         print(f"\nwritten: {merge.rel(args.out)}")
     return 0
 

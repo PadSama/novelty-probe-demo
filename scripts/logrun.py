@@ -6,6 +6,7 @@
 
 命令在项目根目录下运行；输出照常实时打印到终端；退出码与被运行的命令相同。
 """
+import json
 import os
 import shlex
 import subprocess
@@ -37,10 +38,16 @@ def main():
         lines.append(line)
     code = proc.wait()
     LOG.parent.mkdir(parents=True, exist_ok=True)
-    with LOG.open("a", encoding="utf-8") as f:
-        f.write(f"\n---\n\n## [{started}] {title}\n\n**命令**\n\n```bash\n{shlex.join(cmd)}\n```\n\n"
+    with LOG.open("a", encoding="utf-8", newline="\n") as f:  # logrun 不依赖 novelty_probe，可单独复制使用；换行固定为 \n
+        f.write(f"\n---\n\n## [{started}] {title}\n\n**命令**\n\n```bash\n{command_line(cmd)}\n```\n\n"
                 f"**输出**（退出码 {code}）\n\n```\n{''.join(lines).rstrip()}\n```\n")
     return code
+
+
+def command_line(cmd):
+    """日志里的命令：POSIX 系统按 shell 引用规则，Windows 按 cmd 规则；两者都附上原始参数列表（JSON），便于在另一系统上复现。"""
+    quoted = subprocess.list2cmdline(cmd) if os.name == "nt" else shlex.join(cmd)
+    return quoted + "\n# argv: " + json.dumps(cmd, ensure_ascii=False)
 
 
 if __name__ == "__main__":

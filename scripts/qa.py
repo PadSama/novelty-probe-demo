@@ -10,8 +10,11 @@ Porter 会把更多词形视为同一个词，所以本脚本给出的比例略�
 用法：python3 scripts/qa.py [--suffix _v2]
 """
 import argparse
-import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe.io import configure_console, load_json_lenient
 
 import merge
 from search import parse_query
@@ -19,7 +22,7 @@ from textmatch import Doc, query_match
 
 
 def check_file(path):
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = load_json_lenient(path)
     include, exclude = parse_query(data["meta"]["query_original"])
     n = with_abs = ok = ok_abs = 0
     for r in data["records"]:
@@ -33,6 +36,7 @@ def check_file(path):
 
 
 def main():
+    configure_console()
     ap = argparse.ArgumentParser(description="Check how many retrieved records satisfy the original Boolean query.")
     ap.add_argument("--suffix", default="", help="只检查这个后缀的结果文件，如 _v2（默认无后缀，即 v1）")
     args = ap.parse_args()

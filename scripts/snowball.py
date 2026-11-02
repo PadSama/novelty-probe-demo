@@ -29,7 +29,6 @@ query_blocks / conform 对照检索式文件给出满足的 AND 组比例与是�
 """
 import argparse
 import csv
-import json
 import math
 import os
 import re
@@ -38,6 +37,11 @@ import time
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe.defaults import facet_columns
+from novelty_probe.paths import rel as _rel
+from novelty_probe.io import configure_console, load_json_lenient, read_text, write_json
 
 import search
 from search import get_json, openalex_record
@@ -55,7 +59,6 @@ TOP = 20
 KEEP = 200
 BATCH = 50
 PAUSE = 0.15
-FACETS = ["研究问题", "作用机制", "研究情境", "数据与方法", "预期发现"]
 DOI_IN_CELL = re.compile(r"doi:(10\.\d{4,9}/[^\s·|]+)", re.I)
 ARXIV_IN_CELL = re.compile(r"arxiv:\s*([\w./-]+?\d)(?=\s|·|$)", re.I)
 CSV_COLUMNS = ["path", "rank", "openalex_id", "links", "support", "norm_support", "seeds", "similarity",
@@ -64,8 +67,8 @@ CSV_COLUMNS = ["path", "rank", "openalex_id", "links", "support", "norm_support"
 
 
 def rel(path):
-    p = Path(path).resolve()
-    return str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+    """项目内的路径显示为相对路径（正斜杠），项目外的显示为绝对路径。"""
+    return _rel(path, ROOT)
 
 
 def headers():
@@ -90,7 +93,7 @@ def short_id(openalex_id):
 
 def seeds_from_evidence(path, min_overlap):
     """证据表中至少 min_overlap 个面标为 overlap 的行：返回 [(标签, DOI, arXiv ID)]。"""
-    lines = Path(path).read_text(encoding="utf-8").splitlines()
+    lines = read_text(path).splitlines()
     split = lambda l: [c.strip() for c in re.split(r"(?<!\\)\|", l.strip()[1:-1])]  # noqa: E731
     h = next((i for i, l in enumerate(lines) if l.startswith("|") and "DOI/arXiv" in split(l)), None)
     if h is None:
@@ -101,7 +104,7 @@ def seeds_from_evidence(path, min_overlap):
         if not l.startswith("|"):
             break
         cells = split(l)
-        n = sum(cells[cols.index(f)] == "overlap" for f in FACETS if f in cols)
+        n = sum(cells[i] == "overlap" for i in facet_columns(cols).values())  # 接受中文或英文的面标签
         if n >= min_overlap:
             cell = cells[cols.index("DOI/arXiv")]
             doi, arx = DOI_IN_CELL.search(cell), ARXIV_IN_CELL.search(cell)
@@ -161,7 +164,7 @@ def search_index(suffix):
     if not path.exists():
         return None, {}
     index = {}
-    for r in json.loads(path.read_text(encoding="utf-8"))["records"]:
+    for r in load_json_lenient(path)["records"]:
         keys = [("doi", r["doi"].lower())] if r["doi"] else []
         keys += [("doi", a[4:].lower()) for a in r.get("alt_ids") or [] if a.startswith("doi:")]
         keys += [("arxiv", a.lower()) for a in [r["arxiv_id"]] + [x[6:] for x in r.get("alt_ids") or []
@@ -303,6 +306,7 @@ def collect_cocite(args, seeds_resolved):
 
 
 def main():
+    configure_console()
     ap = argparse.ArgumentParser(description="Citation chasing from seed papers via OpenAlex: one hop, or two-hop co-citation.")
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--seeds", help="逗号分隔的 DOI 或 arXiv:<ID>")
@@ -381,11 +385,8 @@ def main():
                      if args.cocite else "links desc, similarity to seeds desc"),
             "total_hits": len(out), "returned": min(len(out), args.keep),
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
     raw_path = RAW_DIR / f"chase_{label}{args.suffix}.json"
-    raw_path.write_text(json.dumps({"meta": meta, "records": [{k: v for k, v in x.items() if k != "in_search"}
-                                                               for x in out[:args.keep]]}, ensure_ascii=False, indent=2)
-                        + "\n", encoding="utf-8")
+    write_json(raw_path, {"meta": meta, "records": [{k: v for k, v in x.items() if k != "in_search"} for x in out[:args.keep]]})
     shown, per_path = [], {}
     for x in out:
         k = x["chase"]["path"]
