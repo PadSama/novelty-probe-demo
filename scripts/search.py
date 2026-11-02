@@ -294,6 +294,36 @@ def search_s2(q, year_from):
 
 
 SEARCHERS = {"openalex": search_openalex, "semanticscholar": search_s2}
+PURPOSES = {"component", "application", "method", "concurrent"}
+ID_RE = re.compile(r"^Q\d+$")  # merge.py 只读取 {source}_Q<数字>{suffix}.json，id 必须是这种格式
+
+
+def load_queries(path):
+    """读取并校验检索式文件；有问题时抛出 ValueError，列出所有问题。"""
+    try:
+        queries = json.loads(Path(path).read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise ValueError(f"{path} 不是合法的 JSON（第 {e.lineno} 行）：{e.msg}") from None
+    if not isinstance(queries, list) or not queries:
+        raise ValueError(f"{path} 应为非空的 JSON 数组")
+    problems, seen = [], set()
+    for i, q in enumerate(queries, 1):
+        if not isinstance(q, dict):
+            problems.append(f"第 {i} 条不是对象")
+            continue
+        qid = q.get("id")
+        if not isinstance(qid, str) or not ID_RE.match(qid):
+            problems.append(f"第 {i} 条的 id {qid!r} 应为 Q1、Q2 这样的格式")
+        elif qid in seen:
+            problems.append(f"id {qid} 重复")
+        seen.add(qid)
+        if not isinstance(q.get("query"), str) or not q["query"].strip():
+            problems.append(f"{qid or f'第 {i} 条'} 缺少 query")
+        if q.get("purpose") not in PURPOSES:
+            problems.append(f"{qid or f'第 {i} 条'} 的 purpose {q.get('purpose')!r} 应为 {'/'.join(sorted(PURPOSES))} 之一")
+    if problems:
+        raise ValueError("检索式文件有问题：\n  " + "\n  ".join(problems))
+    return queries
 
 
 # ---------- 主流程 ----------
@@ -307,11 +337,18 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="不联网：只检查检索式语法并打印各来源实际会发送的检索串")
     args = ap.parse_args()
 
-    queries = json.loads(args.queries.read_text(encoding="utf-8"))
+    try:
+        queries = load_queries(args.queries)
+    except (OSError, ValueError) as e:
+        print(e)
+        return 2
     qfile = args.queries.resolve()
     qfile = str(qfile.relative_to(ROOT)) if qfile.is_relative_to(ROOT) else str(qfile)
     if args.ids:
         wanted = set(args.ids.split(","))
+        missing = wanted - {q["id"] for q in queries}
+        if missing:
+            ap.error(f"检索式文件中没有这些 id：{', '.join(sorted(missing))}")
         queries = [q for q in queries if q["id"] in wanted]
     sources = args.sources.split(",")
     unknown = set(sources) - set(SEARCHERS)
@@ -352,7 +389,7 @@ def main():
             path.write_text(json.dumps({"meta": meta, "records": records}, ensure_ascii=False, indent=2) + "\n",
                             encoding="utf-8")
             no_id = sum(1 for r in records if not r["doi"] and not r["arxiv_id"])
-            note = str(path.relative_to(ROOT))
+            note = str(path.relative_to(ROOT)) if path.resolve().is_relative_to(ROOT) else str(path)
             if year_from:
                 note += f"  [year>={year_from}]"
             row(q["id"], q["purpose"], src, meta["total_hits"], len(records), no_id, note)

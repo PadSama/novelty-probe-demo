@@ -29,7 +29,7 @@ From `PROJECT.md`:
 
 The five facets are research question, mechanism, context, data and methods, and expected findings. Each query has a purpose: *component*, *application*, *method*, or *concurrent* (recent work, 2023 onwards).
 
-Steps that need judgment are done by an AI assistant (Claude Code, run in this directory) from paste-ready prompts in `HOWTO.md`, and are meant to be reviewed by the researcher. These are T2, the facet labels in T5, and choosing the closest papers in T6. Everything else is a script.
+Steps that need judgment are done by an AI coding assistant run in this directory, from paste-ready prompts in `HOWTO.md`, and are meant to be reviewed by the researcher. The worked example used Claude Code; any assistant that follows `AGENTS.md` can do these steps, for example ZCode with GLM. These are T2, the facet labels in T5, and choosing the closest papers in T6. Everything else is a script.
 
 ## Quick start
 
@@ -89,6 +89,14 @@ To run another round without overwriting the first, use version suffixes, for ex
   - It follows the DOI to the publisher's landing page and records the HTTP status and page title.
 - **`logrun.py`** runs any command and appends the command and its output to `logs/RUN_LOG.md`.
 
+## Tests
+
+An offline self-test checks the scripts without network access. It also re-runs the merge on the committed raw results and confirms that the output matches the committed files byte for byte:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
 ## Worked example
 
 The repository holds a complete run on one idea (original in Chinese): *Does researchers' use of AI tools narrow the range of research topics in a discipline? To be tested with large-scale publication data.*
@@ -137,7 +145,10 @@ results/merged/  deduplicated works and top-20 candidates
 evidence/        evidence tables, authors, difference statement
 logs/RUN_LOG.md  append-only log of every step
 scripts/         search.py, merge.py, authors.py, verify.py, logrun.py
+tests/           offline self-test
 PROJECT.md       the assistant's role and rules (Chinese)
+AGENTS.md        instructions for AI coding assistants (Chinese)
+HANDOFF.md       handoff notes: status, data contracts, design decisions, known issues (Chinese)
 HOWTO.md         step-by-step guide with commands and prompts (Chinese / English)
 LICENSE          MIT License
 CITATION.cff     citation metadata

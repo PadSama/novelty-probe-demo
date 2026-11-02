@@ -1675,3 +1675,65 @@ authors: [{'family-names': 'Yuan', 'given-names': 'Quan', 'orcid': 'https://orci
 **产出文件**：`CITATION.cff`（推送到分支 `claude/vigilant-faraday-odzwe4`，需研究者通过 PR 合并）
 
 **备注**：v1.0.0 的标签已打在 3f00b7a 上，这一版的 CITATION.cff 不含 ORCID；本次改动进入 main 后，"Cite this repository" 与之后的版本会带上 ORCID。
+
+---
+
+## [2026-11-02 07:23 UTC] Step 23 — 梳理项目并准备本地移植的交接（ZCode + GLM 5.3）
+
+**研究者告知与要求（本轮）**：PR 已合并，远端只剩 main。研究者将在本地 ZCode 客户端用 GLM 5.3 完成移植，要求梳理整个项目，整理必要的说明与交接文档。
+
+**命令 1：同步与盘点（只读）**
+
+```
+main：a104d4d（PR #2 合并后，研究者另改了 CITATION.cff 标题的大小写）；远端分支只有 main
+仓库跟踪 52 个文件；文档中写死 Claude Code 的地方：HOWTO 多处、README 1 处
+```
+
+**命令 2：脚本的健壮性修改（换用其他 AI 助手后最易出错之处）**
+
+```
+# search.py：新增 load_queries()，检查 JSON 格式、id 必须为 Q+数字（merge.py 只读这种文件名）且不重复、
+#            query 非空、purpose 取值；问题一次列全，退出码 2。--ids 中有不存在的 id 时报错（原先静默跑 0 条）
+# merge.py、authors.py、search.py：路径显示改用 rel()（输出目录不在项目内时不再报错）
+# authors.py：读取候选文件后正确关闭（自检发现的 ResourceWarning）
+```
+
+**命令 3：离线自检 tests/test_offline.py（标准库 unittest；不联网、不改动仓库文件）**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests
+```
+
+```
+----------------------------------------------------------------------
+Ran 21 tests in 2.178s
+
+OK
+```
+
+覆盖：检索式校验与两种语法转换、记录字段提取、请求重试、检索主流程（模拟 API）、合并去重与排序、用已提交的原始结果复现已提交的合并结果（v1、v2 逐字节一致）、作者查询（模拟 API）、DOI 核验（本机模拟服务器）、logrun、仓库数据文件格式。另加 `.gitignore`（忽略 `__pycache__`）。
+
+**命令 4：文档**
+
+```
+# 新增 AGENTS.md：给任何 AI 编程助手的规则与文件约定
+# 新增 HANDOFF.md：现状、本地环境准备（key、代理、证书、自检、冒烟测试）、ZCode 用法、数据约定、
+#                 脚本速查、设计决策、已知问题、Git 与发布、检查清单
+# HOWTO.md、README.md：不再写死 Claude Code，改为通用的 AI 编程助手；加入自检命令；目录表补充新文件
+# PROJECT.md：目录表补充 scripts/、tests/ 与其他文档
+```
+
+**命令 5：文档一致性检查（python3 内联脚本）**
+
+```
+script commands checked: 26; unknown scripts/flags: none
+文档中只写文件名的路径均能在仓库中找到对应文件；其余"找不到"的条目是列名、API 路径或家目录文件
+修改后再次运行自检：Ran 21 tests … OK
+```
+
+**产出文件**
+
+- `AGENTS.md`、`HANDOFF.md`、`tests/test_offline.py`、`.gitignore`（新增）
+- `scripts/search.py`、`scripts/merge.py`、`scripts/authors.py`、`HOWTO.md`、`README.md`、`PROJECT.md`（修改）
+
+**备注**：推送到分支 `claude/vigilant-faraday-odzwe4`，需研究者通过 PR 合并。下一步编号为 Step 24。
