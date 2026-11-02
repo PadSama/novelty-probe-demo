@@ -8,13 +8,15 @@ import json
 import sys
 import tempfile
 import unittest
+import urllib.parse
 from pathlib import Path
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_offline import ROOT, MockServer, load, reply  # noqa: E402  共用 test_offline 的工具
 
-textmatch, qa, enrich, search = load("textmatch"), load("qa"), load("enrich"), load("search")
+textmatch, qa, enrich, search, snowball = (load("textmatch"), load("qa"), load("enrich"), load("search"),
+                                           load("snowball"))
 Doc = textmatch.Doc
 
 
@@ -178,6 +180,88 @@ class TestEnrich(unittest.TestCase):
         self.assertEqual(len(self.queries), 1)
         self.assertIn("title.search%3Aartificial+intelligence+tools", self.queries[0])
         self.assertEqual(data["meta"]["counts"]["abstract_added"], 1)
+
+
+# ---------- 引文追踪 ----------
+
+class TestSnowball(unittest.TestCase):
+    def setUp(self):
+        def work(wid, title, abstract=None, refs=None, doi=None):
+            return {"id": f"https://openalex.org/{wid}", "doi": f"https://doi.org/{doi}" if doi else None,
+                    "title": title, "display_name": title, "publication_year": 2025, "type": "article",
+                    "primary_location": {"source": {"display_name": "J"}}, "locations": [],
+                    "abstract_inverted_index": {w: [i] for i, w in enumerate(abstract.split())} if abstract else None,
+                    "referenced_works": [f"https://openalex.org/{r}" for r in refs or []], "cited_by_count": 3}
+
+        seed1 = work("W1", "Generative AI reduces collective diversity of stories", "AI ideas make stories similar",
+                     ["W10", "W11"], "10.1/seed1")
+        seed2 = work("W2", "LLMs homogenize creative ideas across users", "users ideas converge with LLM help",
+                     ["W10"], "10.1/seed2")
+        works = {
+            "W10": work("W10", "Collective diversity and social influence", "diversity of ideas declines", doi="10.1/w10"),
+            "W11": work("W11", "Soil chemistry of wetlands", "wetland soils", doi="10.1/w11"),
+            "W20": work("W20", "AI tools contract the collective diversity of science", "AI narrows topics", doi="10.1/w20"),
+            "W21": work("W21", "Generative AI and stories in classrooms", "stories with AI ideas", doi="10.1/w21"),
+            "W22": work("W22", "Generative AI reduces collective diversity of stories (preprint version)", "x",
+                        doi="10.48550/arxiv.2401.00009"),
+        }
+        citing = {"W1": ["W20", "W21", "W22"], "W2": ["W20"]}
+        self.paths = []
+
+        def handle(h):
+            self.paths.append(h.path)
+            url = urllib.parse.urlsplit(h.path)
+            q = dict(urllib.parse.parse_qsl(url.query))
+            if url.path.startswith("/works/doi:"):
+                doi = urllib.parse.unquote(url.path[len("/works/doi:"):]).lower()
+                found = {"10.1/seed1": seed1, "10.48550/arxiv.2401.00001": seed1, "10.1/seed2": seed2}.get(doi)
+                return reply(h, 200 if found else 404, json.dumps(found or {"error": "nf"}), "application/json")
+            flt = q.get("filter", "")
+            if flt.startswith("cites:"):
+                ids = [w for s in flt[6:].split("|") for w in citing.get(s, [])]
+                page = [works[w] for w in ids]
+                if q.get("cursor") == "*":            # 第一页只给一条，测试翻页
+                    body = {"meta": {"next_cursor": "c2"}, "results": page[:1]}
+                else:
+                    body = {"meta": {"next_cursor": None}, "results": page[1:]}
+                return reply(h, 200, json.dumps(body), "application/json")
+            if flt.startswith("openalex_id:"):
+                ids = flt[len("openalex_id:"):].split("|")
+                return reply(h, 200, json.dumps({"results": [works[w] for w in ids if w in works]}), "application/json")
+            reply(h, 400, "{}", "application/json")
+
+        self.server = MockServer(handle)
+        self.tmp = tempfile.TemporaryDirectory()
+        out = Path(self.tmp.name)
+        (out / "merged_t.json").write_text(json.dumps({"records": [
+            {"merged_id": "M007", "doi": "10.1/w21", "arxiv_id": None, "alt_ids": [], "title": "x"}]}), encoding="utf-8")
+        self.patches = [mock.patch.object(snowball, "OPENALEX_URL", self.server.url + "/works"),
+                        mock.patch.object(snowball, "RAW_DIR", out), mock.patch.object(snowball, "OUT_DIR", out),
+                        mock.patch.object(snowball, "PAUSE", 0)]
+        for p in self.patches:
+            p.start()
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+        self.server.close()
+        self.tmp.cleanup()
+
+    def test_backward_and_forward_links(self):
+        argv = ["snowball.py", "--seeds", "10.1/seed1,10.1/seed2", "--suffix", "_t", "--top", "10"]
+        with mock.patch.object(sys, "argv", argv), mock.patch("sys.stdout"):
+            self.assertEqual(snowball.main(), 0)
+        out = Path(self.tmp.name)
+        recs = json.loads((out / "openalex_C1_t.json").read_text(encoding="utf-8"))["records"]
+        got = {r["chase"]["openalex_id"]: (r["chase"]["links"], r["chase"]["directions"]) for r in recs}
+        self.assertEqual(got, {"W10": (2, ["backward"]), "W20": (2, ["forward"]),
+                               "W11": (1, ["backward"]), "W21": (1, ["forward"])})   # 种子的预印本版 W22 被去掉
+        keys = [(-r["chase"]["links"], -r["chase"]["similarity"]) for r in recs]
+        self.assertEqual(keys, sorted(keys))                                            # links 降序，同 links 按相似度
+        with (out / "chase_t.csv").open(encoding="utf-8-sig") as f:
+            rows = {r["openalex_id"]: r for r in csv.DictReader(f)}
+        self.assertEqual(rows["W21"]["in_search"], "M007")                              # 已在检索结果中
+        self.assertEqual(sum("cursor=c2" in p for p in self.paths), 2)                  # 每个种子都翻了页
 
 
 if __name__ == "__main__":

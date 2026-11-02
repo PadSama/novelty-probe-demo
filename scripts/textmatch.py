@@ -5,6 +5,7 @@
 - tokenize() / phrase_in()：在标题 + 摘要中按词干匹配检索词（短语、截断词、单词）；
 - query_match()：判断一段文本是否满足检索式（含 NOT 组）；
 - BM25：按检索词给一组文本打相关度分；
+- tfidf_vectors() / centroid() / cosine()：与种子文献的内容相似度（引文追踪的排序）；
 - title_key() / version_title_match()：识别同一研究的不同版本（预印本与正式发表）。
 """
 import html
@@ -219,6 +220,60 @@ class BM25:
             if f:
                 s += self.idf[t] * f * (self.k1 + 1) / (f + self.k1 * (1 - self.b + self.b * dl / (self.avgdl or 1)))
         return s
+
+
+# ---------- 与种子文献的相似度（TF-IDF 余弦） ----------
+
+STOPWORDS = frozenset("""
+a about above after again against all also am an and any are as at be because been before being below between
+both but by can could did do does doing down during each few for from further had has have having he her here
+hers herself him himself his how i if in into is it its itself just me more most my myself no nor not now of
+off on once only or other our ours ourselves out over own same she should so some such than that the their
+theirs them themselves then there these they this those through to too under until up very was we were what
+when where which while who whom why will with would you your yours yourself yourselves via within without
+however thus whether among across upon may might must shall us one two three new using use used based
+study studies paper research results result findings show shows shown find found suggest suggests provide
+provides propose proposes approach approaches analysis analyze examine examines investigate investigates
+""".split())
+
+
+def content_terms(doc):
+    """用于相似度的词干：去掉停用词、单字符词和纯数字。"""
+    return [s for w, s in zip(doc.raw, doc.stems) if w not in STOPWORDS and len(w) > 1 and not w.isdigit()]
+
+
+def tfidf_vectors(term_lists):
+    """每篇一个 L2 归一化的 TF-IDF 向量（dict）。tf = 1 + log(次数)，idf = log((N+1)/(df+1)) + 1。"""
+    n = len(term_lists)
+    df = {}
+    for terms in term_lists:
+        for t in set(terms):
+            df[t] = df.get(t, 0) + 1
+    vecs = []
+    for terms in term_lists:
+        counts = {}
+        for t in terms:
+            counts[t] = counts.get(t, 0) + 1
+        v = {t: (1 + math.log(c)) * (math.log((n + 1) / (df[t] + 1)) + 1) for t, c in counts.items()}
+        norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
+        vecs.append({t: x / norm for t, x in v.items()})
+    return vecs
+
+
+def centroid(vecs):
+    """若干个向量的平均（再归一化）。"""
+    c = {}
+    for v in vecs:
+        for t, x in v.items():
+            c[t] = c.get(t, 0.0) + x / len(vecs)
+    norm = math.sqrt(sum(x * x for x in c.values())) or 1.0
+    return {t: x / norm for t, x in c.items()}
+
+
+def cosine(u, v):
+    if len(u) > len(v):
+        u, v = v, u
+    return sum(x * v.get(t, 0.0) for t, x in u.items())
 
 
 # ---------- 版本识别 ----------
