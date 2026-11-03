@@ -4140,3 +4140,94 @@ v1、v2、v1b、v2b 中最大的合并组都是 2 个标识符分组（上限 6 
 - 待决策新增一项（附建议）：仓库是否改名为 `novelty-probe`。建议改，由研究者在 Settings 中操作，不影响其他任务。
 
 **产出文件**：`docs/ROADMAP.md`（修改）
+
+---
+
+## [2026-11-03 15:44 UTC] Step 89 — 录制测试件：补摘要（v1 Q3、Q4 回放检索后的 13 篇候选；供 novelty-probe run 的回放测试）
+
+**命令**
+
+```bash
+python3 -m novelty_probe enrich --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec5 --http-mode record --cassette tests/fixtures/cassettes/enrich_q3q4.json --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec5/cache-record
+# argv: ["python3", "-m", "novelty_probe", "enrich", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec5", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/enrich_q3q4.json", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec5/cache-record"]
+```
+
+**输出**（退出码 0）
+
+```
+  1 M003  needs=abstract,arxiv_id      versions=0 found=- 
+  2 M001  needs=arxiv_id               versions=0 found=- 
+  3 M002  needs=arxiv_id               versions=0 found=- 
+  4 M005  needs=arxiv_id               versions=0 found=- 
+  5 M006  needs=arxiv_id               versions=0 found=- 
+  6 M004  needs=abstract,arxiv_id      versions=0 found=- 
+  7 M008  needs=arxiv_id,doi           versions=1 found=- 
+  8 M011  needs=arxiv_id               versions=0 found=- 
+  9 M007  needs=arxiv_id               versions=0 found=- 
+ 10 M013  needs=arxiv_id               versions=0 found=- 
+ 11 M010  needs=arxiv_id               versions=0 found=- 
+ 12 M012  needs=arxiv_id               versions=0 found=- 
+ 13 M009  needs=arxiv_id               versions=0 found=- 
+
+missing abstracts: 2 → added from another version: 0; arXiv IDs added: 0; DOIs suggested (verify before use): 0
+written: evidence/enrichment.json
+```
+
+---
+
+## [2026-11-03 15:58 UTC] Step 90 — 工具层迭代阶段 5：可安装的 novelty-probe 命令、新建项目、一条命令跑完脚本步骤、v2.0.0
+
+**研究者的要求**：见 Step 88。v2.0.0 面向实际研究使用；加一条命令跑完全部脚本步骤；不发布到 PyPI。
+
+**做了什么**（对应 `docs/ROADMAP.md` 第 4 节 5.1–5.8）：
+
+- **5.1 包与统一命令**：
+  - `pyproject.toml`（无依赖；版本取自 `novelty_probe.__version__`；命令 `novelty-probe`）；`novelty_probe/cli.py` 分发命令；`python -m novelty_probe` 与安装后的命令等价。
+  - 任一命令加 `--log "<步骤名>"` 即写运行日志；`--log`、`run`、`logrun` 写的条目自动接着编 Step 号。日志里的命令记成 `novelty-probe …`，不写本机的解释器路径。
+  - 安装后的包找不到项目目录时报错，不再落到安装位置；HTTP 缓存默认放在项目目录的 `.cache/http`。
+- **5.2 脚本变薄壳**：13 个命令移入 `novelty_probe/commands/`（`git mv`），导入改为包内的绝对导入；`scripts/*.py` 改为 10 行左右的转发入口，旧命令照常可用。写进输出文件的 `meta.script` 等取值不变。
+- **5.3 新建项目**：`novelty-probe init <目录>` 写入 PROJECT.md、AGENTS.md、HOWTO.md、想法模板、最小配置、运行日志（Step 0）与 `.gitignore`。
+  - 已有文件一律不覆盖；`--update-docs` 只刷新三份文档并记日志。
+  - 默认拒绝建在源码仓库里，研究想法不进工具仓库。
+  - 模板在 `novelty_probe/templates/`，随包安装。
+- **5.4 一条命令**：`novelty-probe run` 依次运行 check → search → qa → merge → authors → enrich，每一步写日志。
+  - authors 只在候选缺作者时运行。
+  - 出错即停，并给出续跑命令（`--from`）；`--to`、`--suffix`、`--dry-run`。
+  - 回放测试用的补摘要录制件见 Step 89。
+- **5.5 Windows**：HOWTO 的命令改为 `novelty-probe …`，参数一律用双引号，环境变量附 PowerShell 写法。
+- **5.6 测试与 CI**：新增 `tests/test_cli.py`（11 项）；CI 的 15 个组合在离线测试之后 `pip install .`，在仓库之外新建项目并运行安装后的命令；Windows 上另用 PowerShell 运行同样的写法。
+- **5.7 文档**：
+  - `PROJECT.md`、`AGENTS.md`、`HOWTO.md` 改为通用版本，与模板相同（测试保证）。教程特有的标注标准改为指向证据表的修订记录。
+  - README、HANDOFF 改写；新增 `CHANGELOG.md`。
+- **5.8 发布准备**：版本号 2.0.0（包与 `CITATION.cff`，测试检查两者一致）；发布说明在 `CHANGELOG.md` 的 2.0.0 一节。
+
+**发现并修正的问题**：
+
+1. 安装后的包会把结果与 HTTP 缓存写进安装位置：找不到项目目录时退回"包所在的仓库"，安装后那是 site-packages。
+2. `--log` 与 `run` 原样记录子进程命令时，会把解释器的绝对路径（Windows 上常含用户名）写进日志。
+
+**命令与结果**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests            # Python 3.13.18：166 项通过（6 项联网检查跳过）
+<Python 3.9.25> -W error::ResourceWarning -m unittest discover -s tests   # Python 3.9.25：166 项通过（6 项跳过）
+<Python 3.9 虚拟环境> -m pip install --no-build-isolation --no-index .     # 离线安装；模板随包安装
+novelty-probe init "$RUNNER_TEMP/np-project" … novelty-probe run --dry-run --root …   # 本地模拟 CI 的安装后步骤：全部通过
+```
+
+重构前后的核对：
+- 以子进程运行 25 个命令（检查检索式、默认与 `--legacy` 合并、质量检查、导出、报告、比较、配置、回放检索、合并与作者、引文追踪、核验、证据表检查、logrun），分别经旧入口 `scripts/*.py` 与 `python -m novelty_probe`。
+- 移动前后的退出码、输出与 88 个产出文件全部相同；只有运行清单里含时间戳的文件的哈希不同，去掉这些哈希后也相同。
+- 版本号改为 2.0.0 之后再跑一次，差别只有检索报告与运行清单里的工具版本号。
+
+**未做的 / 待研究者处理**：
+
+- GitHub Release：PR 合并后由研究者在 GitHub 上发布（标签 `v2.0.0`，目标 `main`，说明取自 `CHANGELOG.md`），步骤见 HANDOFF 第 10 节。安装地址 `…/archive/refs/tags/v2.0.0.zip` 在标签建好后才可用。
+- 待决策（附建议，见 `docs/ROADMAP.md` 第 6 节）：仓库是否改名为 `novelty-probe`。
+- 更正：Step 88 标题里的时间写成 15:38 UTC，实际为 15:34 UTC（日志只追加，不改原条目）。
+
+**产出文件**：
+
+- 新增：`pyproject.toml`、`CHANGELOG.md`、`novelty_probe/cli.py`、`novelty_probe/__main__.py`、`novelty_probe/commands/`（`__init__.py`、`init.py`、`run.py` 与移入的 13 个命令）、`novelty_probe/templates/`、`scripts/init.py`、`scripts/run.py`、`tests/test_cli.py`、`tests/fixtures/cassettes/enrich_q3q4.json`（Step 89）
+- 修改：`scripts/*.py`（改为转发入口）、`novelty_probe/`（paths、runtime、config、report、evidence、defaults、verification、`__init__` 的说明与版本号）、`tests/`（test_offline、test_core）、`.github/workflows/tests.yml`、`.gitignore`、`novelty-probe.json`（注释里的命令）、`CITATION.cff`
+- 文档：`PROJECT.md`、`AGENTS.md`、`HOWTO.md`、`README.md`、`HANDOFF.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`
