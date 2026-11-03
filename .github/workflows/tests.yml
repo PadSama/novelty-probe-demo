@@ -1,0 +1,37 @@
+# 离线测试：Python 3.9–3.13 × Ubuntu / Windows / macOS。
+# 测试不联网（tests/netguard.py 拦截一切非本机连接）；联网的接口契约检查（tests/test_live_contract.py）
+# 只在本地设置 NP_LIVE=1 时运行，这里不跑。
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    name: py${{ matrix.python }} · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Offline tests
+        run: python -m unittest discover -s tests -v
+      - name: Query syntax check of the example queries (dry run, no network)
+        run: python scripts/search.py --dry-run --queries examples/tutorial/queries/queries.json
+      - name: Evidence checks on the example tables
+        run: |
+          python scripts/evidence.py check examples/tutorial/evidence/evidence_table.md --results examples/tutorial/results/merged/merged.json --enrichment
+          python scripts/evidence.py check examples/tutorial/evidence/evidence_table_v2.md --results examples/tutorial/results/merged/merged_v2.json --enrichment

@@ -18,6 +18,7 @@ import importlib.util
 import io
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -31,11 +32,23 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
+EXAMPLE = ROOT / "examples" / "tutorial"   # 教程示例的产出副本：测试件从这里读，不依赖项目目录里的实时数据
 sys.dont_write_bytecode = True     # 不在 scripts/ 下生成 __pycache__
+sys.path.insert(0, str(Path(__file__).resolve().parent))   # tests/netguard.py
 sys.path.insert(0, str(SCRIPTS))   # authors.py 里有 `from search import get_json`
+sys.path.insert(0, str(ROOT))      # novelty_probe 包
+import netguard  # noqa: E402  离线测试不许联网（NP_LIVE=1 时不装）；同时去掉代理变量，模拟服务器在本机直连
+netguard.install()
 for _var in ("NO_PROXY", "no_proxy"):  # 模拟服务器在本机，不走代理
     os.environ[_var] = "127.0.0.1,localhost"
+_HTTP_CACHE = tempfile.mkdtemp(prefix="np-http-cache-")   # 测试中的 HTTP 缓存写到临时目录，不碰仓库的 .cache/
+os.environ["NP_HTTP_CACHE"] = _HTTP_CACHE
+for _var in ("NP_HTTP_MODE", "NP_HTTP_CASSETTE", "NP_LANG", "NOVELTY_PROBE_ROOT", "NOVELTY_PROBE_CONFIG"):
+    os.environ.pop(_var, None)   # 测试不受开发者本机环境变量影响：默认中文界面、仓库根目录、内置默认配置
 CHILD_ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
+if not netguard.live():   # 子进程也装上护栏（tests/childguard/sitecustomize.py）
+    CHILD_ENV["PYTHONPATH"] = os.pathsep.join(filter(None, [str(Path(__file__).resolve().parent / "childguard"),
+                                                            os.environ.get("PYTHONPATH")]))
 
 
 def load(name):
@@ -85,9 +98,9 @@ def dead_port():
     return port
 
 
-def run_script(*args):
+def run_script(*args, cwd=None, env=None):
     return subprocess.run([sys.executable, *map(str, args)], capture_output=True, text=True,
-                          encoding="utf-8", env=CHILD_ENV)
+                          encoding="utf-8", env={**CHILD_ENV, **(env or {})}, cwd=cwd)
 
 
 # ---------- 检索式 ----------
@@ -112,12 +125,23 @@ class TestQueries(unittest.TestCase):
         with self.assertRaises(ValueError):
             search.to_openalex('"a, b" AND c')      # 逗号会破坏 OpenAlex 的 filter
 
-    def test_repository_query_files_are_valid(self):
+    def test_example_query_files_are_valid(self):
         for name in ("queries.json", "queries_v2.json"):
             with self.subTest(file=name):
-                queries = search.load_queries(ROOT / "queries" / name)
+                queries = search.load_queries(EXAMPLE / "queries" / name)
                 self.assertEqual([q["id"] for q in queries], [f"Q{i}" for i in range(1, 7)])
                 for q in queries:
+                    search.to_openalex(q["query"])
+                    search.to_s2_bulk(q["query"])
+
+    def test_project_query_files_are_valid(self):
+        """项目目录里的检索式文件（如果有）也要能通过校验与转换；研究者清空示例后这里没有文件，跳过。"""
+        files = sorted((ROOT / "queries").glob("queries*.json"))
+        if not files:
+            self.skipTest("queries/ 中没有检索式文件")
+        for path in files:
+            with self.subTest(file=path.name):
+                for q in search.load_queries(path):
                     search.to_openalex(q["query"])
                     search.to_s2_bulk(q["query"])
 
@@ -131,12 +155,17 @@ class TestQueries(unittest.TestCase):
                 search.load_queries(p)
             for part in ("'q1'", "缺少 query", "'concurent'", "id Q2 重复"):
                 self.assertIn(part, str(cm.exception))
-            p.write_text("```json\n[]\n```", encoding="utf-8")   # 助手把 JSON 包进了代码块
+            good = [{"id": "Q1", "query": "a AND b", "purpose": "method"}]
+            p.write_text("```json\n" + json.dumps(good) + "\n```", encoding="utf-8")   # 助手把 JSON 包进了代码块：容忍
+            self.assertEqual(search.load_queries(p), good)
+            p.write_bytes(b"\xef\xbb\xbf" + json.dumps(good).encode())                   # Windows 记事本的 BOM：容忍
+            self.assertEqual(search.load_queries(p), good)
+            p.write_text("[{", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "不是合法的 JSON"):
                 search.load_queries(p)
 
     def test_dry_run_cli(self):
-        r = run_script(SCRIPTS / "search.py", "--dry-run")
+        r = run_script(SCRIPTS / "search.py", "--queries", EXAMPLE / "queries" / "queries.json", "--dry-run")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn("6/6 queries valid", r.stdout)
 
@@ -147,7 +176,7 @@ class TestQueries(unittest.TestCase):
             r = run_script(SCRIPTS / "search.py", "--queries", p, "--dry-run")
             self.assertEqual(r.returncode, 1)
             self.assertIn("INVALID", r.stdout)
-        r = run_script(SCRIPTS / "search.py", "--ids", "Q9", "--dry-run")
+        r = run_script(SCRIPTS / "search.py", "--queries", EXAMPLE / "queries" / "queries.json", "--ids", "Q9", "--dry-run")
         self.assertEqual(r.returncode, 2)
         self.assertIn("Q9", r.stderr)
 
@@ -202,7 +231,8 @@ class TestGetJson(unittest.TestCase):
                 search.get_json(self.server.url + "/forbidden")   # 其他错误：不重试
             self.assertEqual(slept, [])
             self.assertEqual(search.get_json(self.server.url + "/flaky"), {"ok": True})
-        self.assertEqual(slept, [2, 4])
+        self.assertEqual(len(slept), 2)                                        # 两次 429 后成功
+        self.assertTrue(1 <= slept[0] <= 2 and 2 <= slept[1] <= 4, slept)      # 退避 2、4 秒，带等抖动
 
 
 class TestSearchMain(unittest.TestCase):
@@ -219,7 +249,8 @@ class TestSearchMain(unittest.TestCase):
             raw = Path(d) / "raw"
             with mock.patch.object(search, "ROOT", Path(d)), mock.patch.object(search, "RAW_DIR", raw), \
                     mock.patch.object(search, "get_json", fake_get_json), mock.patch("time.sleep"), \
-                    mock.patch.object(sys, "argv", ["search.py", "--suffix", "_t"]), \
+                    mock.patch.object(sys, "argv", ["search.py", "--queries", str(EXAMPLE / "queries" / "queries.json"),
+                                                    "--suffix", "_t"]), \
                     contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(search.main(), 0)
             self.assertEqual(len(list(raw.glob("*_t.json"))), 12)
@@ -292,20 +323,21 @@ class TestMerge(unittest.TestCase):
                 self.assertEqual([p.name for p in merge.raw_files("")], ["openalex_Q1.json", "semanticscholar_Q12.json"])
                 self.assertEqual([p.name for p in merge.raw_files("_v2")], ["openalex_Q1_v2.json"])
 
-    def test_reproduces_committed_merge_outputs(self):
-        """用仓库里已提交的 results/raw 按旧方法（--legacy）重跑合并，须与已提交的 merged*.json、candidates*.csv 一致。"""
+    def test_reproduces_example_merge_outputs(self):
+        """用示例的 results/raw 按旧方法（--legacy）重跑合并，须与示例的 merged*.json、candidates*.csv 一致。"""
         for suffix in ("", "_v2"):
             with self.subTest(round=suffix or "v1"), tempfile.TemporaryDirectory() as d:
-                with mock.patch.object(merge, "OUT_DIR", Path(d)), \
+                with mock.patch.object(merge, "RAW_DIR", EXAMPLE / "results" / "raw"), \
+                        mock.patch.object(merge, "OUT_DIR", Path(d)), \
                         mock.patch.object(sys, "argv", ["merge.py", "--suffix", suffix, "--legacy"]), \
                         contextlib.redirect_stdout(io.StringIO()):
                     merge.main()
                 new = json.loads((Path(d) / f"merged{suffix}.json").read_text(encoding="utf-8"))
-                old = json.loads((ROOT / "results" / "merged" / f"merged{suffix}.json").read_text(encoding="utf-8"))
+                old = json.loads((EXAMPLE / "results" / "merged" / f"merged{suffix}.json").read_text(encoding="utf-8"))
                 self.assertEqual(new["records"], old["records"])
                 self.assertEqual(new["meta"]["counts"], old["meta"]["counts"])
                 self.assertEqual((Path(d) / f"candidates{suffix}.csv").read_bytes(),
-                                 (ROOT / "results" / "merged" / f"candidates{suffix}.csv").read_bytes())
+                                 (EXAMPLE / "results" / "merged" / f"candidates{suffix}.csv").read_bytes())
 
 
 # ---------- 作者 ----------
@@ -351,6 +383,10 @@ class TestVerify(unittest.TestCase):
 
         def handle(h):
             path, wants_csl = h.path, csl_type in (h.headers.get("Accept") or "")
+            if path.startswith("/agency/"):                       # Crossref 的 /works/<doi>/agency
+                if path.endswith("/datacite/agency"):
+                    return reply(h, 200, json.dumps({"message": {"DOI": "x", "agency": {"id": "datacite"}}}), "application/json")
+                return reply(h, 404, "Resource not found.", "text/plain")
             if path.startswith("/10.0000/"):
                 key = path.rsplit("/", 1)[1]
                 if key == "missing":
@@ -383,7 +419,8 @@ class TestVerify(unittest.TestCase):
         self.server = MockServer(handle)
         self.patches = [mock.patch.object(verify, "DOI_RESOLVER", self.server.url + "/"),
                         mock.patch.object(verify, "OPENALEX_WORKS", self.server.url + "/works/doi:"),
-                        mock.patch.object(verify, "PAUSE", 0), mock.patch("time.sleep"),
+                        mock.patch.object(verify, "CROSSREF_AGENCY", self.server.url + "/agency/"),
+                        mock.patch("time.sleep"),
                         mock.patch.dict(os.environ, {"http_proxy": "", "HTTP_PROXY": ""})]
         for p in self.patches:
             p.start()
@@ -430,25 +467,55 @@ class TestVerify(unittest.TestCase):
     def test_openalex_fallback_and_no_landing(self):
         rc, cells = self.run_table("| rank | 题目 | DOI/arXiv | verified |",
                                    ["| 1 | DataCite Paper | doi:10.0000/datacite · arXiv:0000.00007 | 待核验 |"], "--no-landing")
-        self.assertTrue(cells["1"].startswith("Crossref ERROR at http://127.0.0.1:"), cells["1"])
-        self.assertTrue(cells["1"].endswith("；OpenAlex · 题目一致 · DataCite Paper；落地页 skipped"), cells["1"])
-        self.assertEqual(rc, 0)                                                     # OpenAlex 核验通过
+        self.assertEqual(cells["1"], "Crossref 无记录（Datacite 登记的 DOI）；OpenAlex · 题目一致 · DataCite Paper；落地页 skipped")
+        self.assertEqual(rc, 0)                                                     # 登记机构预检后直接走 OpenAlex，核验通过
+        self.assertFalse(any("/csl/datacite" in p for p in getattr(self, "csl_paths", [])))
 
-    def test_https_to_http_redirect_is_upgraded(self):
-        rec = verify.RecordingRedirects()
-        req = verify.urllib.request.Request("https://doi.org/10.1108/x")
-        new = rec.redirect_request(req, None, 302, "Found", {}, "http://www.emerald.com/a")
-        self.assertEqual(new.full_url, "https://www.emerald.com/a")
-        self.assertEqual(verify.hops({"chain": rec.chain, "upgraded": rec.upgraded}), "302 www.emerald.com (http→https)")
-        local = verify.urllib.request.Request("http://127.0.0.1:1/10.0000/ok")   # 原本就是 http 的不改
-        self.assertEqual(rec.redirect_request(local, None, 302, "Found", {}, "http://127.0.0.1:1/p").full_url,
-                         "http://127.0.0.1:1/p")
+    def test_hops_marks_upgraded_redirects(self):
+        self.assertEqual(verify.hops({"chain": [(302, "https://www.emerald.com/a")], "upgraded": ["https://www.emerald.com/a"]}),
+                         "302 www.emerald.com (http→https)")
+        self.assertEqual(verify.hops({"chain": [(302, "https://api.crossref.org/x")], "upgraded": []}), "302 api.crossref.org")
 
     def test_english_title_header(self):
         rc, cells = self.run_table("| rank | Authors | Year | Title | DOI/arXiv | verified |",
                                    ["| 1 | A | 2025 | An English Test Paper | doi:10.0000/en | pending |"])
         self.assertTrue(cells["1"].startswith("Crossref HTTP 200 · 题目一致 · An English Test Paper"))
         self.assertEqual(rc, 0)
+
+    def test_english_interface(self):
+        """--lang en：verified 列用英文写出；结构化结果相同，只是展示文字不同。"""
+        from novelty_probe import i18n
+        try:
+            rc, cells = self.run_table("| rank | Title | DOI/arXiv | verified |", [
+                "| 1 | Test Paper One | doi:10.0000/ok | pending |",
+                "| 2 | DataCite Paper | doi:10.0000/datacite | pending |",
+                "| 3 | Missing | doi:10.0000/missing | pending |",
+                "| 4 | Only arXiv | arXiv:0000.00006 | pending |"], "--lang", "en")
+        finally:
+            i18n.set_language("zh")
+        self.assertEqual(cells["1"], "Crossref HTTP 200 · title matches · Test Paper One; "
+                                     "Landing page HTTP 200 (127.0.0.1) · Test Paper One \\| Journal X")
+        self.assertEqual(cells["2"], "Crossref has no record (Datacite-registered DOI); OpenAlex · title matches · "
+                                     "DataCite Paper; Landing page HTTP 200 (127.0.0.1) · Test Paper One \\| Journal X")
+        self.assertEqual(cells["3"], "Crossref HTTP 404 (127.0.0.1); OpenAlex HTTP 404 (DOI not indexed); "
+                                     "Landing page HTTP 404 (127.0.0.1) · Not found")
+        self.assertEqual(cells["4"], "UNVERIFIED")
+        self.assertEqual(rc, 1)
+
+    def test_structured_result_renders_in_both_languages(self):
+        from novelty_probe import i18n
+        v = {"doi": "10.1/x", "crossref": {"outcome": "failed", "failure": {"kind": "blocked", "host": "data.crosscite.org"}},
+             "openalex": {"outcome": "found", "title": "T", "title_match": False},
+             "landing": {"outcome": "failed", "failure": {"kind": "error", "host": "http://x.org", "error": "timed out " * 20}}}
+        zh = verify.render_verified(v)
+        self.assertEqual(zh, "Crossref BLOCKED at data.crosscite.org (network policy, proxy 403)；OpenAlex · 题目不一致 · T；"
+                             "落地页 ERROR at http://x.org: " + ("timed out " * 20)[:80])
+        try:
+            i18n.set_language("en")
+            self.assertEqual(verify.render_verified(v), zh.replace("；", "; ").replace("题目不一致", "title differs")
+                             .replace("落地页", "Landing page"))
+        finally:
+            i18n.set_language("zh")
 
 
 # ---------- logrun ----------
@@ -458,34 +525,66 @@ class TestLogrun(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "scripts").mkdir()
             (Path(d) / "logs").mkdir()
+            (Path(d) / "PROJECT.md").write_text("marker\n", encoding="utf-8")
             logrun = Path(d) / "scripts" / "logrun.py"
             shutil.copy(SCRIPTS / "logrun.py", logrun)   # 在临时副本里运行，不写仓库的 RUN_LOG
-            r = run_script(logrun, "T9 test", "--", sys.executable, "-c", "import sys; print('hello 你好'); sys.exit(3)")
+            code = "import os, sys; print('hello 你好', os.environ['NOVELTY_PROBE_ROOT']); sys.exit(3)"
+            r = run_script(logrun, "T9 test", "--", sys.executable, "-c", code, cwd=d)
             self.assertEqual(r.returncode, 3)
             self.assertIn("hello 你好", r.stdout)
+            self.assertIn(str(Path(d).resolve()), r.stdout)           # 子进程拿到同一个项目根目录
             log = (Path(d) / "logs" / "RUN_LOG.md").read_text(encoding="utf-8")
             for part in ("] T9 test", "退出码 3", "hello 你好"):
                 self.assertIn(part, log)
-            self.assertEqual(run_script(logrun, "no command", "--").returncode, 1)
+            self.assertEqual(run_script(logrun, "no command", "--", cwd=d).returncode, 1)
+
+    def test_root_option_and_english_log(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as other:
+            logrun = Path(d) / "logrun.py"
+            shutil.copy(SCRIPTS / "logrun.py", logrun)
+            r = run_script(logrun, "--root", other, "T9 en", "--", sys.executable, "-c", "print('ok')",
+                           cwd=d, env={"NP_LANG": "en"})
+            self.assertEqual(r.returncode, 0)
+            log = (Path(other) / "logs" / "RUN_LOG.md").read_text(encoding="utf-8")
+            self.assertIn("**Output** (exit code 0)", log)
+            self.assertFalse((Path(d) / "logs").exists())
 
 
 # ---------- 仓库数据文件 ----------
 
 class TestRepositoryData(unittest.TestCase):
-    FACETS = ["研究问题", "作用机制", "研究情境", "数据与方法", "预期发现"]
+    @staticmethod
+    def check_table(path, n_rows=None):
+        from novelty_probe.defaults import LABELS, facet_columns, find_column
+        lines = path.read_text(encoding="utf-8").splitlines()
+        h = next(i for i, l in enumerate(lines) if l.startswith("| rank |"))
+        cols = verify.split_row(lines[h])
+        rows = [verify.split_row(l) for l in lines[h + 2:] if l.startswith("| ") and verify.split_row(l)[0].isdigit()]
+        facets = facet_columns(cols)                       # 接受中文或英文的面标签
+        i_ver = find_column(cols, "verified")
+        if find_column(cols, "id") is None or i_ver is None or len(facets) != 5:
+            raise AssertionError(f"{path.name}: 列不完整 {cols}")
+        if n_rows is not None and len(rows) != n_rows:
+            raise AssertionError(f"{path.name}: {len(rows)} 行，预期 {n_rows}")
+        for r in rows:
+            if not all(r[i] in LABELS for i in facets.values()):
+                raise AssertionError(f"{path.name}: 面的取值不合法 {r}")
+            if not re.match(r"^(Crossref |UNVERIFIED)", r[i_ver]):
+                raise AssertionError(f"{path.name}: verified 列格式 {r[i_ver][:40]}")
 
-    def test_evidence_tables(self):
+    def test_example_evidence_tables(self):
         for name in ("evidence_table.md", "evidence_table_v2.md"):
             with self.subTest(file=name):
-                lines = (ROOT / "evidence" / name).read_text(encoding="utf-8").splitlines()
-                h = next(i for i, l in enumerate(lines) if l.startswith("| rank |"))
-                cols = verify.split_row(lines[h])
-                rows = [verify.split_row(l) for l in lines[h + 2:] if l.startswith("| ") and verify.split_row(l)[0].isdigit()]
-                self.assertTrue({"DOI/arXiv", "verified", *self.FACETS} <= set(cols))
-                self.assertEqual(len(rows), 10)
-                for r in rows:
-                    self.assertTrue(all(r[cols.index(f)] in {"overlap", "differ", "unknown"} for f in self.FACETS))
-                    self.assertRegex(r[cols.index("verified")], r"^(Crossref |UNVERIFIED)")
+                self.check_table(EXAMPLE / "evidence" / name, n_rows=10)
+
+    def test_project_evidence_tables(self):
+        """项目目录里的证据表（如果有）格式也要合法；清空示例后没有文件，跳过。"""
+        files = sorted((ROOT / "evidence").glob("evidence_table*.md"))
+        if not files:
+            self.skipTest("evidence/ 中没有证据表")
+        for path in files:
+            with self.subTest(file=path.name):
+                self.check_table(path)
 
     def test_citation_and_license(self):
         cff = (ROOT / "CITATION.cff").read_text(encoding="utf-8")

@@ -22,10 +22,10 @@
 |---|---|
 | 仓库 | https://github.com/PadSama/novelty-probe-demo （公开，MIT 许可证） |
 | 发布 | v1.0.0（标签打在 3f00b7a） |
-| v1.0.0 之后的改动 | CITATION.cff 加入 ORCID、标题大小写修正；交接文档 `AGENTS.md`、`HANDOFF.md`、`tests/`（Step 23）；针对第 9 节遗留问题的改进（Step 24–64，见 `docs/IMPROVEMENT_PLAN.md`）：NOT、S2 本地重排、版本识别与 RRF 排序、补摘要、引文追踪、核验回退、质量检查与结果比较脚本 |
+| v1.0.0 之后的改动 | CITATION.cff 加入 ORCID、标题大小写修正；交接文档 `AGENTS.md`、`HANDOFF.md`、`tests/`（Step 23）；针对第 9 节遗留问题的改进（Step 24–64，见 `docs/IMPROVEMENT_PLAN.md`）：NOT、S2 本地重排、版本识别与 RRF 排序、补摘要、引文追踪、核验回退、质量检查与结果比较脚本；工具层迭代（Step 66–72，见 `docs/ARCHITECTURE_REVIEW.md`）：共用包 `novelty_probe/`（HTTP 客户端、缓存与录制回放、配置 `novelty-probe.json`、中英文界面、证据 JSON 与检查）、离线测试的网络护栏、联网接口检查、GitHub Actions |
 | 默认分支 | `main`，受规则集保护：禁止删除、禁止强推、必须通过 PR 合并（审批人数 0） |
 | 引用信息 | `CITATION.cff`：作者 Yuan, Quan；ORCID 0009-0009-3011-3739；version 1.0.0 |
-| 示例运行 | v1（未限定学科）与 v2（管理学与经济学）两轮的全部产出都在仓库里（用旧方法生成，`merge.py --legacy` 可逐字节复现）；v1b、v2b 是用改进后的流程重跑的评估轮（检索、合并、补摘要、引文追踪与比较，没有证据表）；全过程见 `logs/RUN_LOG.md` Step 0–64 |
+| 示例运行 | v1（未限定学科）与 v2（管理学与经济学）两轮的全部产出都在仓库里（用旧方法生成，`merge.py --legacy` 可逐字节复现）；v1b、v2b 是用改进后的流程重跑的评估轮（检索、合并、补摘要、引文追踪与比较，没有证据表）；全过程见 `logs/RUN_LOG.md` Step 0–65 |
 
 ## 3. 本地环境准备
 
@@ -58,7 +58,7 @@ Windows 上用 `python` 或 `py -3`，并建议设置环境变量 `PYTHONUTF8=1`
 | 变量 | 是否必需 | 说明 |
 |---|---|---|
 | `OPENALEX_API_KEY` | 实际上必需 | 免费申请：https://help.openalex.org/api/authentication/ 。没有 key 时共用每日额度，很容易遇到 429 |
-| `S2_API_KEY` | 可选 | https://www.semanticscholar.org/product/api#api-key-form |
+| `S2_API_KEY` | 可选 | https://www.semanticscholar.org/product/api#api-key-form 。有 key 时的限额是**每秒 1 个请求，所有接口合计**；`search.py` 对发往 S2 的每个请求（含翻页与重试）统一节流（间隔 ≥ `S2_MIN_INTERVAL` = 1.1 秒），不要同时运行两个访问 S2 的脚本。云环境中研究者已在网络设置里为 api.semanticscholar.org 配置 key（2026-11-02，由代理注入） |
 
 macOS / Linux（只对当前终端有效；写进 `~/.zshrc` 或 `~/.bashrc` 可长期有效）：
 
@@ -90,7 +90,9 @@ setx OPENALEX_API_KEY "你的 key"
 python3 -m unittest discover -s tests -v
 ```
 
-应显示 `Ran 45 tests … OK`，用时几秒，不联网，也不改动仓库文件。其中一项会用仓库里已提交的原始结果按旧方法（`merge.py --legacy`）重跑合并，再和已提交的 v1、v2 合并结果逐字节比较；另一项复现日志中记录的质量检查数字。全部通过，说明本机的 Python 和脚本逻辑与原环境一致。
+应显示 `OK (skipped=6)`，用时十秒左右，不联网，也不改动仓库文件（6 项跳过的是联网接口检查，见 3.6）。测试件读 `examples/tutorial/` 下的教程产出副本，其中一项按旧方法（`merge.py --legacy`）重跑合并，再和已提交的 v1、v2 合并结果逐字节比较；回放测试用 `tests/fixtures/cassettes/` 里录制的真实响应跑完 search / verify / snowball 的主流程。全部通过，说明本机的 Python 和脚本逻辑与原环境一致。
+
+测试里装有网络护栏（`tests/netguard.py`）：除本机回环地址外，任何 DNS 查询或连接都会直接报错，子进程同样如此。GitHub Actions（`.github/workflows/tests.yml`）在 Python 3.9–3.13 × Ubuntu / Windows / macOS 上跑同一套离线测试。
 
 ### 3.6 联网冒烟测试（可选，只发 2 个检索请求，不覆盖示例产出）
 
@@ -113,6 +115,12 @@ rm -f results/raw/*_smoke.json results/merged/*_smoke.*
 ```
 
 冒烟测试只是检查环境，不属于研究步骤，可以不写进 RUN_LOG。
+
+**联网接口检查**（6 个请求，约 10 秒）：确认 OpenAlex、Semantic Scholar、Crossref 的接口行为仍与脚本的假设一致（OpenAlex 的布尔解析与响应形状、不支持通配符；S2 bulk 与 batch；Crossref works 与 agency）。建议每轮 T3 之前跑一次：
+
+```bash
+NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
+```
 
 ## 4. 在 ZCode 里使用 GLM 5.3
 
@@ -156,7 +164,8 @@ results/merged/merged{后缀}.json + candidates{后缀}.csv（前 20 篇）
   │  T5 scripts/authors.py ──► OpenAlex /works/doi:
   │  T5 scripts/enrich.py ──► OpenAlex title.search（同一研究的其他版本）
   ▼
-evidence/authors.json + enrichment.json ──► AI 助手标注 ──► evidence/evidence_table.md
+evidence/authors.json + enrichment.json ──► AI 助手标注 ──► evidence/evidence_table.md（可选导入为 .json）
+  │  T5 scripts/evidence.py check：取值、标识符来自检索结果、题目 / 年份 / 作者、引文是摘要原文
   │  T5 scripts/verify.py ──► doi.org → Crossref 元数据（失败时 OpenAlex）；doi.org → 出版商落地页
   ▼
 verified 列写回证据表
@@ -184,7 +193,10 @@ evidence/difference_statement.md
 | `evidence/evidence_table*.md` | 逐面标注与 DOI 核验 | AI 助手 + `verify.py` | 研究者、T6 |
 | `evidence/difference_statement.md` | 差异陈述 | AI 助手（第 1 节）+ 研究者（第 2、3 节） | 研究者 |
 | `logs/RUN_LOG.md` | 只追加的运行日志 | `logrun.py` + AI 助手 | 所有人 |
-| `tests/test_offline.py`、`tests/test_pipeline.py` | 离线自检（`tests/fixtures/` 为词干还原对照表） | — | 改代码后运行 |
+| `novelty-probe.json` | 项目配置（只写与默认值不同的设置） | 研究者（`scripts/config.py init` 生成最小文件） | 所有脚本 |
+| `evidence/evidence_table*.json` | 证据表的 JSON 形式（可选；以它为数据源时 Markdown 由它生成） | `evidence.py import-md`、`verify.py --table *.json` | `evidence.py`、`verify.py`、`snowball.py` |
+| `novelty_probe/` | 共用包：`http.py`（客户端）、`cache.py`、`schemas.py`（响应形状校验）、`config.py`、`i18n.py`、`runtime.py`（通用参数）、`evidence.py`、`verification.py`、`defaults.py`、`io.py`、`paths.py` | — | 所有脚本 |
+| `tests/` | 离线自检：`test_offline`、`test_pipeline`、`test_core`、`test_http`、`test_replay`、`test_config`、`test_evidence`；`test_live_contract`（NP_LIVE=1 才运行）；`tests/fixtures/` 为词干还原对照表与录制件 | — | 改代码后运行 |
 
 ## 6. 数据格式约定
 
@@ -251,6 +263,15 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 - CSV：每条路径各取前 `--top` 条（默认 20），`in_search` 列为已在检索结果中的 merged_id。
 - 文件名以 `chase_` 开头，`merge.py` 不读取，不进入检索结果的排序。
 
+### 6.0 `novelty-probe.json`（项目配置）
+
+- 只写与内置默认值不同的设置；`python3 scripts/config.py show` 打印有效配置，`show --diff` 只打印改动，`check` 检查写法。
+- 合并规则：对象逐层合并；列表整体替换；`<键>_extend` 在默认列表后追加；以 `_` 开头的键是注释；未知的键给出警告。
+- 默认值的唯一定义处是 `novelty_probe/defaults.py` 与 `novelty_probe/config.py` 的 `DEFAULTS`。
+- 配置里放参数与词表（面、标注取值、列名别名、purpose 与起始年份、截断词表、各来源的条数、RRF / BM25 参数、版本识别的前缀与年份窗口、停用词、引文追踪与比较的默认值、按主机的 HTTP 策略），不放方法本身（词干还原、BM25 与 RRF 的公式、版本识别规则的顺序、检索式 id 的 `Q<数字>` 格式、AND NOT 必须大写）。
+- `config_hash`：有效配置（去掉 `contact_email` 与 `language`）的 sha256 前 12 位，写进每个输出文件的 meta。
+- `contact_email` 默认为空。填写后加进 User-Agent（Crossref 的礼貌池）；不填时 User-Agent 只是通用的客户端名。
+
 ### 6.6 `evidence/evidence_table{suffix}.md`
 
 - 表头必须有 `DOI/arXiv`、`verified`；`rank` 和 `题目`（或 `Title`）用于题目比对。
@@ -262,12 +283,15 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
   - "落地页 skipped"：用了 `--no-landing`；
   - "UNVERIFIED"：没有 DOI。
 - "研究问题"面的 overlap 条件已按研究者的标准修订（去掉研究情境后问题相同：个人使用 AI，集体是否趋同），见两张表末尾的修订记录与 Step 25。
+- 判定依据每篇以 `**rank · merged_id**` 开头（`evidence.py` 据此把依据与表格行对应）。
+- `python3 scripts/evidence.py check <表>` 机器检查：取值、标识符来自检索结果、题目 / 年份 / 作者与检索结果一致、引号内英文为摘要（或检索记录题目）原文；本篇无摘要时，判定依据中注明 DOI 的其他版本（在检索结果中）的摘要也算。两张教程证据表全部通过（Step 70–71）。
+- JSON 形式（`evidence/evidence_table{suffix}.json`，schema `novelty-probe/evidence@1`）：`meta`（语言、面、取值、列、检索结果文件、对应的 Markdown、上次生成的 sha256）、`sections`（表外文字，原样保留）、`rows`（rank、merged_id、作者、年份、题目、doi、arxiv_id、各面取值、`verification` 结构化核验结果或 `verified_text`、判定依据）。从 Markdown 导入后再生成，与原文件逐字相同；换语言生成时只有表头与 verified 列（有结构化结果时）变化。教程的两张表仍以 Markdown 为准，没有提交 JSON。
 
 ### 6.7 `logs/RUN_LOG.md`
 
 - **只追加**：新条目一律写在末尾，不改写已有条目。
 - **条目格式**：以 `---` 分隔，标题写成 `## [YYYY-MM-DD HH:MM UTC] Step N — 标题`，正文包含研究者的要求、命令、输出、产出文件、备注。
-- **编号**：下一步是 **Step 65**。
+- **编号**：下一步是 **Step 73**。
 - **旧哈希**：Step 20 之前的条目里引用的是改写历史之前的提交哈希，按 Step 20 的对照表查新哈希。
 
 ## 7. 脚本速查
@@ -282,15 +306,23 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 | `verify.py` | T5 DOI 核验 | `--table`、`--no-landing` | doi.org、api.crossref.org、api.openalex.org、出版商网站 | 0 元数据核验（Crossref 或 OpenAlex）全部成功；1 有失败 |
 | `snowball.py` | T5b 引文追踪（一步 / 两步共被引） | `--from-evidence` 或 `--seeds`、`--cocite`、`--citer-filter`、`--min-support`、`--label`、`--suffix` | api.openalex.org | 0 |
 | `compare.py` | 比较几轮结果、已知文献名次 | `--runs`、`--known`、`--ignore-phrases`、`--out` | 无 | 0 |
-| `logrun.py` | 运行命令并写日志 | `"<步骤名>" -- <命令>` | 无 | 与被运行的命令相同；用法错误时为 1 |
+| `evidence.py` | 证据表：检查、Markdown 转 JSON、JSON 生成 Markdown | `check`、`import-md`、`render`；`--results`、`--authors`、`--enrichment`、`--out`、`--force` | 无 | check：0 没有问题，1 有问题；2 文件无法读取 |
+| `config.py` | 查看与检查配置 | `show`、`show --diff`、`check`、`init` | 无 | 0；配置有误时 2；`init` 遇到已有文件时 1 |
+| `logrun.py` | 运行命令并写日志 | `[--root 目录] "<步骤名>" -- <命令>` | 无 | 与被运行的命令相同；用法错误时为 1 |
 
-值得知道的常量：
+所有脚本都接受 `--root`（项目根目录；默认从当前目录向上找 `novelty-probe.json` 或 `PROJECT.md`，或环境变量 `NOVELTY_PROBE_ROOT`）、`--config`（或 `NOVELTY_PROBE_CONFIG`）、`--lang zh|en`（或 `NP_LANG`，或配置 `language`）。配置有误时以退出码 2 结束，并一次列出所有问题。`logrun.py` 用同样的规则确定项目根目录，并通过 `NOVELTY_PROBE_ROOT` 传给子进程。
 
-- `search.py`：`TOP_N = 25`，`CONCURRENT_FROM_YEAR = 2023`，`MAX_RETRY_WAIT = 60`，`S2_MAX_RECORDS = 3000`，截断词表 `TRUNCATION`；
-- `merge.py`：`TOP_K = 20`，`MIN_TITLE_WORDS = 5`，`RRF_K = 60`，预印本版本规则 `PREPRINT_VERSION_RE`；
-- `textmatch.py`：BM25 的 `k1 = 1.2`、`b = 0.75`；版本识别的 `YEAR_WINDOW = 3` 与预印本、数据集 DOI 前缀表；
-- `snowball.py`：`MAX_FORWARD = 2000`，`TOP = 20`，`KEEP = 200`；
-- `verify.py`：`TIMEOUT = 30`，`CROSSREF_RETRIES = 5`。
+所有联网脚本（search、authors、enrich、verify、snowball）共用 `novelty_probe/http.py` 的客户端，并接受同一组参数：`--http-mode live|cache|record|replay`（或环境变量 `NP_HTTP_MODE`）、`--cache-dir`（默认 `.cache/http`，已 gitignore）、`--cassette`（录制件路径）、`--refresh`。每个输出文件的 `meta.http` 记录请求数、缓存命中、重试、OpenAlex 额度头；`meta.warnings` 记录响应形状与解析核对的警告。S2 翻页与引文追踪的断点写在 `results/raw/.checkpoints/`，中断后重跑同一命令即续跑。
+
+参数的默认值（都可在 `novelty-probe.json` 中修改，见 6.0）：
+
+- 检索：`sources.openalex.top_n = 25`、`sources.semanticscholar.top_n = 25`、`sources.semanticscholar.max_records = 3000`、`queries.purposes.concurrent.year_from = 2023`、截断词表 `queries.truncation`；
+- 合并：`merge.top_k = 20`、`merge.rrf_k = 60`、`merge.bm25 = {k1: 1.2, b: 0.75}`；版本识别 `versions.year_window = 3`、`versions.min_title_words = 5` 与预印本、数据集 DOI 前缀表（`--legacy` 不读配置，固定为前 20 篇、标题至少 5 个词）；
+- 引文追踪：`snowball.min_overlap = 2`、`max_forward = 2000`、`top = 20`、`keep = 200`；相似度停用词 `textmatch.stopwords`；
+- 比较：`compare.marker_terms`（默认词组 `genai`）；补摘要：`enrich.top = 20`；核验：`verify.landing = true`；
+- HTTP：`novelty_probe/http.py` 的 `POLICIES`（按主机：最小间隔、最多尝试次数、退避基数与上限、Retry-After 上限 60 秒、熔断阈值、缓存 TTL、密钥环境变量名），可用 `http.policies` 按主机覆盖。
+
+不可配置的：`merge.py` 的预印本版本规则 `PREPRINT_VERSION_RE`、检索式 id 的 `Q<数字>` 格式（脚本之间的文件名约定）。
 
 ## 8. 已定的设计决策（原因见 RUN_LOG 对应步骤）
 
@@ -313,6 +345,14 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 | DOI 核验 = Crossref 元数据（经 doi.org 内容协商）+ 落地页 | 出版商网站常常拦截脚本；Crossref 能确认 DOI 指向的是哪篇论文 | Step 7–8 |
 | ~~证据表"研究问题"面要求研究对象是科研选题~~ → 去掉研究情境后问题相同即记 overlap（研究者的标准） | 研究者不同意原标准 | Step 7；Step 25 |
 | 提交信息不放会话链接；`main` 只通过 PR 修改 | 研究者要求 | Step 19–20 |
+| 不再为提高 v1、v2 的结果迭代；迭代对象是工具层的准确性、稳定性、适配性 | 研究者决定 | Step 66 |
+| 配置用 JSON（`novelty-probe.json`），只写与默认值不同的设置；放参数与词表，不放方法 | 3.9 没有 tomllib；方法变了结果就不可比 | Step 69 |
+| `config_hash` 不含 `contact_email` 与 `language` | 两者不影响检索与排序结果 | Step 69 |
+| 界面文案用消息表（`novelty_probe/i18n.py`），不用 gettext；数据文件只存结构化结果，展示时按语言生成 | 约百条消息，不值得 .po/.mo 的编译流程；同一份数据可以生成两种语言 | Step 69 |
+| 证据表以 JSON 为数据源，Markdown 由它生成；保留 Markdown 入口（`import-md`）；手工改过的 Markdown 不覆盖 | 研究者决定（决策点 1）；结构化核验结果与机器检查放不进 Markdown | Step 69 |
+| 单元测试全部禁网；联网接口检查只在 NP_LIVE=1 时运行（6 个请求） | 研究者决定（决策点 3） | Step 69、72 |
+| GitHub Actions：Python 3.9–3.13 × Ubuntu / Windows / macOS，只跑离线测试 | 研究者决定（决策点 4）；Windows 与 macOS 在云端测不了 | Step 69 |
+| User-Agent 默认是通用的客户端名，不带邮箱 | 助手不代填个人信息；研究者可以在配置里自己填 `contact_email` | Step 69 |
 
 ## 9. 已知问题与可改进处
 
@@ -326,7 +366,10 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 6. **落地页核验**：云端被网络策略拦截；本地出版商常对脚本返回 403（可用 `--no-landing` 只核验元数据）。
 7. **质量检查是近似**：`qa.py` 用 Porter 词干还原，两个 API 更像 KStem，比例略偏高。
 8. **OpenAlex 额度**：云端注入的 key 有每日 1 美元的上限，且可能与其他任务共用；带检索条件的请求每次 0.001 美元。
-9. **待研究者确认**：v2 证据表 rank 8 的"研究问题"面按研究者标准改为 overlap 是助手的推断（Step 25）；v1b、v2b 没有证据表，是否以它们替代 v1、v2 由研究者决定。
+8a. **S2 的 429**：云端的 S2 key 已确认生效（只有带有效 key 才能访问的数据集接口返回 200），但请求间隔 2 秒时仍有约一半返回 429（Step 65），像是这个 key 的额度同时被别处占用。`search.py` 会按 2、4、8… 秒退避重试，最终成功，只是更慢。
+9. **证据检查的边界**：`evidence.py check` 按词序比对引文（大小写、标点不计），能抓出改写和编造的引文，但不判断标注是否合理；中文引号内的转述不检查；作者只在找到 `authors*.json` 时比对。
+10. **Crossref 检索源**（决策点 2：实现但默认关闭）属于阶段 3，尚未实现。
+11. **待研究者确认**：v2 证据表 rank 8 的"研究问题"面按研究者标准改为 overlap 是助手的推断（Step 25）；v1b、v2b 没有证据表，是否以它们替代 v1、v2 由研究者决定。
 
 ## 10. Git 与发布
 
@@ -341,6 +384,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 - [ ] 克隆仓库；确认 Python 3.9+
 - [ ] 设置 `OPENALEX_API_KEY`（可选 `S2_API_KEY`）
 - [ ] `python3 -m unittest discover -s tests -v` 全部通过
+- [ ] `python3 scripts/config.py check` 显示检查通过
 - [ ] `python3 scripts/search.py --dry-run` 显示 `6/6 queries valid`
 - [ ] 冒烟测试通过，并删除 `_smoke` 文件
 - [ ] 在 ZCode 中让 GLM 读完 `AGENTS.md`、`PROJECT.md`、`HOWTO.md`、`HANDOFF.md`，并复述三条硬规则

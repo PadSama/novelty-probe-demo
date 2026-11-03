@@ -1,0 +1,38 @@
+[
+  {
+    "id": "Q1",
+    "facets_used": ["research_question", "mechanism", "expected_findings"],
+    "query": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+    "purpose": "component"
+  },
+  {
+    "id": "Q2",
+    "facets_used": ["expected_findings", "context"],
+    "query": "(narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"research diversification\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+    "purpose": "component"
+  },
+  {
+    "id": "Q3",
+    "facets_used": ["research_question", "expected_findings", "context"],
+    "query": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research topic selection\") AND scientist*",
+    "purpose": "application"
+  },
+  {
+    "id": "Q4",
+    "facets_used": ["mechanism", "research_question", "context"],
+    "query": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+    "purpose": "application"
+  },
+  {
+    "id": "Q5",
+    "facets_used": ["data_method", "research_question"],
+    "query": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometric*) AND (\"large language models\" OR \"generative AI\")",
+    "purpose": "method"
+  },
+  {
+    "id": "Q6",
+    "facets_used": ["research_question", "expected_findings", "context"],
+    "query": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research diversification\" OR \"research topic selection\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+    "purpose": "concurrent"
+  }
+]

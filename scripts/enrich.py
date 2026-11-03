@@ -17,12 +17,18 @@
 """
 import argparse
 import csv
-import json
 import re
+import sys
 import unicodedata
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe import config as np_config, i18n, runtime
+from novelty_probe.i18n import tr
+from novelty_probe.paths import rel as _rel
+from novelty_probe.io import write_json
 
 from search import get_json, rebuild_abstract
 from textmatch import title_search_words, version_title_match
@@ -31,14 +37,14 @@ ROOT = Path(__file__).resolve().parent.parent
 CANDIDATES_FILE = ROOT / "results" / "merged" / "candidates.csv"
 OUT_FILE = ROOT / "evidence" / "enrichment.json"
 OPENALEX_URL = "https://api.openalex.org/works"
-MAX_YEAR_GAP = 3
+MAX_YEAR_GAP = np_config.DEFAULTS["versions"]["year_window"]   # 配置 versions.year_window（与 merge.py 的版本识别一致）
 ARXIV_DOI_RE = re.compile(r"^(?:https?://doi\.org/)?10\.48550/arxiv\.(.+)$", re.I)
 PREPRINT_TYPES = {"preprint", "posted-content"}
 
 
 def rel(path):
-    p = Path(path).resolve()
-    return str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+    """项目内的路径显示为相对路径（正斜杠），项目外的显示为绝对路径。"""
+    return _rel(path, ROOT)
 
 
 def bare_doi(doi):
@@ -107,12 +113,22 @@ def find_versions(title, year, own_doi, own_arxiv=None):
 
 
 def main():
+    global MAX_YEAR_GAP
+    i18n.prepare()
     ap = argparse.ArgumentParser(description="Enrich top candidates from other versions of the same work (OpenAlex).")
-    ap.add_argument("--top", type=int, default=20)
-    ap.add_argument("--candidates", type=Path, default=CANDIDATES_FILE)
-    ap.add_argument("--out", type=Path, default=OUT_FILE)
+    ap.add_argument("--top", type=int, default=None,
+                    help=tr("处理候选表的前多少篇（默认取配置 enrich.top）", "Number of top candidates to process (default: config enrich.top)"))
+    ap.add_argument("--candidates", type=Path, default=None)
+    ap.add_argument("--out", type=Path, default=None)
+    runtime.add_common_args(ap, network=True)
     args = ap.parse_args()
-    cand_file, out_file = args.candidates.resolve(), args.out.resolve()
+    rt = runtime.init(args)
+    runtime.bind_root(globals(), rt.root, {"CANDIDATES_FILE": "results/merged/candidates.csv",
+                                           "OUT_FILE": "evidence/enrichment.json"})
+    cfg, client = rt.cfg, rt.client
+    MAX_YEAR_GAP = cfg["versions"]["year_window"]
+    args.top = cfg["enrich"]["top"] if args.top is None else args.top
+    cand_file, out_file = (args.candidates or CANDIDATES_FILE).resolve(), (args.out or OUT_FILE).resolve()
     with cand_file.open(encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))[:args.top]
 
@@ -149,12 +165,11 @@ def main():
               f"found={','.join(found) or '-'} {rec['error'] or ''}")
 
     meta = {"source": "OpenAlex title.search (other versions of the same work)", "script": "scripts/enrich.py",
-            "input": rel(cand_file), "top": args.top, "max_year_gap": MAX_YEAR_GAP,
-            "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "input": rel(cand_file), "top": args.top, "max_year_gap": MAX_YEAR_GAP, **np_config.meta(cfg, rel),
+            "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "http": client.stats_summary(),
             "counts": {"candidates": len(records), "missing_abstract": sum("abstract" in r["needs"] for r in records),
                        "abstract_added": n_abs, "arxiv_id_added": n_arx, "doi_suggested": n_doi}}
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    out_file.write_text(json.dumps({"meta": meta, "records": records}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    write_json(out_file, {"meta": meta, "records": records})
     c = meta["counts"]
     print(f"\nmissing abstracts: {c['missing_abstract']} → added from another version: {c['abstract_added']}; "
           f"arXiv IDs added: {c['arxiv_id_added']}; DOIs suggested (verify before use): {c['doi_suggested']}")

@@ -3472,3 +3472,243 @@ OK
 - 本轮评估产出：`queries/queries_v2b.json`；`results/raw/*_v1b.json`、`*_v2b.json`（含 `chase_*`）；`results/merged/merged_v1b.json`、`merged_v2b.json`、`candidates_v1b.csv`、`candidates_v2b.csv`、`chase_*_v1b.csv`、`chase_*_v2b.csv`、`compare_v1_v1b.json`、`compare_v2_v2b.json`；`evidence/enrichment_v1b.json`、`enrichment_v2b.json`
 
 **备注**：推送到分支 `claude/vigilant-faraday-odzwe4`，需研究者通过 PR 合并。下一步编号为 Step 65。
+
+---
+
+## [2026-11-02 09:38 UTC] Step 65 — Semantic Scholar 配置 key 后的限速处理
+
+**研究者告知与要求（本轮）**：PR #4 已合并。研究者已在云环境中为 api.semanticscholar.org 完成配置，限额为"每秒 1 个请求，所有接口合计"。今后列出决策点时，都要附上助手的处置建议与简要原因。
+
+**命令 1：确认 key 生效（curl 与 python3 内联脚本，只读）**
+
+```
+环境变量 S2_API_KEY 未设置；请求头中故意带一个错误的 x-api-key 仍返回 200 → 代理会用配置的 key 覆盖请求头
+GET /datasets/v1/release/latest/dataset/abstracts（只有带有效 key 才能取得下载链接）→ HTTP 200，files listed: 30
+（返回的下载链接未保存）
+```
+
+**命令 2：不同请求间隔下的 429 次数（python3 内联脚本，同一个只读请求各发 8 次）**
+
+```
+start-to-start interval 2.0s: [429, 200, 200, 429, 200, 429, 429, 200]  (429s: 4)
+start-to-start interval 1.5s: [429, 429, 429, 200, 429, 200, 429, 200]  (429s: 5)
+start-to-start interval 1.1s: [200, 429, 429, 200, 429, 200, 429, 429]  (429s: 5)
+429 正文：{"message": "Too Many Requests. Please wait and try again or apply for a key for higher rate limits. …", "code": "429"}
+```
+
+即使间隔 2 秒，也有约一半请求返回 429，间隔再大也没有明显改善；像是这个 key 的额度同时被别处占用（原因无法从本环境确认）。
+
+**命令 3：脚本修改**
+
+```
+# search.py：新增 throttle()，get_json() 对发往 api.semanticscholar.org 的每个请求（含翻页与每次重试）先节流，
+#   相邻两个 S2 请求的间隔不少于 S2_MIN_INTERVAL = 1.1 秒；去掉原来零散的 S2_PAUSE。429 仍按 2、4、8… 秒退避重试
+# tests/test_pipeline.py：新增节流测试（模拟时钟）
+```
+
+**命令 4：实时检查（写入临时目录）**：v2b 检索式的 Q2（3 页）、Q3（1 页）只查 S2：
+
+```
+Q2 semanticscholar total_hits 2160 saved 25；Q3 semanticscholar total_hits 111 saved 25；2/2 requests succeeded
+S2 requests: 11 gaps (s): [2.48, 1.17, 2.31, 1.34, 2.32, 4.34, 8.31, 1.25, 2.2, 4.3] min gap: 1.17
+（4 个页面请求成功，其余 7 次为 429 后的重试）
+```
+
+**命令 5：离线自检**：`python3 -W error::ResourceWarning -m unittest discover -s tests` → Ran 46 tests … OK。
+
+**文档**：HOWTO（中英双语：准备一节与常见问题）、HANDOFF（API key 表、已知问题 8a、编号）、README（Requirements）说明 S2 的限额与节流。
+
+**产出文件**：`scripts/search.py`、`tests/test_pipeline.py`、`HOWTO.md`、`HANDOFF.md`、`README.md`（修改）
+
+---
+
+## [2026-11-02 15:01 UTC] Step 66 — 工具层架构审视与迭代计划
+
+**研究者要求（本轮）**：教程部分到此为止，不再迭代某轮结果；迭代承重层工具本身的准确性、稳定性、适配性。先理解需求，再以架构师视角审视、调研成熟项目、制定计划、最后实施。另：今后决策点都附处置建议与理由。
+
+**命令 1：代码盘点（python3 / grep 内联，只读）**
+
+```
+10 scripts 2736 lines; 2 test files 1037 lines; ~95 top-level constants in 9 files; 19 path constants bound to ROOT
+cross-imports: 12; HTTP implementations: 2 (search.get_json, verify.fetch), 11 call sites; no cache
+Chinese literals in output/error/help code lines: search 29, snowball 13, compare 5, merge 4, logrun 4, verify 4
+Python 3.9+ API: Path.is_relative_to (5 sites)
+```
+
+**命令 2：兼容性矩阵（uv 安装 3.9、3.10 到会话临时目录；系统自带 3.11–3.13）**
+
+```
+python3.9 / 3.10 / 3.11 / 3.12 / 3.13 (Linux): Ran 46 tests … OK（每个版本）
+```
+
+**命令 3：三个并行调研子任务**（成熟项目架构；HTTP 层与测试；适配性），报告存档于会话临时目录。主会话复核其关键结论：
+
+```
+OpenAlex: filter=title_and_abstract.search:("generative AI OR ChatGPT) AND science → HTTP 200, count 21344,
+  oql: get works with (generative AI "OR" ChatGPT "AND" science)   ← 未配对引号被静默改写，运算符成了词
+OpenAlex: meta.x_query 含结构化 oqo（get_rows, filter_rows）；/works/doi:<不存在> → 404 text/html
+OpenAlex 响应头: X-Ratelimit-Limit 10000, X-Ratelimit-Remaining 6738, X-Ratelimit-Reset 32570, X-Ratelimit-Cost-Usd 0（单条查询免费）
+Crossref /works/<doi>/agency：本次请求遇 429（子任务当日实测返回 agency.id = datacite / crossref）
+snowball.seeds_from_evidence：中文表头 → 1 个种子；同一行换英文表头 → []（复现）
+json.loads(带 BOM 的文件) → JSONDecodeError: Unexpected UTF-8 BOM（复现）
+```
+
+子任务还发现主会话给它的提示里凭记忆写的 PRISMA-S DOI 有误（…01542-5），正确为 doi:10.1186/s13643-020-01542-z（Crossref 核对）。记录在此，作为规则 2 的反例。
+
+**产出文件**：`docs/ARCHITECTURE_REVIEW.md`（新增：现状、问题清单、成熟项目做法、目标架构、五个阶段的计划、决策点）。
+
+**备注**：阶段 0、1 不涉及研究者决策，接着实施；阶段 2 起的决策点列在该文件第 6 节。
+
+---
+
+## [2026-11-02 15:09 UTC] Step 67 — 工具层迭代阶段 0：卫生类修复
+
+按 `docs/ARCHITECTURE_REVIEW.md` 第 5 节的阶段 0 实施，不改变任何检索、合并、核验的结果。
+
+**做了什么**
+
+- 新增包 `novelty_probe/`（纯标准库）：`io.py`（读 JSON 容忍 BOM 与 ```json 围栏；写文本固定 \n 换行；原子写；控制台 UTF-8 守卫）、`paths.py`（find_root、rel 输出正斜杠）、`defaults.py`（面的 key 与中英文标签、证据表列名别名）。
+- 各脚本接入：所有 JSON 读取改用 load_json_lenient；所有 JSON 输出改用原子写；main() 开头 configure_console()；rel() 统一到 paths.rel。snowball 识别证据表的面时接受中文或英文标签（修复英文表头零种子）。logrun 保持独立（不依赖包），日志里的命令按系统引用规则生成并附 argv 的 JSON，换行固定 \n。
+- `.gitattributes`（text=auto eol=lf）；`.gitignore` 加 `.cache/`。
+- 教程产出复制到 `examples/tutorial/`（idea、facets、queries、v1/v2 的 results 与 evidence），测试件改从那里读；读取项目目录实时数据的测试在文件不存在时跳过。HOWTO §1 相应改写（不必手工备份）。
+- 新增 `tests/test_core.py`（BOM/围栏、LF 与原子写、写失败不破坏旧文件、rel、find_root、面标签别名、英文表头种子）。
+
+**命令：自检与"清空示例后"的模拟**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests      # 3.13: Ran 56 tests … OK；3.9: OK
+# 在会话临时目录复制仓库，按 HOWTO §1 删除 facets/queries/results/evidence 的示例文件并重置日志后：
+python3 -m unittest discover -s tests                                # OK (skipped=2)
+python3 scripts/search.py --dry-run                                  # 6/6 queries valid
+```
+
+**产出文件**：`novelty_probe/{__init__,io,paths,defaults}.py`、`tests/test_core.py`、`examples/tutorial/**`、`.gitattributes`（新增）；`scripts/*.py`、`tests/test_offline.py`、`tests/test_pipeline.py`、`HOWTO.md`、`.gitignore`（修改）
+
+---
+
+## [2026-11-02 15:29 UTC] Step 68 — 工具层迭代阶段 1：统一 HTTP 客户端、缓存与录制回放、响应校验
+
+按 `docs/ARCHITECTURE_REVIEW.md` 第 5 节的阶段 1 实施。
+
+**新增**（`novelty_probe/`，纯标准库）
+
+- `http.py`：Client，四种模式 live / cache / record / replay；按主机限速（S2 1.1 秒，含重试与翻页）；读 Retry-After；退避 = 基数 × 2^(n+1)、封顶、等抖动；Retry-After > 60 秒或 OpenAlex "Insufficient budget" → 不重试；连续 429 熔断；跟随跳转时逐跳限速与重试，https → http 改用 https；错误分类（ClientError / NotFound / RateLimited / BudgetExhausted / ServerError / NetworkError / BlockedByPolicy / ContentError / ReplayMiss），非 JSON 错误体只取去标签后的摘要；密钥按主机加在请求头（OPENALEX_API_KEY → Bearer，S2_API_KEY → x-api-key），不落盘；OpenAlex 额度头与 Crossref 限速头进 stats；paginate()（cursor / token / offset）带断点续跑，令牌失效则从头再来。
+- `cache.py`：内容寻址缓存与录制件同一条目格式；键 = sha256(method, 规范化 URL（去 api_key / mailto）, Accept, 请求体)；头部白名单；429 / 5xx 不缓存。
+- `schemas.py`：OpenAlex 列表 / 记录、S2 bulk / batch / citations、Crossref works / agency、CSL JSON、本项目原始结果文件的形状校验（返回警告，不中断）。
+
+**接入**：search（OpenAlex 校验 `x_query`：运算符被当成引号内的词 → 报错不保存；有排除组却无 NOT → 报错；oqo 解析树的词集合与发送的不同 → 警告；S2 用 paginate 翻页并写断点）、verify（先查 Crossref 的 /works/<doi>/agency：非 Crossref 登记的 DOI 直接记 "Crossref 无记录（DataCite 登记的 DOI）" 并走 OpenAlex，不再走 data.crosscite.org 那一跳）、snowball（翻页断点；ID 批量请求先排序再分批，保证请求确定）、enrich、authors；所有脚本新增 `--http-mode / --cache-dir / --cassette / --refresh`，输出 meta 带 `http` 统计与 `warnings`。
+
+**命令：实时冒烟并录制（record 模式，写入会话临时目录）**
+
+```
+search --ids Q3,Q4（v1 检索式）：4/4 requests succeeded；OpenAlex Q3 warnings: []，credits_used 10，remaining 6728；
+  S2 Q3：1 次 429 后重试成功（sleep 1.83 s），pool retrieved 9
+verify 3 行（Science Advances / arXiv / Emerald）：Crossref 题目一致 ×2；arXiv DOI → agency=datacite → OpenAlex 题目一致；
+  落地页三家均 BLOCKED（本环境网络策略）；Crossref 限速头 10/1s
+snowball 一步（种子 doi:10.1145/3635636.3656204，--max-forward 30）：pool 79；共被引（scientist*）：185 篇引用者中 1 篇通过过滤
+```
+
+录制件（已去除密钥）存入 `tests/fixtures/cassettes/`（4 个，1.3 MB），回放测试在禁网状态下跑完 search / verify / snowball 的主流程并逐条校验录制响应的形状。
+
+**命令：自检**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests   # 3.13: Ran 76 tests … OK；3.9: OK
+```
+
+新增 `tests/test_http.py`（假传输层：退避序列、Retry-After、预算、403/404 不重试、BlockedByPolicy、S2 间隔含重试、熔断、密钥只发给对应主机、跳转链与 https 升级、缓存命中与过期回退、录制 → 回放、键规范化、分页断点与令牌失效、形状校验）、`tests/test_replay.py`（录制件回放与契约）；`tests/test_core.py` 加 3.9 兼容性的静态检查（本轮即抓到 Path.write_text(newline=) 需 3.10+ 的问题）。
+
+**产出文件**：`novelty_probe/{http,cache,schemas}.py`、`tests/{test_http,test_replay}.py`、`tests/fixtures/cassettes/*.json`、`tests/fixtures/verify_table_recorded.md`（新增）；`scripts/{search,verify,snowball,enrich,authors}.py`、`tests/{test_offline,test_pipeline,test_core}.py`、`HOWTO.md`、`HANDOFF.md`（修改）
+
+---
+
+## [2026-11-03 08:24 UTC] Step 69 — 工具层迭代阶段 2：配置文件、中英文界面、证据 JSON、CI 与网络护栏
+
+**研究者的要求**：决策点全部按建议执行，继续阶段 2（研究者已在 GitHub 中开启 Actions）。六个决策：证据表以 JSON 为数据源并保留 Markdown 入口；Crossref 适配器实现但默认关闭（阶段 3）；单元测试禁网、另设 NP_LIVE=1 的联网检查（≤6 个请求）；GitHub Actions 矩阵 Python 3.9–3.13 × Ubuntu/Windows/macOS；阶段结束由助手开 PR 并订阅；退避带抖动（阶段 1 已实现）。
+
+**2a 配置**：`novelty-probe.json`（项目根目录，只写与默认值不同的设置；仓库里的文件不改变任何参数，config_hash 与内置默认值相同）。`novelty_probe/config.py`：对象逐层合并、列表整体替换、`<键>_extend` 追加、`_` 开头为注释、未知键警告、取值不合法时一次列出所有问题；默认值的唯一定义处是 `novelty_probe/defaults.py`（面、取值、列名、版本识别前缀、停用词），`scripts/textmatch.py` 也从这里取。各脚本接入：search（各来源 top_n / enabled、S2 max_records、purpose 起始年份、截断词表）、merge 默认方法（top_k、rrf_k、BM25 k1/b、版本识别规则 `VersionRules`；`--legacy` 不读配置）、snowball（面、列名、停用词、默认参数）、verify（列名、落地页开关）、compare（标记词组 `--markers`）、enrich（年份窗口、top）。所有脚本新增 `--root / --config / --lang`；在另一个项目目录下运行时路径随之切换；logrun 用同样的规则找项目根目录并传给子进程。输出 meta 带 `config_file`、`config_hash`、所用参数。新增 `scripts/config.py`（show / show --diff / check / init）。检索式 id 的 `Q<数字>` 格式是脚本之间的文件名约定，不进配置；config_hash 不含 language 与 contact_email（不影响结果）。User-Agent 默认是通用的客户端名，contact_email 默认为空、助手不代填。
+
+**2b 中英文界面**：`novelty_probe/i18n.py` 消息表；语言优先级 `--lang` > `NP_LANG` > 配置 language > zh，在构建参数解析器之前确定，帮助文本也随之切换。检索式语法错误、检索式文件问题、OpenAlex 解析核对、配置问题、HTTP 层错误、verify 的 verified 列都有中英文；中文文字与改造前逐字相同（已有测试与录制件依赖）。
+
+**2c 证据 JSON**：`novelty_probe/evidence.py`（schema `novelty-probe/evidence@1`）与 `scripts/evidence.py`：
+- `import-md`：表外文字原样保留；两张教程证据表导入后重新生成，与原文件逐字相同；
+- `render`：可换语言（只有表头与有结构化结果的 verified 列变化）；Markdown 在上次导入或生成后被手工改过时不覆盖；
+- `check`：取值合法、DOI / arXiv ID 来自检索结果、题目 / 年份 / 作者与检索结果一致、判定依据里引号内的英文是摘要（或检索记录题目）原文。本篇无摘要时，判定依据里注明 DOI、且在检索结果中的其他版本的摘要也算，对应 AGENTS.md 的规定。
+verify 拆成结构化结果与展示文字（`novelty_probe/verification.py`）；`--table <json>` 时结构化结果写进 JSON，再重新生成 Markdown。snowball 的 `--from-evidence` 与证据 JSON 共用同一个解析器。
+
+**2d CI 与测试**：`.github/workflows/tests.yml`（3.9–3.13 × 三个系统，离线测试 + 示例检索式 dry-run + 示例证据表检查）；`tests/netguard.py`：测试进程及其子进程中，除本机回环外的 DNS 与连接一律抛 NetworkBlocked（继承 BaseException，脚本的 except Exception 与 HTTP 重试都拦不住）；`tests/test_live_contract.py`：NP_LIVE=1 时的 6 项接口检查。
+
+**回归核对**：把 v1b、v2b 的原始结果复制到临时项目目录，用 `merge.py --root <临时目录>` 重跑默认方法，合并记录与候选表和已提交的 `results/merged/merged_v1b.json`、`merged_v2b.json`、`candidates_v1b.csv`、`candidates_v2b.csv` 逐字节相同（meta 只多了 config_hash 与 parameters）；`--legacy` 的逐字节复现测试照常通过。
+
+**命令：自检**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests   # 3.13: Ran 121 tests … OK (skipped=6)；3.9: 同
+```
+
+新增 `tests/test_config.py`（合并规则、校验、指纹、查找顺序、HTTP 策略覆盖、User-Agent、路径切换、语言探测、消息表完整性、配置到达各脚本、--root + --config 的合并端到端、英文命令行、config 命令）、`tests/test_evidence.py`（逐字还原、字段、英文生成、转义与原文单元格、直接写 JSON 的文档、检查的正反例、作者、注明来源的其他版本、引文比对、种子、命令行与手改保护、英文表全流程、verify 写回 JSON）；`tests/test_offline.py` 加英文 verified 列与结构化结果的测试、logrun 的项目目录测试；`tests/test_core.py` 加网络护栏测试。
+
+**产出文件**：`novelty-probe.json`、`novelty_probe/{config,i18n,runtime,evidence,verification}.py`、`scripts/{config,evidence}.py`、`tests/{netguard,test_config,test_evidence,test_live_contract}.py`、`tests/childguard/sitecustomize.py`、`.github/workflows/tests.yml`（新增）；`novelty_probe/{defaults,http,io}.py`、`scripts/*.py`、`tests/{test_offline,test_core}.py`、`HOWTO.md`、`HANDOFF.md`、`AGENTS.md`、`README.md`、`docs/ARCHITECTURE_REVIEW.md`（修改）。后面三步用 logrun 记录检查结果。
+
+---
+
+## [2026-11-03 08:25 UTC] Step 70 — 证据表机器检查：v1 证据表（evidence.py check）
+
+**命令**
+
+```bash
+python3 scripts/evidence.py check evidence/evidence_table.md
+# argv: ["python3", "scripts/evidence.py", "check", "evidence/evidence_table.md"]
+```
+
+**输出**（退出码 0）
+
+```
+检索结果：results/merged/merged.json；补充摘要：evidence/enrichment_v1b.json, evidence/enrichment_v2b.json；作者：evidence/authors.json
+检查通过：10 行，没有发现问题
+```
+
+---
+
+## [2026-11-03 08:25 UTC] Step 71 — 证据表机器检查：v2 证据表（evidence.py check）
+
+**命令**
+
+```bash
+python3 scripts/evidence.py check evidence/evidence_table_v2.md
+# argv: ["python3", "scripts/evidence.py", "check", "evidence/evidence_table_v2.md"]
+```
+
+**输出**（退出码 0）
+
+```
+检索结果：results/merged/merged_v2.json；补充摘要：evidence/enrichment_v1b.json, evidence/enrichment_v2b.json；作者：evidence/authors_v2.json
+检查通过：10 行，没有发现问题
+```
+
+---
+
+## [2026-11-03 08:25 UTC] Step 72 — 联网接口检查（NP_LIVE=1，6 个请求）
+
+**命令**
+
+```bash
+env NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
+# argv: ["env", "NP_LIVE=1", "python3", "-m", "unittest", "tests.test_live_contract", "-v"]
+```
+
+**输出**（退出码 0）
+
+```
+test_1_openalex_boolean_list (tests.test_live_contract.TestLiveContracts.test_1_openalex_boolean_list) ... ok
+test_2_openalex_rejects_wildcards (tests.test_live_contract.TestLiveContracts.test_2_openalex_rejects_wildcards) ... ok
+test_3_semantic_scholar_bulk (tests.test_live_contract.TestLiveContracts.test_3_semantic_scholar_bulk) ... ok
+test_4_semantic_scholar_batch (tests.test_live_contract.TestLiveContracts.test_4_semantic_scholar_batch) ... ok
+test_5_crossref_work (tests.test_live_contract.TestLiveContracts.test_5_crossref_work) ... ok
+test_6_crossref_agency_for_arxiv_doi (tests.test_live_contract.TestLiveContracts.test_6_crossref_agency_for_arxiv_doi) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.150s
+
+OK
+```

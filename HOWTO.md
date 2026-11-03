@@ -54,6 +54,38 @@ python3 --version
 python3 -m unittest discover -s tests -v
 ```
 
+测试不联网（试图访问外网会直接报错）；6 项联网的接口检查显示 skipped，见"常见问题"上方的说明。
+
+The tests never use the network (any attempt fails loudly); the 6 live interface checks show as skipped (see the note above Troubleshooting).
+
+**配置**：项目根目录的 `novelty-probe.json` 只写与内置默认值不同的设置。查看全部设置与当前配置的指纹（config_hash，写进每个输出文件）、检查写法：
+
+**Configuration**: `novelty-probe.json` in the project root holds only the settings that differ from the built-in defaults. To see every setting and the configuration fingerprint (config_hash, recorded in every output file), or to check the file:
+
+```bash
+python3 scripts/config.py show
+```
+
+```bash
+python3 scripts/config.py check
+```
+
+常改的设置：`language`（界面语言）、`queries.purposes.concurrent.year_from`（concurrent 检索式的起始年份）、`queries.truncation`（截断词对应的完整词）、`sources.<来源>.top_n` 与 `enabled`、`merge.top_k`、`facets`（面的名称与中英文标签）、`compare.marker_terms`。列表整体替换；要在默认列表后追加，写 `<键>_extend`，例如 `"versions": {"preprint_doi_prefixes_extend": ["10.xxxx/"]}`。改参数属于研究设计，由你决定。
+
+Settings you are most likely to change: `language` (interface language), `queries.purposes.concurrent.year_from` (start year of concurrent queries), `queries.truncation` (full words for truncated terms), `sources.<source>.top_n` and `enabled`, `merge.top_k`, `facets` (facet names with Chinese and English labels), `compare.marker_terms`. Lists are replaced as a whole; to append to a default list, use `<key>_extend`, for example `"versions": {"preprint_doi_prefixes_extend": ["10.xxxx/"]}`. Changing parameters is a research-design decision, and it is yours.
+
+**界面语言**：帮助、报错、verified 列默认中文；加 `--lang en`、设环境变量 `NP_LANG=en`，或在配置里写 `"language": "en"`，即改为英文。
+
+**Interface language**: help, error messages and the verified column are in Chinese by default; add `--lang en`, set the environment variable `NP_LANG=en`, or put `"language": "en"` in the configuration to switch to English.
+
+```bash
+export NP_LANG=en
+```
+
+**项目目录**：脚本从当前目录向上找 `novelty-probe.json` 或 `PROJECT.md`，以它所在的目录为项目根目录；一份脚本可以服务多个项目目录，也可以用 `--root <目录>` 或环境变量 `NOVELTY_PROBE_ROOT` 指定。
+
+**Project folder**: the scripts look upwards from the current folder for `novelty-probe.json` or `PROJECT.md` and use that folder as the project root; one copy of the scripts can serve several project folders, or you can name one with `--root <folder>` or the environment variable `NOVELTY_PROBE_ROOT`.
+
 **网络**：需要能访问下列域名。在自己电脑上运行通常不用处理；在云端沙箱环境（如 Claude Code 的云环境）中运行，要在环境设置的 Network access 里放行。
 
 **Network**: the domains below must be reachable. On your own computer this usually needs no action; in a cloud sandbox (such as a Claude Code cloud environment), allow them under Network access in the environment settings.
@@ -78,9 +110,9 @@ python3 -m unittest discover -s tests -v
 export OPENALEX_API_KEY="你的 key / your key"
 ```
 
-- **Semantic Scholar：可选**，申请地址 https://www.semanticscholar.org/product/api#api-key-form 。不带 key 时共用匿名限流池，偶尔返回 429。脚本会自动重试，仍失败的可以单独补跑（见 T3）。
+- **Semantic Scholar：可选**，申请地址 https://www.semanticscholar.org/product/api#api-key-form 。不带 key 时共用匿名限流池，偶尔返回 429。有 key 时的限额是每秒 1 个请求、所有接口合计，脚本对每个发往 S2 的请求（含翻页与重试）自动节流。脚本会自动重试，仍失败的可以单独补跑（见 T3）。
 
-  **Semantic Scholar: optional.** Apply at https://www.semanticscholar.org/product/api#api-key-form . Without a key, you share an anonymous rate-limit pool and occasionally get HTTP 429. The script retries automatically; anything that still fails can be re-run on its own (see T3).
+  **Semantic Scholar: optional.** Apply at https://www.semanticscholar.org/product/api#api-key-form . Without a key, you share an anonymous rate-limit pool and occasionally get HTTP 429. With a key, the limit is 1 request per second across all endpoints, and the script throttles every Semantic Scholar request (including pages and retries) accordingly. The script retries automatically; anything that still fails can be re-run on its own (see T3).
 
 ```bash
 export S2_API_KEY="你的 key / your key"
@@ -92,13 +124,9 @@ export S2_API_KEY="你的 key / your key"
 
 This directory still holds the outputs of the tutorial example (v1 and v2). Clear them before starting your own idea; otherwise old results will mix with new ones.
 
-可选：先把示例备份到 `examples/`。
+教程示例的副本已经在 `examples/tutorial/` 里（离线自检从那里读取），不必另行备份。
 
-Optional: back up the example to `examples/` first.
-
-```bash
-mkdir -p examples && cp -r facets queries results evidence logs examples/
-```
+A copy of the tutorial example is already kept in `examples/tutorial/` (the offline self-test reads from there), so no backup is needed.
 
 清空旧产出（`.gitkeep` 是隐藏文件，不会被删除）：
 
@@ -196,6 +224,10 @@ For lines marked FAILED, fix the cause first (see Troubleshooting), then re-run 
 python3 scripts/logrun.py "T3 补跑" -- python3 scripts/search.py --ids Q3,Q4 --sources semanticscholar
 ```
 
+网络层：所有联网脚本都接受 `--http-mode cache`（先查本地缓存 `.cache/http`，省额度、少挨限流）与 `--refresh`（忽略缓存）；默认 `live`。OpenAlex 对格式错误的检索式不报错而静默改写（例如未配对的引号），脚本会核对它返回的解析结果，发现不一致就报错、不保存。
+
+Network layer: every networked script accepts `--http-mode cache` (check the local cache `.cache/http` first, saving budget and rate-limit hits) and `--refresh` (ignore the cache); the default is `live`. OpenAlex silently rewrites malformed queries (for example an unbalanced quote) instead of reporting an error; the script checks the parse OpenAlex returns and stops without saving if it does not match.
+
 可选：检查检索质量（每个结果文件中，标题 + 摘要满足原检索式的记录有多少；用 Porter 词干还原近似两个 API 的匹配，比例略偏高）：
 
 Optional: check search quality (how many records in each result file satisfy the original query in their title and abstract; Porter stemming approximates the APIs' matching, so the shares run slightly high):
@@ -252,14 +284,24 @@ Paste either version of the prompt below into the AI assistant:
 读 results/merged/candidates.csv 前 10 篇的摘要（作者见 evidence/authors.json），对照 facets/facets.md，逐面标 overlap / differ / unknown，写到 evidence/evidence_table.md。
 表格列：rank, 作者, 年份, 题目, DOI/arXiv, 研究问题, 作用机制, 研究情境, 数据与方法, 预期发现, verified。
 DOI/arXiv 列写成 doi:<DOI>，有 arXiv ID 时加上 " · arXiv:<ID>"；verified 列先写"待核验"。
-在文件开头写明标注规则，在表下逐篇写判定依据并引用摘要原文。候选本身没有摘要时，可以用 evidence/enrichment.json 中补到的摘要，并注明来源（DOI）。不判断新颖性；把产出文件追加到 logs/RUN_LOG.md。
+在文件开头写明标注规则，在表下逐篇写判定依据（每篇以 **rank · merged_id** 开头）并引用摘要原文。候选本身没有摘要时，可以用 evidence/enrichment.json 中补到的摘要，并注明来源（DOI）。
+写完后运行 python3 scripts/evidence.py check evidence/evidence_table.md，按报告修改，直到没有问题。不判断新颖性；把产出文件追加到 logs/RUN_LOG.md。
 ```
 
 ```text
 Read the abstracts of the top 10 works in results/merged/candidates.csv (authors are in evidence/authors.json). Compare each with facets/facets.md, label every facet overlap / differ / unknown, and write the result to evidence/evidence_table.md.
 Table columns: rank, Authors, Year, Title, DOI/arXiv, Research question, Mechanism, Context, Data and methods, Expected findings, verified.
 Write the DOI/arXiv column as doi:<DOI>, adding " · arXiv:<ID>" when there is an arXiv ID; put "pending" in the verified column for now.
-State the labeling rules at the top of the file, and below the table give the evidence for each paper, quoting the abstract. If a candidate has no abstract, you may use the abstract in evidence/enrichment.json, citing its source (DOI). Do not judge novelty; append the output files to logs/RUN_LOG.md.
+State the labeling rules at the top of the file, and below the table give the evidence for each paper (each starting with **rank · merged_id**), quoting the abstract. If a candidate has no abstract, you may use the abstract in evidence/enrichment.json, citing its source (DOI).
+When done, run python3 scripts/evidence.py check evidence/evidence_table.md and fix what it reports until no problems remain. Do not judge novelty; append the output files to logs/RUN_LOG.md.
+```
+
+检查证据表（不联网）：取值是否合法；DOI、arXiv ID 是否来自检索结果（规则 2）；题目、年份、作者是否与检索结果一致；判定依据里引号内的英文是否为摘要原文（大小写、标点不计；"..." 表示省略）。有问题时退出码为 1，并逐条列出：
+
+Check the evidence table (no network): labels are valid; DOIs and arXiv IDs come from the search results (rule 2); titles, years and authors match the search results; quoted English text in the evidence is verbatim from the abstract (case and punctuation ignored; "..." marks an omission). Problems are listed one by one, with exit code 1:
+
+```bash
+python3 scripts/logrun.py "T5 证据表检查" -- python3 scripts/evidence.py check evidence/evidence_table.md
 ```
 
 核验 DOI，结果写回 verified 列：
@@ -272,7 +314,23 @@ python3 scripts/logrun.py "T5 DOI 核验" -- python3 scripts/verify.py
 
 verified 列格式为"Crossref 结果；落地页结果"。"Crossref HTTP 200 · 题目一致"表示 DOI 有效，且指向表中这篇；BLOCKED 表示该域名未放行；没有 DOI 的行写 UNVERIFIED。Crossref 查不到时（如 arXiv 等 DataCite 登记的 DOI）改查 OpenAlex，中间多一段"OpenAlex · 题目一致 · …"。出版商常对脚本返回 403，只想核验元数据时加 `--no-landing`。
 
-The verified column reads "Crossref result；landing-page result" (落地页 = landing page). "Crossref HTTP 200 · 题目一致" (title matches) means the DOI is valid and points to the paper in the table; 题目不一致 means the titles differ; BLOCKED means that domain is not allowed; rows without a DOI read UNVERIFIED. When Crossref has no record (for example arXiv and other DOIs registered with DataCite), the script checks OpenAlex instead and adds an "OpenAlex · 题目一致 · …" part. Publishers often answer scripts with 403; to check metadata only, add `--no-landing`.
+The verified column reads "Crossref result；landing-page result" (落地页 = landing page). "Crossref HTTP 200 · 题目一致" (title matches) means the DOI is valid and points to the paper in the table; 题目不一致 means the titles differ; BLOCKED means that domain is not allowed; rows without a DOI read UNVERIFIED. When Crossref has no record (for example arXiv and other DOIs registered with DataCite), the script checks OpenAlex instead and adds an "OpenAlex · 题目一致 · …" part. Publishers often answer scripts with 403; to check metadata only, add `--no-landing`. With `--lang en` the column is written in English ("title matches", "Landing page").
+
+**可选：以 JSON 为数据源**。把 Markdown 导入为 `evidence/evidence_table.json`（表外文字原样保留，导入时检查能否逐字还原），之后核验写进 JSON 的结构化结果，Markdown 由 JSON 重新生成；Markdown 在上次导入或生成之后被手工改过时，脚本不会覆盖它，会提示先重新导入。
+
+**Optional: JSON as the source of truth.** Import the Markdown into `evidence/evidence_table.json` (text outside the table is kept as is, and the import checks that the file can be regenerated byte for byte). From then on, verification stores structured results in the JSON and the Markdown is regenerated from it; if the Markdown was edited by hand since the last import or render, the scripts leave it alone and ask you to re-import first.
+
+```bash
+python3 scripts/logrun.py "T5 证据表转 JSON" -- python3 scripts/evidence.py import-md evidence/evidence_table.md
+```
+
+```bash
+python3 scripts/logrun.py "T5 DOI 核验" -- python3 scripts/verify.py --table evidence/evidence_table.json
+```
+
+```bash
+python3 scripts/evidence.py render evidence/evidence_table.json --lang en --out evidence/evidence_table.en.md
+```
 
 ### T5b 引文追踪（可选）｜ T5b Citation chasing (optional)
 
@@ -283,6 +341,10 @@ Keyword search misses papers that use different wording (that is why the tutoria
 ```bash
 python3 scripts/logrun.py "T5b 引文追踪" -- python3 scripts/snowball.py --from-evidence evidence/evidence_table.md
 ```
+
+`--from-evidence` 也接受证据 JSON（`evidence/evidence_table.json`）。
+
+`--from-evidence` also accepts the evidence JSON (`evidence/evidence_table.json`).
 
 两步共被引：先取引用种子、且标题摘要满足你给的词组的文献，再看它们共同引用了什么。词组由你决定；种子与想法只在研究情境面不同时，可以用该面"谁在用"的词：
 
@@ -372,19 +434,30 @@ python3 scripts/logrun.py "比较 v1 与 v2" -- python3 scripts/compare.py --run
 
 That is how the tutorial's v1b and v2b rounds were re-run with the improved pipeline and compared; see section 12 of `docs/IMPROVEMENT_PLAN.md`.
 
+**联网的接口检查（可选，建议每轮 T3 之前跑一次）**：6 个请求，确认 OpenAlex、Semantic Scholar、Crossref 的接口行为与脚本的假设一致（如 OpenAlex 不支持通配符、arXiv 的 DOI 由 DataCite 登记）。数据源改了接口时，离线测试发现不了，这里能发现。
+
+**Live interface checks (optional; worth running before each T3)**: 6 requests confirming that OpenAlex, Semantic Scholar and Crossref still behave as the scripts assume (for example, OpenAlex rejects wildcards, and arXiv DOIs are registered with DataCite). The offline tests cannot notice when a data source changes its interface; these checks can.
+
+```bash
+NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
+```
+
 ## 常见问题 ｜ Troubleshooting
 
 | 现象<br>Symptom | 原因<br>Cause | 处理<br>Fix |
 |---|---|---|
 | `FAILED: network error: Tunnel connection failed: 403`，或 `BLOCKED at <域名>`<br>`FAILED: network error: Tunnel connection failed: 403`, or `BLOCKED at <domain>` | 云环境未放行该域名<br>The cloud environment does not allow that domain | 在 Network access 中放行（见"准备"）<br>Allow it under Network access (see Setup) |
 | `HTTP 429: Insufficient budget …`（OpenAlex） | 没带 key，共用的每日额度已用完<br>No key, and the shared daily budget is used up | 设置 OpenAlex key 后重跑<br>Set an OpenAlex key and re-run |
-| `HTTP 429: Too Many Requests …`（Semantic Scholar） | 匿名限流池繁忙<br>The anonymous rate-limit pool is busy | 等几分钟后用 `--ids`、`--sources` 补跑，或申请 S2 key<br>Wait a few minutes and re-run with `--ids` / `--sources`, or get an S2 key |
+| `HTTP 429: Too Many Requests …`（Semantic Scholar） | 匿名限流池繁忙；有 key 时限额为每秒 1 个请求（所有接口合计），同一 key 被别处同时使用也会触发<br>The anonymous rate-limit pool is busy; with a key the limit is 1 request per second across all endpoints, and other use of the same key also counts | 脚本已节流并自动重试；仍失败时等几分钟后用 `--ids`、`--sources` 补跑，或申请 S2 key，不要同时运行两个访问 S2 的脚本<br>The script throttles and retries automatically; if it still fails, wait a few minutes and re-run with `--ids` / `--sources`, or get an S2 key, and do not run two S2-using scripts at once |
 | `INVALID: 未登记的截断词 …`、`不支持括号外的 OR` 等<br>`INVALID: 未登记的截断词 …` (unregistered truncation), `不支持括号外的 OR` (OR outside parentheses), etc. | 检索式写法不符合要求<br>The query does not follow the required format | 按 T2 的格式修改 `queries/queries.json`，再跑 `--dry-run`<br>Fix `queries/queries.json` to the T2 format and run `--dry-run` again |
 | `results/raw/ 中同一来源混有不同检索方式的结果`<br>(results from different search methods mixed for one source) | 混有旧脚本或旧想法留下的结果<br>Leftover results from an older script or a previous idea | 按第 1 步清空 `results/raw/`，重跑 T3<br>Clear `results/raw/` as in step 1 and re-run T3 |
 | 某条检索式在某个来源命中 0 条<br>A query returns 0 hits from one source | 组合太严<br>The combination is too strict | 可以接受；或让助手放宽这条检索式<br>Acceptable; or ask the assistant to loosen that query |
 | verified 列为 `Crossref BLOCKED at data.crosscite.org；OpenAlex · …`<br>The verified column reads `Crossref BLOCKED at data.crosscite.org；OpenAlex · …` | arXiv 等 DataCite 登记的 DOI，已改用 OpenAlex 核验<br>A DOI registered with DataCite, such as an arXiv DOI; checked via OpenAlex instead | OpenAlex 一段为"题目一致"即可；也可放行 `data.crosscite.org`<br>Fine if the OpenAlex part says 题目一致 (title matches); or allow `data.crosscite.org` |
 | `OpenAlex 没有把排除组解析为 NOT`<br>(OpenAlex did not parse the exclusion as NOT) | NOT 没有大写，或写在了不支持的位置<br>NOT was not upper case, or was placed where it is not supported | 写成 `… AND NOT ("a" OR "b")`，放在最后<br>Write `… AND NOT ("a" OR "b")` at the end |
 | `运算符必须大写`、`不支持用 - 表示排除`<br>(operators must be upper case; "-" is not supported for exclusion) | 检索式里有小写的 and / or / not，或以 - 开头的词<br>The query has a lower-case and / or / not, or a word starting with - | 改成大写运算符；排除用 `AND NOT (…)`<br>Use upper-case operators; exclude with `AND NOT (…)` |
+| `配置有问题：…`（退出码 2）<br>`Problems in the config: …` (exit code 2) | `novelty-probe.json` 里的取值不合法，所有问题一次列出<br>Invalid values in `novelty-probe.json`; every problem is listed at once | 按提示修改，再跑 `python3 scripts/config.py check`<br>Fix as indicated, then run `python3 scripts/config.py check` |
+| `引文不是摘要原文`、`不在检索结果中`（evidence check）<br>`quote is not verbatim`, `not in the retrieval results` (evidence check) | 判定依据里的引文改写了摘要，或 DOI 不是从检索结果里取的<br>A quote paraphrases the abstract, or a DOI did not come from the search results | 从摘要逐字复制；DOI 只取自 `results/` 或 `evidence/enrichment*.json`<br>Copy quotes verbatim from the abstract; take DOIs only from `results/` or `evidence/enrichment*.json` |
+| `… 在上次导入或渲染后被手工改过，未覆盖`<br>`… was edited by hand after the last import or render; not overwritten` | 以 JSON 为数据源时手工改了 Markdown<br>The Markdown was edited by hand while the JSON is the source of truth | 先 `python3 scripts/evidence.py import-md <md>` 把改动导入 JSON，再重跑<br>Run `python3 scripts/evidence.py import-md <md>` first, then re-run |
 
 ## 目录速查 ｜ Directory reference
 
@@ -399,7 +472,10 @@ That is how the tutorial's v1b and v2b rounds were re-run with the improved pipe
 | `results/raw/`、`results/merged/` | T3、T4 产出<br>T3 and T4 outputs |
 | `evidence/` | T5、T6 产出<br>T5 and T6 outputs |
 | `logs/RUN_LOG.md` | 运行日志<br>Run log |
+| `novelty-probe.json` | 项目配置：只写与默认值不同的设置<br>Project configuration: only the settings that differ from the defaults |
 | `docs/IMPROVEMENT_PLAN.md` | 遗留问题的调研、改进计划与评估结果（中文）<br>Research, improvement plan and evaluation for the known issues (Chinese) |
+| `docs/ARCHITECTURE_REVIEW.md` | 工具层的架构审视、分阶段计划与进度（中文）<br>Architecture review, phased plan and progress of the tool layer (Chinese) |
+| `novelty_probe/` | 各脚本共用的包：HTTP 客户端与缓存、配置、界面语言、证据 JSON<br>Package shared by the scripts: HTTP client and cache, configuration, interface language, evidence JSON |
 | `scripts/search.py` | T3 检索（`--dry-run` 检查语法；`--ids`、`--sources` 补跑；`--queries`、`--suffix` 用于新一轮）<br>T3 search (`--dry-run` checks syntax; `--ids`, `--sources` re-run failures; `--queries`, `--suffix` for a new round) |
 | `scripts/qa.py` | T3 检索质量检查（`--suffix`）<br>T3 search quality check (`--suffix`) |
 | `scripts/merge.py` | T4 合并去重（`--suffix`；`--legacy` 复现 v1、v2 当时的方法）<br>T4 merge and deduplicate (`--suffix`; `--legacy` reproduces the v1/v2 method) |
@@ -408,6 +484,9 @@ That is how the tutorial's v1b and v2b rounds were re-run with the improved pipe
 | `scripts/compare.py` | 比较几轮结果（`--runs`、`--known`、`--ignore-phrases`）<br>Compare rounds (`--runs`, `--known`, `--ignore-phrases`) |
 | `scripts/textmatch.py` | 共用的文本匹配（词干还原、BM25、版本识别），不单独运行<br>Shared text matching (stemming, BM25, version linking); not run on its own |
 | `scripts/authors.py` | T5 查作者（`--top`、`--candidates`、`--out`）<br>T5 author lookup (`--top`, `--candidates`, `--out`) |
-| `scripts/verify.py` | T5 DOI 核验（`--table`、`--no-landing`）<br>T5 DOI verification (`--table`, `--no-landing`) |
+| `scripts/verify.py` | T5 DOI 核验（`--table` 可以是 .md 或 .json、`--no-landing`）<br>T5 DOI verification (`--table` may be .md or .json, `--no-landing`) |
+| `scripts/evidence.py` | T5 证据表：`check` 检查、`import-md` 转 JSON、`render` 生成 Markdown（`--lang`）<br>T5 evidence table: `check`, `import-md` to JSON, `render` Markdown (`--lang`) |
+| `scripts/config.py` | 查看与检查配置（`show`、`show --diff`、`check`、`init`）<br>Show and check the configuration (`show`, `show --diff`, `check`, `init`) |
 | `scripts/logrun.py` | 运行一条命令，同时写入 `logs/RUN_LOG.md`<br>Runs a command and records it in `logs/RUN_LOG.md` |
-| `tests/` | 离线自检（`python3 -m unittest discover -s tests -v`）<br>Offline self-test |
+| `tests/` | 离线自检（`python3 -m unittest discover -s tests -v`）；联网接口检查 `NP_LIVE=1 python3 -m unittest tests.test_live_contract -v`<br>Offline self-test; live interface checks with `NP_LIVE=1` |
+| `.github/workflows/tests.yml` | GitHub Actions：Python 3.9–3.13 × Ubuntu / Windows / macOS 的离线测试<br>GitHub Actions: offline tests on Python 3.9–3.13 × Ubuntu / Windows / macOS |

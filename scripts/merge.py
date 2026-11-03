@@ -39,11 +39,13 @@ merged.json 中每篇记录的字段：
   raw_refs      出处 {source}_{query_id}{suffix}#{名次}，可回查 results/raw/ 中的原始记录
 所有值都取自 results/raw/，不补写、不改写；规范化只用于比较。
 
-用法：python3 scripts/merge.py [--suffix _v2]
+默认方法的参数来自配置 novelty-probe.json：merge.top_k / rrf_k / bm25.k1 / bm25.b，版本识别 versions.*；
+meta 里记录所用参数与 config_hash。--legacy 的方法与参数固定（前 20 篇、标题至少 5 个词），不读配置，只用于复现教程结果。
+
+用法：python3 scripts/merge.py [--suffix _v2] [--root 目录] [--config 文件] [--lang en]
 """
 import argparse
 import csv
-import json
 import re
 import sys
 from collections import Counter
@@ -51,30 +53,50 @@ from datetime import datetime, timezone
 from itertools import combinations
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe import config as np_config, i18n, runtime
+from novelty_probe.i18n import t
+from novelty_probe.paths import rel as _rel
+from novelty_probe.io import load_json_lenient, write_json
+
 from search import parse_query
-from textmatch import BM25, PREPRINT_DOI_RE, Doc, norm_doi, query_match, version_decision, version_summary
+from textmatch import BM25, DEFAULT_RULES, Doc, VersionRules, norm_doi, query_match, version_decision, version_summary
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "results" / "raw"
 OUT_DIR = ROOT / "results" / "merged"
-TOP_K = 20
-SOURCE_ORDER = ["openalex", "semanticscholar"]
+# 默认方法的参数（configure(cfg) 按配置设定；这里是内置默认值）
+_M = np_config.DEFAULTS["merge"]
+TOP_K = _M["top_k"]
+RRF_K = _M["rrf_k"]
+BM25_K1, BM25_B = _M["bm25"]["k1"], _M["bm25"]["b"]
+RULES = DEFAULT_RULES     # 版本识别（textmatch.VersionRules）
+# --legacy 的固定参数（复现 Step 6 / Step 14 的结果，不随配置变化）
+LEGACY_TOP_K = 20
 MIN_TITLE_WORDS = 5
+SOURCE_ORDER = ["openalex", "semanticscholar"]
 ARXIV_DOI_RE = re.compile(r"^10\.48550/arxiv\.(.+)$", re.I)
 # 预印本平台的版本 DOI，如 10.31234/osf.io/abcde_v2、10.36227/techrxiv.123.456/v1、10.21203/rs.3.rs-123/v1
 PREPRINT_VERSION_RE = re.compile(r"^(10\.\d+/(?:osf\.io/\w+?|techrxiv\.[\d.]+|rs\.\d+\.rs-\d+))[_/]v\d+$", re.I)
 CSV_COLUMNS = ["rank", "merged_id", "hits", "n_queries", "n_sources", "mean_rank", "query_ids", "sources",
                "id_status", "doi", "arxiv_id", "title", "year", "venue", "title_linked", "raw_refs", "abstract"]
-RRF_K = 60
 CSV_COLUMNS_RANKED = ["rank", "merged_id", "rrf", "bm25", "n_conform", "hits", "n_queries", "n_sources", "mean_rank",
                       "query_ids", "sources", "id_status", "doi", "arxiv_id", "title", "year", "year_first", "venue",
                       "title_linked", "review", "raw_refs", "abstract"]
 
 
+def configure(cfg):
+    """按配置设定默认方法的参数（main() 开头调用）。每次调用整体替换。"""
+    global TOP_K, RRF_K, BM25_K1, BM25_B, RULES
+    m = cfg["merge"]
+    TOP_K, RRF_K = m["top_k"], m["rrf_k"]
+    BM25_K1, BM25_B = m["bm25"]["k1"], m["bm25"]["b"]
+    RULES = VersionRules.from_config(cfg)
+
+
 def rel(path):
-    """项目内的路径显示为相对路径，项目外的显示为绝对路径。"""
-    p = Path(path).resolve()
-    return str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+    """项目内的路径显示为相对路径（正斜杠），项目外的显示为绝对路径。"""
+    return _rel(path, ROOT)
 
 
 def doi_key(doi):
@@ -116,7 +138,7 @@ def raw_files(suffix=""):
 def load_raw(suffix=""):
     recs, inputs = [], []
     for path in raw_files(suffix):
-        d = json.loads(path.read_text(encoding="utf-8"))
+        d = load_json_lenient(path)
         m = d["meta"]
         inputs.append({"file": rel(path),
                        **{k: m.get(k) for k in ("source_api", "query_id", "conversion", "sort",
@@ -213,6 +235,7 @@ def candidate_key(x):
 
 
 def write_candidates(candidates, path):
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
         w.writeheader()
@@ -274,7 +297,7 @@ def link_versions(recs, roots):
     members = {}
     for i, r in enumerate(roots):
         members.setdefault(r, []).append(i)
-    summ = {r: version_summary([recs[i] for i in idx]) for r, idx in members.items()}
+    summ = {r: version_summary([recs[i] for i in idx], rules=RULES) for r, idx in members.items()}
     parent = {r: r for r in members}
 
     def find(r):
@@ -285,7 +308,7 @@ def link_versions(recs, roots):
 
     merges, reviews = [], []
     for a, b in combinations(sorted(members), 2):
-        decision, reason = version_decision(summ[a], summ[b])
+        decision, reason = version_decision(summ[a], summ[b], rules=RULES)
         if decision == "merge":
             merges.append((a, b, reason))
             ra, rb = find(a), find(b)
@@ -303,14 +326,14 @@ def build_ranked(members, recs, roots_id):
     x = build(members, recs, roots_id)
     rs = sorted((recs[i] for i in members), key=lambda r: r["_order"])
     dois = list(dict.fromkeys(r["doi"] for r in rs if r["doi"]))
-    pub = [d for d in dois if not PREPRINT_DOI_RE.match(norm_doi(d))]
+    pub = [d for d in dois if not RULES.preprint_doi.match(norm_doi(d))]
     if pub and pub[0] != x["doi"]:
         old = x["doi"]
         x["doi"] = pub[0]
         x["alt_ids"] = [a for a in x["alt_ids"] if a.lower() != f"doi:{pub[0]}".lower()] + ([f"doi:{old}"] if old else [])
     years = [r["year"] for r in rs if r["year"]]
     x["year_first"] = min(years) if years else None
-    if x["doi"] and not PREPRINT_DOI_RE.match(norm_doi(x["doi"])):
+    if x["doi"] and not RULES.preprint_doi.match(norm_doi(x["doi"])):
         # 带正式发表 DOI 的记录：同时带 arXiv ID 的记录是预印本与正式版合成的一条，年份可能取自预印本
         # （S2 常见，如 Science Advances 2024 的论文记为 2023）；所以先取不带 arXiv ID 的记录的最早年份，
         # 没有这样的记录时取 OpenAlex 的年份（按正式发表），再不行取这些记录的最早年份
@@ -325,7 +348,7 @@ def load_queries_from_raw(suffix):
     """各结果文件 meta 中的原检索式：{query_id: (包含组, 排除组)}。"""
     out = {}
     for path in raw_files(suffix):
-        m = json.loads(path.read_text(encoding="utf-8"))["meta"]
+        m = load_json_lenient(path)["meta"]
         out.setdefault(m["query_id"], parse_query(m["query_original"]))
     return out
 
@@ -354,7 +377,7 @@ def merge_ranked(recs, suffix):
     ignore = list(dict.fromkeys(t for _, exc in queries.values() for g in exc for t in g))
     merged = [{"merged_id": mid[root], **built[root]} for root in order]
     docs = [Doc(x["title"], x["abstract"]) for x in merged]
-    bm = BM25(docs, terms)
+    bm = BM25(docs, terms, k1=BM25_K1, b=BM25_B)
     for i, (x, d) in enumerate(zip(merged, docs)):
         x["rrf"] = round(sum(1 / (RRF_K + r) for r in list_ranks(x["raw_refs"]).values()), 6)
         x["bm25"] = round(bm.score(i, ignore), 3)
@@ -393,6 +416,7 @@ def review_clusters(pairs):
 
 
 def write_candidates_ranked(candidates, path):
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS_RANKED)
         w.writeheader()
@@ -410,23 +434,28 @@ def write_candidates_ranked(candidates, path):
 
 
 def main():
+    i18n.prepare()
     ap = argparse.ArgumentParser(description="Merge and dedupe search results; write top candidates.")
-    ap.add_argument("--suffix", default="", help="只处理这个后缀的结果文件，如 _v2（默认无后缀，即 v1）")
-    ap.add_argument("--legacy", action="store_true",
-                    help="用 Step 6 / Step 14 当时的方法（按命中次数排序、只按完全相同的标题合并），复现已提交的 v1、v2 结果")
+    ap.add_argument("--suffix", default="", help=t("arg.suffix_only"))
+    ap.add_argument("--legacy", action="store_true", help=t("merge.arg.legacy"))
+    runtime.add_common_args(ap)
     args = ap.parse_args()
+    rt = runtime.init(args)
+    runtime.bind_root(globals(), rt.root, {"RAW_DIR": "results/raw", "OUT_DIR": "results/merged"})
+    configure(rt.cfg)
+    args.cfg_meta = np_config.meta(rt.cfg, rel)
     out_file = OUT_DIR / f"merged{args.suffix}.json"
     cand_file = OUT_DIR / f"candidates{args.suffix}.csv"
 
     recs, inputs = load_raw(args.suffix)
     if not recs:
-        sys.exit(f"results/raw/ 中没有后缀为 '{args.suffix}' 的记录")
+        sys.exit(t("merge.no_records", suffix=args.suffix))
     methods = {}
     for inp in inputs:
         methods.setdefault(inp["source_api"], set()).add(inp["conversion"])
     mixed = {s: sorted(c) for s, c in methods.items() if len(c) > 1}
     if mixed:
-        sys.exit(f"results/raw/ 中同一来源混有不同检索方式的结果，请先重跑 search.py：{mixed}")
+        sys.exit(t("merge.mixed_methods", mixed=mixed))
     if not args.legacy:
         return main_ranked(args, recs, inputs, out_file, cand_file)
 
@@ -442,7 +471,7 @@ def main():
     merged = [{"merged_id": f"M{i:03d}", **x} for i, x in enumerate(merged, 1)]
 
     ranked = sorted(merged, key=candidate_key)
-    candidates = ranked[:TOP_K]
+    candidates = ranked[:LEGACY_TOP_K]
     hits_dist = Counter(x["hits"] for x in merged)
     cutoff = candidates[-1]["hits"]
     tied_total = hits_dist[cutoff]
@@ -471,7 +500,7 @@ def main():
         "counts": counts,
         "candidates": {
             "file": rel(cand_file),
-            "top_k": TOP_K,
+            "top_k": LEGACY_TOP_K,
             "sort": "hits desc, n_queries desc, n_sources desc, mean_rank asc, merged_id",
             "cutoff_hits": cutoff,
             "works_with_cutoff_hits": tied_total,
@@ -479,9 +508,7 @@ def main():
             "per_query": {q: cand_per_query[q] for q in qids},
         },
     }
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    out_file.write_text(json.dumps({"meta": meta, "records": merged}, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8")
+    write_json(out_file, {"meta": meta, "records": merged})
     write_candidates(candidates, cand_file)
 
     st, src = counts["id_status"], counts["sources"]
@@ -496,9 +523,9 @@ def main():
     print("hits:       " + " | ".join(f"{h} hit(s): {n} works" for h, n in counts["hits_distribution"].items())
           + "   (hits = number of query x source result lists containing the work)")
     print(f"written:    {rel(out_file)}, {rel(cand_file)} (top {len(candidates)})")
-    if len(ranked) > TOP_K:
+    if len(ranked) > LEGACY_TOP_K:
         print(f"cutoff:     #{len(candidates)} has hits={cutoff}; {tied_total} works have hits={cutoff}, "
-              f"{tied_out} of them fall outside the top {TOP_K} (decided by n_queries, n_sources, mean_rank)")
+              f"{tied_out} of them fall outside the top {LEGACY_TOP_K} (decided by n_queries, n_sources, mean_rank)")
     print("candidates per query: " + " | ".join(f"{q} {cand_per_query[q]}" for q in qids))
     print(f"\n{'rank':>4}  {'id':<5} {'hits':>4} {'nq':>3} {'ns':>3} {'mean_rank':>9}  {'identifier':<42} title")
     for rank, x in enumerate(candidates, 1):
@@ -536,10 +563,14 @@ def main_ranked(args, recs, inputs, out_file, cand_file):
                         "OSF/TechRxiv/Research Square version suffix ignored)",
                         "same arXiv ID (version stripped)",
                         "versions of one work: same normalized title (trailing publication-status notes stripped, "
-                        ">= 5 words), no notice/variant word on one side only, no two different non-preprint DOIs, "
-                        "no data-repository DOI, year gap <= 3, abstract word Jaccard >= 0.5 when both have abstracts",
+                        f">= {RULES.min_title_words} words), no notice/variant word on one side only, no two different "
+                        f"non-preprint DOIs, no data-repository DOI, year gap <= {RULES.year_window}, abstract word "
+                        "Jaccard >= 0.5 when both have abstracts",
                         "near-identical titles and same-title pairs failing a check are flagged for review, not merged"],
         "year": "year of the version of record (non-preprint DOI; OpenAlex year preferred); year_first = earliest",
+        "parameters": {"top_k": TOP_K, "rrf_k": RRF_K, "bm25": {"k1": BM25_K1, "b": BM25_B},
+                       "year_window": RULES.year_window, "min_title_words": RULES.min_title_words},
+        **getattr(args, "cfg_meta", {}),
         "inputs": inputs,
         "counts": counts,
         **info,
@@ -551,9 +582,7 @@ def main_ranked(args, recs, inputs, out_file, cand_file):
             "per_query": {q: cand_per_query[q] for q in qids},
         },
     }
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    out_file.write_text(json.dumps({"meta": meta, "records": merged}, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8")
+    write_json(out_file, {"meta": meta, "records": merged})
     write_candidates_ranked(candidates, cand_file)
 
     st, src = counts["id_status"], counts["sources"]

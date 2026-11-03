@@ -7,8 +7,10 @@
      把登记题目与表中题目对照：表中题目的词有八成以上出现在登记题目里记"题目一致"。
      遇到 429 / 5xx 指数退避重试（服务端要求等待超过 60 秒则不重试）。
   2. 落地页：带 Accept: text/html 请求，记录最终的 HTTP 状态和返回页的 <title>（--no-landing 时跳过）。
-Crossref 一项失败时（例如 arXiv 等 DataCite 登记的 DOI 被转到 data.crosscite.org 而该域名不可达、
-或 DOI 未在 Crossref 登记），再按 DOI 查 OpenAlex（api.openalex.org/works/doi:<doi>），能查到即算元数据核验通过。
+先查登记机构（api.crossref.org/works/<doi>/agency）：不是 Crossref 登记的 DOI（如 arXiv 等 DataCite 登记的）
+直接记 "Crossref 无记录（DataCite 登记的 DOI）"，不再走 doi.org → data.crosscite.org 那一跳（本环境不可达）。
+Crossref 一项失败时（上述情况，或 DOI 未在 Crossref 登记），再按 DOI 查 OpenAlex（api.openalex.org/works/doi:<doi>），
+能查到即算元数据核验通过。所有请求经 novelty_probe/http.py 的统一客户端（限速、重试、缓存、录制回放；--http-mode 等参数）。
 落地页一项从 https:// 跳到 http:// 时改用 https://（Emerald、IEEE 等的 DOI 登记的是 http:// 地址）。
 verified 列写成 "Crossref <结果>；落地页 <结果>"，Crossref 失败时中间加一段 OpenAlex 的结果，例如：
   Crossref HTTP 200 · 题目一致 · <登记题目>；落地页 HTTP 200 (www.example.org) · <页面标题>
@@ -20,8 +22,13 @@ verified 列写成 "Crossref <结果>；落地页 <结果>"，Crossref 失败时
 没有 DOI 的行写 UNVERIFIED（只有 arXiv ID 的行按本规则也写 UNVERIFIED）。
 每次运行都会覆盖 verified 列的旧值。终端输出两项检查的跳转链与 Crossref 登记的期刊、年份、作者，
 便于记日志。
+结构：check_crossref / check_openalex / check_landing 返回结构化结果（verify_doi 汇总），render_*() 按界面语言（--lang）
+生成上面的文字；中文与改造前逐字相同。列名按配置 columns 识别；配置 verify.landing 为 false 时等同 --no-landing。
 
-用法：python3 scripts/verify.py [--table evidence/evidence_table.md] [--no-landing]
+--table 是证据 JSON（evidence.py import-md 的输出）时，结构化结果写进 rows[].verification，再按 JSON 重新生成
+meta.markdown 指向的 Markdown（该文件在上次导入或渲染后被手工改过时不覆盖，提示先重新导入）。
+
+用法：python3 scripts/verify.py [--table evidence/evidence_table.md|.json] [--no-landing] [--lang en]
 """
 import argparse
 import html
@@ -35,18 +42,24 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe import evidence, i18n, runtime, schemas
+from novelty_probe.defaults import find_column
+from novelty_probe.http import BlockedByPolicy, HttpError, content_charset, default_client
+from novelty_probe.i18n import t
+from novelty_probe.io import read_text, write_json, write_text
+# 结构化结果 → verified 列文字（中文与改造前逐字相同）；放在包里，供 novelty_probe/evidence.py 渲染证据表时共用
+from novelty_probe.verification import (clean, render_crossref, render_failure, render_landing,  # noqa: F401
+                                        render_openalex, render_verified, tally_keys)
+
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TABLE = ROOT / "evidence" / "evidence_table.md"
 DOI_RESOLVER = "https://doi.org/"
 OPENALEX_WORKS = "https://api.openalex.org/works/doi:"
-USER_AGENT = "novelty-probe/0.1 (DOI verification script)"
+CROSSREF_AGENCY = "https://api.crossref.org/works/"   # + <doi>/agency
 HTML_ACCEPT = "text/html,application/xhtml+xml"
 CSL_ACCEPT = "application/vnd.citationstyles.csl+json"
-TIMEOUT = 30
-MAX_BYTES = 512 * 1024
-PAUSE = 1.0
-CROSSREF_RETRIES = 5
-MAX_RETRY_WAIT = 60
+MAX_BYTES = 512 * 1024   # 落地页正文最多读取的字节数（超时、重试、限速见 novelty_probe/http.py）
 
 DOI_RE = re.compile(r"10\.\d{4,9}/\S+")
 CELL_SPLIT = re.compile(r"(?<!\\)\|")
@@ -54,56 +67,36 @@ TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
 TAG_RE = re.compile(r"<[^>]+>")
 
 
-class RecordingRedirects(urllib.request.HTTPRedirectHandler):
-    """照常跟随跳转，同时记下每一跳 (状态码, 目标地址)。
-    从 https:// 跳到 http:// 时改用同一地址的 https://（与浏览器的"仅 HTTPS"模式相同）：
-    Emerald、IEEE 等出版商在 DOI 登记的仍是 http:// 地址，而它们的站点都支持 HTTPS。"""
-
-    def __init__(self):
-        super().__init__()
-        self.chain, self.upgraded = [], []
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        if req.full_url.lower().startswith("https://") and newurl.lower().startswith("http://"):
-            newurl = "https://" + newurl[len("http://"):]
-            self.upgraded.append(newurl)
-        self.chain.append((code, newurl))
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-
-def fetch(doi, accept, retries=0):
-    """请求 doi.org 并跟随跳转。返回 status / final_url / chain / body / charset / ctype / error。"""
+def fetch(doi, accept, retries=None):
+    """经统一客户端请求 doi.org 并跟随跳转（https → http 的跳转改用 https）。
+    返回 status / final_url / chain / upgraded / body / charset / ctype / error / attempts；4xx、5xx 作为结果返回。"""
     url = DOI_RESOLVER + urllib.parse.quote(doi, safe="/")
-    for attempt in range(retries + 1):
-        rec = RecordingRedirects()
-        opener = urllib.request.build_opener(rec)  # 仍会使用 HTTPS_PROXY 等环境代理设置
-        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": accept})
-        res = {"status": None, "final_url": url, "chain": rec.chain, "upgraded": rec.upgraded, "body": b"",
-               "charset": None, "ctype": None, "error": None, "attempts": attempt + 1}
-        try:
-            with opener.open(req, timeout=TIMEOUT) as resp:
-                res.update(status=resp.status, final_url=resp.geturl(), body=resp.read(MAX_BYTES),
-                           charset=resp.headers.get_content_charset(), ctype=resp.headers.get_content_type())
-            return res
-        except urllib.error.HTTPError as e:  # 4xx / 5xx 也是核验结果
-            ra = e.headers.get("Retry-After", "")
-            ra = int(ra) if ra.isdigit() else 0
-            if (e.code == 429 or e.code >= 500) and attempt < retries and ra <= MAX_RETRY_WAIT:
-                time.sleep(max(2 ** (attempt + 1), ra))
-                continue
-            try:
-                body = e.read(MAX_BYTES)
-            except Exception:
-                body = b""
-            res.update(status=e.code, final_url=e.geturl() or url, body=body,
-                       charset=e.headers.get_content_charset(), ctype=e.headers.get_content_type())
-            return res
-        except urllib.error.URLError as e:
-            res.update(error=str(e.reason), final_url=rec.chain[-1][1] if rec.chain else url)
-            return res
-        except (TimeoutError, ConnectionResetError) as e:
-            res.update(error=f"{type(e).__name__}: {e}", final_url=rec.chain[-1][1] if rec.chain else url)
-            return res
+    res = {"status": None, "final_url": url, "chain": [], "upgraded": [], "body": b"",
+           "charset": None, "ctype": None, "error": None, "attempts": 1}
+    try:
+        r = default_client().request(url, accept=accept, errors_as_result=True, max_hops=10)
+    except BlockedByPolicy as e:
+        res.update(error="BLOCKED", final_url=e.url or url, chain=list(e.chain), detail=str(e))
+        return res
+    except HttpError as e:
+        res.update(error=str(e), final_url=e.url or url, chain=list(e.chain), attempts=e.attempts)
+        return res
+    res.update(status=r.status, final_url=r.final_url, chain=list(r.chain), upgraded=list(r.upgraded),
+               body=r.body[:MAX_BYTES], charset=content_charset(r.headers),
+               ctype=(r.headers.get("content-type") or "").split(";")[0].strip() or None, attempts=r.attempts)
+    return res
+
+
+def registration_agency(doi):
+    """DOI 的登记机构（crossref / datacite / …），查 Crossref 的 /works/<doi>/agency；查不到返回 None。
+    arXiv 等 DataCite 登记的 DOI 在 Crossref 没有记录，doi.org 的内容协商会把它们转到 data.crosscite.org（本环境不可达），
+    先问一次登记机构可以直接改走 OpenAlex。"""
+    try:
+        d = default_client().get_json(CROSSREF_AGENCY + urllib.parse.quote(doi, safe="/") + "/agency",
+                                      validate=schemas.crossref_agency)
+    except HttpError:
+        return None
+    return ((d.get("message") or {}).get("agency") or {}).get("id")
 
 
 def host(url):
@@ -114,12 +107,6 @@ def hops(res):
     up = set(res.get("upgraded") or ())
     return " -> ".join(f"{code} {host(u)}" + (" (http→https)" if u in up else "")
                        for code, u in res["chain"]) or "(no redirect)"
-
-
-def clean(text, limit=None):
-    """去 HTML 标签与多余空白；给了 limit 就截短（只用于显示，比对题目时用完整文本）。"""
-    text = " ".join(html.unescape(TAG_RE.sub(" ", text or "")).split())
-    return (text[:limit] + "…") if limit and len(text) > limit else text
 
 
 def page_title(body, charset):
@@ -144,18 +131,32 @@ def title_matches(table_title, other):
     return sum(w in other_words for w in words) / len(words) >= 0.8
 
 
-def failure(res):
+def failure_info(res):
+    """请求失败的位置与原因（结构化）：kind = blocked（网络策略）/ error（超时、连接失败、内容不是 JSON 等）。"""
     h = host(res["final_url"])
-    if "Tunnel connection failed: 403" in res["error"]:
-        return f"BLOCKED at {h} (network policy, proxy 403)"
+    if res["error"] == "BLOCKED" or "Tunnel connection failed: 403" in res["error"]:
+        return {"kind": "blocked", "host": h}
     scheme = urllib.parse.urlsplit(res["final_url"] or "").scheme
     if scheme and scheme != "https":  # 如 doi.org 跳到 http:// 地址：本环境只经代理访问 HTTPS
         h = f"{scheme}://{h}"
-    return f"ERROR at {h}: {res['error'][:80]}"
+    return {"kind": "error", "host": h, "error": res["error"]}
 
+
+def failure(res):
+    return render_failure(failure_info(res))
+
+
+# ---------- 三项检查：返回结构化结果（写进证据 JSON），展示文字由 render_*() 按界面语言生成 ----------
 
 def check_crossref(doi, table_title):
-    res = fetch(doi, CSL_ACCEPT, retries=CROSSREF_RETRIES)
+    """→ (结果, HTTP 结果, CSL 元数据)。结果的 outcome：
+    not_registered（不是 Crossref 登记的 DOI，agency 记登记机构）/ failed（failure）/ http（非 200）/ found（title、title_match）。"""
+    agency = registration_agency(doi)
+    if agency and agency != "crossref":
+        res = {"status": None, "final_url": DOI_RESOLVER + doi, "chain": [], "upgraded": [], "body": b"", "charset": None,
+               "ctype": None, "error": None, "attempts": 0, "agency": agency}
+        return {"outcome": "not_registered", "agency": agency}, res, None
+    res = fetch(doi, CSL_ACCEPT)
     meta = None
     if not res["error"] and res["status"] == 200:
         try:
@@ -163,39 +164,48 @@ def check_crossref(doi, table_title):
         except ValueError:
             res["error"] = f"unexpected content ({res['ctype']})"
     if res["error"]:
-        part, ok = "Crossref " + failure(res), False
-    elif meta is None:
-        part, ok = f"Crossref HTTP {res['status']} ({host(res['final_url'])})", False
-    else:
-        t = csl_title(meta)
-        m = title_matches(table_title, t)  # 用完整题目比对
-        flag = "题目一致" if m else ("题目不一致" if m is False else "题目缺失")
-        part, ok = f"Crossref HTTP 200 · {flag} · {clean(t, 120) or '(no title)'}", True
-    return res, meta, part, ok
+        return {"outcome": "failed", "failure": failure_info(res)}, res, None
+    if meta is None:
+        return {"outcome": "http", "http": res["status"], "host": host(res["final_url"])}, res, None
+    t_ = csl_title(meta)
+    return {"outcome": "found", "http": 200, "title": t_, "title_match": title_matches(table_title, t_)}, res, meta  # 用完整题目比对
 
 
 def check_openalex(doi, table_title):
-    """Crossref 核验失败时的备用核验：按 DOI 查 OpenAlex，比对题目。"""
-    from search import get_json  # OpenAlex 的 key 由环境（OPENALEX_API_KEY 或代理）提供
+    """Crossref 核验失败时的备用核验：按 DOI 查 OpenAlex，比对题目。outcome：http（如 404 未收录）/ failed / found。"""
     try:
-        w = get_json(OPENALEX_WORKS + urllib.parse.quote(doi, safe="/") + "?select=id,display_name,type,publication_year")
-    except RuntimeError as e:
-        code = re.match(r"HTTP (\d+)", str(e))
-        if code:
-            return None, f"OpenAlex HTTP {code.group(1)}" + (" (未收录该 DOI)" if code.group(1) == "404" else ""), False
-        return None, f"OpenAlex ERROR: {str(e)[:80]}", False
-    t = clean(w.get("display_name"))
-    m = title_matches(table_title, t)
-    flag = "题目一致" if m else ("题目不一致" if m is False else "题目缺失")
-    return w, f"OpenAlex · {flag} · {clean(t, 120) or '(no title)'}", True
+        w = default_client().get_json(OPENALEX_WORKS + urllib.parse.quote(doi, safe="/") + "?select=id,display_name,type,publication_year",
+                                      validate=schemas.openalex_work)
+    except HttpError as e:
+        if e.status:
+            return {"outcome": "http", "http": e.status}
+        return {"outcome": "failed", "error": str(e)}
+    t_ = clean(w.get("display_name"))
+    return {"outcome": "found", "title": t_, "title_match": title_matches(table_title, t_)}
 
 
 def check_landing(doi):
+    """→ (结果, HTTP 结果)。outcome：failed / http（http、host、page_title）。"""
     res = fetch(doi, HTML_ACCEPT)
     if res["error"]:
-        return res, "落地页 " + failure(res)
+        return {"outcome": "failed", "failure": failure_info(res)}, res
     title = page_title(res["body"], res["charset"]) if res["body"] else None
-    return res, f"落地页 HTTP {res['status']} ({host(res['final_url'])}) · {title or '(no <title>)'}"
+    return {"outcome": "http", "http": res["status"], "host": host(res["final_url"]), "page_title": title}, res
+
+
+def verify_doi(doi, table_title, landing=True):
+    """一个 DOI 的完整核验：Crossref → （失败时）OpenAlex → 落地页。返回 (结构化结果, 供终端打印的细节)。"""
+    cr, cr_res, meta = check_crossref(doi, table_title)
+    result = {"doi": doi, "crossref": cr, "openalex": None, "landing": {"outcome": "skipped"}}
+    ok = cr["outcome"] == "found"
+    if not ok:  # Crossref 不可用或未登记：改用 OpenAlex 核验
+        result["openalex"] = check_openalex(doi, table_title)
+        ok = result["openalex"]["outcome"] == "found"
+    land_res = None
+    if landing:
+        result["landing"], land_res = check_landing(doi)
+    result["metadata_ok"] = ok
+    return result, {"crossref_res": cr_res, "meta": meta, "landing_res": land_res}
 
 
 def split_row(line):
@@ -205,71 +215,116 @@ def split_row(line):
     return [c.strip() for c in CELL_SPLIT.split(s[1:-1])]
 
 
-def main():
-    ap = argparse.ArgumentParser(description="Verify DOIs in the evidence table via doi.org and Crossref.")
-    ap.add_argument("--table", type=Path, default=DEFAULT_TABLE)
-    ap.add_argument("--no-landing", action="store_true", help="不检查出版商落地页，只做元数据核验")
-    args = ap.parse_args()
-    lines = args.table.read_text(encoding="utf-8").splitlines()
+class Tally:
+    def __init__(self):
+        self.cr, self.land, self.failed = {}, {}, 0
 
+    def add(self, v):
+        if not v.get("doi"):
+            self.cr["UNVERIFIED"] = self.cr.get("UNVERIFIED", 0) + 1
+            return
+        key_cr, key_land = tally_keys(v)
+        self.cr[key_cr] = self.cr.get(key_cr, 0) + 1
+        self.land[key_land] = self.land.get(key_land, 0) + 1
+        self.failed += not v["metadata_ok"]
+
+
+def verify_and_print(rank, id_text, table_title, landing):
+    """核验一行（id_text 中找不到 DOI 时为 UNVERIFIED），打印细节，返回结构化结果。"""
+    m = DOI_RE.search(id_text or "")
+    if not m:
+        print(f"[{rank}] no DOI -> UNVERIFIED")
+        return {"doi": None}
+    doi = m.group(0).rstrip(".,;")
+    v, detail = verify_doi(doi, table_title, landing)
+    cr_res, meta, land_res = detail["crossref_res"], detail["meta"], detail["landing_res"]
+    print(f"[{rank}] doi:{doi}")
+    print(f"      crossref:  {hops(cr_res)}  (attempts: {cr_res['attempts']})  -> {render_crossref(v['crossref'])}")
+    if cr_res.get("agency"):
+        print(f"                 registration agency: {cr_res['agency']} (api.crossref.org/works/<doi>/agency)")
+    if meta:
+        year = ((meta.get("issued") or {}).get("date-parts") or [[None]])[0][0]
+        authors = "; ".join(a.get("family") or a.get("literal") or "?" for a in (meta.get("author") or [])[:3])
+        print(f"                 registered: {meta.get('container-title') or '-'} | {year} | "
+              f"{meta.get('type') or '-'} | authors: {authors or '-'}")
+    if v["openalex"]:
+        print(f"      openalex:  -> {render_openalex(v['openalex'])}")
+    print(f"      landing:   {hops(land_res) if land_res else '(skipped)'}  -> {render_landing(v['landing'])}")
+    return v
+
+
+def verify_markdown(table, columns, landing, tally):
+    """Markdown 证据表：逐行核验，把文字写回 verified 列（表外内容不变）。"""
+    lines = read_text(table).splitlines()
     header = next((i for i, l in enumerate(lines)
-                   if (c := split_row(l)) and "verified" in c and "DOI/arXiv" in c), None)
+                   if (c := split_row(l)) and find_column(c, "verified", columns) is not None
+                   and find_column(c, "id", columns) is not None), None)
     if header is None:
-        sys.exit(f"{args.table} 中找不到含 DOI/arXiv 与 verified 列的表头")
+        sys.exit(t("verify.no_header", table=table))
     cols = split_row(lines[header])
-    i_doi, i_ver = cols.index("DOI/arXiv"), cols.index("verified")
-    i_rank = cols.index("rank") if "rank" in cols else None
-    i_title = next((cols.index(c) for c in ("题目", "Title", "title") if c in cols), None)  # 中文或英文表头
-
-    print(f"verify run at {datetime.now(timezone.utc).isoformat(timespec='seconds')}  table={args.table}")
-    tally_cr, tally_land, failed = {}, {}, 0
+    i_doi, i_ver = find_column(cols, "id", columns), find_column(cols, "verified", columns)
+    i_rank, i_title = find_column(cols, "rank", columns), find_column(cols, "title", columns)  # 中文或英文表头
     i = header + 2  # 跳过表头下面的分隔行
     while i < len(lines) and (cells := split_row(lines[i])) is not None:
         rank = cells[i_rank] if i_rank is not None else str(i)
-        table_title = cells[i_title] if i_title is not None else ""
-        m = DOI_RE.search(cells[i_doi])
-        if not m:
-            cells[i_ver] = "UNVERIFIED"
-            tally_cr["UNVERIFIED"] = tally_cr.get("UNVERIFIED", 0) + 1
-            print(f"[{rank}] no DOI -> UNVERIFIED")
-        else:
-            doi = m.group(0).rstrip(".,;")
-            cr_res, meta, cr_part, ok = check_crossref(doi, table_title)
-            parts, oa_part = [cr_part], None
-            key_cr = cr_part.split(" · ")[1] if ok else cr_part.split(" (")[0]
-            if not ok:  # Crossref 不可用或未登记：改用 OpenAlex 核验
-                _, oa_part, ok = check_openalex(doi, table_title)
-                parts.append(oa_part)
-                if ok:
-                    key_cr = "OpenAlex " + oa_part.split(" · ")[1]
-            if args.no_landing:
-                land_res, land_part = None, "落地页 skipped"
-            else:
-                land_res, land_part = check_landing(doi)
-            cells[i_ver] = "；".join(parts + [land_part]).replace("|", "\\|")
-            failed += not ok
-            key_land = land_part.split(" (")[0]
-            tally_cr[key_cr] = tally_cr.get(key_cr, 0) + 1
-            tally_land[key_land] = tally_land.get(key_land, 0) + 1
-            print(f"[{rank}] doi:{doi}")
-            print(f"      crossref:  {hops(cr_res)}  (attempts: {cr_res['attempts']})  -> {cr_part}")
-            if meta:
-                year = ((meta.get("issued") or {}).get("date-parts") or [[None]])[0][0]
-                authors = "; ".join(a.get("family") or a.get("literal") or "?" for a in (meta.get("author") or [])[:3])
-                print(f"                 registered: {meta.get('container-title') or '-'} | {year} | "
-                      f"{meta.get('type') or '-'} | authors: {authors or '-'}")
-            if oa_part:
-                print(f"      openalex:  -> {oa_part}")
-            print(f"      landing:   {hops(land_res) if land_res else '(skipped)'}  -> {land_part}")
-            time.sleep(PAUSE)
+        v = verify_and_print(rank, cells[i_doi], cells[i_title] if i_title is not None else "", landing)
+        tally.add(v)
+        cells[i_ver] = render_verified(v).replace("|", "\\|")
         lines[i] = "| " + " | ".join(cells) + " |"
         i += 1
+    write_text(table, "\n".join(lines) + "\n")
+    print(f"written: verified column in {table}")
 
-    args.table.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print("\nsummary crossref: " + " | ".join(f"{k}: {v}" for k, v in sorted(tally_cr.items())))
-    print("summary landing:  " + " | ".join(f"{k}: {v}" for k, v in sorted(tally_land.items())))
-    print(f"written: verified column in {args.table}")
-    return 1 if failed else 0
+
+def verify_json(table, cfg, landing, tally, root):
+    """证据 JSON：把结构化结果写进 rows[].verification，再按 JSON 重新生成 Markdown（Markdown 被手工改过时不覆盖）。"""
+    try:
+        doc = evidence.load(table, cfg)
+    except evidence.EvidenceError as e:
+        sys.exit(str(e))
+    checked_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    for row in doc["rows"]:
+        v = verify_and_print(row.get("rank"), f"doi:{row['doi']}" if row.get("doi") else "", row.get("title") or "", landing)
+        tally.add(v)
+        row["verification"] = {**v, "checked_at": checked_at}
+        row.pop("verified_text", None)
+    write_json(table, doc)
+    print(t("evidence.written", path=table))
+    md = doc["meta"].get("markdown")
+    if md:
+        md_path = (root / md) if not Path(md).is_absolute() else Path(md)
+        if evidence.markdown_was_edited(doc, md_path):
+            print(t("evidence.md_edited", path=md), file=sys.stderr)
+            return
+        text = evidence.render_markdown(doc)
+        write_text(md_path, text)
+        evidence.mark_rendered(doc, text)
+        write_json(table, doc)
+        print(t("evidence.written", path=md))
+
+
+def main():
+    i18n.prepare()
+    ap = argparse.ArgumentParser(description="Verify DOIs in the evidence table via doi.org and Crossref.")
+    ap.add_argument("--table", type=Path, default=None, help=t("verify.arg.table"))
+    ap.add_argument("--no-landing", action="store_true", help=t("verify.arg.no_landing"))
+    runtime.add_common_args(ap, network=True)
+    args = ap.parse_args()
+    rt = runtime.init(args)
+    runtime.bind_root(globals(), rt.root, {"DEFAULT_TABLE": "evidence/evidence_table.md"})
+    cfg, client = rt.cfg, rt.client
+    table = args.table or DEFAULT_TABLE
+    landing = not args.no_landing and cfg["verify"]["landing"]
+    print(f"verify run at {datetime.now(timezone.utc).isoformat(timespec='seconds')}  table={table}")
+    tally = Tally()
+    if table.suffix.lower() == ".json":
+        verify_json(table, cfg, landing, tally, rt.root)
+    else:
+        verify_markdown(table, cfg["columns"], landing, tally)
+    print("\nhttp: " + json.dumps(client.stats_summary(), ensure_ascii=False))
+    print("summary crossref: " + " | ".join(f"{k}: {v}" for k, v in sorted(tally.cr.items())))
+    print("summary landing:  " + " | ".join(f"{k}: {v}" for k, v in sorted(tally.land.items())))
+    return 1 if tally.failed else 0
 
 
 if __name__ == "__main__":
