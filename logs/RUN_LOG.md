@@ -3898,3 +3898,21 @@ python3 -W error::ResourceWarning -m unittest discover -s tests   # 3.13: Ran 14
 新增 `tests/test_query_sources.py`（20 项）：基准对照、全部错误码与位置、英文报错、dry-run 的 ^ 位置、固定种子的 300 条随机检索式往返、OpenAlex 解析树的真实与改动样例、含 NOT 的录制件回放、Crossref 回放（保存的记录都满足检索式、教程长检索式保存 0 条、默认关闭）、请求估算与额度预警、临时登记的假数据源走通检索与合并、三个来源的合并。联网检查的第 5 项改为 Crossref 检索（Step 79，仍是 6 个请求）。
 
 **产出文件**：`novelty_probe/{query,text}.py`、`novelty_probe/sources/{__init__,base,common,localrank,openalex,semanticscholar,crossref}.py`、`tests/test_query_sources.py`、`tests/fixtures/{query_golden,crossref_queries}.json`、`tests/fixtures/cassettes/{search_not,search_crossref}.json`（新增）；`scripts/{search,merge,snowball,textmatch}.py`、`novelty_probe/{config,i18n,schemas}.py`、`tests/{test_live_contract,test_replay}.py`、`HOWTO.md`、`HANDOFF.md`、`AGENTS.md`、`README.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`（修改）
+
+---
+
+## [2026-11-03 13:55 UTC] Step 81 — 阶段 4 开始：研究者的决定与任务分解
+
+**研究者的要求**（原话）："No need to add Python 3.14 to CI, keep Crossref off by default, I prefer RIS format. I agree to save authors with each search. There's no need adding duplicate-review table cause I'd like to reduce middle-stage human participations (damn, It's only a START of the whole research work!). I've merged and confirmed, you can start Phase 4 now."
+
+**决定**：CI 不加 Python 3.14；Crossref 保持默认关闭；导出只做 RIS；检索时保存作者；不设去重复核表。由此定下的设计原则写入 `docs/ROADMAP.md` 第 1 节：**减少中间环节的人工参与**，脚本能自动完成、自动判断的就不留给研究者。
+
+**做了什么**：更新 `docs/ROADMAP.md`：阶段 3 记为已合并（#6）；阶段 4 的任务分解按上述决定调整：
+- 记录带作者与出处；
+- 去重自动完成、规则编号可追溯，作者参与判断，不设复核表；
+- 拆分合并脚本；
+- 合并时自动写出 RIS、运行清单与检索报告；原计划的漂移检查并入运行清单；
+- 量化本地匹配的偏差。
+阶段 3 的任务表移到附录；待决策中新增阶段 5 的"一条命令跑完全部脚本步骤"（建议加）。
+
+**产出文件**：`docs/ROADMAP.md`（修改）
