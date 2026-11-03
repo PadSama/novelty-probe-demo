@@ -190,7 +190,8 @@ novelty_probe/   shared package: HTTP client and cache, response checks, configu
 novelty-probe.json  project configuration (only what differs from the defaults)
 examples/        frozen copy of the tutorial outputs, used as test fixtures
 tests/           offline self-test, recorded responses, optional live checks
-docs/            IMPROVEMENT_PLAN.md (known issues) and ARCHITECTURE_REVIEW.md (tool-layer review and phases), in Chinese
+docs/            IMPROVEMENT_PLAN.md (known issues), ARCHITECTURE_REVIEW.md (tool-layer review) and ROADMAP.md
+                 (plan and progress of the tool-layer iteration), in Chinese
 .github/         GitHub Actions workflow for the offline tests
 PROJECT.md       the assistant's role and rules (Chinese)
 AGENTS.md        instructions for AI coding assistants (Chinese)

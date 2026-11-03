@@ -474,7 +474,8 @@ NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 | `logs/RUN_LOG.md` | 运行日志<br>Run log |
 | `novelty-probe.json` | 项目配置：只写与默认值不同的设置<br>Project configuration: only the settings that differ from the defaults |
 | `docs/IMPROVEMENT_PLAN.md` | 遗留问题的调研、改进计划与评估结果（中文）<br>Research, improvement plan and evaluation for the known issues (Chinese) |
-| `docs/ARCHITECTURE_REVIEW.md` | 工具层的架构审视、分阶段计划与进度（中文）<br>Architecture review, phased plan and progress of the tool layer (Chinese) |
+| `docs/ARCHITECTURE_REVIEW.md` | 工具层的架构审视与设计理由（中文）<br>Architecture review and design rationale of the tool layer (Chinese) |
+| `docs/ROADMAP.md` | 工具层迭代的总体计划与进度表（中文）<br>Overall plan and progress table of the tool-layer iteration (Chinese) |
 | `novelty_probe/` | 各脚本共用的包：HTTP 客户端与缓存、配置、界面语言、证据 JSON<br>Package shared by the scripts: HTTP client and cache, configuration, interface language, evidence JSON |
 | `scripts/search.py` | T3 检索（`--dry-run` 检查语法；`--ids`、`--sources` 补跑；`--queries`、`--suffix` 用于新一轮）<br>T3 search (`--dry-run` checks syntax; `--ids`, `--sources` re-run failures; `--queries`, `--suffix` for a new round) |
 | `scripts/qa.py` | T3 检索质量检查（`--suffix`）<br>T3 search quality check (`--suffix`) |

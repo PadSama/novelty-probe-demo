@@ -22,7 +22,7 @@
 |---|---|
 | 仓库 | https://github.com/PadSama/novelty-probe-demo （公开，MIT 许可证） |
 | 发布 | v1.0.0（标签打在 3f00b7a） |
-| v1.0.0 之后的改动 | CITATION.cff 加入 ORCID、标题大小写修正；交接文档 `AGENTS.md`、`HANDOFF.md`、`tests/`（Step 23）；针对第 9 节遗留问题的改进（Step 24–64，见 `docs/IMPROVEMENT_PLAN.md`）：NOT、S2 本地重排、版本识别与 RRF 排序、补摘要、引文追踪、核验回退、质量检查与结果比较脚本；工具层迭代（Step 66–72，见 `docs/ARCHITECTURE_REVIEW.md`）：共用包 `novelty_probe/`（HTTP 客户端、缓存与录制回放、配置 `novelty-probe.json`、中英文界面、证据 JSON 与检查）、离线测试的网络护栏、联网接口检查、GitHub Actions |
+| v1.0.0 之后的改动 | CITATION.cff 加入 ORCID、标题大小写修正；交接文档 `AGENTS.md`、`HANDOFF.md`、`tests/`（Step 23）；针对第 9 节遗留问题的改进（Step 24–64，见 `docs/IMPROVEMENT_PLAN.md`）：NOT、S2 本地重排、版本识别与 RRF 排序、补摘要、引文追踪、核验回退、质量检查与结果比较脚本；工具层迭代（Step 66 起，计划与进度见 `docs/ROADMAP.md`，设计理由见 `docs/ARCHITECTURE_REVIEW.md`）：共用包 `novelty_probe/`（HTTP 客户端、缓存与录制回放、配置 `novelty-probe.json`、中英文界面、证据 JSON 与检查）、离线测试的网络护栏、联网接口检查、GitHub Actions |
 | 默认分支 | `main`，受规则集保护：禁止删除、禁止强推、必须通过 PR 合并（审批人数 0） |
 | 引用信息 | `CITATION.cff`：作者 Yuan, Quan；ORCID 0009-0009-3011-3739；version 1.0.0 |
 | 示例运行 | v1（未限定学科）与 v2（管理学与经济学）两轮的全部产出都在仓库里（用旧方法生成，`merge.py --legacy` 可逐字节复现）；v1b、v2b 是用改进后的流程重跑的评估轮（检索、合并、补摘要、引文追踪与比较，没有证据表）；全过程见 `logs/RUN_LOG.md` Step 0–65 |
@@ -291,7 +291,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 
 - **只追加**：新条目一律写在末尾，不改写已有条目。
 - **条目格式**：以 `---` 分隔，标题写成 `## [YYYY-MM-DD HH:MM UTC] Step N — 标题`，正文包含研究者的要求、命令、输出、产出文件、备注。
-- **编号**：下一步是 **Step 73**。
+- **编号**：下一步是 **Step 74**。
 - **旧哈希**：Step 20 之前的条目里引用的是改写历史之前的提交哈希，按 Step 20 的对照表查新哈希。
 
 ## 7. 脚本速查
