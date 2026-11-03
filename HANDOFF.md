@@ -154,7 +154,8 @@ idea/idea.md
   │  T2 AI 助手
   ▼
 facets/facets.md + queries/queries.json
-  │  T3 scripts/search.py ──► OpenAlex（title_and_abstract.search）、Semantic Scholar（bulk）
+  │  T3 scripts/search.py：检索式解析为语法树（novelty_probe/query.py），按数据源注册表（novelty_probe/sources/）逐个检索
+  │      ──► OpenAlex（title_and_abstract.search）、Semantic Scholar（bulk）；Crossref 可选，默认关闭
   ▼
 results/raw/{来源}_{Qn}{后缀}.json        每条检索式 × 每个来源，前 25 条（S2 取回全部命中后本地重排）
   │  （可选）scripts/qa.py：标题 + 摘要满足检索式的比例
@@ -195,7 +196,7 @@ evidence/difference_statement.md
 | `logs/RUN_LOG.md` | 只追加的运行日志 | `logrun.py` + AI 助手 | 所有人 |
 | `novelty-probe.json` | 项目配置（只写与默认值不同的设置） | 研究者（`scripts/config.py init` 生成最小文件） | 所有脚本 |
 | `evidence/evidence_table*.json` | 证据表的 JSON 形式（可选；以它为数据源时 Markdown 由它生成） | `evidence.py import-md`、`verify.py --table *.json` | `evidence.py`、`verify.py`、`snowball.py` |
-| `novelty_probe/` | 共用包：`http.py`（客户端）、`cache.py`、`schemas.py`（响应形状校验）、`config.py`、`i18n.py`、`runtime.py`（通用参数）、`evidence.py`、`verification.py`、`defaults.py`、`io.py`、`paths.py` | — | 所有脚本 |
+| `novelty_probe/` | 共用包：`query.py`（检索式语法树与错误码）、`sources/`（数据源协议与注册表：`openalex.py`、`semanticscholar.py`、`crossref.py`、本地重排 `localrank.py`）、`text.py`（文本匹配）、`http.py`（客户端）、`cache.py`、`schemas.py`（响应形状校验）、`config.py`、`i18n.py`、`runtime.py`（通用参数）、`evidence.py`、`verification.py`、`defaults.py`、`io.py`、`paths.py` | — | 所有脚本 |
 | `tests/` | 离线自检：`test_offline`、`test_pipeline`、`test_core`、`test_http`、`test_replay`、`test_config`、`test_evidence`；`test_live_contract`（NP_LIVE=1 才运行）；`tests/fixtures/` 为词干还原对照表与录制件 | — | 改代码后运行 |
 
 ## 6. 数据格式约定
@@ -208,9 +209,10 @@ JSON 数组，每条形如：
 {"id": "Q1", "facets_used": ["mechanism", "context"], "query": "(\"large language models\" OR \"generative AI\") AND (homogenization OR \"collective diversity\")", "purpose": "component"}
 ```
 
-- **语法**：用 AND 连接若干个括号组，括号内只用 OR；短语加英文双引号；运算符一律大写；不用嵌套括号和逗号。排除写成 `AND NOT ("a" OR "b")`，放在包含组之后：OpenAlex 原样发送（脚本检查 `x_query.oql` 中确有 NOT，否则报错不保存），S2 译为 `+ -(…)`。小写的 and / or / not 和以 `-`、`!` 开头的词会被拒绝（OpenAlex 把小写 not 当普通词，实测会把排除变成必须包含）。
-- **检查**：`search.py` 的 `load_queries()` 检查 JSON 格式、id 格式与是否重复、query 是否为空、purpose 取值；`--dry-run` 另外检查检索式语法，并打印两个来源实际会发送的检索串。
-- **截断词**：只有 `search.py` 中 `TRUNCATION` 表登记过的截断词才能用（如 `bibliometric*`），其他截断词会报错。HOWTO 的提示词要求不用截断，这样最省事。
+- **语法**：用 AND 连接若干个括号组，括号内只用 OR；短语加英文双引号；运算符一律大写；不用嵌套括号和逗号。排除写成 `AND NOT ("a" OR "b")`，放在包含组之后：OpenAlex 原样发送（脚本核对 OpenAlex 返回的解析树，NOT 丢失或分组改变都报错不保存），S2 译为 `+ -(…)`。小写的 and / or / not 和以 `-`、`!` 开头的词会被拒绝（OpenAlex 把小写 not 当普通词，实测会把排除变成必须包含）。
+- **解析**：`novelty_probe/query.py` 把检索式解析为语法树，各数据源从同一棵树序列化。错误有固定错误码与位置：Q101 嵌套括号、Q102 括号不配对、Q103 括号内的 AND、Q104 括号外的 OR、Q105 以 NOT 开头、Q106 NOT 的位置、Q107 小写运算符、Q108 用 - 或 ! 排除、Q109 空的组、Q111 逗号、Q112 引号不配对、Q113 空短语、Q114 截断符不在词尾、Q115 括号内缺少 OR、Q116 组之间缺少 AND、Q117 OR 一侧没有词；Q201 未登记的截断词（OpenAlex、Crossref 序列化时）。Q111–Q117 是阶段 3 起才拒绝的写法：它们以前会让各来源检索到不同的内容。
+- **检查**：`search.py` 的 `load_queries()` 检查 JSON 格式、id 格式与是否重复、query 是否为空、purpose 取值；`--dry-run` 另外检查检索式语法（错误位置用 ^ 标出），打印启用的各来源实际会发送的检索串与请求估算。
+- **截断词**：只有配置 `queries.truncation` 中登记过的截断词才能用（如 `bibliometric*`），其他截断词会报错（Q201）。HOWTO 的提示词要求不用截断，这样最省事。
 
 ### 6.2 `results/raw/{source}_{id}{suffix}.json`
 
@@ -223,6 +225,8 @@ records title, year, doi, arxiv_id, venue, abstract, source_api, query_id
 ```
 
 DOI 已去掉 `https://doi.org/` 前缀，arXiv ID 已去掉版本号，OpenAlex 的摘要已由倒排索引还原成文本。S2 的 meta 另有 `retrieval_sort` 与 `pool`（取回条数、页数、是否截断、有摘要的条数、去掉的同题记录数）。旧结果（v1、v2）没有这些字段。
+
+Crossref 的结果文件（`crossref_{id}{suffix}.json`，开启后才有）：记录格式相同（`arxiv_id` 总是空，题目与摘要去掉了 JATS 标签），另有 `local_rank`；meta 另有 `lossy`（有损之处）与 `pool`（取回条数、页数、是否截断、有摘要的条数、跳过的条目类型数、本地满足检索式的条数 `conforming`、去掉的同题记录数）。`total_hits` 是 Crossref 对词袋的命中数，与布尔检索的命中数不可比。
 
 ### 6.3 `results/merged/merged{suffix}.json`
 
@@ -291,14 +295,14 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 
 - **只追加**：新条目一律写在末尾，不改写已有条目。
 - **条目格式**：以 `---` 分隔，标题写成 `## [YYYY-MM-DD HH:MM UTC] Step N — 标题`，正文包含研究者的要求、命令、输出、产出文件、备注。
-- **编号**：下一步是 **Step 74**。
+- **编号**：下一步是 **Step 81**。
 - **旧哈希**：Step 20 之前的条目里引用的是改写历史之前的提交哈希，按 Step 20 的对照表查新哈希。
 
 ## 7. 脚本速查
 
 | 脚本 | 作用 | 常用参数 | 访问网络 | 退出码 |
 |---|---|---|---|---|
-| `search.py` | T3 检索 | `--dry-run`、`--ids`、`--sources`、`--queries`、`--suffix` | api.openalex.org、api.semanticscholar.org | 0 全部成功；1 有请求失败，或 dry-run 发现语法错误；2 检索式文件不合格或参数错误 |
+| `search.py` | T3 检索（数据源取自注册表） | `--dry-run`、`--ids`、`--sources`、`--queries`、`--suffix` | api.openalex.org、api.semanticscholar.org（开启 Crossref 时还有 api.crossref.org） | 0 全部成功；1 有请求失败，或 dry-run 发现语法错误；2 检索式文件不合格或参数错误 |
 | `qa.py` | 检索质量检查（可选） | `--suffix` | 无 | 0 |
 | `merge.py` | T4 合并去重、版本识别、RRF 排序、前 20 候选 | `--suffix`、`--legacy` | 无 | 0 成功；没有记录或同一来源混有不同检索方式时报错退出 |
 | `authors.py` | T5 查作者 | `--top`、`--candidates`、`--out` | api.openalex.org | 0（单条失败记在 `error` 字段里） |
@@ -353,6 +357,11 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 | 单元测试全部禁网；联网接口检查只在 NP_LIVE=1 时运行（6 个请求） | 研究者决定（决策点 3） | Step 69、72 |
 | GitHub Actions：Python 3.9–3.13 × Ubuntu / Windows / macOS，只跑离线测试 | 研究者决定（决策点 4）；Windows 与 macOS 在云端测不了 | Step 69 |
 | User-Agent 默认是通用的客户端名，不带邮箱 | 助手不代填个人信息；研究者可以在配置里自己填 `contact_email` | Step 69 |
+| `contact_email` 留空；教程的两张证据表保持 Markdown；进入阶段 3 | 研究者决定 | Step 73 |
+| 保留受限的检索式语法（AND 连接 OR 组，尾部 NOT），解析一次成语法树，各数据源从同一棵树序列化 | 本地重排、`n_conform`、qa.py 都依赖这个形状；任意嵌套只会扩大出错面 | Step 66、80 |
+| 以前放行的错误写法（未配对引号、逗号、缺 OR、缺 AND）改为报错 | 它们会让各来源检索到不同的内容；仓库里 72 个结果文件的检索式全部仍能解析 | Step 80 |
+| OpenAlex 返回的解析树逐组核对：分组不同即报错不保存，结构不认识只警告 | 分组不同说明结果与意图不符；接口改了表示方式时不应误拦 | Step 80 |
+| Crossref 适配器的本地判断从严：现有文字须满足整条检索式 | Crossref 不做布尔检索，标题不满足就无从证明；宁缺毋滥 | Step 76、80 |
 
 ## 9. 已知问题与可改进处
 
@@ -368,7 +377,8 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 8. **OpenAlex 额度**：云端注入的 key 有每日 1 美元的上限，且可能与其他任务共用；带检索条件的请求每次 0.001 美元。
 8a. **S2 的 429**：云端的 S2 key 已确认生效（只有带有效 key 才能访问的数据集接口返回 200），但请求间隔 2 秒时仍有约一半返回 429（Step 65），像是这个 key 的额度同时被别处占用。`search.py` 会按 2、4、8… 秒退避重试，最终成功，只是更慢。
 9. **证据检查的边界**：`evidence.py check` 按词序比对引文（大小写、标点不计），能抓出改写和编造的引文，但不判断标注是否合理；中文引号内的转述不检查；作者只在找到 `authors*.json` 时比对。
-10. **Crossref 检索源**（决策点 2：实现但默认关闭）属于阶段 3，尚未实现。
+10. **Crossref 检索源**（决策点 2：实现但默认关闭，阶段 3 已实现）：它的检索面向参考文献匹配，实测教程的长检索式在前 40 条里没有满足检索式的记录（Step 75–77），两三个词的简单检索式效果好得多（Step 78）。
+10a. **OpenAlex 对未加引号的连字符词**：示例检索式里没有这种写法，OpenAlex 怎样解析未经实测；dry-run 会提示加引号，分组核对若发现 OpenAlex 拆开了它，会报错不保存。
 11. **待研究者确认**：v2 证据表 rank 8 的"研究问题"面按研究者标准改为 overlap 是助手的推断（Step 25）；v1b、v2b 没有证据表，是否以它们替代 v1、v2 由研究者决定。
 
 ## 10. Git 与发布
