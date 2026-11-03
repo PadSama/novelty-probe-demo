@@ -301,8 +301,8 @@ def diff(cfg, base=None):
 STARTER = {
     "schema": SCHEMA,
     "_comment": "Only settings that differ from the built-in defaults go here. "
-                "Show all settings with: python3 scripts/config.py show   |   "
-                "这里只写与内置默认值不同的设置；查看全部设置：python3 scripts/config.py show",
+                "Show all settings with: novelty-probe config show   |   "
+                "这里只写与内置默认值不同的设置；查看全部设置：novelty-probe config show",
     "language": "zh",
     "contact_email": "",
 }

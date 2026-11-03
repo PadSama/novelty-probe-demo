@@ -15,7 +15,7 @@ from . import config as config_mod
 from . import i18n
 from .http import POLICIES, Client, HostPolicy, add_http_args, set_default_client
 from .io import configure_console
-from .paths import find_root  # noqa: F401  （scripts/config.py 经由 runtime 使用）
+from .paths import PACKAGE_ROOT, ProjectNotFound, find_root  # noqa: F401  （config 命令经由 runtime 使用 find_root）
 
 
 @dataclass
@@ -27,12 +27,11 @@ class Runtime:
 
 
 def bind_root(g, root, layout):
-    """把脚本模块里的路径常量换到另一个项目根目录。
-    g：脚本的 globals()；layout：{常量名: 相对于项目根目录的路径}。
-    只有 root 与脚本所在的仓库不同时才改：在仓库里运行（含测试）时什么都不变，测试可以照旧替换这些常量。"""
-    script_root = Path(g["__file__"]).resolve().parent.parent
+    """把命令模块里的路径常量换到另一个项目根目录。
+    g：命令模块的 globals()；layout：{常量名: 相对于项目根目录的路径}。
+    只有 root 不是源码仓库本身时才改：在仓库里运行（含测试）时什么都不变，测试可以照旧替换这些常量。"""
     root = Path(root).resolve()
-    if root == script_root:
+    if root == PACKAGE_ROOT:
         return False
     g["ROOT"] = root
     for name, relpath in layout.items():
@@ -76,7 +75,11 @@ def user_agent(cfg):
 def init(args, network=None):
     """解析通用参数，返回 Runtime。配置有误时以退出码 2 结束并列出问题。"""
     configure_console()
-    root = find_root(getattr(args, "root", None))
+    try:
+        root = find_root(getattr(args, "root", None))
+    except ProjectNotFound as e:
+        print(e, file=sys.stderr)
+        sys.exit(2)
     try:
         cfg = config_mod.load_config(getattr(args, "config", None), root=root)
     except config_mod.ConfigError as e:
@@ -89,7 +92,9 @@ def init(args, network=None):
     client = None
     if network or (network is None and hasattr(args, "http_mode")):
         try:
-            client = Client(getattr(args, "http_mode", None), cache_dir=getattr(args, "cache_dir", None),
+            # 缓存默认放在项目目录的 .cache/http（--cache-dir 与环境变量 NP_HTTP_CACHE 优先），不写进工具的安装位置
+            cache_dir = getattr(args, "cache_dir", None) or os.environ.get("NP_HTTP_CACHE") or str(root / ".cache" / "http")
+            client = Client(getattr(args, "http_mode", None), cache_dir=cache_dir,
                             cassette=getattr(args, "cassette", None), policies=policies_from_config(cfg),
                             user_agent=user_agent(cfg))
         except (ValueError, config_mod.ConfigError) as e:

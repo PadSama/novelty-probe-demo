@@ -32,10 +32,11 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
+COMMANDS = ROOT / "novelty_probe" / "commands"   # 阶段 5 起各命令的代码在这里；scripts/ 下只是转发的入口
 EXAMPLE = ROOT / "examples" / "tutorial"   # 教程示例的产出副本：测试件从这里读，不依赖项目目录里的实时数据
 sys.dont_write_bytecode = True     # 不在 scripts/ 下生成 __pycache__
 sys.path.insert(0, str(Path(__file__).resolve().parent))   # tests/netguard.py
-sys.path.insert(0, str(SCRIPTS))   # authors.py 里有 `from search import get_json`
+sys.path.insert(0, str(SCRIPTS))   # 旧的 `import textmatch` 照常可用
 sys.path.insert(0, str(ROOT))      # novelty_probe 包
 import netguard  # noqa: E402  离线测试不许联网（NP_LIVE=1 时不装）；同时去掉代理变量，模拟服务器在本机直连
 netguard.install()
@@ -46,13 +47,15 @@ os.environ["NP_HTTP_CACHE"] = _HTTP_CACHE
 for _var in ("NP_HTTP_MODE", "NP_HTTP_CASSETTE", "NP_LANG", "NOVELTY_PROBE_ROOT", "NOVELTY_PROBE_CONFIG"):
     os.environ.pop(_var, None)   # 测试不受开发者本机环境变量影响：默认中文界面、仓库根目录、内置默认配置
 CHILD_ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
-if not netguard.live():   # 子进程也装上护栏（tests/childguard/sitecustomize.py）
-    CHILD_ENV["PYTHONPATH"] = os.pathsep.join(filter(None, [str(Path(__file__).resolve().parent / "childguard"),
-                                                            os.environ.get("PYTHONPATH")]))
+# 子进程能导入本仓库的 novelty_probe（python -m novelty_probe …），离线时也装上护栏（tests/childguard/sitecustomize.py）
+CHILD_ENV["PYTHONPATH"] = os.pathsep.join(filter(None, [
+    None if netguard.live() else str(Path(__file__).resolve().parent / "childguard"), str(ROOT), os.environ.get("PYTHONPATH")]))
 
 
 def load(name):
-    spec = importlib.util.spec_from_file_location(f"np_{name}", SCRIPTS / f"{name}.py")
+    """每次加载一份新的命令模块（测试之间互不影响）：novelty_probe/commands/<name>.py，没有时取 scripts/<name>.py。"""
+    path = COMMANDS / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"np_{name}", path if path.is_file() else SCRIPTS / f"{name}.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -531,27 +534,28 @@ class TestVerify(unittest.TestCase):
 class TestLogrun(unittest.TestCase):
     def test_logs_command_and_passes_exit_code(self):
         with tempfile.TemporaryDirectory() as d:
-            (Path(d) / "scripts").mkdir()
             (Path(d) / "logs").mkdir()
-            (Path(d) / "PROJECT.md").write_text("marker\n", encoding="utf-8")
-            logrun = Path(d) / "scripts" / "logrun.py"
-            shutil.copy(SCRIPTS / "logrun.py", logrun)   # 在临时副本里运行，不写仓库的 RUN_LOG
+            (Path(d) / "PROJECT.md").write_text("marker\n", encoding="utf-8")   # 临时项目：不写仓库的 RUN_LOG
             code = "import os, sys; print('hello 你好', os.environ['NOVELTY_PROBE_ROOT']); sys.exit(3)"
-            r = run_script(logrun, "T9 test", "--", sys.executable, "-c", code, cwd=d)
+            r = run_script("-m", "novelty_probe", "logrun", "T9 test", "--", sys.executable, "-c", code, cwd=d)
             self.assertEqual(r.returncode, 3)
             self.assertIn("hello 你好", r.stdout)
             self.assertIn(str(Path(d).resolve()), r.stdout)           # 子进程拿到同一个项目根目录
             log = (Path(d) / "logs" / "RUN_LOG.md").read_text(encoding="utf-8")
-            for part in ("] T9 test", "退出码 3", "hello 你好"):
+            for part in ("] Step 1 — T9 test", "退出码 3", "hello 你好"):   # 标题没有编号时自动接着编 Step 号
                 self.assertIn(part, log)
-            self.assertEqual(run_script(logrun, "no command", "--", cwd=d).returncode, 1)
+            r = run_script(SCRIPTS / "logrun.py", "Step 7 — given", "--", sys.executable, "-c", "print(1)", cwd=d)
+            self.assertEqual(r.returncode, 0)                          # 旧入口照常可用；标题已带编号时原样保留
+            r = run_script("-m", "novelty_probe", "logrun", "next", "--", sys.executable, "-c", "print(2)", cwd=d)
+            log = (Path(d) / "logs" / "RUN_LOG.md").read_text(encoding="utf-8")
+            self.assertIn("] Step 7 — given", log)
+            self.assertIn("] Step 8 — next", log)
+            self.assertEqual(run_script("-m", "novelty_probe", "logrun", "no command", "--", cwd=d).returncode, 1)
 
     def test_root_option_and_english_log(self):
         with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as other:
-            logrun = Path(d) / "logrun.py"
-            shutil.copy(SCRIPTS / "logrun.py", logrun)
-            r = run_script(logrun, "--root", other, "T9 en", "--", sys.executable, "-c", "print('ok')",
-                           cwd=d, env={"NP_LANG": "en"})
+            r = run_script("-m", "novelty_probe", "logrun", "--root", other, "T9 en", "--", sys.executable, "-c",
+                           "print('ok')", cwd=d, env={"NP_LANG": "en"})
             self.assertEqual(r.returncode, 0)
             log = (Path(other) / "logs" / "RUN_LOG.md").read_text(encoding="utf-8")
             self.assertIn("**Output** (exit code 0)", log)
@@ -598,6 +602,8 @@ class TestRepositoryData(unittest.TestCase):
         cff = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
         for key in ("cff-version: 1.2.0", "title:", "authors:", "orcid:", "license: MIT"):
             self.assertIn(key, cff)
+        from novelty_probe import __version__
+        self.assertIn(f'version: "{__version__}"', cff)            # 发布时包与引用信息的版本号一致
         self.assertTrue((ROOT / "LICENSE").read_text(encoding="utf-8").startswith("MIT License"))
 
 

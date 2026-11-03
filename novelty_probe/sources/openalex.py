@@ -169,6 +169,8 @@ class OpenAlex(Source):
     label = "OpenAlex"
     interface = "GET https://api.openalex.org/works?filter=title_and_abstract.search:…"
     ranking = ("API 相关度（relevance_score）", "API relevance (relevance_score)")
+    attribution = ("OpenAlex（https://openalex.org）：元数据以 CC0 发布。",
+                   "OpenAlex (https://openalex.org): metadata released under CC0.")
     url = URL
 
     def serialize(self, query, truncation):

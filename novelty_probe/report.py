@@ -3,7 +3,7 @@
 run_manifest{后缀}.json
   工具与 Python 版本、配置指纹；每个检索结果文件（来源、检索式原文与实际发送的检索串、年份限制、检索时间、HTTP 方式、
   命中数与保存数、文件哈希）；产出文件的哈希；计数（去重前后、去重规则、带作者的记录、本地匹配的偏差）；候选的标识符。
-  两份清单可以比较（diff，或 scripts/report.py diff）：哪些检索结果变了、命中数怎样变、候选进出了哪些。
+  两份清单可以比较（diff，或 novelty-probe report diff）：哪些检索结果变了、命中数怎样变、候选进出了哪些。
 search_report{后缀}.md
   PRISMA-S 风格（Rethlefsen 等 2021，doi:10.1186/s13643-020-01542-z）的检索报告，可作为方法部分的底稿：
   数据库与接口、检索式与日期、筛选条件、各来源命中与保存数、去重前后条数与依据、候选的排序方法、本地匹配的偏差。
@@ -165,6 +165,12 @@ def render_report(m, suffix=""):
                    "it; the share that local matching judged non-conforming: {x}. This bounds the false-negative rate of local "
                    "matching (Porter stemming as an approximation), which feeds BM25, n_conform and the evidence check.",
                    x=t("verify.sep").join(parts))]
+    credited = [REGISTRY[n] for n in sources if n in REGISTRY and REGISTRY[n].attribution[0]]
+    if credited:
+        out += ["", "## " + tr("数据来源与条款", "Data sources and terms"), ""]
+        out += ["- " + tr(*src.attribution) for src in credited]
+        out.append("- " + tr("摘要的版权属于出版方或作者；本报告不含摘要。",
+                             "Abstracts remain the copyright of their publishers or authors; this report contains none."))
     out += ["", "## " + tr("文件", "Files"), ""]
     out.append("- " + tr("检索结果：{n} 个文件（哈希见 run_manifest{s}.json 的 searches）",
                          "Search results: {n} files (hashes under searches in run_manifest{s}.json)", n=len(searches), s=suffix))

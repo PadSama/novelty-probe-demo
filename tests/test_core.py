@@ -152,7 +152,7 @@ class TestCompatibility(unittest.TestCase):
         import re
         offenders = []
         for folder in ("novelty_probe", "scripts"):
-            for f in sorted((ROOT / folder).glob("*.py")):
+            for f in sorted((ROOT / folder).rglob("*.py")):
                 for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
                     for pat, why in self.PATTERNS:
                         if re.search(pat, line) and "removeprefix" not in pat:

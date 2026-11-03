@@ -1,7 +1,7 @@
 """内置默认值（纯数据）：面、标注取值、证据表列名别名、版本识别词表、停用词。
 
 novelty-probe.json 可以覆盖这些值（见 novelty_probe/config.py）；这里是没有配置文件时的取值，也是唯一的定义处：
-config.DEFAULTS 与 scripts/textmatch.py 都从这里取，避免两处各写一份。
+config.DEFAULTS 与 novelty_probe/text.py 都从这里取，避免两处各写一份。
 
 每个面有一个稳定的 key（与 facets/facets.md、queries.json 的 facets_used 一致）和中英文标签；
 脚本识别证据表的列时接受任一语言的标签。
@@ -33,7 +33,7 @@ COLUMN_HEADERS = {
     "verified": {"zh": "verified", "en": "verified"},
 }
 
-# ---- 版本识别（同一研究的预印本与正式发表版本；scripts/textmatch.py 的 VersionRules） ----
+# ---- 版本识别（同一研究的预印本与正式发表版本；novelty_probe/text.py 的 VersionRules） ----
 # 预印本平台的 DOI 前缀：arXiv、bioRxiv/medRxiv、Research Square、SSRN、OSF 系列、TechRxiv、Preprints.org、ChemRxiv、Authorea、ESSOAr
 PREPRINT_DOI_PREFIXES = [
     "10.48550/arxiv.", "10.1101/", "10.21203/rs.", "10.2139/ssrn.", "10.31219/", "10.31234/", "10.31235/",

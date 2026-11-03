@@ -1,0 +1,38 @@
+# 安装：pip install git+https://github.com/PadSama/novelty-probe-demo   （或在本仓库目录里 pip install .）
+# 安装后：novelty-probe --help。只用标准库，没有运行时依赖；不发布到 PyPI（研究者决定，Step 88）。
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "novelty-probe"
+dynamic = ["version"]
+description = "A logged, AI-assisted workflow that collects literature evidence around a research idea; it does not judge novelty."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Quan Yuan" }]
+dependencies = []
+keywords = ["literature search", "research workflow", "OpenAlex", "Semantic Scholar", "Crossref", "science of science"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+[project.urls]
+Homepage = "https://github.com/PadSama/novelty-probe-demo"
+
+[project.scripts]
+novelty-probe = "novelty_probe.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "novelty_probe.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["novelty_probe*"]
+
+[tool.setuptools.package-data]
+novelty_probe = ["templates/*"]
