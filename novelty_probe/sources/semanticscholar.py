@@ -10,11 +10,11 @@ from .. import query as Q
 from .. import schemas
 from ..http import Token
 from .base import Source
-from .common import clean_arxiv, clean_doi
+from .common import author_fields, clean_arxiv, clean_doi
 from .localrank import local_rank
 
 URL = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
-FIELDS = "title,year,externalIds,venue,journal,abstract,citationCount"
+FIELDS = "title,year,externalIds,venue,journal,abstract,citationCount,authors"
 SORT = "citationCount:desc"
 PAGE_SIZE = 1000
 
@@ -28,6 +28,7 @@ def s2_record(paper, qid):
         "arxiv_id": clean_arxiv(ext.get("ArXiv")),
         "venue": paper.get("venue") or (paper.get("journal") or {}).get("name") or None,
         "abstract": paper.get("abstract"),
+        **author_fields([a.get("name") for a in paper["authors"] or []] if "authors" in paper else None),
         "source_api": "semanticscholar",
         "query_id": qid,
     }
@@ -45,6 +46,9 @@ class SemanticScholar(Source):
     default_max_records = 3000
     capabilities = {"boolean": "api", "phrase": "api", "prefix": "api", "not": "api", "year_filter": "api",
                     "ranking": "local (groups matched, BM25, citations)"}
+    label = "Semantic Scholar"
+    interface = "GET https://api.semanticscholar.org/graph/v1/paper/search/bulk"
+    ranking = ("本地重排：满足的组数 → BM25 → 被引次数", "local: include groups matched → BM25 → citations")
     url = URL
 
     def serialize(self, query, truncation):

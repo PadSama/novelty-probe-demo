@@ -48,6 +48,7 @@ class TestReplaySearch(unittest.TestCase):
             self.assertIn("filter_rows", oa["meta"]["api_parse_tree"])
             self.assertEqual(oa["meta"]["http"]["mode"], "replay")
             self.assertTrue(all("local_rank" in r for r in s2["records"]))
+            self.assertTrue(all(r["authors"] is not None for r in oa["records"] + s2["records"]))   # 检索时顺带取得作者
             for f in files:
                 self.assertEqual(schemas.raw_results_file(json.loads((raw / f).read_text(encoding="utf-8"))), [], f)
 
@@ -89,9 +90,10 @@ class TestReplaySnowball(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             out = self.run_snowball(d, "snowball_onehop.json")
             data = json.loads((out / "chase_C1_rec.json").read_text(encoding="utf-8"))
-            self.assertEqual(data["meta"]["total_hits"], 79)                   # 50 条参考文献 + 30 篇引用者 − 种子的版本
+            self.assertEqual(data["meta"]["total_hits"], 85)                   # 56 条参考文献 + 30 篇引用者 − 种子的版本（2026-11-03 录制）
             self.assertEqual(len(data["records"]), 50)                          # --keep 50
             self.assertEqual(data["records"][0]["doi"], "10.1145/3706598.3713146")
+            self.assertEqual(data["records"][0]["authors"][:2], ["Peinuan Qin", "Chi-Lan Yang"])   # 引文追踪的记录也带作者
             self.assertTrue((out / "chase_C1_rec.csv").is_file())
 
     def test_cocite_from_cassette(self):
@@ -99,7 +101,7 @@ class TestReplaySnowball(unittest.TestCase):
             out = self.run_snowball(d, "snowball_cocite.json", "--cocite", "--citer-filter", "scientist*")
             data = json.loads((out / "chase_C2_rec.json").read_text(encoding="utf-8"))
             m = data["meta"]
-            self.assertEqual((m["citing_total_unfiltered"], m["citing_filtered"], m["citers_used"], m["cocited_kept"]), (185, 1, 1, 0))
+            self.assertEqual((m["citing_total_unfiltered"], m["citing_filtered"], m["citers_used"], m["cocited_kept"]), (187, 1, 1, 0))
 
 
 class TestCassetteContracts(unittest.TestCase):

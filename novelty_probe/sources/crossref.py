@@ -19,11 +19,11 @@ from dataclasses import dataclass
 from .. import query as Q
 from .. import schemas
 from .base import Source
-from .common import clean_doi, strip_markup
+from .common import author_fields, clean_doi, strip_markup
 from .localrank import count_conforming, local_rank
 
 URL = "https://api.crossref.org/works"
-SELECT = "DOI,title,abstract,issued,container-title,type,is-referenced-by-count"
+SELECT = "DOI,title,abstract,issued,container-title,type,is-referenced-by-count,author"
 PAGE_SIZE = 1000
 SKIP_TYPES = ("component", "peer-review")
 
@@ -47,6 +47,13 @@ def _first(values):
     return next((v for v in values or [] if v), None)
 
 
+def crossref_authors(item):
+    """作者名："名 姓"；机构作者用 name。响应里没有 author 字段时返回 None。"""
+    if "author" not in item:
+        return None
+    return [" ".join(x for x in (a.get("given"), a.get("family")) if x) or a.get("name") for a in item.get("author") or []]
+
+
 def crossref_record(item, qid):
     issued = ((item.get("issued") or {}).get("date-parts") or [[None]])[0] or [None]
     return {
@@ -56,6 +63,7 @@ def crossref_record(item, qid):
         "arxiv_id": None,
         "venue": _first(item.get("container-title")),
         "abstract": strip_markup(item.get("abstract")),
+        **author_fields(crossref_authors(item)),
         "source_api": "crossref",
         "query_id": qid,
     }
@@ -69,6 +77,9 @@ class Crossref(Source):
     enabled_by_default = False
     capabilities = {"boolean": "local", "phrase": "local", "prefix": "expand + local", "not": "local", "year_filter": "api",
                     "ranking": "local (groups matched, BM25, citations)"}
+    label = "Crossref"
+    interface = "GET https://api.crossref.org/works?query.bibliographic=…"
+    ranking = ("词袋检索后本地按检索式筛选，本地重排", "bag of words, filtered and ranked locally")
     url = URL
     lossy = [
         "Crossref has no Boolean operators, phrase search, truncation or exclusion: all include terms are sent as one bag of words",

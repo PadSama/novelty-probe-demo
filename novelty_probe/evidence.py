@@ -32,6 +32,7 @@ from . import defaults as D
 from . import i18n
 from .i18n import t
 from .io import load_json_lenient, read_text
+from .record import short_authors
 from .verification import render_verified
 
 SCHEMA = "novelty-probe/evidence@1"
@@ -436,10 +437,15 @@ class RetrievalIndex:
             if e.get("abstract"):
                 for k in keys:
                     self.extra_abstracts.setdefault(k, []).append(e["abstract"])
+        # 作者：合并记录自带的（阶段 4 起检索时取得），以及 authors.py 的输出（同一篇两处都有时，与任一处一致即可）
         self.authors = {}
+        for x in self.records:
+            if x.get("authors"):
+                for k in identifiers(x.get("doi"), x.get("arxiv_id"), x.get("alt_ids")):
+                    self.authors.setdefault(k, []).append({"authors": x["authors"], "n_authors": x.get("n_authors")})
         for a in authors:
             if a.get("doi") and a.get("authors"):
-                self.authors[("doi", norm_doi(a["doi"]))] = a
+                self.authors.setdefault(("doi", norm_doi(a["doi"])), []).append(a)
 
     def record_for(self, ids):
         return next((self.by_id[k] for k in sorted(ids) if k in self.by_id), None)
@@ -490,8 +496,8 @@ def cited_identifiers(lines):
 
 
 def expected_authors(entry):
-    names = [n for n in entry.get("authors") or [] if n]
-    return "; ".join(names[:3]) + (" et al." if len(names) > 3 else "")
+    """证据表的作者写法：前 3 位，作者总数超过 3 位时加 et al.（n_authors 缺省时按列表长度）。"""
+    return short_authors([n for n in entry.get("authors") or [] if n], entry.get("n_authors"))
 
 
 def check(doc, index=None):
@@ -540,9 +546,9 @@ def check(doc, index=None):
                 out.append(("error", t("evidence.title_mismatch", rank=rank, record=rec.get("title"))))
             if r.get("year") is not None and rec.get("year") is not None and str(r["year"]) != str(rec["year"]):
                 out.append(("error", t("evidence.year_mismatch", rank=rank, value=r["year"], record=rec["year"])))
-        a = next((index.authors[k] for k in sorted(ids) if k in index.authors), None)
-        if a is not None and r.get("authors") is not None and r["authors"] != expected_authors(a):
-            out.append(("error", t("evidence.authors_mismatch", rank=rank, record=expected_authors(a))))
+        options = [a for k in sorted(ids) for a in index.authors.get(k, ())]   # 同一篇的各个标识符（DOI、arXiv ID）下都算
+        if options and r.get("authors") is not None and r["authors"] not in {expected_authors(a) for a in options}:
+            out.append(("error", t("evidence.authors_mismatch", rank=rank, record=expected_authors(options[0]))))
         quotes, unbalanced = [], 0
         for line in (r.get("rationale") or {}).get("lines") or []:
             q = quotes_in(line)

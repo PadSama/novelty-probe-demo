@@ -189,16 +189,24 @@ class TestRecords(unittest.TestCase):
              "primary_location": {"source": {"display_name": "arXiv (Cornell University)"}},
              "abstract_inverted_index": {"world": [1], "Hello": [0]}}
         r = search.openalex_record(w, "Q1")
-        self.assertEqual(list(r), ["title", "year", "doi", "arxiv_id", "venue", "abstract", "source_api", "query_id"])
+        self.assertEqual(list(r), ["title", "year", "doi", "arxiv_id", "venue", "abstract", "authors", "n_authors",
+                                   "source_api", "query_id"])
         self.assertEqual((r["doi"], r["arxiv_id"], r["abstract"]), ("10.48550/arXiv.0000.00001", "0000.00001", "Hello world"))
-        w2 = {"doi": None, "display_name": "T2", "locations": [{"pdf_url": "https://arxiv.org/pdf/math/0000001v2.pdf"}]}
-        self.assertEqual(search.openalex_record(w2, "Q1")["arxiv_id"], "math/0000001")
+        self.assertEqual((r["authors"], r["n_authors"]), (None, None))      # 响应里没有 authorships：作者未知，不是 0 位
+        w2 = {"doi": None, "display_name": "T2", "locations": [{"pdf_url": "https://arxiv.org/pdf/math/0000001v2.pdf"}],
+              "authorships": [{"author": {"display_name": "Ada  Lovelace"}}, {"raw_author_name": "C. Babbage"}]}
+        r2 = search.openalex_record(w2, "Q1")
+        self.assertEqual(r2["arxiv_id"], "math/0000001")
+        self.assertEqual((r2["authors"], r2["n_authors"]), (["Ada Lovelace", "C. Babbage"], 2))
 
     def test_s2_record(self):
         p = {"title": "P", "year": 2024, "externalIds": {"DOI": "10.0000/X", "ArXiv": "0000.00004v3"},
              "venue": "", "journal": {"name": "J"}}
         r = search.s2_record(p, "Q2")
         self.assertEqual((r["doi"], r["arxiv_id"], r["venue"], r["source_api"]), ("10.0000/X", "0000.00004", "J", "semanticscholar"))
+        self.assertIsNone(r["authors"])
+        many = search.s2_record({**p, "authors": [{"authorId": str(i), "name": f"Author {i}"} for i in range(25)]}, "Q2")
+        self.assertEqual((len(many["authors"]), many["n_authors"]), (20, 25))   # 最多存 20 位，n_authors 记全部人数
 
 
 class TestGetJson(unittest.TestCase):

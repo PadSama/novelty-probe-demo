@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
-from novelty_probe import i18n, runtime
+from novelty_probe import i18n, report, runtime
 from novelty_probe.i18n import t
 from novelty_probe.io import load_json_lenient
 
@@ -57,6 +57,11 @@ def main():
     tot = {k: sum(r[k] for r in rows) for k in ("records", "with_abstract", "conform", "conform_with_abstract")}
     print(f"\ntotal: {tot['conform']}/{tot['records']} records conform; among records with an abstract: "
           f"{tot['conform_with_abstract']}/{tot['with_abstract']}  (Porter approximation of the APIs' KStem-like matching)")
+    # 本地匹配的偏差（问题 A4）：服务器端做布尔检索的来源，返回的记录按定义满足检索式
+    for src, v in report.local_match(files).items():
+        if v["with_abstract"]:
+            print(t("qa.local_bias", source=src, k=v["with_abstract"] - v["conforming"], n=v["with_abstract"],
+                    p=round(100 * v["nonconforming_share"], 1)))
     return 0
 
 

@@ -5,6 +5,15 @@ import re
 ARXIV_DOI_RE = re.compile(r"^10\.48550/arxiv\.(.+)$", re.I)
 ARXIV_URL_RE = re.compile(r"arxiv\.org/(?:abs|pdf)/(.+?)(?:\.pdf)?(?:[?#].*)?$", re.I)
 _TAG_RE = re.compile(r"<[^>]+>")
+MAX_AUTHORS = 20     # 每条记录最多保存的作者数；n_authors 记全部人数（证据表写前 3 位 + et al.，版本识别用姓）
+
+
+def author_fields(names):
+    """作者名列表 → {"authors": 前 MAX_AUTHORS 个, "n_authors": 总数}；names 为 None 表示数据源没有给出作者。"""
+    if names is None:
+        return {"authors": None, "n_authors": None}
+    names = [" ".join(n.split()) for n in names if n and n.strip()]
+    return {"authors": names[:MAX_AUTHORS], "n_authors": len(names)}
 
 
 def clean_doi(doi):

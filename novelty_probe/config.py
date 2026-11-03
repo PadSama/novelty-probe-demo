@@ -60,6 +60,7 @@ DEFAULTS = {
     "versions": {
         "year_window": D.YEAR_WINDOW,
         "min_title_words": D.MIN_TITLE_WORDS,
+        "max_cluster_groups": 6,   # 一个合并组最多含几个标识符分组（DOI / arXiv ID 分组），防止按题目连锁误并
         "preprint_doi_prefixes": D.PREPRINT_DOI_PREFIXES,
         "preprint_venues": D.PREPRINT_VENUES,
         "data_doi_prefixes": D.DATA_DOI_PREFIXES,
@@ -207,6 +208,8 @@ def _validate(cfg):
          "versions.year_window must be a non-negative integer")
     need(isinstance(v.get("min_title_words"), int) and v["min_title_words"] >= 1, "versions.min_title_words 应为正整数",
          "versions.min_title_words must be a positive integer")
+    need(isinstance(v.get("max_cluster_groups"), int) and v["max_cluster_groups"] >= 2, "versions.max_cluster_groups 应为不小于 2 的整数",
+         "versions.max_cluster_groups must be an integer of at least 2")
     for k in ("preprint_doi_prefixes", "preprint_venues", "data_doi_prefixes"):
         need(isinstance(v.get(k), list) and all(isinstance(x, str) and x for x in v[k]),
              "versions.{k} 应为字符串列表", "versions.{k} must be a list of strings", k=k)
