@@ -23,8 +23,8 @@ From `PROJECT.md`:
 | T1 Write the idea | You | `idea/idea.md` |
 | T2 Facets and queries | AI assistant | `facets/facets.md` (5 facets × 3–5 English search terms), `queries/queries.json` (6 Boolean queries) |
 | T3 Search | `scripts/search.py` | `results/raw/{source}_{query}.json` (top 25 per query and source) |
-| T4 Merge and deduplicate | `scripts/merge.py` | `results/merged/merged.json`, `results/merged/candidates.csv` (top 20) |
-| T5 Evidence table and verification | `scripts/authors.py`, `scripts/enrich.py`, AI assistant, `scripts/verify.py` | `evidence/evidence_table.md`: each candidate labeled overlap / differ / unknown on every facet, with DOI checks |
+| T4 Merge and deduplicate | `scripts/merge.py` | `results/merged/merged.json`, `results/merged/candidates.csv` (top 20, with authors), `candidates.ris` (for Zotero or EndNote), `run_manifest.json` and `search_report.md` (PRISMA-S style) |
+| T5 Evidence table and verification | `scripts/enrich.py`, AI assistant, `scripts/verify.py` | `evidence/evidence_table.md`: each candidate labeled overlap / differ / unknown on every facet, with DOI checks |
 | T5b Citation chasing (optional) | `scripts/snowball.py` + you | `results/merged/chase_*.csv`: papers linked by citations to the evidence-table papers you mark as relevant |
 | T6 Difference statement | AI assistant + you | `evidence/difference_statement.md` |
 
@@ -62,12 +62,10 @@ python3 scripts/logrun.py "T4 merge" -- python3 scripts/merge.py
 ```
 
 ```bash
-python3 scripts/logrun.py "T5 authors" -- python3 scripts/authors.py --top 10
-```
-
-```bash
 python3 scripts/logrun.py "T5 abstracts from other versions" -- python3 scripts/enrich.py --top 20
 ```
+
+   Authors come with the search results, and the merge also writes the candidates as RIS, a run manifest and a search report, so there is no separate step for any of them. `authors.py` is needed only for results searched before November 2026, which have no authors.
 
 4. Ask the assistant to write `evidence/evidence_table.md` (prompt in `HOWTO.md` §6). Then verify the DOIs:
 
@@ -91,20 +89,22 @@ To run another round without overwriting the first, use version suffixes, for ex
   - Exclusions are written `AND NOT ("a" OR "b")`. OpenAlex receives them unchanged, and Semantic Scholar receives `+ -("a" | "b")`. Before saving OpenAlex results, the script compares the parse tree OpenAlex returns with the query group by group, and stops if OpenAlex changed the grouping or dropped the NOT (a lower-case `not` would silently turn the exclusion into a requirement).
   - Crossref (optional, off by default): it has no Boolean search, so the include terms are sent as one bag of words, and the Boolean query is applied locally to the titles and abstracts of up to 1,000 retrieved records. In tests, short queries work well and long ones find little.
 
-  For each query and source it saves the top 25 records (title, year, DOI, arXiv ID, venue, abstract), the exact query string sent, and the hit count reported by the API. It retries on HTTP 429 and 5xx, and fails fast when an API asks it to wait more than 60 seconds. `--dry-run` checks query syntax without network access and prints how many requests each source will receive at most.
-- **`qa.py`** (optional) reports how many retrieved records satisfy the original query in their title and abstract, using Porter stemming as an approximation of the APIs' matching.
+  For each query and source it saves the top 25 records (title, year, DOI, arXiv ID, venue, abstract, authors), the exact query string sent, and the hit count reported by the API. It retries on HTTP 429 and 5xx, and fails fast when an API asks it to wait more than 60 seconds. `--dry-run` checks query syntax without network access and prints how many requests each source will receive at most.
+- **`qa.py`** (optional) reports how many retrieved records satisfy the original query in their title and abstract, using Porter stemming as an approximation of the APIs' matching. It also measures that approximation: for sources that run the Boolean query on the server, every returned record satisfies the query, so the share that local matching judges non-conforming bounds its false-negative rate (1.1% for OpenAlex and 6.4% for Semantic Scholar in the tutorial's v1b round).
 - **`merge.py`** deduplicates records and ranks the candidates:
-  - **Matching:** two records count as one work if they share a DOI (case, URL query strings and landing-page suffixes ignored) or an arXiv ID; versioned preprint DOIs on OSF, TechRxiv and Research Square count as the same work. Versions of one work are then linked by title: titles must match after normalization (dropping publication-status notes such as "(Just accepted by Nature…)") and pass conservative checks (years at most 3 apart, not two different journal DOIs, not a dataset, not a "Re:" letter or correction, abstracts consistent). Doubtful pairs are flagged for review instead of merged.
-  - **Provenance:** each work keeps references to its raw records (`raw_refs`). Title-based merges are flagged, and works with neither a DOI nor an arXiv ID are marked `UNVERIFIED`. The year is that of the version of record; the earliest version's year is kept as `year_first`.
+  - **Matching:** two records count as one work if they share a DOI (case, URL query strings and landing-page suffixes ignored) or an arXiv ID; versioned preprint DOIs on OSF, TechRxiv and Research Square count as the same work. Versions of one work are then linked by title, with authors as evidence: titles must match after normalization (dropping publication-status notes such as "(Just accepted by Nature…)") and pass conservative checks (years at most 3 apart, not two different journal DOIs, not a dataset, not a "Re:" letter or correction, abstracts consistent, at least one author name in common when both records have authors); nearly identical titles are linked only when the records share authors. Doubtful pairs stay separate. Every merge and every separation is recorded with a rule code (D1–D5, R1–R8), so deduplication needs no manual review.
+  - **Provenance:** each work keeps references to its raw records (`raw_refs`) and, for every field, the raw record it came from (`field_source`). Title-based merges are flagged, and works with neither a DOI nor an arXiv ID are marked `UNVERIFIED`. The year is that of the version of record; the earliest version's year is kept as `year_first`.
   - **Ranking:** reciprocal rank fusion over the query × source result lists (score = Σ 1/(60 + rank)), with BM25 over all query terms breaking ties. `--legacy` reproduces the original method (ranking by "hits", the number of result lists containing the work) used for the committed v1 and v2 outputs.
-- **`authors.py`** looks up authors by DOI in OpenAlex. The search results do not include authors.
+  - **Outputs for the write-up:** the top candidates as RIS (`candidates.ris`), a run manifest with the hash of every input and output file, the queries as written and as sent, dates and the configuration fingerprint (`run_manifest.json`), and a search report generated from it following PRISMA-S (`search_report.md`).
+- **`export.py`** writes RIS for all merged works (`--all`) or for the rows of an evidence table, with each facet label as a keyword (`--evidence`). **`report.py`** regenerates the search report from a manifest, in Chinese or English (`render`), and compares two runs (`diff`).
+- **`authors.py`** fills in authors from OpenAlex, by DOI, for candidates whose merged record has none (results searched before November 2026).
 - **`enrich.py`** finds other versions of each candidate in OpenAlex (same title, years at most 3 apart, at least one shared author surname) and records any abstract or arXiv ID they have, with its source, in `evidence/enrichment.json`. Journal versions often have no abstract in either API, while their preprints do.
 - **`verify.py`** checks each DOI two ways and writes both results into the `verified` column:
   - It fetches the registered metadata through doi.org content negotiation and compares the registered title with the table's title. If Crossref has no record (arXiv and other DOIs registered with DataCite), it looks the DOI up in OpenAlex instead.
   - It follows the DOI to the publisher's landing page and records the HTTP status and page title, upgrading https-to-http redirects to https (`--no-landing` skips this check).
 - **`snowball.py`** chases citations from seed papers via OpenAlex: one hop (papers citing or cited by the seeds, ordered by the number of seeds they are linked to and by text similarity to the seeds), or two-hop co-citation (papers that cite the seeds and match a term group you choose, then the works they cite in common, ordered by that count). Versions of one work are counted once; letters and corrections are not counted.
 - **`compare.py`** compares rounds: ranks of known papers in the merged results and chase lists, ties at the cutoff, and the make-up of the top 10 and top 20.
-- **`textmatch.py`** holds the shared, standard-library text matching: a Porter stemmer (identical to Snowball's "porter" on its 42,603-word test vocabulary), Boolean matching, BM25, TF-IDF similarity and the version-linking rule.
+- **`textmatch.py`** forwards to `novelty_probe/text.py`, the shared, standard-library text matching: a Porter stemmer (identical to Snowball's "porter" on its 42,603-word test vocabulary), Boolean matching, BM25, TF-IDF similarity and the version-linking rule.
 - **`evidence.py`** checks an evidence table against the retrieval results: labels are valid, every DOI and arXiv ID comes from the search results, titles, years and authors match them, and quoted English text in the rationale is verbatim from an abstract. It also converts the Markdown table to JSON (`import-md`) and back (`render`, in Chinese or English). The JSON can serve as the source of truth: `verify.py --table <json>` stores structured results there and regenerates the Markdown, and refuses to overwrite a Markdown file that was edited by hand.
 - **`config.py`** shows or checks the project configuration (`show`, `show --diff`, `check`, `init`).
 - **`logrun.py`** runs any command and appends the command and its output to `logs/RUN_LOG.md`.
@@ -182,12 +182,14 @@ idea/            the idea (idea.md; idea_v2.md for round 2)
 facets/          facet decomposition and search terms
 queries/         Boolean queries (queries.json, queries_v2.json; queries_v2b.json adds NOT for the evaluation)
 results/raw/     raw search results per source and query; chase_* citation-chasing results
-results/merged/  deduplicated works, top-20 candidates, chase lists, comparisons
-evidence/        evidence tables, authors, abstracts from other versions, difference statement
+results/merged/  deduplicated works, top-20 candidates (CSV and RIS), run manifests, search reports, chase lists,
+                 comparisons
+evidence/        evidence tables, authors (older rounds), abstracts from other versions, difference statement
 logs/RUN_LOG.md  append-only log of every step
-scripts/         search.py, qa.py, merge.py, authors.py, enrich.py, verify.py, snowball.py, compare.py,
-                 evidence.py, config.py, textmatch.py (shared), logrun.py
-novelty_probe/   shared package: HTTP client and cache, response checks, configuration, i18n, evidence JSON
+scripts/         search.py, qa.py, merge.py, export.py, report.py, authors.py, enrich.py, verify.py, snowball.py,
+                 compare.py, evidence.py, config.py, textmatch.py (forwards to the package), logrun.py
+novelty_probe/   shared package: query syntax tree, sources, HTTP client and cache, response checks, configuration,
+                 i18n, evidence JSON, text matching, merged records, dedupe rules, ranking, RIS, run manifest and report
 novelty-probe.json  project configuration (only what differs from the defaults)
 examples/        frozen copy of the tutorial outputs, used as test fixtures
 tests/           offline self-test, recorded responses, optional live checks
