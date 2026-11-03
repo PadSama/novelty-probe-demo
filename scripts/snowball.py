@@ -49,6 +49,7 @@ from novelty_probe.io import load_json_lenient, read_text, write_json
 
 import search
 from search import openalex_record
+from novelty_probe.sources.openalex import CREDITS_PER_LIST_REQUEST
 from textmatch import (Doc, centroid, content_terms, cosine, groups_matched, is_notice, query_match, tfidf_vectors,
                        title_key, version_title_match)
 
@@ -81,12 +82,21 @@ def oa_get(path_or_url, params=None, validate=None):
 
 
 def oa_pages(flt, select, limit, label):
-    """按 cursor 翻页取 OpenAlex 列表（每页 200 条，最多 limit 条）；断点写在 results/raw/.checkpoints/ 下，可续跑。"""
+    """按 cursor 翻页取 OpenAlex 列表（每页 200 条，最多 limit 条）；断点写在 results/raw/.checkpoints/ 下，可续跑。
+    第一页返回总数后，打印还要发多少个请求、约花多少 OpenAlex 额度。"""
     ck = RAW_DIR / ".checkpoints" / f"chase_{label}.json"
-    params = {"filter": flt, "select": select, "per-page": min(200, max(1, limit))}
-    out = []
+    per_page = min(200, max(1, limit))
+    params = {"filter": flt, "select": select, "per-page": per_page}
+    out, first = [], True
     fetch = lambda base, p: oa_get(base, p, validate=schemas.openalex_list)  # noqa: E731
-    for _, items in default_client().paginate(OPENALEX_URL, params, scheme=Cursor(), max_items=limit, checkpoint=ck, fetch=fetch):
+    for page, items in default_client().paginate(OPENALEX_URL, params, scheme=Cursor(), max_items=limit, checkpoint=ck, fetch=fetch):
+        if first and not page.get("_resumed"):
+            count = (page.get("meta") or {}).get("count")
+            if isinstance(count, int):
+                n = min(count, limit)
+                pages = max(1, math.ceil(n / per_page))
+                print("  " + t("snowball.plan_pages", count=count, n=n, pages=pages, credits=pages * CREDITS_PER_LIST_REQUEST))
+            first = False
         out.extend(items)
     return out[:limit]
 
@@ -141,6 +151,9 @@ def fetch_by_ids(ids):
     """按 OpenAlex ID 批量取元数据。ID 先排序再分批：请求确定，缓存与录制件才能命中。"""
     out = []
     ids = sorted(set(ids))
+    if ids:
+        batches = math.ceil(len(ids) / BATCH)
+        print("  " + t("snowball.plan_ids", n=len(ids), batches=batches, credits=batches * CREDITS_PER_LIST_REQUEST))
     for i in range(0, len(ids), BATCH):
         chunk = [short_id(x) for x in ids[i:i + BATCH]]
         data = oa_get("", {"filter": "openalex_id:" + "|".join(chunk), "select": FIELDS, "per-page": BATCH})

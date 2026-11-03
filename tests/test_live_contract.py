@@ -6,7 +6,7 @@
   2. OpenAlex 不支持通配符：截断词返回 400（所以 search.py 把截断词换成完整词，见 queries.truncation）；
   3. Semantic Scholar bulk 检索：响应有 total / token / data；
   4. Semantic Scholar batch：POST 按 DOI 批量取记录；
-  5. Crossref /works/<doi>：响应形状不变；
+  5. Crossref 检索（/works?query.bibliographic=…，数据源适配器所用的请求）：作品列表的响应形状不变；
   6. Crossref /works/<doi>/agency：arXiv 的 DOI 由 DataCite 登记（verify.py 据此改走 OpenAlex）。
 运行：NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 请求经 novelty_probe/http.py 的客户端（按主机限速、重试），User-Agent 是通用的客户端名，不带个人信息；
@@ -73,10 +73,13 @@ class TestLiveContracts(unittest.TestCase):
         self.assertEqual(schemas.s2_batch(data, 1), [])
         self.assertEqual(data[0]["externalIds"]["DOI"].lower(), "10.1126/sciadv.adn5290")
 
-    def test_5_crossref_work(self):
-        data = self.client.get_json("https://api.crossref.org/works/10.1126/sciadv.adn5290")
-        self.assertEqual(schemas.crossref_work(data), [])
-        self.assertEqual(data["message"]["DOI"].lower(), "10.1126/sciadv.adn5290")
+    def test_5_crossref_search(self):
+        from novelty_probe.sources import crossref
+        data = self.client.get_json(crossref.URL, params={"query.bibliographic": "large language models homogenization",
+                                                          "rows": 2, "select": crossref.SELECT})
+        self.assertEqual(schemas.crossref_list(data), [])
+        self.assertLessEqual(len(data["message"]["items"]), 2)
+        self.assertIsInstance(data["message"]["total-results"], int)
 
     def test_6_crossref_agency_for_arxiv_doi(self):
         data = self.client.get_json("https://api.crossref.org/works/10.48550/arXiv.2312.00506/agency")

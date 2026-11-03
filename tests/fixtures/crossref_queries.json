@@ -1,0 +1,5 @@
+[
+  {"id": "Q1", "facets_used": ["probe"], "query": "\"large language models\" AND homogenization", "purpose": "component"},
+  {"id": "Q2", "facets_used": ["probe"], "query": "\"generative AI\" AND \"scientific writing\"", "purpose": "component"},
+  {"id": "Q3", "facets_used": ["probe"], "query": "ChatGPT AND \"peer review\" AND NOT (medicine OR medical)", "purpose": "component"}
+]

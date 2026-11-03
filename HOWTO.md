@@ -190,9 +190,9 @@ Check the query syntax (offline; no API budget used):
 python3 scripts/search.py --dry-run
 ```
 
-最后一行应为 `6/6 queries valid`。有 INVALID 的，把报错发给助手，让它修改 `queries/queries.json`。
+倒数第二行应为 `6/6 queries valid`，最后一行是请求估算（各来源最多发多少请求、OpenAlex 最多花多少额度）。有 INVALID 的，报错里带错误码（如 Q115）和出错位置，下一行用 ^ 标出；把报错发给助手，让它修改 `queries/queries.json`。脚本会拒绝以下写法，因为它们会让各数据源检索到不同的内容：未配对的引号、逗号、括号内的词之间缺少 OR、组与组之间缺少 AND、截断符 * 不在词尾。
 
-The last line should read `6/6 queries valid`. If any query is INVALID, give the error to the assistant and have it fix `queries/queries.json`.
+The second-to-last line should read `6/6 queries valid`; the last line is the request estimate (the most requests each source will receive, and the most OpenAlex credits). An INVALID line carries an error code (such as Q115) and the position, marked with ^ on the next line; give the error to the assistant and have it fix `queries/queries.json`. The script rejects these because they would make the sources search different things: an unbalanced quote, a comma, terms inside parentheses without OR, groups without AND between them, and a * that does not end a word.
 
 ## 4. T3 检索（脚本）｜ T3 Search (script)
 
@@ -208,9 +208,9 @@ python3 scripts/logrun.py "T3 检索" -- python3 scripts/search.py
 
   Exclusion groups `AND NOT (…)` are sent to OpenAlex unchanged (NOT must be upper case: OpenAlex treats a lower-case not as an ordinary word and turns the exclusion into a requirement; the script stops if OpenAlex did not parse the NOT), and translated to `+ -(…)` for S2.
 
-- purpose 为 concurrent 的检索式只取 2023 年起的文献。要改年份，修改 `scripts/search.py` 中的 `CONCURRENT_FROM_YEAR`。
+- purpose 为 concurrent 的检索式只取 2023 年起的文献。要改年份，在 `novelty-probe.json` 里写 `"queries": {"purposes": {"concurrent": {"year_from": 2024}}}`。
 
-  Queries with the purpose concurrent only return papers from 2023 onwards. To change the year, edit `CONCURRENT_FROM_YEAR` in `scripts/search.py`.
+  Queries with the purpose concurrent only return papers from 2023 onwards. To change the year, put `"queries": {"purposes": {"concurrent": {"year_from": 2024}}}` in `novelty-probe.json`.
 
 - 终端每行是一个"检索式 × 来源"：`total_hits` 是 API 报告的命中数，`saved` 是保存条数，`no_id` 是既无 DOI 也无 arXiv ID 的条数。
 
@@ -224,9 +224,17 @@ For lines marked FAILED, fix the cause first (see Troubleshooting), then re-run 
 python3 scripts/logrun.py "T3 补跑" -- python3 scripts/search.py --ids Q3,Q4 --sources semanticscholar
 ```
 
-网络层：所有联网脚本都接受 `--http-mode cache`（先查本地缓存 `.cache/http`，省额度、少挨限流）与 `--refresh`（忽略缓存）；默认 `live`。OpenAlex 对格式错误的检索式不报错而静默改写（例如未配对的引号），脚本会核对它返回的解析结果，发现不一致就报错、不保存。
+网络层：所有联网脚本都接受 `--http-mode cache`（先查本地缓存 `.cache/http`，省额度、少挨限流）与 `--refresh`（忽略缓存）；默认 `live`。OpenAlex 对格式错误的检索式不报错而静默改写（例如未配对的引号），脚本逐组核对它返回的解析树：分组与发送的不同就报错、不保存；解析树的结构不认识时只记一条警告。运行开头打印请求估算；OpenAlex 剩余额度不够完成余下的请求时会提前警告。
 
-Network layer: every networked script accepts `--http-mode cache` (check the local cache `.cache/http` first, saving budget and rate-limit hits) and `--refresh` (ignore the cache); the default is `live`. OpenAlex silently rewrites malformed queries (for example an unbalanced quote) instead of reporting an error; the script checks the parse OpenAlex returns and stops without saving if it does not match.
+Network layer: every networked script accepts `--http-mode cache` (check the local cache `.cache/http` first, saving budget and rate-limit hits) and `--refresh` (ignore the cache); the default is `live`. OpenAlex silently rewrites malformed queries (for example an unbalanced quote) instead of reporting an error, so the script compares the parse tree OpenAlex returns with the query group by group: if the grouping differs it stops without saving, and if the tree's structure is unfamiliar it only records a warning. A run starts by printing the request estimate, and warns early if the remaining OpenAlex credits cannot cover the remaining requests.
+
+**可选数据源 Crossref**（默认关闭）：Crossref 不支持布尔检索，脚本把包含组的检索词合成一串发送，取回最多 1000 条，再在本地按整条检索式筛选（没有摘要的记录只看标题）、按与 S2 相同的方式排序，有损之处写在每个输出文件的 `meta.lossy` 里。实测它的检索面向参考文献匹配：教程的长检索式在前 40 条里没有一条满足检索式，两三个词的简单检索式效果好得多。是否开启由你决定；开启方法是在 `novelty-probe.json` 里写：
+
+**Optional source: Crossref** (off by default). Crossref has no Boolean search, so the script sends the include terms as one bag of words, fetches up to 1,000 records, keeps only those whose title and abstract satisfy the whole query (title alone when there is no abstract), and ranks them the same way as S2; what is lost is listed in `meta.lossy` of each output file. In tests its search behaves like reference matching: none of the top 40 records satisfied the tutorial's long queries, while short queries of two or three terms work much better. Whether to turn it on is your call; to do so, put this in `novelty-probe.json`:
+
+```json
+{"sources": {"crossref": {"enabled": true}}}
+```
 
 可选：检查检索质量（每个结果文件中，标题 + 摘要满足原检索式的记录有多少；用 Porter 词干还原近似两个 API 的匹配，比例略偏高）：
 
@@ -453,6 +461,8 @@ NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 | `results/raw/ 中同一来源混有不同检索方式的结果`<br>(results from different search methods mixed for one source) | 混有旧脚本或旧想法留下的结果<br>Leftover results from an older script or a previous idea | 按第 1 步清空 `results/raw/`，重跑 T3<br>Clear `results/raw/` as in step 1 and re-run T3 |
 | 某条检索式在某个来源命中 0 条<br>A query returns 0 hits from one source | 组合太严<br>The combination is too strict | 可以接受；或让助手放宽这条检索式<br>Acceptable; or ask the assistant to loosen that query |
 | verified 列为 `Crossref BLOCKED at data.crosscite.org；OpenAlex · …`<br>The verified column reads `Crossref BLOCKED at data.crosscite.org；OpenAlex · …` | arXiv 等 DataCite 登记的 DOI，已改用 OpenAlex 核验<br>A DOI registered with DataCite, such as an arXiv DOI; checked via OpenAlex instead | OpenAlex 一段为"题目一致"即可；也可放行 `data.crosscite.org`<br>Fine if the OpenAlex part says 题目一致 (title matches); or allow `data.crosscite.org` |
+| `OpenAlex 对检索式的分组与发送的不同`<br>(OpenAlex grouped the query differently) | OpenAlex 改写了检索式的含义（如把一个 OR 组拆开）<br>OpenAlex changed the meaning of the query (for example by splitting an OR group) | 按报错里的两种分组对照修改检索式；带连字符的词加引号<br>Compare the two groupings in the message and fix the query; quote hyphenated terms |
+| `INVALID: …（Q1xx，第 N 个字符）`<br>`INVALID: … (Q1xx, at character N)` | 检索式写法不合要求，错误码与位置见报错，^ 标出位置<br>The query breaks a format rule; the code and position are in the message, marked with ^ | 按报错修改；常见的是括号内漏写 OR、组之间漏写 AND、引号不配对<br>Fix as indicated; common causes are a missing OR inside parentheses, a missing AND between groups, or an unbalanced quote |
 | `OpenAlex 没有把排除组解析为 NOT`<br>(OpenAlex did not parse the exclusion as NOT) | NOT 没有大写，或写在了不支持的位置<br>NOT was not upper case, or was placed where it is not supported | 写成 `… AND NOT ("a" OR "b")`，放在最后<br>Write `… AND NOT ("a" OR "b")` at the end |
 | `运算符必须大写`、`不支持用 - 表示排除`<br>(operators must be upper case; "-" is not supported for exclusion) | 检索式里有小写的 and / or / not，或以 - 开头的词<br>The query has a lower-case and / or / not, or a word starting with - | 改成大写运算符；排除用 `AND NOT (…)`<br>Use upper-case operators; exclude with `AND NOT (…)` |
 | `配置有问题：…`（退出码 2）<br>`Problems in the config: …` (exit code 2) | `novelty-probe.json` 里的取值不合法，所有问题一次列出<br>Invalid values in `novelty-probe.json`; every problem is listed at once | 按提示修改，再跑 `python3 scripts/config.py check`<br>Fix as indicated, then run `python3 scripts/config.py check` |
@@ -474,15 +484,16 @@ NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 | `logs/RUN_LOG.md` | 运行日志<br>Run log |
 | `novelty-probe.json` | 项目配置：只写与默认值不同的设置<br>Project configuration: only the settings that differ from the defaults |
 | `docs/IMPROVEMENT_PLAN.md` | 遗留问题的调研、改进计划与评估结果（中文）<br>Research, improvement plan and evaluation for the known issues (Chinese) |
-| `docs/ARCHITECTURE_REVIEW.md` | 工具层的架构审视、分阶段计划与进度（中文）<br>Architecture review, phased plan and progress of the tool layer (Chinese) |
-| `novelty_probe/` | 各脚本共用的包：HTTP 客户端与缓存、配置、界面语言、证据 JSON<br>Package shared by the scripts: HTTP client and cache, configuration, interface language, evidence JSON |
+| `docs/ARCHITECTURE_REVIEW.md` | 工具层的架构审视与设计理由（中文）<br>Architecture review and design rationale of the tool layer (Chinese) |
+| `docs/ROADMAP.md` | 工具层迭代的总体计划与进度表（中文）<br>Overall plan and progress table of the tool-layer iteration (Chinese) |
+| `novelty_probe/` | 各脚本共用的包：检索式语法树、数据源（OpenAlex、S2、Crossref）、HTTP 客户端与缓存、配置、界面语言、证据 JSON、文本匹配<br>Package shared by the scripts: query syntax tree, sources (OpenAlex, S2, Crossref), HTTP client and cache, configuration, interface language, evidence JSON, text matching |
 | `scripts/search.py` | T3 检索（`--dry-run` 检查语法；`--ids`、`--sources` 补跑；`--queries`、`--suffix` 用于新一轮）<br>T3 search (`--dry-run` checks syntax; `--ids`, `--sources` re-run failures; `--queries`, `--suffix` for a new round) |
 | `scripts/qa.py` | T3 检索质量检查（`--suffix`）<br>T3 search quality check (`--suffix`) |
 | `scripts/merge.py` | T4 合并去重（`--suffix`；`--legacy` 复现 v1、v2 当时的方法）<br>T4 merge and deduplicate (`--suffix`; `--legacy` reproduces the v1/v2 method) |
 | `scripts/enrich.py` | T5 从其他版本补摘要（`--top`、`--candidates`、`--out`）<br>T5 abstracts from other versions (`--top`, `--candidates`, `--out`) |
 | `scripts/snowball.py` | T5b 引文追踪（`--from-evidence` 或 `--seeds`；`--cocite --citer-filter`；`--suffix`）<br>T5b citation chasing (`--from-evidence` or `--seeds`; `--cocite --citer-filter`; `--suffix`) |
 | `scripts/compare.py` | 比较几轮结果（`--runs`、`--known`、`--ignore-phrases`）<br>Compare rounds (`--runs`, `--known`, `--ignore-phrases`) |
-| `scripts/textmatch.py` | 共用的文本匹配（词干还原、BM25、版本识别），不单独运行<br>Shared text matching (stemming, BM25, version linking); not run on its own |
+| `scripts/textmatch.py` | 转发到 `novelty_probe/text.py`（词干还原、BM25、版本识别），不单独运行<br>Forwards to `novelty_probe/text.py` (stemming, BM25, version linking); not run on its own |
 | `scripts/authors.py` | T5 查作者（`--top`、`--candidates`、`--out`）<br>T5 author lookup (`--top`, `--candidates`, `--out`) |
 | `scripts/verify.py` | T5 DOI 核验（`--table` 可以是 .md 或 .json、`--no-landing`）<br>T5 DOI verification (`--table` may be .md or .json, `--no-landing`) |
 | `scripts/evidence.py` | T5 证据表：`check` 检查、`import-md` 转 JSON、`render` 生成 Markdown（`--lang`）<br>T5 evidence table: `check`, `import-md` to JSON, `render` Markdown (`--lang`) |

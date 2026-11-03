@@ -55,6 +55,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
 from novelty_probe import config as np_config, i18n, runtime
+from novelty_probe.sources import NAMES as SOURCE_NAMES
 from novelty_probe.i18n import t
 from novelty_probe.paths import rel as _rel
 from novelty_probe.io import load_json_lenient, write_json
@@ -74,7 +75,8 @@ RULES = DEFAULT_RULES     # 版本识别（textmatch.VersionRules）
 # --legacy 的固定参数（复现 Step 6 / Step 14 的结果，不随配置变化）
 LEGACY_TOP_K = 20
 MIN_TITLE_WORDS = 5
-SOURCE_ORDER = ["openalex", "semanticscholar"]
+# 来源顺序取自数据源注册表（novelty_probe/sources/）：决定读哪些原始结果文件，以及标题等字段优先取哪个来源的值
+SOURCE_ORDER = SOURCE_NAMES     # 注册表里的同一个列表：登记新数据源后立即生效
 ARXIV_DOI_RE = re.compile(r"^10\.48550/arxiv\.(.+)$", re.I)
 # 预印本平台的版本 DOI，如 10.31234/osf.io/abcde_v2、10.36227/techrxiv.123.456/v1、10.21203/rs.3.rs-123/v1
 PREPRINT_VERSION_RE = re.compile(r"^(10\.\d+/(?:osf\.io/\w+?|techrxiv\.[\d.]+|rs\.\d+\.rs-\d+))[_/]v\d+$", re.I)
@@ -130,7 +132,7 @@ def list_ranks(raw_refs):
 
 
 def raw_files(suffix=""):
-    """results/raw/ 中后缀与 suffix 完全相同的 search.py 输出文件。"""
+    """results/raw/ 中后缀与 suffix 完全相同的 search.py 输出文件（各登记数据源的 {来源}_Q<数字>{后缀}.json）。"""
     pattern = re.compile(rf"^(?:{'|'.join(SOURCE_ORDER)})_Q\d+{re.escape(suffix)}\.json$")
     return [p for p in sorted(RAW_DIR.glob("*.json")) if pattern.match(p.name)]
 

@@ -121,6 +121,8 @@ class TestCassetteContracts(unittest.TestCase):
                     w = schemas.s2_bulk(obj)
                 elif url.endswith("/agency"):
                     w = schemas.crossref_agency(obj)
+                elif "api.crossref.org/works?" in url:
+                    w = schemas.crossref_list(obj)
                 elif "api.crossref.org" in url or "doi.org/" in url:
                     w = schemas.csl_json(obj)
                 else:

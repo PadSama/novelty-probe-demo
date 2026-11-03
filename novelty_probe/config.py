@@ -53,6 +53,8 @@ DEFAULTS = {
     "sources": {
         "openalex": {"enabled": True, "top_n": 25},
         "semanticscholar": {"enabled": True, "top_n": 25, "max_records": 3000},
+        # 词袋检索、布尔在本地实现（有损，见 novelty_probe/sources/crossref.py）；默认关闭
+        "crossref": {"enabled": False, "top_n": 25, "max_records": 1000},
     },
     "merge": {"top_k": 20, "rrf_k": 60, "bm25": {"k1": 1.2, "b": 0.75}},
     "versions": {

@@ -3712,3 +3712,189 @@ Ran 6 tests in 7.150s
 
 OK
 ```
+
+---
+
+## [2026-11-03 09:09 UTC] Step 73 — 工具层迭代：总体计划与进度表（阶段 3 开始前）
+
+**研究者的要求**：三个决策点按建议执行（`contact_email` 留空；教程的两张证据表保持 Markdown；进入阶段 3）；正式开始阶段 3 之前，先给出一份整体的任务计划与推进进度表。
+
+**做了什么**：新增 `docs/ROADMAP.md`，内容：
+- 目标与边界、每个阶段的完成标准；
+- 六个阶段的总览与状态（0–2 完成，3 进行中，4、5 未开始）；
+- 问题清单 21 项的处理状态（已解决 14、部分解决 4、未解决 3）；
+- 阶段 3 的任务分解（3.1–3.8，含依赖与验收）及阶段 3 的整体验收标准；
+- 阶段 4、5 的任务概要；
+- 决策记录、待决策事项（附建议与理由）、风险与对策、推进方式。
+此后每完成一项任务，就更新该表的状态列并推送到工作分支。`docs/ARCHITECTURE_REVIEW.md` 第 9 节的状态表改为指向本表，只保留各阶段实现与计划的出入；HANDOFF、HOWTO、README 加上指向本表的链接。
+
+**新的待决策事项**（不阻塞阶段 3）：CI 矩阵是否加入 Python 3.14。建议加入并保留 3.9，理由见 `docs/ROADMAP.md` 第 7 节。
+
+**产出文件**：`docs/ROADMAP.md`（新增）；`docs/ARCHITECTURE_REVIEW.md`、`HANDOFF.md`、`HOWTO.md`、`README.md`（修改）
+
+---
+
+## [2026-11-03 09:12 UTC] Step 74 — 录制测试件：OpenAlex 含 NOT 的检索式（v2b Q2，1 个列表请求）
+
+**命令**
+
+```bash
+python3 scripts/search.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/recproj --queries /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/recproj/queries/queries_v2b.json --ids Q2 --sources openalex --suffix _rec --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/recproj/cache --http-mode record --cassette tests/fixtures/cassettes/search_not.json
+# argv: ["python3", "scripts/search.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/recproj", "--queries", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/recproj/queries/queries_v2b.json", "--ids", "Q2", "--sources", "openalex", "--suffix", "_rec", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/recproj/cache", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/search_not.json"]
+```
+
+**输出**（退出码 0）
+
+```
+query purpose     source          total_hits saved no_id  file / note
+Q2    component   openalex              2756    25     4  results/raw/openalex_Q2_rec.json
+
+1/1 个请求成功。total_hits = API 报告的命中数；saved = 保存的条数（前 25 条：OpenAlex 按 API 相关度，S2 在本地按相关度重排）；no_id = 既无 DOI 也无 arXiv ID 的条数（将标为 UNVERIFIED）。
+```
+
+---
+
+## [2026-11-03 09:24 UTC] Step 75 — 录制测试件：Crossref 检索（v1 Q3、Q4，各取 40 条，2 个请求）
+
+**命令**
+
+```bash
+python3 scripts/search.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj --queries /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/queries/queries.json --ids Q3,Q4 --sources crossref --suffix _rec --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/cache --http-mode record --cassette tests/fixtures/cassettes/search_crossref.json
+# argv: ["python3", "scripts/search.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj", "--queries", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/queries/queries.json", "--ids", "Q3,Q4", "--sources", "crossref", "--suffix", "_rec", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/cache", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/search_crossref.json"]
+```
+
+**输出**（退出码 0）
+
+```
+请求估算（上限）：crossref 最多 2 个请求
+query purpose     source          total_hits saved no_id  file / note
+Q3    application crossref           9619402    20     0  results/raw/crossref_Q3_rec.json
+Q4    application crossref           4091211     0     0  results/raw/crossref_Q4_rec.json
+
+2/2 个请求成功。total_hits = API 报告的命中数；saved = 保存的条数（前 25 条：OpenAlex 按 API 相关度，S2 在本地按相关度重排）；no_id = 既无 DOI 也无 arXiv ID 的条数（将标为 UNVERIFIED）。
+```
+
+---
+
+## [2026-11-03 09:26 UTC] Step 76 — 录制测试件：Crossref 检索（v1 Q1，取 40 条；本地判断改为现有文字须满足整条检索式后，Q3、Q4 没有记录通过，补录能通过的样例）
+
+**命令**
+
+```bash
+python3 scripts/search.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj --queries /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/queries/queries.json --ids Q1 --sources crossref --suffix _rec --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/cache3 --http-mode record --cassette tests/fixtures/cassettes/search_crossref.json
+# argv: ["python3", "scripts/search.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj", "--queries", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/queries/queries.json", "--ids", "Q1", "--sources", "crossref", "--suffix", "_rec", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/cache3", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/search_crossref.json"]
+```
+
+**输出**（退出码 0）
+
+```
+请求估算（上限）：crossref 最多 1 个请求
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   crossref            185188     0     0  results/raw/crossref_Q1_rec.json
+
+1/1 个请求成功。total_hits = API 报告的命中数；saved = 保存的条数（前 25 条：OpenAlex 按 API 相关度，S2 在本地按相关度重排）；no_id = 既无 DOI 也无 arXiv ID 的条数（将标为 UNVERIFIED）。
+```
+
+---
+
+## [2026-11-03 09:26 UTC] Step 77 — 录制测试件：Crossref 检索（v2b Q2，含 NOT，取 40 条）
+
+**命令**
+
+```bash
+python3 scripts/search.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj --queries /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/queries/queries_v2b.json --ids Q2 --sources crossref --suffix _rec --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/cache4 --http-mode record --cassette tests/fixtures/cassettes/search_crossref.json
+# argv: ["python3", "scripts/search.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj", "--queries", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/queries/queries_v2b.json", "--ids", "Q2", "--sources", "crossref", "--suffix", "_rec", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/cache4", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/search_crossref.json"]
+```
+
+**输出**（退出码 0）
+
+```
+请求估算（上限）：crossref 最多 1 个请求
+query purpose     source          total_hits saved no_id  file / note
+Q2    component   crossref          10176818     0     0  results/raw/crossref_Q2_rec.json
+
+1/1 个请求成功。total_hits = API 报告的命中数；saved = 保存的条数（前 25 条：OpenAlex 按 API 相关度，S2 在本地按相关度重排）；no_id = 既无 DOI 也无 arXiv ID 的条数（将标为 UNVERIFIED）。
+```
+
+---
+
+## [2026-11-03 09:27 UTC] Step 78 — 录制测试件：Crossref 检索（三条简单检索式，各取 40 条，3 个请求；用于回放测试中有记录通过的情形）
+
+**命令**
+
+```bash
+python3 scripts/search.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj --queries tests/fixtures/crossref_queries.json --sources crossref --suffix _rec --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/cache6 --http-mode record --cassette tests/fixtures/cassettes/search_crossref.json
+# argv: ["python3", "scripts/search.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj", "--queries", "tests/fixtures/crossref_queries.json", "--sources", "crossref", "--suffix", "_rec", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/crproj/cache6", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/search_crossref.json"]
+```
+
+**输出**（退出码 0）
+
+```
+请求估算（上限）：crossref 最多 3 个请求
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   crossref           3223601     1     0  results/raw/crossref_Q1_rec.json
+Q2    component   crossref           2533662     6     0  results/raw/crossref_Q2_rec.json
+Q3    component   crossref           7678221     1     0  results/raw/crossref_Q3_rec.json
+
+3/3 个请求成功。total_hits = API 报告的命中数；saved = 保存的条数（前 25 条：OpenAlex 按 API 相关度，S2 在本地按相关度重排）；no_id = 既无 DOI 也无 arXiv ID 的条数（将标为 UNVERIFIED）。
+```
+
+---
+
+## [2026-11-03 09:32 UTC] Step 79 — 联网接口检查（NP_LIVE=1，6 个请求；第 5 项改为 Crossref 检索）
+
+**命令**
+
+```bash
+env NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
+# argv: ["env", "NP_LIVE=1", "python3", "-m", "unittest", "tests.test_live_contract", "-v"]
+```
+
+**输出**（退出码 0）
+
+```
+test_1_openalex_boolean_list (tests.test_live_contract.TestLiveContracts.test_1_openalex_boolean_list) ... ok
+test_2_openalex_rejects_wildcards (tests.test_live_contract.TestLiveContracts.test_2_openalex_rejects_wildcards) ... ok
+test_3_semantic_scholar_bulk (tests.test_live_contract.TestLiveContracts.test_3_semantic_scholar_bulk) ... ok
+test_4_semantic_scholar_batch (tests.test_live_contract.TestLiveContracts.test_4_semantic_scholar_batch) ... ok
+test_5_crossref_search (tests.test_live_contract.TestLiveContracts.test_5_crossref_search) ... ok
+test_6_crossref_agency_for_arxiv_doi (tests.test_live_contract.TestLiveContracts.test_6_crossref_agency_for_arxiv_doi) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.562s
+
+OK
+```
+
+---
+
+## [2026-11-03 09:35 UTC] Step 80 — 工具层迭代阶段 3：检索式语法树、数据源注册表、Crossref 适配器、请求估算
+
+**研究者的要求**：三个决策点按建议执行，进入阶段 3（计划与进度见 `docs/ROADMAP.md`，Step 73）。
+
+**做了什么**（任务编号见 ROADMAP 第 4 节）：
+- 3.1 文本匹配移入 `novelty_probe/text.py`，`scripts/textmatch.py` 转发（两种导入方式得到同一组对象）。
+- 3.2 `novelty_probe/query.py`：检索式解析为语法树（组、词：单词 / 短语 / 截断词）；错误码 Q101–Q117、Q201 带位置，dry-run 用 ^ 标出；规范写法；evaluate()。
+- 3.3 `novelty_probe/sources/`：数据源协议（序列化、检索、记录转换、不支持的写法、请求估算）与注册表；OpenAlex、Semantic Scholar 从 `search.py` 迁出；`search.py` 只做编排，旧函数名保留为转发；merge / qa / compare 从注册表取文件名前缀；`sources.register()` 可登记新数据源。
+- 3.4 OpenAlex 解析树逐组核对：分组不同即报错不保存；NOT (a OR b) 的两种表示等价；结构不认识时只警告。
+- 3.5 Crossref 适配器（默认关闭）：包含组的词合成一串发送，cursor 翻页最多 1000 条，本地按整条检索式筛选，与 S2 相同的本地重排；有损之处写进 meta.lossy；题目与摘要去掉 JATS 标签。
+- 3.6 请求估算：dry-run 与运行开头打印各来源的请求上限与 OpenAlex 额度上限；运行中剩余额度不够时预警；引文追踪在第一页返回总数后打印请求数，按 ID 批量取数前打印批数。
+
+**两个发现**：
+1. 旧解析器放行的四类写法会让各来源检索到不同的内容：未配对的引号（OpenAlex 把运算符当成词，S2 收到另一条检索式）；逗号（只对 OpenAlex 报错，S2 照常检索）；括号内缺 OR、组之间缺 AND（各来源与本地判断的含义不一致）。现在都报错（Q112、Q111、Q115、Q116）。仓库与示例里 72 个原始结果文件记录的检索式全部仍能解析。
+2. Crossref 的检索面向参考文献匹配：教程的 v1 Q1、Q3、Q4 与 v2b Q2 各取前 40 条，本地满足检索式的都是 0 条（Step 75–77；常见词 generative AI、large language models 占满前列，多数记录没有摘要）。起初沿用 S2 对无摘要记录的宽松规则时，Q3 保存了 20 条只命中常见词的记录，于是改为现有文字须满足整条检索式。两三个词的简单检索式能找到相关记录（Step 78，如 Anderson 等 2024 的同质化研究，即 v1 证据表 rank 4）。
+
+**回归核对**（以重构前的输出为基准，基准在重构前用同一脚本采集）：
+- 28 条检索式（v1、v2、v2b 的示例与 10 条边界写法）的解析结果与 OpenAlex、S2 检索串逐字节相同（写成 `tests/fixtures/query_golden.json`）；
+- 录制件回放的检索记录、引文追踪（一步与共被引）的记录与 CSV、核验后的表格逐字节相同；dry-run 每条检索式的输出相同，末尾多一行请求估算；
+- `merge.py` 默认方法在另一个项目目录下重跑，v1b、v2b 的记录与候选表与已提交文件逐字节相同；`--legacy` 的逐字节复现测试照常通过。
+
+**命令：自检**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests   # 3.13: Ran 141 tests … OK (skipped=6)；3.9: 同
+```
+
+新增 `tests/test_query_sources.py`（20 项）：基准对照、全部错误码与位置、英文报错、dry-run 的 ^ 位置、固定种子的 300 条随机检索式往返、OpenAlex 解析树的真实与改动样例、含 NOT 的录制件回放、Crossref 回放（保存的记录都满足检索式、教程长检索式保存 0 条、默认关闭）、请求估算与额度预警、临时登记的假数据源走通检索与合并、三个来源的合并。联网检查的第 5 项改为 Crossref 检索（Step 79，仍是 6 个请求）。
+
+**产出文件**：`novelty_probe/{query,text}.py`、`novelty_probe/sources/{__init__,base,common,localrank,openalex,semanticscholar,crossref}.py`、`tests/test_query_sources.py`、`tests/fixtures/{query_golden,crossref_queries}.json`、`tests/fixtures/cassettes/{search_not,search_crossref}.json`（新增）；`scripts/{search,merge,snowball,textmatch}.py`、`novelty_probe/{config,i18n,schemas}.py`、`tests/{test_live_contract,test_replay}.py`、`HOWTO.md`、`HANDOFF.md`、`AGENTS.md`、`README.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`（修改）

@@ -85,12 +85,13 @@ To run another round without overwriting the first, use version suffixes, for ex
 
 ## How the scripts work
 
-- **`search.py`** converts each generic Boolean query into each source's syntax:
+- **`search.py`** parses each generic Boolean query once into a syntax tree (malformed queries are rejected with an error code and position) and runs it against every enabled source from the source registry (`novelty_probe/sources/`). Adding a source takes one module and one recorded test fixture. The per-source conversion:
   - OpenAlex: `filter=title_and_abstract.search` with the Boolean query kept and results ranked by relevance. Truncated words are replaced by full words, because OpenAlex rejects wildcards in its default stemmed search.
   - Semantic Scholar: `/graph/v1/paper/search/bulk`, with `AND` written as `+` and `OR` as `|`. This endpoint has no relevance ranking, so the script fetches all hits (up to 3,000) and re-ranks them locally: number of AND groups matched in the title and abstract, then BM25, then citation count. Records without an abstract are ranked separately and interleaved in proportion; duplicate titles are kept once.
-  - Exclusions are written `AND NOT ("a" OR "b")`. OpenAlex receives them unchanged (the script checks that OpenAlex parsed the NOT; a lower-case `not` would silently turn the exclusion into a requirement), and Semantic Scholar receives `+ -("a" | "b")`.
+  - Exclusions are written `AND NOT ("a" OR "b")`. OpenAlex receives them unchanged, and Semantic Scholar receives `+ -("a" | "b")`. Before saving OpenAlex results, the script compares the parse tree OpenAlex returns with the query group by group, and stops if OpenAlex changed the grouping or dropped the NOT (a lower-case `not` would silently turn the exclusion into a requirement).
+  - Crossref (optional, off by default): it has no Boolean search, so the include terms are sent as one bag of words, and the Boolean query is applied locally to the titles and abstracts of up to 1,000 retrieved records. In tests, short queries work well and long ones find little.
 
-  For each query and source it saves the top 25 records (title, year, DOI, arXiv ID, venue, abstract), the exact query string sent, and the hit count reported by the API. It retries on HTTP 429 and 5xx, and fails fast when an API asks it to wait more than 60 seconds. `--dry-run` checks query syntax without network access.
+  For each query and source it saves the top 25 records (title, year, DOI, arXiv ID, venue, abstract), the exact query string sent, and the hit count reported by the API. It retries on HTTP 429 and 5xx, and fails fast when an API asks it to wait more than 60 seconds. `--dry-run` checks query syntax without network access and prints how many requests each source will receive at most.
 - **`qa.py`** (optional) reports how many retrieved records satisfy the original query in their title and abstract, using Porter stemming as an approximation of the APIs' matching.
 - **`merge.py`** deduplicates records and ranks the candidates:
   - **Matching:** two records count as one work if they share a DOI (case, URL query strings and landing-page suffixes ignored) or an arXiv ID; versioned preprint DOIs on OSF, TechRxiv and Research Square count as the same work. Versions of one work are then linked by title: titles must match after normalization (dropping publication-status notes such as "(Just accepted by Nature…)") and pass conservative checks (years at most 3 apart, not two different journal DOIs, not a dataset, not a "Re:" letter or correction, abstracts consistent). Doubtful pairs are flagged for review instead of merged.
@@ -190,7 +191,8 @@ novelty_probe/   shared package: HTTP client and cache, response checks, configu
 novelty-probe.json  project configuration (only what differs from the defaults)
 examples/        frozen copy of the tutorial outputs, used as test fixtures
 tests/           offline self-test, recorded responses, optional live checks
-docs/            IMPROVEMENT_PLAN.md (known issues) and ARCHITECTURE_REVIEW.md (tool-layer review and phases), in Chinese
+docs/            IMPROVEMENT_PLAN.md (known issues), ARCHITECTURE_REVIEW.md (tool-layer review) and ROADMAP.md
+                 (plan and progress of the tool-layer iteration), in Chinese
 .github/         GitHub Actions workflow for the offline tests
 PROJECT.md       the assistant's role and rules (Chinese)
 AGENTS.md        instructions for AI coding assistants (Chinese)

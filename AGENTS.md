@@ -42,9 +42,10 @@
 - `queries/queries.json`：JSON 数组（不要包在 Markdown 代码块里）。每条包含：
   - `id`：必须是 `Q1`、`Q2` 这样的格式；`merge.py` 只读取这种文件名；
   - `facets_used`；
-  - `query`：用 AND 连接若干个括号组，括号内只用 OR；短语加英文双引号；运算符一律大写；不用嵌套括号和逗号；截断符 `*` 只能用 `search.py` 的 `TRUNCATION` 表里登记过的。需要排除时在最后加 `AND NOT ("a" OR "b")`（小写 not 在 OpenAlex 中会把排除变成包含，`search.py` 会拒绝）；
+  - `query`：用 AND 连接若干个括号组，括号内只用 OR（词之间都要写 OR）；短语加英文双引号（引号要配对）；运算符一律大写；不用嵌套括号和逗号；截断符 `*` 只能放在词尾，并且只能用配置 `queries.truncation` 里登记过的。需要排除时在最后加 `AND NOT ("a" OR "b")`（小写 not 在 OpenAlex 中会把排除变成包含，`search.py` 会拒绝）。dry-run 的报错带错误码（Q1xx）和位置，按它修改；
   - `purpose`：`component` / `application` / `method` / `concurrent` 之一。`concurrent` 只检索 2023 年起的文献。
 - `novelty-probe.json`：对象逐层合并，列表整体替换，`<键>_extend` 在默认列表后追加，以 `_` 开头的键是注释。`contact_email` 由研究者自己决定是否填写，不要代填；也不要把 API key 写进去。
+- 数据源在 `novelty_probe/sources/` 的注册表里；Crossref 默认关闭，是否开启属于检索范围的决定，由研究者决定。
 - `results/raw/`、`results/merged/`：只能由脚本生成，不要手工编辑。其中 `chase_*` 是 `snowball.py` 的引文追踪结果，`compare_*` 是 `compare.py` 的比较结果；`merge.py` 只读取 `{来源}_Q<数字>{后缀}.json`。
 - `merge.py` 默认用改进后的方法（版本识别、正式发表年份、RRF 排序）；`--legacy` 只用于复现教程 v1、v2 当时的结果。
 - `evidence/enrichment*.json`：`enrich.py` 从同一研究的其他版本补到的摘要与 arXiv ID，带来源；不要手工编辑。
