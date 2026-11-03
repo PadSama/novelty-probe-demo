@@ -1,0 +1,633 @@
+{
+  "_comment": "阶段 3 重构前（2026-11-03，search.py 的 parse_query / to_openalex / to_s2_bulk）对这些检索式的输出，作为基准：重构后必须逐字节相同。示例检索式 + 合成的边界写法；不合法写法的错误码见 tests/test_query_sources.py。",
+  "truncation": {
+    "bibliometric*": "bibliometrics",
+    "economist*": "economists",
+    "scientist*": "scientists",
+    "homogeniz*": "homogenization",
+    "homogenis*": "homogenisation"
+  },
+  "items": [
+    {
+      "source": "queries.json",
+      "id": "Q1",
+      "query": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+      "include": [
+        [
+          "\"large language models\"",
+          "\"generative AI\""
+        ],
+        [
+          "homogeniz*",
+          "homogenis*",
+          "\"algorithmic monoculture\"",
+          "\"collective diversity\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"large language models\" | \"generative AI\") + (homogeniz* | homogenis* | \"algorithmic monoculture\" | \"collective diversity\")",
+      "openalex": "(\"large language models\" OR \"generative AI\") AND (homogenization OR homogenisation OR \"algorithmic monoculture\" OR \"collective diversity\")"
+    },
+    {
+      "source": "queries.json",
+      "id": "Q2",
+      "query": "(\"narrowing of science\" OR \"topic concentration\" OR \"topic diversity\" OR \"research diversification\") AND (\"science of science\" OR bibliometric*)",
+      "include": [
+        [
+          "\"narrowing of science\"",
+          "\"topic concentration\"",
+          "\"topic diversity\"",
+          "\"research diversification\""
+        ],
+        [
+          "\"science of science\"",
+          "bibliometric*"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"narrowing of science\" | \"topic concentration\" | \"topic diversity\" | \"research diversification\") + (\"science of science\" | bibliometric*)",
+      "openalex": "(\"narrowing of science\" OR \"topic concentration\" OR \"topic diversity\" OR \"research diversification\") AND (\"science of science\" OR bibliometrics)"
+    },
+    {
+      "source": "queries.json",
+      "id": "Q3",
+      "query": "(\"AI in science\" OR \"AI for science\" OR \"large language models\" OR \"machine learning\") AND (\"research topic selection\" OR \"problem choice\" OR \"direction of science\")",
+      "include": [
+        [
+          "\"AI in science\"",
+          "\"AI for science\"",
+          "\"large language models\"",
+          "\"machine learning\""
+        ],
+        [
+          "\"research topic selection\"",
+          "\"problem choice\"",
+          "\"direction of science\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"AI in science\" | \"AI for science\" | \"large language models\" | \"machine learning\") + (\"research topic selection\" | \"problem choice\" | \"direction of science\")",
+      "openalex": "(\"AI in science\" OR \"AI for science\" OR \"large language models\" OR \"machine learning\") AND (\"research topic selection\" OR \"problem choice\" OR \"direction of science\")"
+    },
+    {
+      "source": "queries.json",
+      "id": "Q4",
+      "query": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"AI for science\" OR \"large language models\" OR \"generative AI\") AND scientist*",
+      "include": [
+        [
+          "\"streetlight effect\"",
+          "\"Matthew effect\"",
+          "\"exploration-exploitation\""
+        ],
+        [
+          "\"AI for science\"",
+          "\"large language models\"",
+          "\"generative AI\""
+        ],
+        [
+          "scientist*"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"streetlight effect\" | \"Matthew effect\" | \"exploration-exploitation\") + (\"AI for science\" | \"large language models\" | \"generative AI\") + scientist*",
+      "openalex": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"AI for science\" OR \"large language models\" OR \"generative AI\") AND scientists"
+    },
+    {
+      "source": "queries.json",
+      "id": "Q5",
+      "query": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometric*) AND (\"large language models\" OR \"generative AI\")",
+      "include": [
+        [
+          "\"LLM-generated text\"",
+          "\"topic modeling\"",
+          "\"difference-in-differences\""
+        ],
+        [
+          "\"science of science\"",
+          "bibliometric*"
+        ],
+        [
+          "\"large language models\"",
+          "\"generative AI\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"LLM-generated text\" | \"topic modeling\" | \"difference-in-differences\") + (\"science of science\" | bibliometric*) + (\"large language models\" | \"generative AI\")",
+      "openalex": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometrics) AND (\"large language models\" OR \"generative AI\")"
+    },
+    {
+      "source": "queries.json",
+      "id": "Q6",
+      "query": "(\"AI in science\" OR \"large language models\" OR \"generative AI\") AND (\"topic diversity\" OR \"narrowing of science\" OR \"collective diversity\" OR disruptiveness OR \"research diversification\") AND (scientist* OR \"science of science\")",
+      "include": [
+        [
+          "\"AI in science\"",
+          "\"large language models\"",
+          "\"generative AI\""
+        ],
+        [
+          "\"topic diversity\"",
+          "\"narrowing of science\"",
+          "\"collective diversity\"",
+          "disruptiveness",
+          "\"research diversification\""
+        ],
+        [
+          "scientist*",
+          "\"science of science\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"AI in science\" | \"large language models\" | \"generative AI\") + (\"topic diversity\" | \"narrowing of science\" | \"collective diversity\" | disruptiveness | \"research diversification\") + (scientist* | \"science of science\")",
+      "openalex": "(\"AI in science\" OR \"large language models\" OR \"generative AI\") AND (\"topic diversity\" OR \"narrowing of science\" OR \"collective diversity\" OR disruptiveness OR \"research diversification\") AND (scientists OR \"science of science\")"
+    },
+    {
+      "source": "queries_v2.json",
+      "id": "Q1",
+      "query": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+      "include": [
+        [
+          "\"large language models\"",
+          "\"generative AI\""
+        ],
+        [
+          "homogeniz*",
+          "homogenis*",
+          "\"algorithmic monoculture\"",
+          "\"collective diversity\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"large language models\" | \"generative AI\") + (homogeniz* | homogenis* | \"algorithmic monoculture\" | \"collective diversity\")",
+      "openalex": "(\"large language models\" OR \"generative AI\") AND (homogenization OR homogenisation OR \"algorithmic monoculture\" OR \"collective diversity\")"
+    },
+    {
+      "source": "queries_v2.json",
+      "id": "Q2",
+      "query": "(narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"research diversification\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+      "include": [
+        [
+          "narrowing",
+          "\"topic diversity\"",
+          "\"topic concentration\"",
+          "\"research diversification\""
+        ],
+        [
+          "economist*",
+          "\"economic research\"",
+          "\"management research\"",
+          "\"business research\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(narrowing | \"topic diversity\" | \"topic concentration\" | \"research diversification\") + (economist* | \"economic research\" | \"management research\" | \"business research\")",
+      "openalex": "(narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"research diversification\") AND (economists OR \"economic research\" OR \"management research\" OR \"business research\")"
+    },
+    {
+      "source": "queries_v2.json",
+      "id": "Q3",
+      "query": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research topic selection\") AND scientist*",
+      "include": [
+        [
+          "\"artificial intelligence\"",
+          "\"AI tools\"",
+          "\"generative AI\"",
+          "\"large language models\""
+        ],
+        [
+          "narrowing",
+          "\"topic diversity\"",
+          "\"topic concentration\"",
+          "\"collective diversity\"",
+          "\"research topic selection\""
+        ],
+        [
+          "scientist*"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (narrowing | \"topic diversity\" | \"topic concentration\" | \"collective diversity\" | \"research topic selection\") + scientist*",
+      "openalex": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research topic selection\") AND scientists"
+    },
+    {
+      "source": "queries_v2.json",
+      "id": "Q4",
+      "query": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+      "include": [
+        [
+          "\"streetlight effect\"",
+          "\"Matthew effect\"",
+          "\"exploration-exploitation\""
+        ],
+        [
+          "\"artificial intelligence\"",
+          "\"AI tools\"",
+          "\"generative AI\"",
+          "\"large language models\""
+        ],
+        [
+          "economist*",
+          "\"economic research\"",
+          "\"management research\"",
+          "\"business research\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"streetlight effect\" | \"Matthew effect\" | \"exploration-exploitation\") + (\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (economist* | \"economic research\" | \"management research\" | \"business research\")",
+      "openalex": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (economists OR \"economic research\" OR \"management research\" OR \"business research\")"
+    },
+    {
+      "source": "queries_v2.json",
+      "id": "Q5",
+      "query": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometric*) AND (\"large language models\" OR \"generative AI\")",
+      "include": [
+        [
+          "\"LLM-generated text\"",
+          "\"topic modeling\"",
+          "\"difference-in-differences\""
+        ],
+        [
+          "\"science of science\"",
+          "bibliometric*"
+        ],
+        [
+          "\"large language models\"",
+          "\"generative AI\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"LLM-generated text\" | \"topic modeling\" | \"difference-in-differences\") + (\"science of science\" | bibliometric*) + (\"large language models\" | \"generative AI\")",
+      "openalex": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometrics) AND (\"large language models\" OR \"generative AI\")"
+    },
+    {
+      "source": "queries_v2.json",
+      "id": "Q6",
+      "query": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research diversification\" OR \"research topic selection\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+      "include": [
+        [
+          "\"artificial intelligence\"",
+          "\"AI tools\"",
+          "\"generative AI\"",
+          "\"large language models\""
+        ],
+        [
+          "narrowing",
+          "\"topic diversity\"",
+          "\"topic concentration\"",
+          "\"collective diversity\"",
+          "\"research diversification\"",
+          "\"research topic selection\""
+        ],
+        [
+          "economist*",
+          "\"economic research\"",
+          "\"management research\"",
+          "\"business research\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (narrowing | \"topic diversity\" | \"topic concentration\" | \"collective diversity\" | \"research diversification\" | \"research topic selection\") + (economist* | \"economic research\" | \"management research\" | \"business research\")",
+      "openalex": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research diversification\" OR \"research topic selection\") AND (economists OR \"economic research\" OR \"management research\" OR \"business research\")"
+    },
+    {
+      "source": "queries_v2b.json",
+      "id": "Q1",
+      "query": "(\"large language models\" OR \"generative AI\") AND (homogeniz* OR homogenis* OR \"algorithmic monoculture\" OR \"collective diversity\")",
+      "include": [
+        [
+          "\"large language models\"",
+          "\"generative AI\""
+        ],
+        [
+          "homogeniz*",
+          "homogenis*",
+          "\"algorithmic monoculture\"",
+          "\"collective diversity\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"large language models\" | \"generative AI\") + (homogeniz* | homogenis* | \"algorithmic monoculture\" | \"collective diversity\")",
+      "openalex": "(\"large language models\" OR \"generative AI\") AND (homogenization OR homogenisation OR \"algorithmic monoculture\" OR \"collective diversity\")"
+    },
+    {
+      "source": "queries_v2b.json",
+      "id": "Q2",
+      "query": "(narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"research diversification\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\") AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")",
+      "include": [
+        [
+          "narrowing",
+          "\"topic diversity\"",
+          "\"topic concentration\"",
+          "\"research diversification\""
+        ],
+        [
+          "economist*",
+          "\"economic research\"",
+          "\"management research\"",
+          "\"business research\""
+        ]
+      ],
+      "exclude": [
+        [
+          "\"narrow AI\"",
+          "\"narrow artificial intelligence\""
+        ]
+      ],
+      "semanticscholar": "(narrowing | \"topic diversity\" | \"topic concentration\" | \"research diversification\") + (economist* | \"economic research\" | \"management research\" | \"business research\") + -(\"narrow AI\" | \"narrow artificial intelligence\")",
+      "openalex": "(narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"research diversification\") AND (economists OR \"economic research\" OR \"management research\" OR \"business research\") AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")"
+    },
+    {
+      "source": "queries_v2b.json",
+      "id": "Q3",
+      "query": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research topic selection\") AND scientist* AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")",
+      "include": [
+        [
+          "\"artificial intelligence\"",
+          "\"AI tools\"",
+          "\"generative AI\"",
+          "\"large language models\""
+        ],
+        [
+          "narrowing",
+          "\"topic diversity\"",
+          "\"topic concentration\"",
+          "\"collective diversity\"",
+          "\"research topic selection\""
+        ],
+        [
+          "scientist*"
+        ]
+      ],
+      "exclude": [
+        [
+          "\"narrow AI\"",
+          "\"narrow artificial intelligence\""
+        ]
+      ],
+      "semanticscholar": "(\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (narrowing | \"topic diversity\" | \"topic concentration\" | \"collective diversity\" | \"research topic selection\") + scientist* + -(\"narrow AI\" | \"narrow artificial intelligence\")",
+      "openalex": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research topic selection\") AND scientists AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")"
+    },
+    {
+      "source": "queries_v2b.json",
+      "id": "Q4",
+      "query": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\")",
+      "include": [
+        [
+          "\"streetlight effect\"",
+          "\"Matthew effect\"",
+          "\"exploration-exploitation\""
+        ],
+        [
+          "\"artificial intelligence\"",
+          "\"AI tools\"",
+          "\"generative AI\"",
+          "\"large language models\""
+        ],
+        [
+          "economist*",
+          "\"economic research\"",
+          "\"management research\"",
+          "\"business research\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"streetlight effect\" | \"Matthew effect\" | \"exploration-exploitation\") + (\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (economist* | \"economic research\" | \"management research\" | \"business research\")",
+      "openalex": "(\"streetlight effect\" OR \"Matthew effect\" OR \"exploration-exploitation\") AND (\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (economists OR \"economic research\" OR \"management research\" OR \"business research\")"
+    },
+    {
+      "source": "queries_v2b.json",
+      "id": "Q5",
+      "query": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometric*) AND (\"large language models\" OR \"generative AI\")",
+      "include": [
+        [
+          "\"LLM-generated text\"",
+          "\"topic modeling\"",
+          "\"difference-in-differences\""
+        ],
+        [
+          "\"science of science\"",
+          "bibliometric*"
+        ],
+        [
+          "\"large language models\"",
+          "\"generative AI\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(\"LLM-generated text\" | \"topic modeling\" | \"difference-in-differences\") + (\"science of science\" | bibliometric*) + (\"large language models\" | \"generative AI\")",
+      "openalex": "(\"LLM-generated text\" OR \"topic modeling\" OR \"difference-in-differences\") AND (\"science of science\" OR bibliometrics) AND (\"large language models\" OR \"generative AI\")"
+    },
+    {
+      "source": "queries_v2b.json",
+      "id": "Q6",
+      "query": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research diversification\" OR \"research topic selection\") AND (economist* OR \"economic research\" OR \"management research\" OR \"business research\") AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")",
+      "include": [
+        [
+          "\"artificial intelligence\"",
+          "\"AI tools\"",
+          "\"generative AI\"",
+          "\"large language models\""
+        ],
+        [
+          "narrowing",
+          "\"topic diversity\"",
+          "\"topic concentration\"",
+          "\"collective diversity\"",
+          "\"research diversification\"",
+          "\"research topic selection\""
+        ],
+        [
+          "economist*",
+          "\"economic research\"",
+          "\"management research\"",
+          "\"business research\""
+        ]
+      ],
+      "exclude": [
+        [
+          "\"narrow AI\"",
+          "\"narrow artificial intelligence\""
+        ]
+      ],
+      "semanticscholar": "(\"artificial intelligence\" | \"AI tools\" | \"generative AI\" | \"large language models\") + (narrowing | \"topic diversity\" | \"topic concentration\" | \"collective diversity\" | \"research diversification\" | \"research topic selection\") + (economist* | \"economic research\" | \"management research\" | \"business research\") + -(\"narrow AI\" | \"narrow artificial intelligence\")",
+      "openalex": "(\"artificial intelligence\" OR \"AI tools\" OR \"generative AI\" OR \"large language models\") AND (narrowing OR \"topic diversity\" OR \"topic concentration\" OR \"collective diversity\" OR \"research diversification\" OR \"research topic selection\") AND (economists OR \"economic research\" OR \"management research\" OR \"business research\") AND NOT (\"narrow AI\" OR \"narrow artificial intelligence\")"
+    },
+    {
+      "source": "synthetic",
+      "id": "S1",
+      "query": "a AND b",
+      "include": [
+        [
+          "a"
+        ],
+        [
+          "b"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "a + b",
+      "openalex": "a AND b"
+    },
+    {
+      "source": "synthetic",
+      "id": "S2",
+      "query": "\"x y\" AND (c OR d*)",
+      "include": [
+        [
+          "\"x y\""
+        ],
+        [
+          "c",
+          "d*"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "\"x y\" + (c | d*)",
+      "openalex_error_code": "Q201"
+    },
+    {
+      "source": "synthetic",
+      "id": "S3",
+      "query": "(scientist* OR \"science of science\") AND bibliometric*",
+      "include": [
+        [
+          "scientist*",
+          "\"science of science\""
+        ],
+        [
+          "bibliometric*"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(scientist* | \"science of science\") + bibliometric*",
+      "openalex": "(scientists OR \"science of science\") AND bibliometrics"
+    },
+    {
+      "source": "synthetic",
+      "id": "S4",
+      "query": "ChatGPT AND (homogeniz* OR homogenis*) AND NOT (\"narrow AI\" OR \"narrow applications\")",
+      "include": [
+        [
+          "ChatGPT"
+        ],
+        [
+          "homogeniz*",
+          "homogenis*"
+        ]
+      ],
+      "exclude": [
+        [
+          "\"narrow AI\"",
+          "\"narrow applications\""
+        ]
+      ],
+      "semanticscholar": "ChatGPT + (homogeniz* | homogenis*) + -(\"narrow AI\" | \"narrow applications\")",
+      "openalex": "ChatGPT AND (homogenization OR homogenisation) AND NOT (\"narrow AI\" OR \"narrow applications\")"
+    },
+    {
+      "source": "synthetic",
+      "id": "S5",
+      "query": "state-of-the-art AND (\"large language models\" OR LLM)",
+      "include": [
+        [
+          "state-of-the-art"
+        ],
+        [
+          "\"large language models\"",
+          "LLM"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "\"state of the art\" + (\"large language models\" | LLM)",
+      "openalex": "state-of-the-art AND (\"large language models\" OR LLM)"
+    },
+    {
+      "source": "synthetic",
+      "id": "S6",
+      "query": "\"AI-assisted\" AND writing",
+      "include": [
+        [
+          "\"AI-assisted\""
+        ],
+        [
+          "writing"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "\"AI-assisted\" + writing",
+      "openalex": "\"AI-assisted\" AND writing"
+    },
+    {
+      "source": "synthetic",
+      "id": "S7",
+      "query": "(a OR b OR c) AND NOT d",
+      "include": [
+        [
+          "a",
+          "b",
+          "c"
+        ]
+      ],
+      "exclude": [
+        [
+          "d"
+        ]
+      ],
+      "semanticscholar": "(a | b | c) + -d",
+      "openalex": "(a OR b OR c) AND NOT d"
+    },
+    {
+      "source": "synthetic",
+      "id": "S8",
+      "query": "x AND NOT (y) AND NOT (\"z w\")",
+      "include": [
+        [
+          "x"
+        ]
+      ],
+      "exclude": [
+        [
+          "y"
+        ],
+        [
+          "\"z w\""
+        ]
+      ],
+      "semanticscholar": "x + -(y) + -(\"z w\")",
+      "openalex": "x AND NOT (y) AND NOT (\"z w\")"
+    },
+    {
+      "source": "synthetic",
+      "id": "S9",
+      "query": "economist* AND \"problem choice\"",
+      "include": [
+        [
+          "economist*"
+        ],
+        [
+          "\"problem choice\""
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "economist* + \"problem choice\"",
+      "openalex": "economists AND \"problem choice\""
+    },
+    {
+      "source": "synthetic",
+      "id": "S10",
+      "query": "(  spaced   OR  out ) AND  words ",
+      "include": [
+        [
+          "spaced",
+          "out"
+        ],
+        [
+          "words"
+        ]
+      ],
+      "exclude": [],
+      "semanticscholar": "(spaced | out) + words",
+      "openalex": "(  spaced   OR  out ) AND  words "
+    }
+  ]
+}

@@ -125,6 +125,32 @@ def crossref_work(obj):
     return w
 
 
+def crossref_list(obj):
+    """Crossref /works?query…（作品列表）。"""
+    w = []
+    expect(obj, "status", (str,), out=w)
+    expect(obj, "message", (dict,), out=w)
+    m = obj.get("message") or {}
+    if not isinstance(m, dict):
+        return w
+    expect(m, "total-results", (int,), out=w)
+    expect(m, "items", (list,), out=w)
+    if "next-cursor" in m:
+        expect(m, "next-cursor", (str,), nullable=True, out=w)
+    for i, it in enumerate((m.get("items") or [])[:50] if isinstance(m.get("items"), list) else []):
+        if not isinstance(it, dict):
+            w.append(f"items[{i}] is not an object")
+            continue
+        sub = []
+        expect(it, "DOI", (str,), out=sub)
+        for k, typ in (("title", (list,)), ("abstract", (str,)), ("issued", (dict,)), ("container-title", (list,)),
+                       ("type", (str,)), ("is-referenced-by-count", (int,))):
+            if k in it:
+                expect(it, k, typ, nullable=True, out=sub)
+        w.extend(f"items[{i}]: {x}" for x in sub)
+    return w
+
+
 def crossref_agency(obj):
     w = []
     expect(obj, "message.agency.id", (str,), out=w)
