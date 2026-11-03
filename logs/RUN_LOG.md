@@ -3898,3 +3898,222 @@ python3 -W error::ResourceWarning -m unittest discover -s tests   # 3.13: Ran 14
 新增 `tests/test_query_sources.py`（20 项）：基准对照、全部错误码与位置、英文报错、dry-run 的 ^ 位置、固定种子的 300 条随机检索式往返、OpenAlex 解析树的真实与改动样例、含 NOT 的录制件回放、Crossref 回放（保存的记录都满足检索式、教程长检索式保存 0 条、默认关闭）、请求估算与额度预警、临时登记的假数据源走通检索与合并、三个来源的合并。联网检查的第 5 项改为 Crossref 检索（Step 79，仍是 6 个请求）。
 
 **产出文件**：`novelty_probe/{query,text}.py`、`novelty_probe/sources/{__init__,base,common,localrank,openalex,semanticscholar,crossref}.py`、`tests/test_query_sources.py`、`tests/fixtures/{query_golden,crossref_queries}.json`、`tests/fixtures/cassettes/{search_not,search_crossref}.json`（新增）；`scripts/{search,merge,snowball,textmatch}.py`、`novelty_probe/{config,i18n,schemas}.py`、`tests/{test_live_contract,test_replay}.py`、`HOWTO.md`、`HANDOFF.md`、`AGENTS.md`、`README.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`（修改）
+
+---
+
+## [2026-11-03 13:55 UTC] Step 81 — 阶段 4 开始：研究者的决定与任务分解
+
+**研究者的要求**（原话）："No need to add Python 3.14 to CI, keep Crossref off by default, I prefer RIS format. I agree to save authors with each search. There's no need adding duplicate-review table cause I'd like to reduce middle-stage human participations (damn, It's only a START of the whole research work!). I've merged and confirmed, you can start Phase 4 now."
+
+**决定**：CI 不加 Python 3.14；Crossref 保持默认关闭；导出只做 RIS；检索时保存作者；不设去重复核表。由此定下的设计原则写入 `docs/ROADMAP.md` 第 1 节：**减少中间环节的人工参与**，脚本能自动完成、自动判断的就不留给研究者。
+
+**做了什么**：更新 `docs/ROADMAP.md`：阶段 3 记为已合并（#6）；阶段 4 的任务分解按上述决定调整：
+- 记录带作者与出处；
+- 去重自动完成、规则编号可追溯，作者参与判断，不设复核表；
+- 拆分合并脚本；
+- 合并时自动写出 RIS、运行清单与检索报告；原计划的漂移检查并入运行清单；
+- 量化本地匹配的偏差。
+阶段 3 的任务表移到附录；待决策中新增阶段 5 的"一条命令跑完全部脚本步骤"（建议加）。
+
+**产出文件**：`docs/ROADMAP.md`（修改）
+
+---
+
+## [2026-11-03 14:04 UTC] Step 82 — 重新录制测试件：S2 检索（v1 Q3、Q4；请求加 authors 字段）
+
+**命令**
+
+```bash
+python3 scripts/search.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4 --queries examples/tutorial/queries/queries.json --ids Q3,Q4 --sources semanticscholar --suffix _rec --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache --http-mode record --cassette /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/s2.json
+# argv: ["python3", "scripts/search.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4", "--queries", "examples/tutorial/queries/queries.json", "--ids", "Q3,Q4", "--sources", "semanticscholar", "--suffix", "_rec", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache", "--http-mode", "record", "--cassette", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/s2.json"]
+```
+
+**输出**（退出码 0）
+
+```
+请求估算（上限）：semanticscholar 最多 6 个请求
+query purpose     source          total_hits saved no_id  file / note
+Q3    application semanticscholar          9     9     0  results/raw/semanticscholar_Q3_rec.json
+Q4    application semanticscholar          1     1     0  results/raw/semanticscholar_Q4_rec.json
+
+2/2 个请求成功。total_hits = API 报告的命中数；saved = 保存的条数（前 25 条：OpenAlex 按 API 相关度，S2 在本地按相关度重排）；no_id = 既无 DOI 也无 arXiv ID 的条数（将标为 UNVERIFIED）。
+```
+
+---
+
+## [2026-11-03 14:05 UTC] Step 83 — 重新录制测试件：Crossref 检索（v1 Q1、Q3、Q4，各取 40 条；请求加 author 字段）
+
+**命令**
+
+```bash
+python3 scripts/search.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4 --queries examples/tutorial/queries/queries.json --ids Q1,Q3,Q4 --sources crossref --suffix _rec --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache2 --http-mode record --cassette tests/fixtures/cassettes/search_crossref.json
+# argv: ["python3", "scripts/search.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4", "--queries", "examples/tutorial/queries/queries.json", "--ids", "Q1,Q3,Q4", "--sources", "crossref", "--suffix", "_rec", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache2", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/search_crossref.json"]
+```
+
+**输出**（退出码 0）
+
+```
+请求估算（上限）：crossref 最多 3 个请求
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   crossref            185379     0     0  results/raw/crossref_Q1_rec.json
+Q3    application crossref           9620152     0     0  results/raw/crossref_Q3_rec.json
+Q4    application crossref           4091899     0     0  results/raw/crossref_Q4_rec.json
+
+3/3 个请求成功。total_hits = API 报告的命中数；saved = 保存的条数（前 25 条：OpenAlex 按 API 相关度，S2 在本地按相关度重排）；no_id = 既无 DOI 也无 arXiv ID 的条数（将标为 UNVERIFIED）。
+```
+
+---
+
+## [2026-11-03 14:05 UTC] Step 84 — 重新录制测试件：Crossref 检索（三条简单检索式，各取 40 条）
+
+**命令**
+
+```bash
+python3 scripts/search.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4 --queries tests/fixtures/crossref_queries.json --sources crossref --suffix _rec2 --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache3 --http-mode record --cassette tests/fixtures/cassettes/search_crossref.json
+# argv: ["python3", "scripts/search.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4", "--queries", "tests/fixtures/crossref_queries.json", "--sources", "crossref", "--suffix", "_rec2", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache3", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/search_crossref.json"]
+```
+
+**输出**（退出码 0）
+
+```
+请求估算（上限）：crossref 最多 3 个请求
+query purpose     source          total_hits saved no_id  file / note
+Q1    component   crossref           3224134     1     0  results/raw/crossref_Q1_rec2.json
+Q2    component   crossref           2534477     6     0  results/raw/crossref_Q2_rec2.json
+Q3    component   crossref           7678928     1     0  results/raw/crossref_Q3_rec2.json
+
+3/3 个请求成功。total_hits = API 报告的命中数；saved = 保存的条数（前 25 条：OpenAlex 按 API 相关度，S2 在本地按相关度重排）；no_id = 既无 DOI 也无 arXiv ID 的条数（将标为 UNVERIFIED）。
+```
+
+---
+
+## [2026-11-03 14:05 UTC] Step 85 — 重新录制测试件：引文追踪一步模式（种子 doi:10.1145/3635636.3656204；请求加 authorships）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4 --seeds 10.1145/3635636.3656204 --queries examples/tutorial/queries/queries.json --suffix _rec --max-forward 30 --top 5 --keep 50 --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache4 --http-mode record --cassette tests/fixtures/cassettes/snowball_onehop.json
+# argv: ["python3", "scripts/snowball.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4", "--seeds", "10.1145/3635636.3656204", "--queries", "examples/tutorial/queries/queries.json", "--suffix", "_rec", "--max-forward", "30", "--top", "5", "--keep", "50", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache4", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/snowball_onehop.json"]
+```
+
+**输出**（退出码 0）
+
+```
+seeds (1):
+  10.1145/3635636.3656204: W4391556516 | refs 56 | cited by [191] | Homogenization Effects of Large Language Models on Human Creative Ideation
+  OpenAlex 翻页：共 187 条，取 30 条，约 1 个请求（约 10 credits）
+  按 ID 取 55 篇的元数据：2 个请求（约 20 credits）
+
+pool: 85 works linked to the seeds (0 linked to more than one seed)
+already in search results (none): 0
+written: results/raw/chase_C1_rec.json, results/merged/chase_C1_rec.csv
+
+path     rank  score    sim in_search  identifier                               title
+onehop      1      1  0.242         -  doi:10.1145/3706598.3713146              Timing Matters: How Using LLMs at Different Timings Influences Writers
+onehop      2      1  0.238         -  doi:10.1016/j.chbah.2025.100207          Homogenizing effect of large language models (LLMs) on creative divers
+onehop      3      1  0.202         -  doi:10.1145/3715928.3737481              How AI Ideas Affect the Creativity, Diversity, and Evolution of Human 
+onehop      4      1  0.193         -  doi:10.1177/00491241251327130            Generative AI Meets Open-Ended Survey Responses: Research Participant 
+onehop      5      1  0.183         -  doi:10.1145/3290605.3300619              Mapping the Landscape of Creativity Support Tools in HCI
+```
+
+---
+
+## [2026-11-03 14:05 UTC] Step 86 — 重新录制测试件：引文追踪共被引模式（同一种子，引用者过滤 scientist*）
+
+**命令**
+
+```bash
+python3 scripts/snowball.py --root /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4 --seeds 10.1145/3635636.3656204 --queries examples/tutorial/queries/queries.json --suffix _rec --max-forward 30 --top 5 --keep 50 --cocite --citer-filter 'scientist*' --cache-dir /tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache5 --http-mode record --cassette tests/fixtures/cassettes/snowball_cocite.json
+# argv: ["python3", "scripts/snowball.py", "--root", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4", "--seeds", "10.1145/3635636.3656204", "--queries", "examples/tutorial/queries/queries.json", "--suffix", "_rec", "--max-forward", "30", "--top", "5", "--keep", "50", "--cocite", "--citer-filter", "scientist*", "--cache-dir", "/tmp/claude-0/-home-user-novelty-probe-demo/942b2a24-db7a-5d82-970b-5376bbcb6aa8/scratchpad/rec4/cache5", "--http-mode", "record", "--cassette", "tests/fixtures/cassettes/snowball_cocite.json"]
+```
+
+**输出**（退出码 0）
+
+```
+seeds (1):
+  10.1145/3635636.3656204: W4391556516 | refs 56 | cited by [191] | Homogenization Effects of Large Language Models on Human Creative Ideation
+  OpenAlex 翻页：共 1 条，取 1 条，约 1 个请求（约 10 credits）
+  按 ID 取 72 篇的元数据：2 个请求（约 20 credits）
+
+citing works: 187 cite the seeds; 1 pass the filter 'scientists'; 0 letters/replies excluded; 1 citers used (versions of one work counted once: 0 merged)
+co-cited: 72 works cited by the citers; 0 cited by at least 2
+already in search results (none): 0
+written: results/raw/chase_C2_rec.json, results/merged/chase_C2_rec.csv
+
+path     rank  score    sim in_search  identifier                               title
+citer       1         0.068         -  doi:10.1017/s0267190525000042            Digital accents, homogeneity-by-design, and the evolving social scienc
+```
+
+---
+
+## [2026-11-03 14:32 UTC] Step 87 — 工具层迭代阶段 4：记录带作者、可追溯的自动去重、RIS、运行清单与检索报告
+
+**研究者的要求**：按 Step 81 定下的范围实施阶段 4（减少中间环节的人工参与：作者随检索取得，不设去重复核表，RIS、运行清单与检索报告在合并时自动写出）。
+
+**做了什么**（对应 `docs/ROADMAP.md` 第 4 节）：
+
+- **4.1 记录带作者与出处**：
+  - 检索记录增加 `authors`（最多 20 位）与 `n_authors`：OpenAlex 取自响应中原有的 authorships；S2 的请求加 `authors` 字段，Crossref 的 `select` 加 `author`，引文追踪加 `authorships`。
+  - 合并记录增加 `authors`、`n_authors`、`field_source`（各字段取自哪条原始记录），schema 为 `novelty-probe/merged@2`；候选表加 `authors` 列（前 3 位，超过加 et al.）。
+  - `authors.py` 先用合并记录里的作者，只为缺作者的候选查 OpenAlex；`evidence.py check` 用合并记录或 `authors*.json` 的作者比对，与任一处一致即可。
+- **4.2 自动、可追溯的去重**：
+  - 每个决定记规则编号（D1–D5 合并，R1–R8 保持分开），写进合并记录的 `dedupe_rules`、`review[].rule` 与 meta 的 `dedupe_rules`。
+  - 作者作证据：同题但两边作者名没有一个相同时不并（R7）；题目几乎相同且有共同作者时才并（D5）；一方的作者名不可比（如只用汉字书写）时作者不作证据。
+  - 合并组上限 `versions.max_cluster_groups = 6`（R8）。不设人工复核表。
+- **4.3 拆分合并脚本**：记录组装、去重、排序移入 `novelty_probe/record.py`、`dedupe.py`、`rank.py`；`merge.py` 只做编排，`--legacy` 不变（只把重复的辅助函数改为从包内导入，并显式返回退出码 0）。
+- **4.4 RIS**：合并时写出 `results/merged/candidates{后缀}.ris`；`scripts/export.py` 另可导出全部合并记录（`--all`）或证据表各行（`--evidence`，各面的标注写成关键词）。
+- **4.5 运行清单与检索报告**：合并时写出 `run_manifest{后缀}.json`（`novelty-probe/manifest@1`）与 `search_report{后缀}.md`（参照 PRISMA-S，doi:10.1186/s13643-020-01542-z）；`scripts/report.py render` 换语言重新生成，`diff` 比较两次运行。各来源在报告里的说明由数据源适配器提供（`label`、`interface`、`ranking`）。
+- **4.7 本地匹配的偏差（A4）**：`qa.py` 末尾与检索报告给出服务器已按布尔检索式返回、有摘要、却被本地判为不满足的比例。
+- **4.8 测试**：新增 `tests/test_records.py`（13 项）；`test_evidence.py` 加合并记录作者的比对；联网接口检查加作者字段（S2 用检索时的字段）。
+
+**编写测试时发现并修正的问题**：
+
+1. 证据检查的作者比对只看排在最前的标识符：同时有 DOI 与 arXiv ID 的文献，作者与另一标识符下的记录一致也会误报。
+2. 只用汉字等非拉丁字母书写的作者名没有可比的词，会被当成"没有共同的名字"而拆开同一篇（R7）。
+3. `export.py` 导出候选时按默认方法的排序截取前 20 篇，对 `--legacy` 的结果与候选表不一致；改为按候选表的顺序。
+4. `merge.py --legacy` 与 `authors.py` 没有显式返回退出码（实际退出码仍为 0）。
+
+**命令与结果**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests            # Python 3.13.18：155 项通过（6 项联网检查跳过）
+<Python 3.9.25> -W error::ResourceWarning -m unittest discover -s tests   # Python 3.9.25：155 项通过（6 项跳过）
+NP_LIVE=1 python3 -m unittest tests.test_live_contract -v                  # 6 项通过（含 OpenAlex、S2、Crossref 的作者字段）
+```
+
+旧数据的回归核对（都没有作者）：
+
+- **v1、v2（`examples/tutorial/`）**：默认方法的合并结果去掉新增字段（`authors`、`n_authors`、`field_source`、`dedupe_rules`，`review` 的 `rule`）与 bm25 后，与阶段 3 的代码（`git archive 0beca5e`）实际运行的结果相同；校验值 `a2b4ad3c1fdfc030`（v1）、`392d4b04ff1cbd0b`（v2）固定在 `tests/test_records.py`。
+- **v1b、v2b**：在临时项目目录（`--root`）重新合并，记录除新增字段外与已提交的 `results/merged/merged_v1b.json`、`merged_v2b.json` 相同；候选表除 `authors` 列与 review 的规则编号外相同。
+- **`--legacy`**：照常逐字节复现（测试）。
+
+去重规则的使用次数（重新合并的结果）：
+
+| 轮次 | 原始 → 合并 | 按标识符 | 按版本 | 保持分开 |
+|---|---|---|---|---|
+| v2 | 235 → 191 | D1 31、D2 5、D3 1 | D4 7 | R2 1、R3 1 |
+| v1b | 216 → 164 | D1 41、D2 5 | D4 6 | R2 1、R3 1 |
+| v2b | 234 → 190 | D1 30、D2 5、D3 2 | D4 7 | R2 1、R3 1、R6 1 |
+
+v1、v2、v1b、v2b 中最大的合并组都是 2 个标识符分组（上限 6 未触发）。作者规则（D5、R7）在这些数据上不会触发（没有作者），由测试覆盖，下一轮真实检索时才会用上。
+
+本地匹配的偏差（`qa.py`）：
+
+| 轮次 | OpenAlex | Semantic Scholar |
+|---|---|---|
+| v1b | 87 条中 1 条（1.1%） | 94 条中 6 条（6.4%） |
+| v2b | 103 条中 1 条（1.0%） | 83 条中 0 条 |
+| v2 | 101 条中 0 条 | 69 条中 0 条 |
+
+录制件回放的端到端流程（v1 Q3、Q4 → 合并）：13 篇全部带作者；`candidates.ris` 13 条、63 行作者；运行清单与检索报告齐全。
+
+**未做的**：
+
+- 用第三方 RIS 解析器（rispy）独立核对 RIS：运行下载的代码被环境的权限检查拦下，未运行；RIS 的结构由测试覆盖，建议研究者把一个 `candidates*.ris` 导入 Zotero 确认一次。
+- 已提交的 v1、v2、v1b、v2b 合并结果没有重新生成，仍是阶段 3 的格式；重跑 `merge.py` 即得到新字段与 RIS、运行清单、检索报告。
+
+**产出文件**：
+
+- 新增：`novelty_probe/record.py`、`novelty_probe/dedupe.py`、`novelty_probe/rank.py`、`novelty_probe/export.py`、`novelty_probe/report.py`、`scripts/export.py`、`scripts/report.py`、`tests/test_records.py`
+- 修改：`novelty_probe/sources/`（common、base、openalex、semanticscholar、crossref）、`novelty_probe/text.py`、`novelty_probe/evidence.py`、`novelty_probe/schemas.py`、`novelty_probe/config.py`、`novelty_probe/i18n.py`、`scripts/merge.py`、`scripts/authors.py`、`scripts/qa.py`、`scripts/snowball.py`、`tests/`（test_offline、test_replay、test_evidence、test_live_contract；录制件 search_q3q4、search_crossref、snowball_onehop、snowball_cocite）、`.gitattributes`
+- 文档：`HOWTO.md`、`HANDOFF.md`、`AGENTS.md`、`README.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`

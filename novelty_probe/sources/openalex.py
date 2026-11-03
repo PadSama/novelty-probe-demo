@@ -13,7 +13,7 @@ from .. import query as Q
 from .. import schemas
 from ..i18n import t
 from .base import Source
-from .common import ARXIV_DOI_RE, ARXIV_URL_RE, clean_arxiv, clean_doi, rebuild_abstract
+from .common import ARXIV_DOI_RE, ARXIV_URL_RE, author_fields, clean_arxiv, clean_doi, rebuild_abstract
 
 URL = "https://api.openalex.org/works"
 SORT = "relevance_score:desc"
@@ -45,6 +45,14 @@ def openalex_arxiv(work, doi):
     return None
 
 
+def openalex_authors(work):
+    """作者名（authorships 按署名顺序）；响应里没有 authorships 时返回 None。"""
+    if "authorships" not in work:
+        return None
+    return [((a or {}).get("author") or {}).get("display_name") or (a or {}).get("raw_author_name")
+            for a in work.get("authorships") or []]
+
+
 def openalex_record(work, qid):
     doi = clean_doi(work.get("doi"))
     source = (work.get("primary_location") or {}).get("source") or {}
@@ -55,6 +63,7 @@ def openalex_record(work, qid):
         "arxiv_id": openalex_arxiv(work, doi),
         "venue": source.get("display_name"),
         "abstract": rebuild_abstract(work.get("abstract_inverted_index")),
+        **author_fields(openalex_authors(work)),
         "source_api": "openalex",
         "query_id": qid,
     }
@@ -157,6 +166,9 @@ class OpenAlex(Source):
     conversion = "boolean kept; truncated words -> full words; matched on title and abstract"
     capabilities = {"boolean": "api", "phrase": "api", "prefix": "expand", "not": "api", "year_filter": "api",
                     "ranking": "api (relevance_score)"}
+    label = "OpenAlex"
+    interface = "GET https://api.openalex.org/works?filter=title_and_abstract.search:…"
+    ranking = ("API 相关度（relevance_score）", "API relevance (relevance_score)")
     url = URL
 
     def serialize(self, query, truncation):

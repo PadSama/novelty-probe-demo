@@ -58,7 +58,7 @@ RAW_DIR = ROOT / "results" / "raw"
 OUT_DIR = ROOT / "results" / "merged"
 OPENALEX_URL = "https://api.openalex.org/works"
 FIELDS = ("id,doi,title,display_name,publication_year,type,primary_location,locations,abstract_inverted_index,"
-          "cited_by_count")
+          "cited_by_count,authorships")
 _S = np_config.DEFAULTS["snowball"]   # 命令行参数的默认值（main() 里改用配置中的值）
 MAX_FORWARD, TOP, KEEP = _S["max_forward"], _S["top"], _S["keep"]
 BATCH = 50

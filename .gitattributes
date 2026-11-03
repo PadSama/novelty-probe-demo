@@ -2,3 +2,4 @@
 *.csv -text
 *.png binary
 *.zip binary
+*.ris -text

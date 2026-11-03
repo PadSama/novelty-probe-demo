@@ -2,11 +2,12 @@
 """联网的接口契约检查（金丝雀）：只在 NP_LIVE=1 时运行，共 6 个请求。
 
 脚本依赖几条实测得来的接口行为；数据源改了接口时，离线测试（录制件）发现不了，这里能发现：
-  1. OpenAlex 列表：title_and_abstract.search 照原样接受 AND / OR / 引号短语，meta.x_query 给出解析结果，响应形状不变；
+  1. OpenAlex 列表：title_and_abstract.search 照原样接受 AND / OR / 引号短语，meta.x_query 给出解析结果，响应形状不变，
+     记录带作者（authorships）；
   2. OpenAlex 不支持通配符：截断词返回 400（所以 search.py 把截断词换成完整词，见 queries.truncation）；
-  3. Semantic Scholar bulk 检索：响应有 total / token / data；
+  3. Semantic Scholar bulk 检索（search.py 所用的字段，含作者）：响应有 total / token / data；
   4. Semantic Scholar batch：POST 按 DOI 批量取记录；
-  5. Crossref 检索（/works?query.bibliographic=…，数据源适配器所用的请求）：作品列表的响应形状不变；
+  5. Crossref 检索（/works?query.bibliographic=…，数据源适配器所用的请求）：作品列表的响应形状不变，作者是列表；
   6. Crossref /works/<doi>/agency：arXiv 的 DOI 由 DataCite 登记（verify.py 据此改走 OpenAlex）。
 运行：NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 请求经 novelty_probe/http.py 的客户端（按主机限速、重试），User-Agent 是通用的客户端名，不带个人信息；
@@ -48,6 +49,7 @@ class TestLiveContracts(unittest.TestCase):
         self.assertIn(" AND ", meta["api_interpretation"])
         self.assertIsInstance(meta["total_hits"], int)
         self.assertLessEqual(len(records), 2)
+        self.assertTrue(all(isinstance(r["authors"], list) and r["n_authors"] == len(r["authors"]) for r in records))
 
     def test_2_openalex_rejects_wildcards(self):
         with self.assertRaises(ClientError) as cm:
@@ -56,13 +58,17 @@ class TestLiveContracts(unittest.TestCase):
         self.assertEqual(cm.exception.status, 400)
 
     def test_3_semantic_scholar_bulk(self):
+        from novelty_probe.sources import semanticscholar
         try:
             data = self.client.get_json("https://api.semanticscholar.org/graph/v1/paper/search/bulk",
                                         params={"query": '"homogenization" + "large language models" + creativity',
-                                                "fields": "title,year,externalIds", "sort": "citationCount:desc"})
+                                                "fields": semanticscholar.FIELDS, "sort": "citationCount:desc"})
         except RateLimited as e:
             self.skipTest(f"Semantic Scholar rate-limited after retries: {e}")
         self.assertEqual(schemas.s2_bulk(data), [])
+        papers = data["data"][:20]
+        self.assertTrue(papers and all(isinstance(p.get("authors"), list) for p in papers))
+        self.assertTrue(all(isinstance(a.get("name"), str) for p in papers for a in p["authors"]))
 
     def test_4_semantic_scholar_batch(self):
         try:
@@ -80,6 +86,8 @@ class TestLiveContracts(unittest.TestCase):
         self.assertEqual(schemas.crossref_list(data), [])
         self.assertLessEqual(len(data["message"]["items"]), 2)
         self.assertIsInstance(data["message"]["total-results"], int)
+        authors = [a for it in data["message"]["items"] for a in it.get("author") or []]
+        self.assertTrue(all(a.get("family") or a.get("name") for a in authors))
 
     def test_6_crossref_agency_for_arxiv_doi(self):
         data = self.client.get_json("https://api.crossref.org/works/10.48550/arXiv.2312.00506/agency")

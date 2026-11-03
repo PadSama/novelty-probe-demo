@@ -144,7 +144,7 @@ def crossref_list(obj):
         sub = []
         expect(it, "DOI", (str,), out=sub)
         for k, typ in (("title", (list,)), ("abstract", (str,)), ("issued", (dict,)), ("container-title", (list,)),
-                       ("type", (str,)), ("is-referenced-by-count", (int,))):
+                       ("type", (str,)), ("is-referenced-by-count", (int,)), ("author", (list,))):
             if k in it:
                 expect(it, k, typ, nullable=True, out=sub)
         w.extend(f"items[{i}]: {x}" for x in sub)

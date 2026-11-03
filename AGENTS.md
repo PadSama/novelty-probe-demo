@@ -35,6 +35,7 @@
 - **参数与词表**在 `novelty-probe.json`，只写与默认值不同的设置；`python3 scripts/config.py show` 查看全部，`check` 检查写法。改参数属于有判断空间的地方，由研究者决定。
 - **界面语言**：命令加 `--lang en` 或设环境变量 `NP_LANG=en`，帮助、报错与 verified 列改为英文。
 - **有判断空间的地方**（研究范围、检索词取舍、NOT 排除哪些短语、标注标准、引文追踪的种子与过滤词组、追踪结果中哪些补入证据表），把选项和理由告诉研究者，由研究者决定。
+- **中间环节尽量不找研究者**：去重全自动，`merged.json` 里每篇的 `review` 是证据不足、保持分开的疑似重复（带规则编号 R1–R8），不要请研究者逐对核对，也不要手工合并；RIS、运行清单与检索报告由 `merge.py` 自动写出，不用另外运行。
 - **结果比较**：要说明改动的效果时，用 `scripts/compare.py` 比较几轮结果，已知文献用研究者给出的 DOI；不要用同一批已知文献既调整做法又检验效果。
 
 ## 文件约定（脚本依赖这些格式）
@@ -46,8 +47,8 @@
   - `purpose`：`component` / `application` / `method` / `concurrent` 之一。`concurrent` 只检索 2023 年起的文献。
 - `novelty-probe.json`：对象逐层合并，列表整体替换，`<键>_extend` 在默认列表后追加，以 `_` 开头的键是注释。`contact_email` 由研究者自己决定是否填写，不要代填；也不要把 API key 写进去。
 - 数据源在 `novelty_probe/sources/` 的注册表里；Crossref 默认关闭，是否开启属于检索范围的决定，由研究者决定。
-- `results/raw/`、`results/merged/`：只能由脚本生成，不要手工编辑。其中 `chase_*` 是 `snowball.py` 的引文追踪结果，`compare_*` 是 `compare.py` 的比较结果；`merge.py` 只读取 `{来源}_Q<数字>{后缀}.json`。
-- `merge.py` 默认用改进后的方法（版本识别、正式发表年份、RRF 排序）；`--legacy` 只用于复现教程 v1、v2 当时的结果。
+- `results/raw/`、`results/merged/`：只能由脚本生成，不要手工编辑。其中 `chase_*` 是 `snowball.py` 的引文追踪结果，`compare_*` 是 `compare.py` 的比较结果；`candidates*.ris`、`run_manifest*.json`、`search_report*.md` 由 `merge.py` 随合并写出；`merge.py` 只读取 `{来源}_Q<数字>{后缀}.json`。
+- `merge.py` 默认用改进后的方法（带作者证据的版本识别，规则编号见 `meta.dedupe_rules`；正式发表年份；RRF 排序）；`--legacy` 只用于复现教程 v1、v2 当时的结果。
 - `evidence/enrichment*.json`：`enrich.py` 从同一研究的其他版本补到的摘要与 arXiv ID，带来源；不要手工编辑。
 - `evidence/evidence_table.md`：
   - 表头必须有 `DOI/arXiv` 和 `verified` 两列，`verify.py` 靠列名定位；题目列名用 `题目` 或 `Title`；
@@ -59,7 +60,7 @@
   - 判定依据每篇以 `**rank · merged_id**` 开头，`evidence.py` 据此把依据与表格行对应；
   - "研究问题"面按研究者的标准：去掉研究情境后问题相同（个人使用 AI，集体是否趋同）即记 overlap，对象与学科的不同记在"研究情境"面（见证据表末尾的修订记录）。
 - `evidence/evidence_table*.json`：证据表的 JSON 形式（`evidence.py import-md` 生成）。以它为数据源时，`verify.py --table <json>` 把结构化核验结果写进 JSON 并重新生成 Markdown；不要手工编辑 `verification`。手工改了 Markdown 之后先 `import-md` 再核验，脚本不会覆盖手工改过的 Markdown。
-- 作者用 `scripts/authors.py` 按 DOI 查询，不要自己写。
+- 作者取自检索结果：候选表的 `authors` 列（合并记录的 `authors`、`n_authors`）；为空时用 `scripts/authors.py` 补查（它只查缺作者的），不要自己写。
 - 换一个面再跑一轮时，用版本后缀：`idea_v2.md`、`facets_v2.md`、`queries_v2.json`，脚本加 `--suffix _v2`（见 `HOWTO.md` 第 8 节）。
 
 ## 不要做

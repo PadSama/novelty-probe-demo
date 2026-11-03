@@ -19,8 +19,8 @@
 | T1 写想法<br>Write the idea | 你<br>You | — | `idea/idea.md` |
 | T2 拆面与检索式<br>Facets and queries | AI 助手<br>AI assistant | `idea/idea.md` | `facets/facets.md`、`queries/queries.json` |
 | T3 检索<br>Search | 脚本<br>Script | `queries/queries.json` | `results/raw/{来源 source}_{检索式 query}.json` |
-| T4 合并去重<br>Merge and deduplicate | 脚本<br>Script | `results/raw/` | `results/merged/merged.json`、`results/merged/candidates.csv` |
-| T5 证据表与核验<br>Evidence table and verification | 脚本 + AI 助手<br>Scripts + AI assistant | `results/merged/candidates.csv` | `evidence/authors.json`、`evidence/enrichment.json`、`evidence/evidence_table.md` |
+| T4 合并去重<br>Merge and deduplicate | 脚本<br>Script | `results/raw/` | `results/merged/merged.json`、`candidates.csv`、`candidates.ris`、`run_manifest.json`、`search_report.md` |
+| T5 证据表与核验<br>Evidence table and verification | 脚本 + AI 助手<br>Scripts + AI assistant | `results/merged/candidates.csv` | `evidence/enrichment.json`、`evidence/evidence_table.md` |
 | T5b 引文追踪（可选）<br>Citation chasing (optional) | 脚本 + 你<br>Script + you | `evidence/evidence_table.md` | `results/raw/chase_*.json`、`results/merged/chase_*.csv` |
 | T6 差异陈述<br>Difference statement | AI 助手 + 你<br>AI assistant + you | `evidence/evidence_table.md` | `evidence/difference_statement.md` |
 
@@ -92,7 +92,7 @@ export NP_LANG=en
 
 | 域名<br>Domain | 用于<br>Used for |
 |---|---|
-| `api.openalex.org` | T3 检索、T5 查作者<br>T3 search, T5 author lookup |
+| `api.openalex.org` | T3 检索、T5 补查作者（缺作者时）<br>T3 search, T5 author lookup (only when authors are missing) |
 | `api.semanticscholar.org` | T3 检索<br>T3 search |
 | `doi.org`、`api.crossref.org` | T5 DOI 核验<br>T5 DOI verification |
 | `data.crosscite.org`（可选 optional） | 核验 arXiv 等 DataCite 登记的 DOI<br>Verifying DOIs registered with DataCite, such as arXiv DOIs |
@@ -236,9 +236,9 @@ Network layer: every networked script accepts `--http-mode cache` (check the loc
 {"sources": {"crossref": {"enabled": true}}}
 ```
 
-可选：检查检索质量（每个结果文件中，标题 + 摘要满足原检索式的记录有多少；用 Porter 词干还原近似两个 API 的匹配，比例略偏高）：
+可选：检查检索质量（每个结果文件中，标题 + 摘要满足原检索式的记录有多少；用 Porter 词干还原近似两个 API 的匹配）。末尾"本地匹配的偏差"各行（每个来源一行）给出服务器已按布尔检索式返回、本地却判为不满足的记录比例，即本地匹配漏判的上限（教程 v1b：OpenAlex 1.1%，Semantic Scholar 6.4%）；合并时也写进检索报告：
 
-Optional: check search quality (how many records in each result file satisfy the original query in their title and abstract; Porter stemming approximates the APIs' matching, so the shares run slightly high):
+Optional: check search quality (how many records in each result file satisfy the original query in their title and abstract; Porter stemming approximates the APIs' matching). The closing "local matching bias" lines (one per source) give the share of records that the server returned for the Boolean query but local matching judges non-conforming, an upper bound on local false negatives (tutorial v1b: OpenAlex 1.1%, Semantic Scholar 6.4%); the merge also writes it into the search report:
 
 ```bash
 python3 scripts/logrun.py "T3 质量检查" -- python3 scripts/qa.py
@@ -250,30 +250,62 @@ python3 scripts/logrun.py "T3 质量检查" -- python3 scripts/qa.py
 python3 scripts/logrun.py "T4 合并去重" -- python3 scripts/merge.py
 ```
 
-按 DOI、arXiv ID 去重（预印本平台的版本 DOI 视为同一篇），再识别同一研究的不同版本：规范化标题相同（去掉 "(Just accepted by …)" 之类的发表状态括注）且通过一组保守的检查（年份相差 ≤3、不是两个不同的正式发表 DOI、不是数据集、不是 "Re:" 之类的来信等）才自动合并，疑似情况只标出（`review` 字段）供你核对。年份取正式发表版本，最早版本记在 `year_first`。输出：
+去重全自动，不需要你核对。按 DOI、arXiv ID 去重（预印本平台的版本 DOI 视为同一篇），再识别同一研究的不同版本：规范化标题相同（去掉 "(Just accepted by …)" 之类的发表状态括注）且通过一组保守的检查（年份相差 ≤3、不是两个不同的正式发表 DOI、不是数据集、不是 "Re:" 之类的来信、两边都有作者时至少有一个共同的名字等）才合并；题目几乎相同（相差个别词，或一个包含在另一个里）的，要有共同的作者才合并。证据不足的保持分开，写进 `review` 字段。每次合并与分开都记规则编号（D1–D5 合并，R1–R8 分开），含义见 `merged.json` 的 `meta.dedupe_rules`。年份取正式发表版本，最早版本记在 `year_first`。输出：
 
-Records are deduplicated by DOI and arXiv ID (versioned DOIs on preprint servers count as one work); then versions of the same work are linked: titles that match after normalization (dropping publication-status notes such as "(Just accepted by …)") are merged only if a set of conservative checks passes (years at most 3 apart, not two different journal DOIs, not a dataset, not a "Re:" letter, and so on); doubtful pairs are only flagged (the `review` field) for you to check. The year is that of the version of record; the earliest version's year is kept in `year_first`. Outputs:
+Deduplication is automatic; you do not need to check it. Records are deduplicated by DOI and arXiv ID (versioned DOIs on preprint servers count as one work); then versions of the same work are linked: titles that match after normalization (dropping publication-status notes such as "(Just accepted by …)") are merged only if a set of conservative checks passes (years at most 3 apart, not two different journal DOIs, not a dataset, not a "Re:" letter, at least one shared name when both sides have authors, and so on); nearly identical titles (a few words apart, or one contained in the other) are merged only when the records share authors. Pairs without enough evidence stay separate and are listed in the `review` field. Every merge and every separation carries a rule code (D1–D5 merge, R1–R8 keep apart), explained in `meta.dedupe_rules` of `merged.json`. The year is that of the version of record; the earliest version's year is kept in `year_first`. Outputs:
 
-- `results/merged/merged.json`：去重后的全部文献。每篇带出处 `raw_refs`，可回查原始记录。
+- `results/merged/merged.json`：去重后的全部文献。每篇带作者（`authors`，最多 20 位；`n_authors` 为总数）、出处 `raw_refs`（可回查原始记录）、`field_source`（每个字段取自哪条原始记录）与 `dedupe_rules`（合并所用的规则）。
 
-  `results/merged/merged.json`: all deduplicated works. Each work carries `raw_refs`, pointing back to its raw records.
+  `results/merged/merged.json`: all deduplicated works. Each work carries its authors (`authors`, at most 20; `n_authors` is the total), `raw_refs` (pointing back to its raw records), `field_source` (which raw record each field came from) and `dedupe_rules` (the rules used to merge it).
 
-- `results/merged/candidates.csv`：前 20 篇，按倒数排名融合（RRF：在各"检索式 × 来源"列表中的名次 r，累加 1/(60 + r)）排序，BM25（全部检索词）打破并列；`hits`、`n_conform`（本地判断满足几条检索式）只作参考。Excel 可直接打开。
+- `results/merged/candidates.csv`：前 20 篇，按倒数排名融合（RRF：在各"检索式 × 来源"列表中的名次 r，累加 1/(60 + r)）排序，BM25（全部检索词）打破并列；`authors` 列为前 3 位作者（超过 3 位加 et al.，与证据表的写法相同）；`hits`、`n_conform`（本地判断满足几条检索式）只作参考。Excel 可直接打开。
 
-  `results/merged/candidates.csv`: the top 20 works, ranked by reciprocal rank fusion (RRF: for each query × source list in which the work appears at rank r, add 1/(60 + r)), with BM25 over all query terms breaking ties; `hits` and `n_conform` (how many queries the work satisfies, checked locally) are shown for reference. Opens directly in Excel.
+  `results/merged/candidates.csv`: the top 20 works, ranked by reciprocal rank fusion (RRF: for each query × source list in which the work appears at rank r, add 1/(60 + r)), with BM25 over all query terms breaking ties; the `authors` column lists the first 3 authors (with et al. beyond 3, as in the evidence table); `hits` and `n_conform` (how many queries the work satisfies, checked locally) are shown for reference. Opens directly in Excel.
 
-注意：排名反映检索式与文本的匹配，不代表与研究问题的相关度。要复现教程 v1、v2 当时的合并方法（按命中次数排序），加 `--legacy`。
+- `results/merged/candidates.ris`：同样 20 篇的 RIS，可导入 Zotero（文件 → 导入）、EndNote（File → Import，格式选 Reference Manager (RIS)）等文献管理软件。每条的备注（N1）记来自哪些检索式与来源。
 
-Note: the ranking reflects how well the text matches the queries, not relevance to your research question. To reproduce the merge method used for the tutorial's v1 and v2 (ranking by hits), add `--legacy`.
+  `results/merged/candidates.ris`: the same 20 works as RIS, for import into Zotero (File → Import), EndNote (File → Import, format Reference Manager (RIS)) and other reference managers. Each record's note (N1) says which queries and sources it came from.
+
+- `results/merged/run_manifest.json`、`results/merged/search_report.md`：运行清单（每个检索结果文件的检索式、日期、命中数与哈希，配置指纹，产出文件的哈希）与据此生成的检索报告（格式参照 PRISMA-S：数据库与接口、检索式原文与实际发送的写法、各检索式的结果数、去重与候选、本地匹配的偏差）。写论文的检索方法部分时可直接引用。
+
+  `results/merged/run_manifest.json`, `results/merged/search_report.md`: the run manifest (each result file's query, date, hit count and hash; the configuration fingerprint; hashes of the outputs) and the search report generated from it (following PRISMA-S: databases and interfaces, each query as written and as sent, result counts per query, deduplication and candidates, local matching bias). Ready to cite when you write up the search method.
+
+注意：排名反映检索式与文本的匹配，不代表与研究问题的相关度。要复现教程 v1、v2 当时的合并方法（按命中次数排序），加 `--legacy`（只写 `merged.json` 与 `candidates.csv`）。
+
+Note: the ranking reflects how well the text matches the queries, not relevance to your research question. To reproduce the merge method used for the tutorial's v1 and v2 (ranking by hits), add `--legacy` (which writes only `merged.json` and `candidates.csv`).
+
+其他范围的 RIS、换语言的报告、比较两轮（都不联网，一般不用运行）：
+
+RIS for other selections, the report in another language, and comparing two runs (none of these use the network; usually not needed):
+
+```bash
+python3 scripts/export.py --all
+```
+
+```bash
+python3 scripts/export.py --evidence evidence/evidence_table.md
+```
+
+```bash
+python3 scripts/report.py render results/merged/run_manifest.json --lang en --out results/merged/search_report.en.md
+```
+
+```bash
+python3 scripts/report.py diff results/merged/run_manifest.json results/merged/run_manifest_v2.json
+```
+
+`--all` 导出全部合并记录（`merged.ris`）；`--evidence` 导出证据表各行，各面的标注写成关键词（KW）；`diff` 列出两次运行间检索结果的变化（命中数、保存数、哈希）与候选的进出。
+
+`--all` exports all merged records (`merged.ris`); `--evidence` exports the evidence-table rows with each facet's label as a keyword (KW); `diff` lists what changed between two runs: search results (hit counts, records saved, hashes) and candidates added or dropped.
 
 ## 6. T5 证据表与核验（脚本 + AI 助手）｜ T5 Evidence table and verification (scripts + AI assistant)
 
-查作者（检索结果不含作者字段）：
+作者随检索一起取得，在候选表的 `authors` 列，不用另外查。只有在用旧结果（2026-11 之前检索的，没有作者）或个别记录缺作者时，才运行 `authors.py` 补查：它先用合并记录里的作者，只为缺作者的候选查 OpenAlex，结果写到 `evidence/authors.json`：
 
-Look up authors (the search results do not include authors):
+Authors come with the search results (the `authors` column of the candidates table); no separate lookup is needed. Run `authors.py` only for older results (searched before November 2026, without authors) or when some records lack authors: it uses the authors in the merged records and queries OpenAlex only for candidates that have none, writing `evidence/authors.json`:
 
 ```bash
-python3 scripts/logrun.py "T5 查作者" -- python3 scripts/authors.py --top 10
+python3 scripts/logrun.py "T5 补查作者" -- python3 scripts/authors.py --top 10
 ```
 
 为没有摘要的候选从同一研究的其他版本（如 arXiv 预印本）补摘要，连同来源写到 `evidence/enrichment.json`：
@@ -289,7 +321,7 @@ python3 scripts/logrun.py "T5 补摘要" -- python3 scripts/enrich.py --top 20
 Paste either version of the prompt below into the AI assistant:
 
 ```text
-读 results/merged/candidates.csv 前 10 篇的摘要（作者见 evidence/authors.json），对照 facets/facets.md，逐面标 overlap / differ / unknown，写到 evidence/evidence_table.md。
+读 results/merged/candidates.csv 前 10 篇的摘要（作者取 authors 列；该列为空时见 evidence/authors.json），对照 facets/facets.md，逐面标 overlap / differ / unknown，写到 evidence/evidence_table.md。
 表格列：rank, 作者, 年份, 题目, DOI/arXiv, 研究问题, 作用机制, 研究情境, 数据与方法, 预期发现, verified。
 DOI/arXiv 列写成 doi:<DOI>，有 arXiv ID 时加上 " · arXiv:<ID>"；verified 列先写"待核验"。
 在文件开头写明标注规则，在表下逐篇写判定依据（每篇以 **rank · merged_id** 开头）并引用摘要原文。候选本身没有摘要时，可以用 evidence/enrichment.json 中补到的摘要，并注明来源（DOI）。
@@ -297,7 +329,7 @@ DOI/arXiv 列写成 doi:<DOI>，有 arXiv ID 时加上 " · arXiv:<ID>"；verifi
 ```
 
 ```text
-Read the abstracts of the top 10 works in results/merged/candidates.csv (authors are in evidence/authors.json). Compare each with facets/facets.md, label every facet overlap / differ / unknown, and write the result to evidence/evidence_table.md.
+Read the abstracts of the top 10 works in results/merged/candidates.csv (take the authors from the authors column; if it is empty, see evidence/authors.json). Compare each with facets/facets.md, label every facet overlap / differ / unknown, and write the result to evidence/evidence_table.md.
 Table columns: rank, Authors, Year, Title, DOI/arXiv, Research question, Mechanism, Context, Data and methods, Expected findings, verified.
 Write the DOI/arXiv column as doi:<DOI>, adding " · arXiv:<ID>" when there is an arXiv ID; put "pending" in the verified column for now.
 State the labeling rules at the top of the file, and below the table give the evidence for each paper (each starting with **rank · merged_id**), quoting the abstract. If a candidate has no abstract, you may use the abstract in evidence/enrichment.json, citing its source (DOI).
@@ -418,13 +450,9 @@ python3 scripts/logrun.py "T3 v2 检索" -- python3 scripts/search.py --queries 
 python3 scripts/logrun.py "T4 v2 合并去重" -- python3 scripts/merge.py --suffix _v2
 ```
 
-```bash
-python3 scripts/logrun.py "T5 v2 查作者" -- python3 scripts/authors.py --top 10 --candidates results/merged/candidates_v2.csv --out evidence/authors_v2.json
-```
+用 T5 的提示词让 AI 助手把证据表写到 `evidence/evidence_table_v2.md`（输入换成 `candidates_v2.csv`、`facets_v2.md`；缺作者时先用 `authors.py --candidates results/merged/candidates_v2.csv --out evidence/authors_v2.json` 补查），然后：
 
-用 T5 的提示词让 AI 助手把证据表写到 `evidence/evidence_table_v2.md`（输入换成 `candidates_v2.csv`、`authors_v2.json`、`facets_v2.md`），然后：
-
-Use the T5 prompt to have the assistant write the evidence table to `evidence/evidence_table_v2.md` (with `candidates_v2.csv`, `authors_v2.json` and `facets_v2.md` as inputs), then:
+Use the T5 prompt to have the assistant write the evidence table to `evidence/evidence_table_v2.md` (with `candidates_v2.csv` and `facets_v2.md` as inputs; if authors are missing, first run `authors.py --candidates results/merged/candidates_v2.csv --out evidence/authors_v2.json`), then:
 
 ```bash
 python3 scripts/logrun.py "T5 v2 DOI 核验" -- python3 scripts/verify.py --table evidence/evidence_table_v2.md
@@ -467,6 +495,7 @@ NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 | `运算符必须大写`、`不支持用 - 表示排除`<br>(operators must be upper case; "-" is not supported for exclusion) | 检索式里有小写的 and / or / not，或以 - 开头的词<br>The query has a lower-case and / or / not, or a word starting with - | 改成大写运算符；排除用 `AND NOT (…)`<br>Use upper-case operators; exclude with `AND NOT (…)` |
 | `配置有问题：…`（退出码 2）<br>`Problems in the config: …` (exit code 2) | `novelty-probe.json` 里的取值不合法，所有问题一次列出<br>Invalid values in `novelty-probe.json`; every problem is listed at once | 按提示修改，再跑 `python3 scripts/config.py check`<br>Fix as indicated, then run `python3 scripts/config.py check` |
 | `引文不是摘要原文`、`不在检索结果中`（evidence check）<br>`quote is not verbatim`, `not in the retrieval results` (evidence check) | 判定依据里的引文改写了摘要，或 DOI 不是从检索结果里取的<br>A quote paraphrases the abstract, or a DOI did not come from the search results | 从摘要逐字复制；DOI 只取自 `results/` 或 `evidence/enrichment*.json`<br>Copy quotes verbatim from the abstract; take DOIs only from `results/` or `evidence/enrichment*.json` |
+| 候选表的 `authors` 列为空<br>The `authors` column of the candidates table is empty | 结果是 2026-11 之前检索的（当时不取作者），或该数据源没有给出作者<br>The results were searched before November 2026 (when authors were not fetched), or the source gave no authors | 运行 `python3 scripts/authors.py` 补查；或重跑 T3、T4<br>Run `python3 scripts/authors.py`; or re-run T3 and T4 |
 | `… 在上次导入或渲染后被手工改过，未覆盖`<br>`… was edited by hand after the last import or render; not overwritten` | 以 JSON 为数据源时手工改了 Markdown<br>The Markdown was edited by hand while the JSON is the source of truth | 先 `python3 scripts/evidence.py import-md <md>` 把改动导入 JSON，再重跑<br>Run `python3 scripts/evidence.py import-md <md>` first, then re-run |
 
 ## 目录速查 ｜ Directory reference
@@ -486,15 +515,17 @@ NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 | `docs/IMPROVEMENT_PLAN.md` | 遗留问题的调研、改进计划与评估结果（中文）<br>Research, improvement plan and evaluation for the known issues (Chinese) |
 | `docs/ARCHITECTURE_REVIEW.md` | 工具层的架构审视与设计理由（中文）<br>Architecture review and design rationale of the tool layer (Chinese) |
 | `docs/ROADMAP.md` | 工具层迭代的总体计划与进度表（中文）<br>Overall plan and progress table of the tool-layer iteration (Chinese) |
-| `novelty_probe/` | 各脚本共用的包：检索式语法树、数据源（OpenAlex、S2、Crossref）、HTTP 客户端与缓存、配置、界面语言、证据 JSON、文本匹配<br>Package shared by the scripts: query syntax tree, sources (OpenAlex, S2, Crossref), HTTP client and cache, configuration, interface language, evidence JSON, text matching |
+| `novelty_probe/` | 各脚本共用的包：检索式语法树、数据源（OpenAlex、S2、Crossref）、HTTP 客户端与缓存、配置、界面语言、证据 JSON、文本匹配、合并记录与去重规则、排序、RIS、运行清单与检索报告<br>Package shared by the scripts: query syntax tree, sources (OpenAlex, S2, Crossref), HTTP client and cache, configuration, interface language, evidence JSON, text matching, merged records and dedupe rules, ranking, RIS, run manifest and search report |
 | `scripts/search.py` | T3 检索（`--dry-run` 检查语法；`--ids`、`--sources` 补跑；`--queries`、`--suffix` 用于新一轮）<br>T3 search (`--dry-run` checks syntax; `--ids`, `--sources` re-run failures; `--queries`, `--suffix` for a new round) |
 | `scripts/qa.py` | T3 检索质量检查（`--suffix`）<br>T3 search quality check (`--suffix`) |
-| `scripts/merge.py` | T4 合并去重（`--suffix`；`--legacy` 复现 v1、v2 当时的方法）<br>T4 merge and deduplicate (`--suffix`; `--legacy` reproduces the v1/v2 method) |
+| `scripts/merge.py` | T4 合并去重，同时写出 RIS、运行清单与检索报告（`--suffix`；`--legacy` 复现 v1、v2 当时的方法）<br>T4 merge and deduplicate, also writing the RIS, run manifest and search report (`--suffix`; `--legacy` reproduces the v1/v2 method) |
+| `scripts/export.py` | 导出 RIS（`--all` 全部合并记录、`--evidence` 证据表各行）<br>Export RIS (`--all` all merged records, `--evidence` evidence-table rows) |
+| `scripts/report.py` | 检索报告：`render` 按清单重新生成（`--lang`）、`diff` 比较两次运行<br>Search report: `render` from a manifest (`--lang`), `diff` two runs |
 | `scripts/enrich.py` | T5 从其他版本补摘要（`--top`、`--candidates`、`--out`）<br>T5 abstracts from other versions (`--top`, `--candidates`, `--out`) |
 | `scripts/snowball.py` | T5b 引文追踪（`--from-evidence` 或 `--seeds`；`--cocite --citer-filter`；`--suffix`）<br>T5b citation chasing (`--from-evidence` or `--seeds`; `--cocite --citer-filter`; `--suffix`) |
 | `scripts/compare.py` | 比较几轮结果（`--runs`、`--known`、`--ignore-phrases`）<br>Compare rounds (`--runs`, `--known`, `--ignore-phrases`) |
 | `scripts/textmatch.py` | 转发到 `novelty_probe/text.py`（词干还原、BM25、版本识别），不单独运行<br>Forwards to `novelty_probe/text.py` (stemming, BM25, version linking); not run on its own |
-| `scripts/authors.py` | T5 查作者（`--top`、`--candidates`、`--out`）<br>T5 author lookup (`--top`, `--candidates`, `--out`) |
+| `scripts/authors.py` | T5 补查作者：只查合并记录里缺作者的候选（`--top`、`--candidates`、`--out`）<br>T5 author lookup for candidates whose merged record has no authors (`--top`, `--candidates`, `--out`) |
 | `scripts/verify.py` | T5 DOI 核验（`--table` 可以是 .md 或 .json、`--no-landing`）<br>T5 DOI verification (`--table` may be .md or .json, `--no-landing`) |
 | `scripts/evidence.py` | T5 证据表：`check` 检查、`import-md` 转 JSON、`render` 生成 Markdown（`--lang`）<br>T5 evidence table: `check`, `import-md` to JSON, `render` Markdown (`--lang`) |
 | `scripts/config.py` | 查看与检查配置（`show`、`show --diff`、`check`、`init`）<br>Show and check the configuration (`show`, `show --diff`, `check`, `init`) |

@@ -145,7 +145,7 @@ NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 - `id` 必须是 Q1–Q6 这样的格式，`purpose` 必须是四个取值之一；
 - 检索式里不能有未登记的截断符 `*` 和逗号；运算符必须大写，排除只能写成 `AND NOT (…)` 放在最后（小写 not 在 OpenAlex 里会把排除变成包含，`search.py` 会拦截）；
 - 证据表的列名必须完全一致（`DOI/arXiv`、`verified`），否则 `verify.py` 找不到列；
-- 判定依据的引文必须逐字来自摘要；作者用 `scripts/authors.py` 查，不能凭记忆写。
+- 判定依据的引文必须逐字来自摘要；作者取自检索结果（候选表的 `authors` 列），为空时用 `scripts/authors.py` 补查，不能凭记忆写。
 
 ## 5. 结构与数据流
 
@@ -157,15 +157,16 @@ facets/facets.md + queries/queries.json
   │  T3 scripts/search.py：检索式解析为语法树（novelty_probe/query.py），按数据源注册表（novelty_probe/sources/）逐个检索
   │      ──► OpenAlex（title_and_abstract.search）、Semantic Scholar（bulk）；Crossref 可选，默认关闭
   ▼
-results/raw/{来源}_{Qn}{后缀}.json        每条检索式 × 每个来源，前 25 条（S2 取回全部命中后本地重排）
-  │  （可选）scripts/qa.py：标题 + 摘要满足检索式的比例
-  │  T4 scripts/merge.py：DOI / arXiv ID 去重 → 版本识别 → RRF 排序
+results/raw/{来源}_{Qn}{后缀}.json        每条检索式 × 每个来源，前 25 条（S2 取回全部命中后本地重排），带作者
+  │  （可选）scripts/qa.py：标题 + 摘要满足检索式的比例；本地匹配的偏差
+  │  T4 scripts/merge.py：DOI / arXiv ID 去重 → 版本识别（作者作证据；规则编号 D1–D5 / R1–R8）→ RRF 排序
   ▼
-results/merged/merged{后缀}.json + candidates{后缀}.csv（前 20 篇）
-  │  T5 scripts/authors.py ──► OpenAlex /works/doi:
+results/merged/merged{后缀}.json + candidates{后缀}.csv（前 20 篇，带作者）
+  + candidates{后缀}.ris（导入文献管理软件）+ run_manifest{后缀}.json + search_report{后缀}.md（PRISMA-S 风格）
   │  T5 scripts/enrich.py ──► OpenAlex title.search（同一研究的其他版本）
+  │  T5 scripts/authors.py（只在缺作者时）──► OpenAlex /works/doi:
   ▼
-evidence/authors.json + enrichment.json ──► AI 助手标注 ──► evidence/evidence_table.md（可选导入为 .json）
+enrichment.json（+ authors.json）──► AI 助手标注 ──► evidence/evidence_table.md（可选导入为 .json）
   │  T5 scripts/evidence.py check：取值、标识符来自检索结果、题目 / 年份 / 作者、引文是摘要原文
   │  T5 scripts/verify.py ──► doi.org → Crossref 元数据（失败时 OpenAlex）；doi.org → 出版商落地页
   ▼
@@ -185,8 +186,11 @@ evidence/difference_statement.md
 | `queries/queries.json` | 6 条布尔检索式 | AI 助手（T2） | `search.py` |
 | `results/raw/{来源}_Q*.json` | 原始检索结果 | `search.py` | `merge.py`、`qa.py` |
 | `results/merged/merged*.json` | 去重后的全部文献 | `merge.py` | 研究者、AI 助手、`snowball.py`、`compare.py` |
-| `results/merged/candidates*.csv` | 前 20 篇候选 | `merge.py` | `authors.py`、`enrich.py`、T5 标注 |
-| `evidence/authors*.json` | 候选的作者 | `authors.py` | T5 标注 |
+| `results/merged/candidates*.csv` | 前 20 篇候选（带作者） | `merge.py` | `authors.py`、`enrich.py`、T5 标注 |
+| `results/merged/candidates*.ris` | 候选的 RIS（Zotero、EndNote 可导入） | `merge.py`（其他范围用 `export.py`） | 研究者 |
+| `results/merged/run_manifest*.json` | 运行清单：输入输出文件的哈希、检索式与日期、配置指纹、版本 | `merge.py` | `report.py`、研究者 |
+| `results/merged/search_report*.md` | 检索报告（PRISMA-S 风格，可作方法部分的底稿） | `merge.py`（`report.py render` 可换语言重新生成） | 研究者 |
+| `evidence/authors*.json` | 候选的作者（检索结果缺作者时补查） | `authors.py` | T5 标注、`evidence.py` |
 | `evidence/enrichment*.json` | 从其他版本补到的摘要、arXiv ID（带来源） | `enrich.py` | T5 标注 |
 | `results/raw/chase_*.json`、`results/merged/chase_*.csv` | 引文追踪结果 | `snowball.py` | 研究者、`compare.py` |
 | `results/merged/compare_*.json` | 几轮结果的比较 | `compare.py` | 研究者 |
@@ -196,8 +200,8 @@ evidence/difference_statement.md
 | `logs/RUN_LOG.md` | 只追加的运行日志 | `logrun.py` + AI 助手 | 所有人 |
 | `novelty-probe.json` | 项目配置（只写与默认值不同的设置） | 研究者（`scripts/config.py init` 生成最小文件） | 所有脚本 |
 | `evidence/evidence_table*.json` | 证据表的 JSON 形式（可选；以它为数据源时 Markdown 由它生成） | `evidence.py import-md`、`verify.py --table *.json` | `evidence.py`、`verify.py`、`snowball.py` |
-| `novelty_probe/` | 共用包：`query.py`（检索式语法树与错误码）、`sources/`（数据源协议与注册表：`openalex.py`、`semanticscholar.py`、`crossref.py`、本地重排 `localrank.py`）、`text.py`（文本匹配）、`http.py`（客户端）、`cache.py`、`schemas.py`（响应形状校验）、`config.py`、`i18n.py`、`runtime.py`（通用参数）、`evidence.py`、`verification.py`、`defaults.py`、`io.py`、`paths.py` | — | 所有脚本 |
-| `tests/` | 离线自检：`test_offline`、`test_pipeline`、`test_core`、`test_http`、`test_replay`、`test_config`、`test_evidence`；`test_live_contract`（NP_LIVE=1 才运行）；`tests/fixtures/` 为词干还原对照表与录制件 | — | 改代码后运行 |
+| `novelty_probe/` | 共用包：`query.py`（检索式语法树与错误码）、`sources/`（数据源协议与注册表：`openalex.py`、`semanticscholar.py`、`crossref.py`、本地重排 `localrank.py`）、`text.py`（文本匹配）、`record.py`（合并记录的组装）、`dedupe.py`（去重规则）、`rank.py`（RRF 与 BM25）、`export.py`（RIS）、`report.py`（运行清单与检索报告）、`http.py`（客户端）、`cache.py`、`schemas.py`（响应形状校验）、`config.py`、`i18n.py`、`runtime.py`（通用参数）、`evidence.py`、`verification.py`、`defaults.py`、`io.py`、`paths.py` | — | 所有脚本 |
+| `tests/` | 离线自检：`test_offline`、`test_pipeline`、`test_core`、`test_http`、`test_replay`、`test_config`、`test_evidence`、`test_query_sources`、`test_records`；`test_live_contract`（NP_LIVE=1 才运行）；`tests/fixtures/` 为词干还原对照表与录制件 | — | 改代码后运行 |
 
 ## 6. 数据格式约定
 
@@ -220,9 +224,11 @@ JSON 数组，每条形如：
 {"meta": {...}, "records": [...]}
 meta    source_api, query_id, purpose, queries_file, query_original, year_from, conversion, query_sent,
         api_interpretation（仅 OpenAlex）, request_url, sort, total_hits, returned, retrieved_at
-records title, year, doi, arxiv_id, venue, abstract, source_api, query_id
+records title, year, doi, arxiv_id, venue, abstract, authors, n_authors, source_api, query_id
         S2 记录另有 local_rank：groups_matched, bm25, has_abstract, citations（及 same_title_dropped）
 ```
+
+`authors` 为作者名列表（按来源给出的顺序，最多 20 位），`n_authors` 为作者总数；阶段 4 之前检索的文件没有这两个字段，读取时按 `None` 处理。
 
 DOI 已去掉 `https://doi.org/` 前缀，arXiv ID 已去掉版本号，OpenAlex 的摘要已由倒排索引还原成文本。S2 的 meta 另有 `retrieval_sort` 与 `pool`（取回条数、页数、是否截断、有摘要的条数、去掉的同题记录数）。旧结果（v1、v2）没有这些字段。
 
@@ -231,26 +237,59 @@ Crossref 的结果文件（`crossref_{id}{suffix}.json`，开启后才有）：�
 ### 6.3 `results/merged/merged{suffix}.json`
 
 ```text
-meta     created_at, script, dedup_rules, inputs, counts, candidates
-records  merged_id, title, year, doi, arxiv_id, venue, abstract, id_status, alt_ids, title_linked,
-         sources, query_ids, n_queries, n_sources, hits, mean_rank, raw_refs
+meta     schema（novelty-probe/merged@2）, created_at, script, method, year, parameters, config_file, config_hash,
+         inputs, counts, dedupe_rules, version_links, review_pairs, bm25_terms, ignored_phrases, candidates
+records  merged_id, title, year, doi, arxiv_id, venue, abstract, id_status, alt_ids, title_linked, sources, query_ids,
+         n_queries, n_sources, hits, mean_rank, raw_refs, year_first, authors, n_authors, field_source, review,
+         dedupe_rules, rrf, bm25, n_conform
 ```
 
 - `id_status`：取值为 `DOI` / `arXiv` / `UNVERIFIED`。
 - `raw_refs`：形如 `openalex_Q1#8`，即文件名去掉 `.json`，`#` 后是该条在文件中的名次。
 - `merged_id`：编号规则固定，输入不变时编号也不变。
-- 默认方法另有：`year_first`（最早版本的年份；`year` 为正式发表版本的年份）、`review`（[{with, reason}]，待人工核对的疑似同一研究）、`rrf`、`bm25`、`n_conform`（本地判断满足几条检索式）；meta 另有 `method`、`year`、`version_links`、`review_pairs`、`bm25_terms`、`ignored_phrases`。`--legacy` 的输出与旧格式完全相同。
+- `year`：正式发表版本的年份；`year_first`：最早版本的年份。
+- `authors`、`n_authors`：第一条带作者的原始记录的作者（最多 20 位）与作者总数；原始记录都没有作者时为 `null`。
+- `field_source`：标题、年份、DOI、arXiv ID、出处、摘要、作者各取自哪条原始记录（形如 `openalex_Q1#3`）。
+- `dedupe_rules`：并成这一篇所用的规则编号（D1 同一 DOI；D2 预印本版本 DOI；D3 同一 arXiv ID；D4 规范化题目相同；D5 题目几乎相同且有共同作者），含义写在 meta 的 `dedupe_rules`。
+- `review`：[{with, rule, reason}]，疑似同一研究、但证据不足而保持分开（R1 一方带通知/变体词；R2 两个不同的正式 DOI；R3 数据仓储 DOI；R4 年份差超过窗口；R5 摘要不同；R6 题目几乎相同、作者证据不足；R7 题目相同、作者没有共同的名字；R8 合并组超过上限）。只记录，不需要人工核对。
+- `rrf`、`bm25`、`n_conform`（本地判断满足几条检索式）：排序用。
+- schema 1（阶段 3 及以前的默认方法）没有 `schema`、`authors`、`n_authors`、`field_source`、`dedupe_rules`，`review` 没有 `rule`；读取方都按缺省处理。没有作者的旧数据重新合并，除这些新增字段外与阶段 3 相同（`tests/test_records.py` 固定了 v1、v2 的校验值）。`--legacy` 的输出与旧格式完全相同。
 
 ### 6.4 `results/merged/candidates{suffix}.csv`
 
-默认方法共 22 列：`rank, merged_id, rrf, bm25, n_conform, hits, n_queries, n_sources, mean_rank, query_ids, sources, id_status, doi, arxiv_id, title, year, year_first, venue, title_linked, review, raw_refs, abstract`；`--legacy` 为原来的 17 列（无 `rrf, bm25, n_conform, year_first, review`）。编码为带 BOM 的 UTF-8，Excel 可以直接打开。读取方（`authors.py`、`enrich.py`）按列名取值，两种格式都能用。
+默认方法共 23 列：`rank, merged_id, rrf, bm25, n_conform, hits, n_queries, n_sources, mean_rank, query_ids, sources, id_status, doi, arxiv_id, title, authors, year, year_first, venue, title_linked, review, raw_refs, abstract`；`--legacy` 为原来的 17 列（无 `rrf, bm25, n_conform, authors, year_first, review`）。`authors` 为前 3 位作者，超过 3 位加 et al.（与证据表的写法相同）；`review` 每项写成 `M012 (R6): 原因`。编码为带 BOM 的 UTF-8，Excel 可以直接打开。读取方（`authors.py`、`enrich.py`）按列名取值，各种格式都能用。
+
+### 6.4a `results/merged/candidates{suffix}.ris`
+
+RIS（带 BOM 的 UTF-8，CRLF 换行；`.gitattributes` 不改换行）。每条：TY（有正式发表 DOI 为 JOUR，只有预印本 DOI 或 arXiv ID 为 UNPB，都没有为 GEN）、TI、AU（每位一行）、PY、T2（出处）、DO、UR（DOI 与 arXiv 链接）、AB、KW（证据表导出时为各面的标注）、N1（来自哪些检索式与来源、RRF、合并规则；作者被截断时注明"first 20 of N authors"）、ID（merged_id）、ER。值都取自检索结果。`export.py --all` 导出全部合并记录（`merged{suffix}.ris`），`--evidence <表>` 导出证据表各行（`<表>.ris`）。
+
+### 6.4b `results/merged/run_manifest{suffix}.json` 与 `search_report{suffix}.md`
+
+```text
+schema      novelty-probe/manifest@1
+tool        novelty_probe（版本）, python, platform
+config      file, hash
+method, parameters
+searches    [{file, sha256, source, query_id, purpose, query_original, query_sent, year_from, retrieved_at,
+              http_mode, conversion, total_hits, returned, warnings, config_hash}]
+outputs     [{file, sha256}]（merged、candidates.csv、candidates.ris）
+counts      raw_records, merged_records, duplicates_removed, dedupe（id_links / version_links / kept_separate 各规则次数）,
+            with_authors, id_status, local_match（各来源：with_abstract, conforming, nonconforming_share）
+candidates  top_k, sort, items[{merged_id, doi, arxiv_id, title}]
+```
+
+检索报告由清单生成（`report.py render <清单> --lang en` 可换语言），各节参照 PRISMA-S（Rethlefsen et al. 2021, doi:10.1186/s13643-020-01542-z）：数据库与接口、检索日期与工具版本、各检索式的原文与各来源实际发送的写法、各检索式 × 来源的命中数与保存数、去重与候选（规则次数）、本地匹配的偏差、文件。`report.py diff A B` 比较两份清单：检索结果文件的增减与变化（命中数、保存数、哈希）、候选的进出、配置是否相同。
+
+`local_match` 只统计检索式由服务器执行的来源（OpenAlex、S2）：服务器返回的记录按定义满足检索式，其中有摘要、却被本地判为不满足的比例就是本地匹配漏判的上限。
 
 ### 6.5 `evidence/authors{suffix}.json`
 
 ```text
-meta     source, script, input, top, retrieved_at
-records  rank, merged_id, doi, openalex_id, openalex_title, title_matches, authors, n_authors, error
+meta     source, script, input, merged, top, counts（from_search, looked_up, not_found）, retrieved_at, http
+records  rank, merged_id, doi, openalex_id, openalex_title, title_matches, authors, n_authors, source, authors_from, error
 ```
+
+阶段 4 起只在检索结果缺作者时才需要：`authors.py` 先读同目录的 `merged{suffix}.json`，候选已有作者的直接取用（`source: "search"`，`authors_from` 为原始记录的出处），只为缺作者的候选查 OpenAlex（`source: "openalex"`）。
 
 ### 6.5a `evidence/enrichment{suffix}.json`
 
@@ -295,7 +334,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 
 - **只追加**：新条目一律写在末尾，不改写已有条目。
 - **条目格式**：以 `---` 分隔，标题写成 `## [YYYY-MM-DD HH:MM UTC] Step N — 标题`，正文包含研究者的要求、命令、输出、产出文件、备注。
-- **编号**：下一步是 **Step 81**。
+- **编号**：下一步是 **Step 88**。
 - **旧哈希**：Step 20 之前的条目里引用的是改写历史之前的提交哈希，按 Step 20 的对照表查新哈希。
 
 ## 7. 脚本速查
@@ -304,8 +343,10 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 |---|---|---|---|---|
 | `search.py` | T3 检索（数据源取自注册表） | `--dry-run`、`--ids`、`--sources`、`--queries`、`--suffix` | api.openalex.org、api.semanticscholar.org（开启 Crossref 时还有 api.crossref.org） | 0 全部成功；1 有请求失败，或 dry-run 发现语法错误；2 检索式文件不合格或参数错误 |
 | `qa.py` | 检索质量检查（可选） | `--suffix` | 无 | 0 |
-| `merge.py` | T4 合并去重、版本识别、RRF 排序、前 20 候选 | `--suffix`、`--legacy` | 无 | 0 成功；没有记录或同一来源混有不同检索方式时报错退出 |
-| `authors.py` | T5 查作者 | `--top`、`--candidates`、`--out` | api.openalex.org | 0（单条失败记在 `error` 字段里） |
+| `merge.py` | T4 合并去重、版本识别、RRF 排序、前 20 候选；同时写出 RIS、运行清单与检索报告 | `--suffix`、`--legacy` | 无 | 0 成功；没有记录或同一来源混有不同检索方式时报错退出 |
+| `export.py` | 导出 RIS：候选（默认）、全部合并记录、证据表各行 | `--suffix`、`--all`、`--evidence`、`--results`、`--out` | 无 | 0 |
+| `report.py` | 由运行清单生成检索报告；比较两份清单 | `render <清单> [--out]`、`diff <A> <B>` | 无 | 0 |
+| `authors.py` | T5 补查作者（只查合并记录里缺作者的候选） | `--top`、`--candidates`、`--out` | api.openalex.org（有缺作者的候选时） | 0（单条失败记在 `error` 字段里） |
 | `enrich.py` | T5 从其他版本补摘要 | `--top`、`--candidates`、`--out` | api.openalex.org | 0（单条失败记在 `error` 字段里） |
 | `verify.py` | T5 DOI 核验 | `--table`、`--no-landing` | doi.org、api.crossref.org、api.openalex.org、出版商网站 | 0 元数据核验（Crossref 或 OpenAlex）全部成功；1 有失败 |
 | `snowball.py` | T5b 引文追踪（一步 / 两步共被引） | `--from-evidence` 或 `--seeds`、`--cocite`、`--citer-filter`、`--min-support`、`--label`、`--suffix` | api.openalex.org | 0 |
@@ -321,12 +362,12 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 参数的默认值（都可在 `novelty-probe.json` 中修改，见 6.0）：
 
 - 检索：`sources.openalex.top_n = 25`、`sources.semanticscholar.top_n = 25`、`sources.semanticscholar.max_records = 3000`、`queries.purposes.concurrent.year_from = 2023`、截断词表 `queries.truncation`；
-- 合并：`merge.top_k = 20`、`merge.rrf_k = 60`、`merge.bm25 = {k1: 1.2, b: 0.75}`；版本识别 `versions.year_window = 3`、`versions.min_title_words = 5` 与预印本、数据集 DOI 前缀表（`--legacy` 不读配置，固定为前 20 篇、标题至少 5 个词）；
+- 合并：`merge.top_k = 20`、`merge.rrf_k = 60`、`merge.bm25 = {k1: 1.2, b: 0.75}`；版本识别 `versions.year_window = 3`、`versions.min_title_words = 5`、`versions.max_cluster_groups = 6`（一个合并组最多含几个标识符分组，超过即 R8）与预印本、数据集 DOI 前缀表（`--legacy` 不读配置，固定为前 20 篇、标题至少 5 个词）；
 - 引文追踪：`snowball.min_overlap = 2`、`max_forward = 2000`、`top = 20`、`keep = 200`；相似度停用词 `textmatch.stopwords`；
 - 比较：`compare.marker_terms`（默认词组 `genai`）；补摘要：`enrich.top = 20`；核验：`verify.landing = true`；
 - HTTP：`novelty_probe/http.py` 的 `POLICIES`（按主机：最小间隔、最多尝试次数、退避基数与上限、Retry-After 上限 60 秒、熔断阈值、缓存 TTL、密钥环境变量名），可用 `http.policies` 按主机覆盖。
 
-不可配置的：`merge.py` 的预印本版本规则 `PREPRINT_VERSION_RE`、检索式 id 的 `Q<数字>` 格式（脚本之间的文件名约定）。
+不可配置的：预印本版本规则 `PREPRINT_VERSION_RE`（`novelty_probe/record.py`）、去重规则的判断顺序与编号（`novelty_probe/dedupe.py`）、检索式 id 的 `Q<数字>` 格式（脚本之间的文件名约定）。
 
 ## 8. 已定的设计决策（原因见 RUN_LOG 对应步骤）
 
@@ -362,6 +403,11 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 | 以前放行的错误写法（未配对引号、逗号、缺 OR、缺 AND）改为报错 | 它们会让各来源检索到不同的内容；仓库里 72 个结果文件的检索式全部仍能解析 | Step 80 |
 | OpenAlex 返回的解析树逐组核对：分组不同即报错不保存，结构不认识只警告 | 分组不同说明结果与意图不符；接口改了表示方式时不应误拦 | Step 80 |
 | Crossref 适配器的本地判断从严：现有文字须满足整条检索式 | Crossref 不做布尔检索，标题不满足就无从证明；宁缺毋滥 | Step 76、80 |
+| 减少中间环节的人工参与：不设去重复核表；作者随检索取得；RIS、运行清单与检索报告在合并时自动写出 | 研究者决定（文献探查只是研究的起点） | Step 81 |
+| CI 不加 Python 3.14；Crossref 保持默认关闭；导出格式只做 RIS | 研究者决定 | Step 81 |
+| 去重的每个决定记规则编号（D1–D5 合并，R1–R8 保持分开）；作者作证据：同题但两边作者名没有一个相同时不并（R7），题目几乎相同且有共同作者时才并（D5）；一方的作者名不可比（如只用汉字书写）时作者不作证据 | 证据不足时宁可不并（与阶段 3 相同的取向）；作者是题目之外最可靠的证据；规则编号让每个决定可追溯 | Step 81、87 |
+| 合并组最多含 6 个标识符分组（R8） | 防止通过标题连锁误并；v1、v2、v1b、v2b 中最大的合并组都是 2 个分组 | Step 87 |
+| 检索报告的格式参照 PRISMA-S；运行清单记输入输出的哈希 | 方法部分需要可复现、可核对的检索记录 | Step 87 |
 
 ## 9. 已知问题与可改进处
 
@@ -369,14 +415,14 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 
 1. **召回仍依赖人的判断**：v1 的检索式本身检索不到参考文献；两步共被引能把它排到第 1，但只在引用者按情境词（scientists）过滤时如此，换用其他面的词就找不到，而且这一过滤方式是调研时在知道目标的情况下试出的。v2b 的情境（经济学与管理学研究者）中通过过滤的引用者只有 2 篇，共被引几乎没有信息。
 2. **剩余噪声**：v2b 前 20 中仍有 1 篇只因 "narrow applications" 命中 narrowing；NOT 短语是看过结果后定的。是否采用 NOT、如何处理剩余用法，由研究者决定（v2b 只是演示，`queries/queries_v2.json` 未改动）。
-3. **版本识别只看标题**：标题改动较大的预印本与正式版不会合并（标为待核对或完全漏掉）；没有用到作者信息（原始记录不含作者）。
+3. **版本识别以标题为主**：阶段 4 起作者作为证据（同题无共同作者不并；题目几乎相同且有共同作者才并），但标题改动较大的预印本与正式版仍不会合并；阶段 4 之前检索的结果没有作者，只按标题与原有检查。
 4. **检索式设计决定排序上限**：v1b 前 20 中仍有通用的文献计量综述和一篇 1993 年的药物设计论文，来自宽泛的方法类检索式和只有 8–9 条命中的 Q3；v2b 前 10 中有 3 篇来自不含 AI 词组的 Q2 的早年文献。
 5. **无摘要的记录**：按题目找不到带摘要的其他版本时，仍只能靠题目标注（v1b、v2b 前 20 中各 3 篇）。
 6. **落地页核验**：云端被网络策略拦截；本地出版商常对脚本返回 403（可用 `--no-landing` 只核验元数据）。
-7. **质量检查是近似**：`qa.py` 用 Porter 词干还原，两个 API 更像 KStem，比例略偏高。
+7. **质量检查是近似**：`qa.py` 用 Porter 词干还原近似两个 API 的匹配（API 更像 KStem）。偏差已可量化：服务器按布尔检索式返回、有摘要、却被本地判为不满足的比例，v1b 为 OpenAlex 1.1%（87 条中 1 条）、S2 6.4%（94 条中 6 条），`qa.py` 与检索报告每次都会给出（Step 87）。
 8. **OpenAlex 额度**：云端注入的 key 有每日 1 美元的上限，且可能与其他任务共用；带检索条件的请求每次 0.001 美元。
 8a. **S2 的 429**：云端的 S2 key 已确认生效（只有带有效 key 才能访问的数据集接口返回 200），但请求间隔 2 秒时仍有约一半返回 429（Step 65），像是这个 key 的额度同时被别处占用。`search.py` 会按 2、4、8… 秒退避重试，最终成功，只是更慢。
-9. **证据检查的边界**：`evidence.py check` 按词序比对引文（大小写、标点不计），能抓出改写和编造的引文，但不判断标注是否合理；中文引号内的转述不检查；作者只在找到 `authors*.json` 时比对。
+9. **证据检查的边界**：`evidence.py check` 按词序比对引文（大小写、标点不计），能抓出改写和编造的引文，但不判断标注是否合理；中文引号内的转述不检查；作者与合并记录（检索时取得）或 `authors*.json` 比对，与任一处一致即可，两处都没有作者时不比对。
 10. **Crossref 检索源**（决策点 2：实现但默认关闭，阶段 3 已实现）：它的检索面向参考文献匹配，实测教程的长检索式在前 40 条里没有满足检索式的记录（Step 75–77），两三个词的简单检索式效果好得多（Step 78）。
 10a. **OpenAlex 对未加引号的连字符词**：示例检索式里没有这种写法，OpenAlex 怎样解析未经实测；dry-run 会提示加引号，分组核对若发现 OpenAlex 拆开了它，会报错不保存。
 11. **待研究者确认**：v2 证据表 rank 8 的"研究问题"面按研究者标准改为 overlap 是助手的推断（Step 25）；v1b、v2b 没有证据表，是否以它们替代 v1、v2 由研究者决定。

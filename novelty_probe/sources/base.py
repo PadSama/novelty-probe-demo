@@ -22,6 +22,10 @@ class Source:
     enabled_by_default = True   # 配置 sources.<name>.enabled 没写时是否启用
     # 各项写法在哪里实现：api（数据源原生支持）、expand（截断词换成完整词）、local（取回后在本地按标题与摘要判断）
     capabilities = {}
+    # 检索报告（novelty_probe/report.py）"数据库与接口"一节的写法：显示名、接口、排序（中文, 英文）
+    label = ""
+    interface = ""
+    ranking = ("", "")
 
     def serialize(self, query, truncation):
         """语法树 → 发给数据源的检索串（不合要求时抛 QueryError，错误码 Q2xx）。"""

@@ -403,6 +403,18 @@ def title_search_words(title, n=12):
     return [w for w in _WORD_RE.findall(t) if len(w) > 1][:n]
 
 
+def name_tokens(name):
+    """作者名 → 比较用的词：去重音、小写，只留两个字母以上的字母串（"Charles N.Okonji" → charles, okonji）。"""
+    t = "".join(c for c in unicodedata.normalize("NFKD", name or "") if not unicodedata.combining(c))
+    return [w for w in re.findall(r"[a-z]+", t.lower()) if len(w) > 1]
+
+
+def surname(name):
+    """作者名的最后一个词（各来源都按"名 姓"的顺序给出时即为姓）。"""
+    toks = name_tokens(name)
+    return toks[-1] if toks else None
+
+
 def version_summary(records, min_words=None, rules=None):
     """一组记录（同一 DOI / arXiv ID 已并在一起）用于版本比较的摘要信息。min_words 默认取 rules.min_title_words。"""
     rules = rules or DEFAULT_RULES
@@ -420,7 +432,18 @@ def version_summary(records, min_words=None, rules=None):
         "preprint": any(r.get("arxiv_id") or (r.get("venue") and rules.preprint_venue.search(r["venue"])) for r in records)
                     or any(rules.preprint_doi.match(d) for d in dois),
         "abstract": max((r.get("abstract") or "" for r in records), key=len),
+        # 作者（阶段 4 起检索结果带作者；旧数据没有，下面三项为空，判断与阶段 3 相同）
+        "surnames": {x for x in (surname(n) for r in records for n in (r.get("authors") or []) if n) if x},
+        "name_tokens": {w for r in records for n in (r.get("authors") or []) if n for w in name_tokens(n)},
+        "author_count": max((len(r.get("authors") or []) for r in records), default=0),
     }
+
+
+def abstracts_similar(a, b, threshold=0.5):
+    """两组记录的摘要是否一致：任一方没有摘要时视为一致；都有时摘要词集合的 Jaccard ≥ threshold。"""
+    if not a["abstract"] or not b["abstract"]:
+        return True
+    return _jaccard(tokenize(a["abstract"]), tokenize(b["abstract"])) >= threshold
 
 
 def _jaccard(a, b):
@@ -429,43 +452,50 @@ def _jaccard(a, b):
 
 
 def version_decision(a, b, rules=None):
-    """比较两组记录（version_summary 的结果），返回 (merge / review / no, 原因)。
-    merge：规范化标题相同，且没有来信或变体标记只在一侧、没有两个不同的正式发表 DOI、都不是数据集 DOI、
+    """比较两组记录（version_summary 的结果），返回 (merge / review / no, 原因)。见 version_decision_coded。"""
+    verdict, _, reason = version_decision_coded(a, b, rules)
+    return verdict, reason
+
+
+def version_decision_coded(a, b, rules=None):
+    """比较两组记录（version_summary 的结果），返回 (merge / review / no, 代码, 原因)。
+    merge（same_title）：规范化标题相同，且没有来信或变体标记只在一侧、没有两个不同的正式发表 DOI、都不是数据集 DOI、
            年份相差不超过 3 年、两边都有摘要时摘要词集合的 Jaccard ≥ 0.5；
-    review：标题相同但不满足上述条件，或标题几乎相同（difflib ≥ 0.90 且词 Jaccard ≥ 0.80，或较短标题完整包含在较长标题中）；
-    no：其余情况（含 "Re: <标题>" 这类关于另一篇文献的条目）。
-    年份窗口（3）与数据仓储 DOI 前缀来自 rules（默认 DEFAULT_RULES）。"""
+    review：标题相同但不满足上述条件（notice_variant / two_pub_dois / data_doi / year_gap / abstracts_differ），
+           或标题几乎相同（near_identical：difflib ≥ 0.90 且词 Jaccard ≥ 0.80，或较短标题完整包含在较长标题中）；
+    no：其余情况（short_title / titles_differ / notice / numbers；含 "Re: <标题>" 这类关于另一篇文献的条目）。
+    年份窗口（3）与数据仓储 DOI 前缀来自 rules（默认 DEFAULT_RULES）。作者的证据由 novelty_probe/dedupe.py 另行判断。"""
     rules = rules or DEFAULT_RULES
     window = rules.year_window
     if not a["keys"] or not b["keys"]:
-        return "no", f"title shorter than {a.get('min_words', rules.min_title_words)} words"
+        return "no", "short_title", f"title shorter than {a.get('min_words', rules.min_title_words)} words"
     gap = min((abs(x - y) for x in a["years"] for y in b["years"]), default=0)
     one_sided_notice = a["notice"] != b["notice"]
     one_sided_variant = a["variant"] != b["variant"]
     if any(_same_key(x, y) for x in a["keys"] for y in b["keys"]):
         if one_sided_notice or one_sided_variant:
-            return "review", "same title, but a notice/variant word appears on one side only"
+            return "review", "notice_variant", "same title, but a notice/variant word appears on one side only"
         if a["pub_dois"] and b["pub_dois"] and not set(a["pub_dois"]) & set(b["pub_dois"]):
-            return "review", "same title, but two different non-preprint DOIs"
+            return "review", "two_pub_dois", "same title, but two different non-preprint DOIs"
         if any(rules.data_doi.match(d) for d in a["dois"] + b["dois"]):
-            return "review", "same title, but one record has a data-repository DOI"
+            return "review", "data_doi", "same title, but one record has a data-repository DOI"
         if gap > window:
-            return "review", f"same title, but years differ by more than {window}"
-        if a["abstract"] and b["abstract"] and _jaccard(tokenize(a["abstract"]), tokenize(b["abstract"])) < 0.5:
-            return "review", "same title, but abstracts differ (word Jaccard < 0.5)"
-        return "merge", f"same normalized title; no DOI conflict; year gap <= {window}"
+            return "review", "year_gap", f"same title, but years differ by more than {window}"
+        if not abstracts_similar(a, b):
+            return "review", "abstracts_differ", "same title, but abstracts differ (word Jaccard < 0.5)"
+        return "merge", "same_title", f"same normalized title; no DOI conflict; year gap <= {window}"
     ka, kb = min(a["keys"]), min(b["keys"])
     wa, wb = ka.split(), kb.split()
     jac = _jaccard(wa, wb)
     contained = (ka in kb or kb in ka) and min(len(wa), len(wb)) >= 6
     if not contained and jac < 0.8:   # 以下各分支都要求词 Jaccard ≥ 0.8 或包含关系，先排除，省去逐字符比较
-        return "no", "titles differ"
+        return "no", "titles_differ", "titles differ"
     ratio = SequenceMatcher(None, ka, kb).ratio()
     if one_sided_notice and (contained or ratio >= 0.9):
-        return "no", "a notice about the other record (Re:/reply/correction), not another version"
+        return "no", "notice", "a notice about the other record (Re:/reply/correction), not another version"
     na, nb = set(_NUM_RE.findall(ka)), set(_NUM_RE.findall(kb))
     if na and nb and na != nb:
-        return "no", "different numbers (e.g. Part I vs Part II)"
+        return "no", "numbers", "different numbers (e.g. Part I vs Part II)"
     if ((ratio >= 0.9 and jac >= 0.8) or contained) and gap <= window:
-        return "review", f"near-identical titles (ratio {ratio:.2f}, word Jaccard {jac:.2f})"
-    return "no", "titles differ"
+        return "review", "near_identical", f"near-identical titles (ratio {ratio:.2f}, word Jaccard {jac:.2f})"
+    return "no", "titles_differ", "titles differ"

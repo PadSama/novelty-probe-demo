@@ -128,10 +128,27 @@ class TestCheck(unittest.TestCase):
         people = [{"doi": "10.1126/sciadv.adn5290", "authors": ["Anil Rajnikant Doshi", "Oliver Hauser"]},
                   {"doi": "10.1038/s41586-025-09640-5", "authors": ["Zhen Zhang", "Zhichu Ren", "Chia-Wei Hsu", "D"]}]
         idx = example_index()
-        idx.authors = {("doi", evidence.norm_doi(p["doi"])): p for p in people}
+        idx.authors = {("doi", evidence.norm_doi(p["doi"])): [p] for p in people}
         self.assertEqual(evidence.check(doc, idx), [])
         doc["rows"][1]["authors"] = "Anil Doshi; Oliver Hauser"
         self.assertIn("Anil Rajnikant Doshi; Oliver Hauser", evidence.check(doc, idx)[0][1])
+
+    def test_authors_from_merged_records(self):
+        """阶段 4 起作者随检索取得、存在合并记录里；authors.py 的结果也在时，与任一处一致即可。"""
+        doc = imported()
+        records = json.loads(read_text(EXAMPLE / "results" / "merged" / "merged.json"))["records"]
+        hit = [x for x in records if x["doi"] and evidence.norm_doi(x["doi"]) == "10.1126/sciadv.adn5290"]
+        self.assertEqual(len(hit), 1)
+        hit[0]["authors"], hit[0]["n_authors"] = ["Anil Rajnikant Doshi", "Oliver Hauser"], 2
+        idx = evidence.RetrievalIndex(records)
+        self.assertEqual(evidence.check(doc, idx), [])
+        doc["rows"][1]["authors"] = "Anil Doshi; Oliver Hauser"
+        self.assertIn("Anil Rajnikant Doshi; Oliver Hauser", evidence.check(doc, idx)[0][1])
+        people = [{"doi": "10.1126/sciadv.adn5290", "authors": ["Anil Doshi", "Oliver Hauser"]}]
+        self.assertEqual(evidence.check(doc, evidence.RetrievalIndex(records, authors=people)), [])
+        hit[0]["n_authors"] = 7                                            # 只存了前几位：按总数加 et al.
+        doc["rows"][1]["authors"] = "Anil Rajnikant Doshi; Oliver Hauser et al."
+        self.assertEqual(evidence.check(doc, evidence.RetrievalIndex(records)), [])
 
     def test_quote_helpers(self):
         self.assertEqual(evidence.quotes_in('- 数据与方法 overlap："Scopus database ... based on 945 research papers"'),
