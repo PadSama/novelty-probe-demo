@@ -23,118 +23,243 @@ v2.0.0 起它是可安装的命令行工具 `novelty-probe`：工具装一次；
 | 项目 | 状态 |
 |---|---|
 | 仓库 | https://github.com/PadSama/novelty-probe-demo （公开，MIT 许可证） |
-| 发布 | v1.0.0（标签打在 3f00b7a）；v2.0.0 随阶段 5 的 PR 准备好，合并后打标签发布（第 10 节） |
+| 发布 | v1.0.0（标签打在 3f00b7a）；**v2.0.0**（2026-11-03 发布，标签 `v2.0.0` 指向 5c0ed59；发布页面上目前标为 pre-release）。安装与配置见第 3 节 |
 | v1.0.0 之后的改动 | 见 `CHANGELOG.md`：针对遗留问题的改进（Step 24–64，见 `docs/IMPROVEMENT_PLAN.md`）与工具层迭代阶段 0–5（Step 66 起，计划与进度见 `docs/ROADMAP.md`，设计理由见 `docs/ARCHITECTURE_REVIEW.md`） |
 | 默认分支 | `main`，受规则集保护：禁止删除、禁止强推、必须通过 PR 合并（审批人数 0） |
 | 引用信息 | `CITATION.cff`：作者 Yuan, Quan；ORCID 0009-0009-3011-3739；version 2.0.0 |
 | 示例运行 | v1（未限定学科）与 v2（管理学与经济学）两轮的全部产出都在仓库里（用旧方法生成，`merge.py --legacy` 可逐字节复现）；v1b、v2b 是用改进后的流程重跑的评估轮（检索、合并、补摘要、引文追踪与比较，没有证据表）；全过程见 `logs/RUN_LOG.md` Step 0–65 |
 
-## 3. 本地环境准备
+## 3. 本地环境准备（v2.0.0）
 
-### 3.1 获取代码
+本节写给在本地 ZCode 里替研究者安装、配置 novelty-probe 的 AI 助手（如 GLM），也可以照着手工做。这里只做安装、配置与不联网的检查，**不检索任何研究想法**。实测情况（Step 92）：
+
+- 发布的压缩包（方式 B）与克隆的可编辑安装（方式 A）在 Python 3.9 的虚拟环境里实测，setuptools 为 80.9；
+- 不安装的方式 C 在 Python 3.13 上实测；
+- 旧版 setuptools（68）会报 3.11 表里第一行的错误；
+- Windows 上 `novelty-probe` 的各命令由 CI 用 PowerShell 检查；建虚拟环境的 PowerShell 写法是 Python 的标准用法，未在本沙箱运行。
+
+### 3.1 选一种安装方式
+
+| 方式 | 适合 | 要点 |
+|---|---|---|
+| **A. 从本地克隆安装（推荐）** | 本机已有本仓库的克隆，或能用 git | 可编辑安装，以后 `git pull` 即更新；仓库里的离线自检可以运行 |
+| **B. 从发布的压缩包安装** | 只用工具、不看源码 | 不需要 git；压缩包只含工具本身 |
+| **C. 不安装** | 连不上 PyPI、装不了包时的后备 | 解压或克隆后直接运行，见 3.4 的 C |
+
+A、B 两种都要从 PyPI（或镜像）取构建工具 setuptools 77 或更新的版本。连不上 PyPI 时用 3.3 里的镜像，或改用 C。
+
+### 3.2 前提
+
+- **Python 3.9 或更高**：macOS / Linux 运行 `python3 --version`，Windows 运行 `py -3 --version`。
+- 方式 A 需要 git（`git --version`）。
+- **不要用系统自带的 pip 直接装进系统 Python**：一律装进 3.3 的虚拟环境。这样能避开 `externally-managed-environment` 与旧版 pip、setuptools 的问题。
+
+### 3.3 建虚拟环境，升级 pip 与 setuptools（只做一次）
+
+macOS / Linux：
+
+```bash
+python3 -m venv ~/.venvs/novelty-probe
+```
+
+```bash
+source ~/.venvs/novelty-probe/bin/activate
+```
+
+```bash
+python -m pip install --upgrade pip "setuptools>=77"
+```
+
+Windows PowerShell：
+
+```powershell
+py -3 -m venv $HOME\.venvs\novelty-probe
+```
+
+```powershell
+& $HOME\.venvs\novelty-probe\Scripts\Activate.ps1
+```
+
+```powershell
+python -m pip install --upgrade pip "setuptools>=77"
+```
+
+- PowerShell 拒绝运行 `Activate.ps1` 时，先运行 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`；也可以不激活，直接用 `$HOME\.venvs\novelty-probe\Scripts\novelty-probe.exe`。
+- 激活只对当前终端有效。新开的终端（包括 ZCode 新开的终端）要再激活一次，或直接写虚拟环境里的完整路径。
+- PyPI 慢或连不上时（中国大陆的网络常见），在每条 `pip install` 命令后加 `-i https://pypi.tuna.tsinghua.edu.cn/simple`。安装本包时 pip 也要从同一个地址取 setuptools。
+
+### 3.4 安装
+
+**A. 从本地克隆安装**（在激活了虚拟环境的终端里）：
 
 ```bash
 git clone https://github.com/PadSama/novelty-probe-demo.git
 ```
 
-```bash
-cd novelty-probe-demo
-```
-
-只用工具、不改代码时不必克隆，按 `HOWTO.md` 第 0 节安装即可。
-
-### 3.2 Python 与安装
-
-Python 3.9 或更高，只用标准库，没有依赖。在仓库里开发时用可编辑安装，`novelty-probe` 命令直接运行仓库里的代码：
+已有克隆时不必再克隆。先进入克隆目录，确认没有本地改动：`git status` 应显示 `nothing to commit`。有改动时先告诉研究者，不要覆盖，然后：
 
 ```bash
-python3 -m pip install -e .
+git checkout main
 ```
 
-不安装也可以：在仓库目录里用 `python3 -m novelty_probe <命令>`，或旧入口 `python3 scripts/<命令>.py`。Windows 上把 `python3` 换成 `py -3`；命令会把控制台输出设为 UTF-8，中文不会乱码。
+```bash
+git pull
+```
 
-### 3.3 API key
+```bash
+python -m pip install -e .
+```
 
-在云端环境里，OpenAlex 的 key 是由 Network secrets 自动注入的。**本地没有这个机制，必须自己设置环境变量。**
+`main` 上 v2.0.0 之后的提交只改文档。要装与发布完全相同的版本，先 `git checkout v2.0.0` 再安装。
+
+**B. 从发布的压缩包安装**：
+
+```bash
+python -m pip install "https://github.com/PadSama/novelty-probe-demo/archive/refs/tags/v2.0.0.zip"
+```
+
+下载失败时，在浏览器里打开该地址或仓库的 Releases 页面下载压缩包，再安装本地文件：
+
+```bash
+python -m pip install ./novelty-probe-demo-2.0.0.zip
+```
+
+**C. 不安装**：解压压缩包或使用克隆，不需要 pip。
+
+- 在工具目录里，用 `python3 -m novelty_probe <命令>`（Windows：`py -3 -m novelty_probe <命令>`）代替 `novelty-probe <命令>`。
+- 在其他目录（如项目目录）里，用 `python3 <工具目录>/scripts/<命令>.py …`，例如 `python3 <工具目录>/scripts/init.py my-idea`。
+
+### 3.5 检查安装
+
+```bash
+novelty-probe --version
+```
+
+应显示 `novelty-probe 2.0.0`。提示找不到命令时，说明虚拟环境没激活，或安装目录不在 PATH 里：
+
+- 激活虚拟环境；
+- 或改用 `python -m novelty_probe --version`（已安装时在任何目录都可用）。
+
+### 3.6 API key（只放在环境变量里）
 
 | 变量 | 是否必需 | 说明 |
 |---|---|---|
 | `OPENALEX_API_KEY` | 实际上必需 | 免费申请：https://help.openalex.org/api/authentication/ 。没有 key 时共用每日额度，很容易遇到 429 |
-| `S2_API_KEY` | 可选 | https://www.semanticscholar.org/product/api#api-key-form 。有 key 时的限额是**每秒 1 个请求，所有接口合计**；检索命令对发往 S2 的每个请求（含翻页与重试）统一节流（间隔 ≥ `S2_MIN_INTERVAL` = 1.1 秒），不要同时运行两个访问 S2 的命令。云环境中研究者已在网络设置里为 api.semanticscholar.org 配置 key（2026-11-02，由代理注入） |
+| `S2_API_KEY` | 可选 | https://www.semanticscholar.org/product/api#api-key-form 。有 key 时的限额是**每秒 1 个请求，所有接口合计**；检索命令对发往 S2 的每个请求（含翻页与重试）统一节流，不要同时运行两个访问 S2 的命令 |
 
-macOS / Linux（只对当前终端有效；写进 `~/.zshrc` 或 `~/.bashrc` 可长期有效）：
+key 由研究者自己设置。助手不要把 key 写进任何文件（包括 `novelty-probe.json`），也不要在终端或日志里显示 key 的值。
+
+- **macOS / Linux**：把 `export OPENALEX_API_KEY="…"` 写进 shell 的启动文件（zsh：`~/.zshenv` 或 `~/.zshrc`；bash：`~/.bashrc`）。
+- **Windows**：在 PowerShell 里运行 `setx OPENALEX_API_KEY "…"`。
+
+设置后**完全退出并重新打开 ZCode**，新的环境变量才会传给它。在 ZCode 的终端里用下面这条命令核对，它只显示是否已设置，不显示值：
 
 ```bash
-export OPENALEX_API_KEY="你的 key"
+python -c "import os; print({k: bool(os.environ.get(k)) for k in ('OPENALEX_API_KEY', 'S2_API_KEY')})"
 ```
 
-Windows PowerShell（当前窗口有效）：
+### 3.7 网络
 
-```powershell
-$env:OPENALEX_API_KEY = "你的 key"
-```
-
-Windows 长期有效（新开的窗口才生效）：
-
-```powershell
-setx OPENALEX_API_KEY "你的 key"
-```
-
-### 3.4 网络
-
-- **需要访问的域名**：在自己电脑上通常不用设置。需要能访问 `api.openalex.org`、`api.semanticscholar.org`、`doi.org`、`api.crossref.org`；`data.crosscite.org` 和出版商网站可选（arXiv 等 DataCite DOI 在 Crossref 查不到时，核验命令会改查 OpenAlex）。
+- **需要访问的域名**：在自己电脑上通常不用设置。必须能访问 `api.openalex.org`、`api.semanticscholar.org`、`doi.org`、`api.crossref.org`。以下两项可选：
+  - `data.crosscite.org`：arXiv 等 DataCite DOI 在 Crossref 查不到时，核验命令会改查 OpenAlex；
+  - 出版商网站：用于核验落地页。
 - **需要代理的网络**：设置 `HTTPS_PROXY`。命令用 Python 标准库 `urllib`，会自动读取这个变量。
 - **macOS 证书问题**：用 python.org 安装包装的 Python，可能报 `CERTIFICATE_VERIFY_FAILED`。运行 `/Applications/Python 3.x/Install Certificates.command` 即可。
 
-### 3.5 离线自检（必做）
+### 3.8 离线自检（方式 A，在克隆目录里）
 
 ```bash
-python3 -m unittest discover -s tests -v
+python -m unittest discover -s tests -v
 ```
 
-应显示 `OK (skipped=6)`，用时二十秒左右，不联网，也不改动仓库文件（6 项跳过的是联网接口检查，见 3.6）。测试件读 `examples/tutorial/` 下的教程产出副本，其中一项按旧方法（`merge --legacy`）重跑合并，再和已提交的 v1、v2 合并结果逐字节比较；回放测试用 `tests/fixtures/cassettes/` 里录制的真实响应跑完 search / verify / snowball 的主流程，并在临时项目里从头跑一遍 `novelty-probe init` 与 `novelty-probe run`。全部通过，说明本机的 Python 和工具逻辑与原环境一致。
+应显示 `OK (skipped=6)`，用时二十秒左右。测试不联网，也不改动仓库文件；跳过的 6 项是联网接口检查（3.10）。
 
-测试里装有网络护栏（`tests/netguard.py`）：除本机回环地址外，任何 DNS 查询或连接都会直接报错，子进程同样如此。GitHub Actions（`.github/workflows/tests.yml`）在 Python 3.9–3.13 × Ubuntu / Windows 上跑同一套离线测试（2026-11-03 起不再测试 macOS：研究者决定，macOS 节点排队常卡住、额度消耗快；同一分支有新推送时取消旧的一轮），再 `pip install .`，在仓库之外新建项目，用安装后的命令走一遍不联网的步骤（Windows 上另用 PowerShell 跑 HOWTO 里的写法）。
+- 测试件读 `examples/tutorial/` 下的教程产出副本。其中一项按旧方法（`merge --legacy`）重跑合并，再和已提交的 v1、v2 合并结果逐字节比较。
+- 回放测试用 `tests/fixtures/cassettes/` 里录制的真实响应，跑完 search / verify / snowball 的主流程，并在临时项目里从头跑一遍 `novelty-probe init` 与 `novelty-probe run`。
+- 测试里装有网络护栏（`tests/netguard.py`）：除本机回环地址外，任何 DNS 查询或连接都会直接报错，子进程同样如此。
+- GitHub Actions（`.github/workflows/tests.yml`）在 Python 3.9–3.13 × Ubuntu / Windows 上跑同一套测试，再安装本包，并用安装后的命令走一遍新项目。2026-11-03 起不再测试 macOS（研究者决定：macOS 节点排队常卡住、额度消耗快）。
 
-### 3.6 联网冒烟测试（可选，只发 2 个检索请求，在仓库之外的临时项目里做）
+压缩包（方式 B、C）里没有测试件，不能运行离线自检；用 3.9 的冒烟测试代替。
+
+### 3.9 不联网的冒烟测试（在仓库之外的临时目录里做，做完删除）
 
 ```bash
 novelty-probe init ../np-smoke
 ```
 
-把 `examples/tutorial/queries/queries.json` 复制到 `../np-smoke/queries/queries.json`，然后：
+把教程的检索式复制进去，作为语法检查的样例：方式 A 在克隆目录里取 `examples/tutorial/queries/queries.json`；方式 B、C 可以手写一条，如 `[{"id": "Q1", "facets_used": [], "purpose": "component", "query": "\"large language models\" AND homogenization"}]`。然后：
 
 ```bash
-novelty-probe search --root ../np-smoke --ids Q1
+novelty-probe config check --root ../np-smoke
 ```
 
 ```bash
-novelty-probe merge --root ../np-smoke
+novelty-probe search --dry-run --root ../np-smoke --log "检查检索式"
 ```
-
-确认 `../np-smoke/results/raw/` 里有 `openalex_Q1.json`、`semanticscholar_Q1.json`，`../np-smoke/results/merged/` 里有候选表、RIS 与检索报告，然后删除整个临时目录（macOS / Linux：`rm -rf ../np-smoke`；PowerShell：`Remove-Item -Recurse -Force ..\np-smoke`）。冒烟测试只是检查环境，不属于研究步骤，不写进仓库的 RUN_LOG。
-
-**联网接口检查**（6 个请求，约 10 秒）：确认 OpenAlex、Semantic Scholar、Crossref 的接口行为仍与脚本的假设一致（OpenAlex 的布尔解析与响应形状、不支持通配符；S2 bulk 与 batch；Crossref works 与 agency）。建议每轮 T3 之前跑一次：
 
 ```bash
-NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
+novelty-probe run --dry-run --root ../np-smoke
 ```
 
-## 4. 在 ZCode 里使用 GLM 5.3
+应依次看到：
+- `检查通过`；
+- `1/1 queries valid` 或 `6/6 queries valid`，以及请求估算；
+- `run` 六个步骤的命令。
 
-1. 在 ZCode 中打开项目根目录。如果 ZCode 会自动读取项目里的规则文件，确认它读到了 `AGENTS.md`；如果不会，就用下面的第一条消息让它去读。
-2. 第一条消息建议这样写，先确认它理解了规则再开工：
+`../np-smoke/logs/RUN_LOG.md` 里应有 Step 0 与 Step 1 两条。最后删除整个临时目录：macOS / Linux 用 `rm -rf ../np-smoke`，PowerShell 用 `Remove-Item -Recurse -Force ..\np-smoke`。冒烟测试只是检查环境，不属于研究步骤，不写进仓库的 RUN_LOG。
+
+### 3.10 联网接口检查（可选，方式 A；只发 6 个请求，不检索研究想法）
+
+确认 key 与网络可用，以及 OpenAlex、Semantic Scholar、Crossref 的接口行为仍与命令的假设一致。
+
+```bash
+NP_LIVE=1 python -m unittest tests.test_live_contract -v
+```
+
+```powershell
+$env:NP_LIVE = "1"; python -m unittest tests.test_live_contract -v
+```
+
+### 3.11 安装与配置的常见问题
+
+| 现象 | 原因 | 处理 |
+|---|---|---|
+| `` `project.license` must be valid exactly by one definition `` | setuptools 低于 77：多见于加了 `--no-build-isolation`，或环境里是旧版 setuptools | 在虚拟环境里 `python -m pip install --upgrade pip "setuptools>=77"`；安装时不要加 `--no-build-isolation` |
+| `Could not find a version that satisfies the requirement setuptools>=77`，或下载超时 | 连不上 PyPI | pip 命令加 `-i https://pypi.tuna.tsinghua.edu.cn/simple`；或用 3.4 的方式 C |
+| `externally-managed-environment` | 系统 Python 不允许直接装包 | 用 3.3 的虚拟环境 |
+| pip 提示可编辑安装需要 `setup.py` | pip 低于 21.3，不支持只有 `pyproject.toml` 的可编辑安装 | 先升级 pip（3.3），或去掉 `-e` |
+| `novelty-probe: command not found`，或 PowerShell 无法识别 | 虚拟环境没激活，或安装目录不在 PATH 里（pip 会提示 `… is not on PATH`） | 激活虚拟环境；或用 `python -m novelty_probe` |
+| PowerShell 拒绝运行 `Activate.ps1` | 执行策略 | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`，或直接用 `…\Scripts\novelty-probe.exe` |
+| 下载 GitHub 压缩包失败 | 网络 | 浏览器下载后安装本地文件，或用克隆（方式 A） |
+| `找不到项目目录` / `No project folder found` | 当前目录不是项目目录 | 进入项目目录，或加 `--root`；还没有项目时先 `novelty-probe init` |
+| 核对 key 时显示 `False` | ZCode 没有拿到环境变量 | 写进 shell 的启动文件，或用 `setx`，然后完全退出并重开 ZCode |
+| `CERTIFICATE_VERIFY_FAILED`（macOS） | python.org 的 Python 没装证书 | 运行 `Install Certificates.command`（见 3.7） |
+
+## 4. 在 ZCode 里使用 GLM
+
+1. **安装与配置**：在 ZCode 中打开本仓库的克隆目录（方式 A），确认 GLM 读到了 `AGENTS.md`。第一条消息建议这样写，让它先装好、查好再报告，不做任何检索：
 
    ```text
-   请先阅读本项目的 AGENTS.md、PROJECT.md、HOWTO.md、HANDOFF.md，然后：
+   请先阅读本仓库的 AGENTS.md、PROJECT.md、HOWTO.md、HANDOFF.md，然后按 HANDOFF.md 第 3 节在本机安装并检查 novelty-probe v2.0.0：
    1) 复述 PROJECT.md 的三条硬规则；
-   2) 说明 T1–T6 每一步由谁完成、产出什么文件；
-   3) 运行 python3 -m unittest discover -s tests -v，并报告结果。
-   在我确认之前，不要修改任何文件。
+   2) 报告 Python 版本；按 3.3 建虚拟环境并升级 pip 与 setuptools（连不上 PyPI 时加 3.3 里的镜像地址）；
+   3) 按 3.4 的方式 A 从本仓库安装，运行 novelty-probe --version，应显示 2.0.0（你的每条命令若在新的终端里运行、激活保不住，就写虚拟环境里的完整路径，如 ~/.venvs/novelty-probe/bin/python，Windows 为 $HOME\.venvs\novelty-probe\Scripts\python.exe）；
+   4) 用 3.6 的命令核对 OPENALEX_API_KEY、S2_API_KEY 是否已设置：只报告是否已设置，不要显示它们的值，也不要把 key 写进任何文件；
+   5) 运行 3.8 的离线自检；再按 3.9 在仓库之外做不联网的冒烟测试，做完删除临时目录。
+   不要运行任何检索，不要改动仓库里的文件。每一步把命令和输出原样告诉我；遇到报错先查 HANDOFF.md 3.11 与 HOWTO.md 的"常见问题"，把完整报错告诉我，不要自行绕过。
    ```
 
-3. 需要助手完成的步骤是：T2（拆面与检索式）、T5（证据表标注）、T6 第 1 节（选出最接近的三篇）。提示词在 `HOWTO.md` 第 3、6、7 节，中英文任选。T5b 引文追踪的种子和过滤词组由你决定，助手只运行脚本、整理结果。
-4. 脚本步骤可以让助手执行，也可以自己在终端执行：一次跑完用 `novelty-probe run`；单独运行某一步时命令后加 `--log "<步骤名>"`。
+2. **开始一个研究想法时**（以后）：在仓库之外 `novelty-probe init <目录>`，然后在 ZCode 中打开这个新目录。GLM 在那里读到的是项目自己的 `AGENTS.md`、`PROJECT.md`、`HOWTO.md`，流程见该目录的 `HOWTO.md`。
+
+3. 需要助手完成的步骤是：
+   - T2：拆面与检索式；
+   - T5：证据表标注；
+   - T6 第 1 节：选出最接近的三篇。
+
+   提示词在 `HOWTO.md` 第 3、6、7 节，中英文任选。T5b 引文追踪的种子和过滤词组由研究者决定，助手只运行命令、整理结果。
+
+4. 脚本步骤可以让助手执行，也可以自己在终端执行：一次跑完用 `novelty-probe run`；单独运行某一步时，命令后加 `--log "<步骤名>"`。
+
 5. 每一步结束后检查三件事：命令和产出是否写进了 RUN_LOG；DOI、作者是否都来自检索结果；有没有出现新颖性结论。
 
 **换用 GLM 后要特别留意的地方**（都来自本项目实际遇到过的问题，前三条已由检索命令自动检查，第四条由核验命令检查）：
@@ -337,7 +462,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 
 - **只追加**：新条目一律写在末尾，不改写已有条目。
 - **条目格式**：以 `---` 分隔，标题写成 `## [YYYY-MM-DD HH:MM UTC] Step N — 标题`，正文包含研究者的要求、命令、输出、产出文件、备注。
-- **编号**：下一步是 **Step 91**。命令加 `--log`、`novelty-probe run`、`novelty-probe logrun` 写的条目会自动接着编号；手写条目照旧接着日志里最后一个编号。
+- **编号**：下一步是 **Step 93**。命令加 `--log`、`novelty-probe run`、`novelty-probe logrun` 写的条目会自动接着编号；手写条目照旧接着日志里最后一个编号。
 - **旧哈希**：Step 20 之前的条目里引用的是改写历史之前的提交哈希，按 Step 20 的对照表查新哈希。
 
 ## 7. 命令速查
@@ -425,6 +550,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 | 安装后的包找不到项目目录时报错，不落到安装位置；HTTP 缓存默认放在项目目录 | 不往 site-packages 里写结果与缓存 | Step 90 |
 | 隐私：录制件在录制时去掉响应里的电子邮件地址；运行日志把用户目录记成 `~`；运行日志概括研究者的决定，不逐字引用对话原文；测试检查仓库里没有电子邮件地址 | 仓库公开，研究者要求发布前检查隐私 | Step 91 |
 | 数据条款：检索报告列出各数据源的条款与署名（Semantic Scholar 按其许可协议要求链接回去）；README 说明仓库里第三方数据的来源、条款与撤除渠道；`init` 的 `.gitignore` 说明公开项目时如何不提交第三方数据 | Semantic Scholar 的 API 许可协议要求公开使用时署名并链接回去，并限制把数据转给第三方；摘要的版权属于出版方或作者 | Step 91 |
+| 保留仓库里已有的第三方数据（署名、条款与撤除渠道见 README，发布的压缩包不含这些数据）；不改写提交历史；仓库不改名 | 研究者决定 | Step 92 |
 
 ## 9. 已知问题与可改进处
 
@@ -444,8 +570,8 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 10a. **OpenAlex 对未加引号的连字符词**：示例检索式里没有这种写法，OpenAlex 怎样解析未经实测；dry-run 会提示加引号，分组核对若发现 OpenAlex 拆开了它，会报错不保存。
 11. **待研究者确认**：v2 证据表 rank 8 的"研究问题"面按研究者标准改为 overlap 是助手的推断（Step 25）；v1b、v2b 没有证据表，是否以它们替代 v1、v2 由研究者决定。
 12. **Python 3.9 已过官方支持期**（2025-10）：本工具仍支持并在 CI 中测试 3.9；以后若要用 3.10 才有的写法，再一并停用 3.9。
-12a. **仓库里的第三方数据**（待研究者决定，见 `docs/ROADMAP.md` 待决策）：`results/`、`examples/tutorial/results/`、`evidence/enrichment*.json` 与 `tests/fixtures/cassettes/` 里有 Semantic Scholar 的数据与各来源的摘要。Semantic Scholar 的 API 许可协议限制把数据转给第三方，摘要的版权属于出版方或作者；现在的做法是署名、说明条款并提供撤除渠道（Step 91）。从当前版本移除、改用合成数据，要重做教程示例与部分测试；历史提交里仍有这些数据（改写历史违反仓库规则）。
-13. **仓库名**：仓库仍叫 `novelty-probe-demo`；是否改名为 `novelty-probe` 由研究者决定（`docs/ROADMAP.md` 待决策）。改名后要同步 README、HOWTO 的安装地址、`CITATION.cff` 与 User-Agent 里的地址。
+12a. **仓库里的第三方数据**（研究者决定保留，Step 92）：`results/`、`examples/tutorial/results/`、`evidence/enrichment*.json` 与 `tests/fixtures/cassettes/` 里有 Semantic Scholar 的数据与各来源的摘要。处理方式：README 写明署名、条款与撤除渠道；发布的压缩包不含这些数据（Step 91）。有权利人提出要求时再移除，并改用合成数据。
+13. **仓库名**：保持 `novelty-probe-demo`，不改名（研究者决定，Step 92）。
 
 ## 10. Git 与发布
 
@@ -453,16 +579,14 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 - **`main` 规则集**：禁止删除、禁止强推、必须走 PR（审批人数 0，bypass 为空）。
 - **提交约定**：提交信息不放会话链接或个人信息；作者邮箱用 GitHub 的 noreply 地址。
 - **发布新版本**：版本号只写在两处，`novelty_probe/__init__.py` 的 `__version__`（`pyproject.toml` 由它取）与 `CITATION.cff` 的 `version`（测试检查两者一致）；同时改 `date-released` 与 `CHANGELOG.md`。PR 合并后在 GitHub 上 Releases → Draft a new release：新建标签 `v<版本>`（目标 `main`），标题 `novelty-probe v<版本>`，说明取自 `CHANGELOG.md` 的对应一节，Publish。HOWTO 与 README 里的安装地址 `…/archive/refs/tags/v<版本>.zip` 在标签建好后才可用。压缩包只含工具本身：教程示例的数据（含第三方数据与摘要）、测试件与运行日志在 `.gitattributes` 里标为 `export-ignore`，不打进 Release 与 Download ZIP（仍在仓库里）。发布日期与 `date-released` 不同时，随后改一下 `CITATION.cff`。如果开通了 Zenodo，它会自动存档并分配 DOI。
-- **v2.0.0**：按上一条发布（标签 `v2.0.0`，说明取自 `CHANGELOG.md` 的 2.0.0 一节）。
+- **v2.0.0**：已于 2026-11-03 发布（标签 `v2.0.0` → 5c0ed59，说明取自 `CHANGELOG.md` 的 2.0.0 一节）。发布页面上目前标为 pre-release，所以仓库首页的 "Latest" 仍显示 v1.0.0；要改为正式版，在 Release 的编辑页取消 "Set as a pre-release"，并勾选 "Set as the latest release"。安装地址不受影响。
 - **不要提交 API key**。`.gitignore` 已忽略 `__pycache__/`。
 
 ## 11. 交接检查清单
 
-- [ ] 克隆仓库；确认 Python 3.9+；`python3 -m pip install -e .` 后 `novelty-probe --version` 显示 2.0.0
-- [ ] 设置 `OPENALEX_API_KEY`（可选 `S2_API_KEY`）
-- [ ] `python3 -m unittest discover -s tests -v` 全部通过
-- [ ] `novelty-probe config check` 显示检查通过
-- [ ] `novelty-probe search --dry-run` 显示 `6/6 queries valid`
-- [ ] 冒烟测试通过，并删除临时项目目录
-- [ ] 在 ZCode 中让 GLM 读完 `AGENTS.md`、`PROJECT.md`、`HOWTO.md`、`HANDOFF.md`，并复述三条硬规则
+- [ ] 按第 3 节建虚拟环境、升级 pip 与 setuptools，从克隆安装；`novelty-probe --version` 显示 2.0.0
+- [ ] 设置 `OPENALEX_API_KEY`（可选 `S2_API_KEY`），重开 ZCode 后用 3.6 的命令核对（只看是否已设置）
+- [ ] `python -m unittest discover -s tests -v` 显示 `OK (skipped=6)`
+- [ ] 3.9 的不联网冒烟测试通过，并删除临时目录
+- [ ] 在 ZCode 中让 GLM 读完 `AGENTS.md`、`PROJECT.md`、`HOWTO.md`、`HANDOFF.md`，并复述三条硬规则（第 4 节的第一条消息）
 - [ ] 开始新想法时，用 `novelty-probe init` 在仓库之外新建项目目录（`HOWTO.md` 第 1 节），不要动仓库里的示例产出

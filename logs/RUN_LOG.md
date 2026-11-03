@@ -4295,3 +4295,49 @@ git archive --worktree-attributes --format=zip <工作区快照>                
 - 修改：`novelty_probe/templates/`（AGENTS.md、HOWTO.md、gitignore.txt）、`tests/fixtures/cassettes/`（4 个录制件去掉邮箱）
 - 修改：`AGENTS.md`、`HOWTO.md`、`README.md`、`HANDOFF.md`、`CHANGELOG.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`
 - 新增：`tests/test_privacy.py`
+
+---
+
+## [2026-11-03 17:51 UTC] Step 92 — v2.0.0 发布后的决定；交接材料改为 v2.0.0 的本地安装与配置指南
+
+**研究者的决定**（概括）：
+- 保留仓库里已有的第三方数据，不改写提交历史；仓库不改名。
+- v2.0.0 已由研究者在 GitHub 上发布：标签 `v2.0.0` 指向 5c0ed59，发布页面上标为 pre-release。
+- 暂不运行任何真实想法。
+- 更新交接材料，让研究者本地 ZCode 里的 GLM 能顺利安装与配置 v2.0.0。
+
+**安装方式的实测**（本沙箱，不联网检索）：
+- **发布的压缩包**（`…/archive/refs/tags/v2.0.0.zip`，约 0.3 MB）：
+  - 只含工具本身，`export-ignore` 生效；
+  - 在 Python 3.9 的虚拟环境（setuptools 80.9）里安装成功，`novelty-probe --version` 显示 2.0.0；
+  - 用旧版 setuptools（68）加 `--no-build-isolation` 安装会失败，报 `` `project.license` must be valid exactly by one definition ``：v2.0.0 的打包元数据需要 setuptools 77 或更新的版本。
+- **从标签 v2.0.0 的克隆做可编辑安装**（`pip install -e .`）：成功；克隆里的离线自检通过（OK，6 项跳过）。pip 提示虚拟环境的 `bin` 不在 PATH 里，需要激活，或改用 `python -m novelty_probe`。
+- **不安装**：在解压目录里 `python3 -m novelty_probe --version` 正常；从其他目录用 `python3 <解压目录>/scripts/init.py`、`scripts/run.py --dry-run` 正常。
+- **不联网的冒烟测试**：用 `HANDOFF.md` 3.9 里手写的样例检索式，按文档跑了 config check、`search --dry-run --log`、`run --dry-run`，输出与运行日志（Step 0、Step 1）都与文档一致。
+
+**做了什么**：
+- `HANDOFF.md` 第 3–4 节改写为 v2.0.0 的本地安装与配置指南：
+  - 三种安装方式（克隆、压缩包、不安装）；
+  - 虚拟环境，并升级 pip 与 setuptools；
+  - PyPI 连不上时的镜像地址；
+  - 只核对 API key 是否已设置、不显示其值；
+  - 离线自检与不联网的冒烟测试；
+  - 可选的联网接口检查；
+  - 安装常见问题表；
+  - 给 ZCode 里 GLM 的第一条消息（只安装与检查，不检索）。
+- `HANDOFF.md` 其余各节：当前状态、下一个 Step 编号、设计决策、已知问题、发布与交接检查清单。
+- `docs/ROADMAP.md`：阶段 5 记为已合并（#8）、v2.0.0 已发布；记下研究者的决定；说明按既定计划没有阶段 6，并列出可考虑的方向。
+- `README.md`：Quick start 指向 `HANDOFF.md` 第 3–4 节。
+- `CHANGELOG.md`：新增 Unreleased 一节（只改文档）。
+
+**命令与结果**
+
+```bash
+curl -sSL -o v2.0.0.zip https://github.com/PadSama/novelty-probe-demo/archive/refs/tags/v2.0.0.zip   # 200，307 512 字节；只含工具
+<Python 3.9 虚拟环境> -m pip install --no-build-isolation --no-index v2.0.0.zip     # 成功（setuptools 80.9）
+<Python 3.13 虚拟环境，setuptools 68> -m pip install --no-build-isolation --no-index v2.0.0.zip   # 失败：project.license（需要 setuptools ≥ 77）
+git clone --branch v2.0.0 <本仓库> clone && pip install -e . && python -m unittest discover -s tests   # 成功；OK (skipped=6)
+python3 <解压目录>/scripts/init.py proj && python3 <解压目录>/scripts/run.py --root proj --dry-run      # 不安装也可用
+```
+
+**产出文件**：`HANDOFF.md`、`docs/ROADMAP.md`、`README.md`、`CHANGELOG.md`（修改）
