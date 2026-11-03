@@ -74,7 +74,7 @@ def _row_line(cells):
 
 
 def norm_doi(doi):
-    """比较用的 DOI：小写；去掉解析器前缀、URL 查询串与落地页后缀（与 scripts/textmatch.py 的 norm_doi 相同）。"""
+    """比较用的 DOI：小写；去掉解析器前缀、URL 查询串与落地页后缀（与 novelty_probe/text.py 的 norm_doi 相同）。"""
     if not doi:
         return None
     d = re.sub(r"^(?:https?://(?:dx\.)?doi\.org/|doi:)", "", doi.strip().lower())

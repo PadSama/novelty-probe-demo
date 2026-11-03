@@ -6,14 +6,16 @@ authors:
   - family-names: "Yuan"
     given-names: "Quan"
     orcid: "https://orcid.org/0009-0009-3011-3739"
-version: "1.0.0"
-date-released: 2026-11-01
+version: "2.0.0"
+date-released: 2026-11-03
 repository-code: "https://github.com/PadSama/novelty-probe-demo"
 abstract: >-
-  A tutorial workflow that breaks a research idea into facets, builds Boolean
-  queries, searches OpenAlex and Semantic Scholar, merges and deduplicates the
-  results, maps the top candidates to each facet of the idea, and verifies
-  DOIs against Crossref. It collects evidence and does not judge novelty.
+  An installable command-line workflow (novelty-probe) that breaks a research
+  idea into facets, builds Boolean queries, searches OpenAlex and Semantic
+  Scholar, merges and deduplicates the results with traceable rules, writes RIS,
+  a run manifest and a PRISMA-S style search report, maps the top candidates to
+  each facet of the idea, and verifies DOIs against Crossref. Every step is
+  logged. It collects evidence and does not judge novelty.
 keywords:
   - literature search
   - research workflow

@@ -1,4 +1,4 @@
-"""DOI 核验的结构化结果与展示文字（scripts/verify.py 产生结果，这里按界面语言生成 verified 列的文字）。
+"""DOI 核验的结构化结果与展示文字（verify 命令产生结果，这里按界面语言生成 verified 列的文字）。
 
 结果的形状（写进证据 JSON 的 rows[].verification）：
   {"doi": "10.…", "checked_at": "…",

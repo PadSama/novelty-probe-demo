@@ -1,6 +1,8 @@
 # 离线测试：Python 3.9–3.13 × Ubuntu / Windows / macOS。
 # 测试不联网（tests/netguard.py 拦截一切非本机连接）；联网的接口契约检查（tests/test_live_contract.py）
 # 只在本地设置 NP_LIVE=1 时运行，这里不跑。
+# 测试之后安装本包（pip install .），在仓库之外新建一个项目，用安装后的 novelty-probe 命令走一遍不联网的步骤；
+# Windows 上另用 PowerShell 跑 HOWTO 里的 PowerShell 写法。
 name: tests
 
 on:
@@ -29,9 +31,34 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Offline tests
         run: python -m unittest discover -s tests -v
-      - name: Query syntax check of the example queries (dry run, no network)
+      - name: Query syntax check of the example queries (old entry point, dry run, no network)
         run: python scripts/search.py --dry-run --queries examples/tutorial/queries/queries.json
       - name: Evidence checks on the example tables
         run: |
           python scripts/evidence.py check examples/tutorial/evidence/evidence_table.md --results examples/tutorial/results/merged/merged.json --enrichment
           python scripts/evidence.py check examples/tutorial/evidence/evidence_table_v2.md --results examples/tutorial/results/merged/merged_v2.json --enrichment
+      - name: Install the package; new project outside the repository (bash)
+        shell: bash
+        run: |
+          python -m pip install .
+          novelty-probe --version
+          P="$RUNNER_TEMP/np-project"
+          novelty-probe init "$P"
+          novelty-probe config check --root "$P"
+          python -c "import shutil, sys; shutil.copy(sys.argv[1], sys.argv[2])" examples/tutorial/queries/queries.json "$P/queries/queries.json"
+          novelty-probe search --dry-run --root "$P" --log "T3 check the queries"
+          novelty-probe run --dry-run --root "$P"
+          python -c "import pathlib, sys; t = (pathlib.Path(sys.argv[1]) / 'logs' / 'RUN_LOG.md').read_text(encoding='utf-8'); sys.exit(0 if 'Step 1 — T3 check the queries' in t else 1)" "$P"
+      - name: PowerShell commands from HOWTO (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $env:NP_LANG = "en"
+          novelty-probe init "$env:RUNNER_TEMP\np-ps"
+          Set-Location "$env:RUNNER_TEMP\np-ps"
+          Copy-Item "$env:GITHUB_WORKSPACE\examples\tutorial\queries\queries.json" queries\queries.json
+          novelty-probe search --dry-run --log "T3 check the queries"
+          novelty-probe run --dry-run
+          novelty-probe snowball --help
+          if (-not (Select-String -Path logs\RUN_LOG.md -Pattern "Step 1 — T3 check the queries" -Quiet)) { exit 1 }

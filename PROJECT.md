@@ -23,11 +23,8 @@
 | `facets/` | 想法拆解出的检索维度 |
 | `queries/` | 检索式 |
 | `results/raw/` | 各数据源的原始检索结果 |
-| `results/merged/` | 去重合并后的结果 |
-| `evidence/` | 按维度整理的证据条目 |
+| `results/merged/` | 去重合并后的结果、候选表与 RIS、运行清单与检索报告 |
+| `evidence/` | 按维度整理的证据条目、补到的摘要、差异陈述 |
 | `logs/` | 运行日志（`RUN_LOG.md`） |
-| `scripts/` | 流程脚本：检索、质量检查、合并去重、查作者、补摘要、DOI 核验、引文追踪、结果比较、运行并记日志 |
-| `tests/` | 离线自检 |
-| `docs/` | 改进计划与评估（`IMPROVEMENT_PLAN.md`） |
 
-其他文档：`README.md`（英文介绍）、`HOWTO.md`（操作步骤，中英双语）、`HANDOFF.md`（交接：现状、数据约定、已知问题）、`AGENTS.md`（给 AI 编程助手的说明）。
+其他文件：`HOWTO.md`（操作步骤，中英双语）、`AGENTS.md`（给 AI 编程助手的说明）、`novelty-probe.json`（项目配置）。检索、合并、核验等步骤用 `novelty-probe` 命令完成，安装与用法见 `HOWTO.md`。
