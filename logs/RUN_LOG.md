@@ -4117,3 +4117,26 @@ v1、v2、v1b、v2b 中最大的合并组都是 2 个标识符分组（上限 6 
 - 新增：`novelty_probe/record.py`、`novelty_probe/dedupe.py`、`novelty_probe/rank.py`、`novelty_probe/export.py`、`novelty_probe/report.py`、`scripts/export.py`、`scripts/report.py`、`tests/test_records.py`
 - 修改：`novelty_probe/sources/`（common、base、openalex、semanticscholar、crossref）、`novelty_probe/text.py`、`novelty_probe/evidence.py`、`novelty_probe/schemas.py`、`novelty_probe/config.py`、`novelty_probe/i18n.py`、`scripts/merge.py`、`scripts/authors.py`、`scripts/qa.py`、`scripts/snowball.py`、`tests/`（test_offline、test_replay、test_evidence、test_live_contract；录制件 search_q3q4、search_crossref、snowball_onehop、snowball_cocite）、`.gitattributes`
 - 文档：`HOWTO.md`、`HANDOFF.md`、`AGENTS.md`、`README.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`
+
+---
+
+## [2026-11-03 15:38 UTC] Step 88 — 阶段 5 开始：研究者的决定与任务分解
+
+**研究者的要求**（原话）："I agree with the One command for all scripted steps. I decide name the release version v2.0.0, cause it's not only a tutorial demo now, I wanna make this project capable of some real use and this version will be a good start. No need for publishing PyPI. You can start Phase 5 now."
+
+**决定**：加一条命令跑完全部脚本步骤；发布版本号定为 v2.0.0（建议是 v1.1.0，研究者改定）；不发布到 PyPI。v2.0.0 的定位写入 `docs/ROADMAP.md` 第 1 节：不只是教程演示，要能用于实际研究。
+
+**做了什么**：
+- 阶段 4 的 PR（#7）已合并，工作分支 `claude/vigilant-faraday-odzwe4` 从最新的 `main` 重新开始。
+- 更新 `docs/ROADMAP.md`：阶段 4 记为已合并（#7），任务表移到附录；阶段 5 按上述定位分解为 5.1–5.8：
+  - 包与统一命令（`novelty-probe <命令>`，`--log` 写日志）；
+  - 脚本变薄壳；
+  - 新建项目（`novelty-probe init`）；
+  - 一条命令跑完脚本步骤（`novelty-probe run`）；
+  - Windows 写法；
+  - 测试与 CI；
+  - 文档；
+  - 发布 v2.0.0。
+- 待决策新增一项（附建议）：仓库是否改名为 `novelty-probe`。建议改，由研究者在 Settings 中操作，不影响其他任务。
+
+**产出文件**：`docs/ROADMAP.md`（修改）
