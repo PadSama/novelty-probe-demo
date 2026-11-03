@@ -94,7 +94,7 @@ python3 -m unittest discover -s tests -v
 
 应显示 `OK (skipped=6)`，用时二十秒左右，不联网，也不改动仓库文件（6 项跳过的是联网接口检查，见 3.6）。测试件读 `examples/tutorial/` 下的教程产出副本，其中一项按旧方法（`merge --legacy`）重跑合并，再和已提交的 v1、v2 合并结果逐字节比较；回放测试用 `tests/fixtures/cassettes/` 里录制的真实响应跑完 search / verify / snowball 的主流程，并在临时项目里从头跑一遍 `novelty-probe init` 与 `novelty-probe run`。全部通过，说明本机的 Python 和工具逻辑与原环境一致。
 
-测试里装有网络护栏（`tests/netguard.py`）：除本机回环地址外，任何 DNS 查询或连接都会直接报错，子进程同样如此。GitHub Actions（`.github/workflows/tests.yml`）在 Python 3.9–3.13 × Ubuntu / Windows / macOS 上跑同一套离线测试，再 `pip install .`，在仓库之外新建项目，用安装后的命令走一遍不联网的步骤（Windows 上另用 PowerShell 跑 HOWTO 里的写法）。
+测试里装有网络护栏（`tests/netguard.py`）：除本机回环地址外，任何 DNS 查询或连接都会直接报错，子进程同样如此。GitHub Actions（`.github/workflows/tests.yml`）在 Python 3.9–3.13 × Ubuntu / Windows 上跑同一套离线测试（2026-11-03 起不再测试 macOS：研究者决定，macOS 节点排队常卡住、额度消耗快；同一分支有新推送时取消旧的一轮），再 `pip install .`，在仓库之外新建项目，用安装后的命令走一遍不联网的步骤（Windows 上另用 PowerShell 跑 HOWTO 里的写法）。
 
 ### 3.6 联网冒烟测试（可选，只发 2 个检索请求，在仓库之外的临时项目里做）
 
@@ -405,7 +405,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 | 界面文案用消息表（`novelty_probe/i18n.py`），不用 gettext；数据文件只存结构化结果，展示时按语言生成 | 约百条消息，不值得 .po/.mo 的编译流程；同一份数据可以生成两种语言 | Step 69 |
 | 证据表以 JSON 为数据源，Markdown 由它生成；保留 Markdown 入口（`import-md`）；手工改过的 Markdown 不覆盖 | 研究者决定（决策点 1）；结构化核验结果与机器检查放不进 Markdown | Step 69 |
 | 单元测试全部禁网；联网接口检查只在 NP_LIVE=1 时运行（6 个请求） | 研究者决定（决策点 3） | Step 69、72 |
-| GitHub Actions：Python 3.9–3.13 × Ubuntu / Windows / macOS，只跑离线测试 | 研究者决定（决策点 4）；Windows 与 macOS 在云端测不了 | Step 69 |
+| GitHub Actions：Python 3.9–3.13 × Ubuntu / Windows，只跑离线测试与安装后的命令；~~macOS~~ 2026-11-03 起不再测试 | 研究者决定（决策点 4）；Windows 在云端测不了。macOS：节点排队常卡住、额度消耗快（研究者决定） | Step 69；Step 91 |
 | User-Agent 默认是通用的客户端名，不带邮箱 | 助手不代填个人信息；研究者可以在配置里自己填 `contact_email` | Step 69 |
 | `contact_email` 留空；教程的两张证据表保持 Markdown；进入阶段 3 | 研究者决定 | Step 73 |
 | 保留受限的检索式语法（AND 连接 OR 组，尾部 NOT），解析一次成语法树，各数据源从同一棵树序列化 | 本地重排、`n_conform`、qa.py 都依赖这个形状；任意嵌套只会扩大出错面 | Step 66、80 |
@@ -423,6 +423,8 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 | 仓库根目录的 `PROJECT.md`、`AGENTS.md`、`HOWTO.md` 与新项目的模板相同（测试保证） | 教程示例与新项目遵守同一套规则；改一处时测试提醒同步另一处 | Step 90 |
 | 运行日志的 Step 编号由命令自动接着编（`run`、`--log`、`logrun`）；日志里的命令记成 `novelty-probe …`，不写本机的解释器路径 | 编号格式与手写条目一致，减少手工；本机路径可能含用户名 | Step 90 |
 | 安装后的包找不到项目目录时报错，不落到安装位置；HTTP 缓存默认放在项目目录 | 不往 site-packages 里写结果与缓存 | Step 90 |
+| 隐私：录制件在录制时去掉响应里的电子邮件地址；运行日志把用户目录记成 `~`；运行日志概括研究者的决定，不逐字引用对话原文；测试检查仓库里没有电子邮件地址 | 仓库公开，研究者要求发布前检查隐私 | Step 91 |
+| 数据条款：检索报告列出各数据源的条款与署名（Semantic Scholar 按其许可协议要求链接回去）；README 说明仓库里第三方数据的来源、条款与撤除渠道；`init` 的 `.gitignore` 说明公开项目时如何不提交第三方数据 | Semantic Scholar 的 API 许可协议要求公开使用时署名并链接回去，并限制把数据转给第三方；摘要的版权属于出版方或作者 | Step 91 |
 
 ## 9. 已知问题与可改进处
 
@@ -442,6 +444,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 10a. **OpenAlex 对未加引号的连字符词**：示例检索式里没有这种写法，OpenAlex 怎样解析未经实测；dry-run 会提示加引号，分组核对若发现 OpenAlex 拆开了它，会报错不保存。
 11. **待研究者确认**：v2 证据表 rank 8 的"研究问题"面按研究者标准改为 overlap 是助手的推断（Step 25）；v1b、v2b 没有证据表，是否以它们替代 v1、v2 由研究者决定。
 12. **Python 3.9 已过官方支持期**（2025-10）：本工具仍支持并在 CI 中测试 3.9；以后若要用 3.10 才有的写法，再一并停用 3.9。
+12a. **仓库里的第三方数据**（待研究者决定，见 `docs/ROADMAP.md` 待决策）：`results/`、`examples/tutorial/results/`、`evidence/enrichment*.json` 与 `tests/fixtures/cassettes/` 里有 Semantic Scholar 的数据与各来源的摘要。Semantic Scholar 的 API 许可协议限制把数据转给第三方，摘要的版权属于出版方或作者；现在的做法是署名、说明条款并提供撤除渠道（Step 91）。从当前版本移除、改用合成数据，要重做教程示例与部分测试；历史提交里仍有这些数据（改写历史违反仓库规则）。
 13. **仓库名**：仓库仍叫 `novelty-probe-demo`；是否改名为 `novelty-probe` 由研究者决定（`docs/ROADMAP.md` 待决策）。改名后要同步 README、HOWTO 的安装地址、`CITATION.cff` 与 User-Agent 里的地址。
 
 ## 10. Git 与发布
@@ -449,7 +452,7 @@ records  rank, merged_id, title, needs, versions[], abstract, abstract_source, a
 - **工作流**：在新分支上修改 → 推送 → 开 PR → 合并 → 删除分支。建议在仓库 Settings 里开启 "Automatically delete head branches"。
 - **`main` 规则集**：禁止删除、禁止强推、必须走 PR（审批人数 0，bypass 为空）。
 - **提交约定**：提交信息不放会话链接或个人信息；作者邮箱用 GitHub 的 noreply 地址。
-- **发布新版本**：版本号只写在两处，`novelty_probe/__init__.py` 的 `__version__`（`pyproject.toml` 由它取）与 `CITATION.cff` 的 `version`（测试检查两者一致）；同时改 `date-released` 与 `CHANGELOG.md`。PR 合并后在 GitHub 上 Releases → Draft a new release：新建标签 `v<版本>`（目标 `main`），标题 `novelty-probe v<版本>`，说明取自 `CHANGELOG.md` 的对应一节，Publish。HOWTO 与 README 里的安装地址 `…/archive/refs/tags/v<版本>.zip` 在标签建好后才可用。发布日期与 `date-released` 不同时，随后改一下 `CITATION.cff`。如果开通了 Zenodo，它会自动存档并分配 DOI。
+- **发布新版本**：版本号只写在两处，`novelty_probe/__init__.py` 的 `__version__`（`pyproject.toml` 由它取）与 `CITATION.cff` 的 `version`（测试检查两者一致）；同时改 `date-released` 与 `CHANGELOG.md`。PR 合并后在 GitHub 上 Releases → Draft a new release：新建标签 `v<版本>`（目标 `main`），标题 `novelty-probe v<版本>`，说明取自 `CHANGELOG.md` 的对应一节，Publish。HOWTO 与 README 里的安装地址 `…/archive/refs/tags/v<版本>.zip` 在标签建好后才可用。压缩包只含工具本身：教程示例的数据（含第三方数据与摘要）、测试件与运行日志在 `.gitattributes` 里标为 `export-ignore`，不打进 Release 与 Download ZIP（仍在仓库里）。发布日期与 `date-released` 不同时，随后改一下 `CITATION.cff`。如果开通了 Zenodo，它会自动存档并分配 DOI。
 - **v2.0.0**：按上一条发布（标签 `v2.0.0`，说明取自 `CHANGELOG.md` 的 2.0.0 一节）。
 - **不要提交 API key**。`.gitignore` 已忽略 `__pycache__/`。
 

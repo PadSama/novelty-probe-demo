@@ -206,3 +206,11 @@ tests/                         test_*.py：纯函数、假传输层、录制件�
 - 在 Python 3.9 的虚拟环境里离线安装（`pip install --no-build-isolation .`）后，`novelty-probe` 在仓库之外新建项目、检查配置、检查检索式（`--log`）、`run --dry-run` 都可用，模板随包安装；
 - `novelty-probe run` 用录制的响应在临时项目里走通全部步骤（`tests/test_cli.py`）；
 - 离线测试在本地 Python 3.9 与 3.13 各 166 项通过。
+
+阶段 5 的 PR 审阅期间（研究者决定，Step 91）：
+
+- **CI 不再测试 macOS**：macOS 节点排队常卡住、额度消耗快；矩阵改为 3.9–3.13 × Ubuntu / Windows，同一分支有新推送时取消旧的一轮。代码只用标准库，macOS 与 Linux 共用 POSIX 的行为。
+- **发布前的隐私与法律风险检查**：
+  - 隐私：录制件去掉作者邮箱，录制时自动去掉；运行日志把用户目录记成 `~`；日志概括研究者的决定，不逐字引用对话原文。仓库与历史里没有密钥、研究者的邮箱或会话链接。
+  - 数据条款：检索报告与 README 写明各数据源的条款与署名，Semantic Scholar 的许可协议要求链接回去；README 给出撤除渠道。
+  - 仓库里已有的第三方数据是否移除，待研究者决定（`docs/ROADMAP.md` 待决策）。

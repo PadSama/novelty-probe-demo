@@ -121,7 +121,7 @@ Help, error messages, the verified column and the run log are in Chinese by defa
 
 ## Tests
 
-The offline self-test in this repository checks the commands without network access, using local mock servers and recorded real responses, and runs `novelty-probe run` end to end from recordings. A guard makes any attempt to reach the network fail the test, in child processes too. The suite re-runs the merge with `--legacy` on the committed raw results and confirms that the output matches the committed files byte for byte. GitHub Actions runs it on Python 3.9–3.13 on Ubuntu, Windows and macOS, then installs the package and drives a new project with the installed command (in PowerShell too on Windows).
+The offline self-test in this repository checks the commands without network access, using local mock servers and recorded real responses, and runs `novelty-probe run` end to end from recordings. A guard makes any attempt to reach the network fail the test, in child processes too. The suite re-runs the merge with `--legacy` on the committed raw results and confirms that the output matches the committed files byte for byte. GitHub Actions runs it on Python 3.9–3.13 on Ubuntu and Windows (macOS is not tested in CI), then installs the package and drives a new project with the installed command (in PowerShell too on Windows).
 
 ```bash
 python3 -m unittest discover -s tests -v
@@ -175,9 +175,21 @@ Every decision, command and output is in `logs/RUN_LOG.md`, including mistakes a
 - New: `novelty-probe init` (project folders outside this repository), `novelty-probe run` (all scripted steps), `--log` on every command, automatic Step numbers in the run log.
 - Outputs and data formats are unchanged; see [`CHANGELOG.md`](CHANGELOG.md).
 
+## Data sources, terms and takedown
+
+The search results, abstracts and recorded API responses in `results/`, `examples/`, `evidence/` and `tests/fixtures/` were retrieved from:
+
+- [OpenAlex](https://openalex.org): metadata released under CC0.
+- [Semantic Scholar](https://www.semanticscholar.org/?utm_source=api): data from the Semantic Scholar API, used under its license agreement for non-commercial research and education.
+- [Crossref](https://www.crossref.org): metadata are facts and not subject to copyright.
+
+They are included only to make the worked example and the tests reproducible. Abstracts remain the copyright of their publishers or authors, and neither the MIT License nor this repository grants any rights to them. Author email addresses have been removed from the recorded responses. If you hold rights in any of this material and want it removed, please open an issue in this repository. Release archives (and GitHub's Download ZIP) contain only the tool: the worked example's data, the test fixtures and the run log are excluded through `.gitattributes`.
+
+The same terms apply to the results of your own projects: keep raw results private unless the sources' terms allow publishing them, and credit the sources when you publish anything derived from them. The search report written by `novelty-probe merge` lists the sources and their terms for you, and the `.gitignore` written by `novelty-probe init` shows how to keep third-party data out of a public repository.
+
 ## License
 
-The code and documentation in this repository are released under the [MIT License](LICENSE). The search results in `results/` and `evidence/` include metadata and abstracts retrieved from OpenAlex and Semantic Scholar. Those abstracts remain under the copyright of their publishers or authors, and this license does not cover them.
+The code and documentation in this repository are released under the [MIT License](LICENSE). The license does not cover the third-party data described above, and in particular not the abstracts, which remain under the copyright of their publishers or authors.
 
 ## How to cite
 

@@ -26,6 +26,8 @@ class Source:
     label = ""
     interface = ""
     ranking = ("", "")
+    # 检索报告"数据来源与条款"一节的写法（中文, 英文）：数据的许可与公开使用时的署名要求
+    attribution = ("", "")
 
     def serialize(self, query, truncation):
         """语法树 → 发给数据源的检索串（不合要求时抛 QueryError，错误码 Q2xx）。"""

@@ -9,6 +9,7 @@
 日志写到该目录的 logs/RUN_LOG.md；命令在该目录下运行，并通过 NOVELTY_PROBE_ROOT 告诉子进程同一个根目录。
 输出照常实时打印到终端；退出码与被运行的命令相同。
 标题不以 "Step <编号>" 开头时，自动接着日志里最大的 Step 编号加上 "Step N — "（与手写条目的格式一致）。
+写进日志的命令与输出里，用户目录（其中常含用户名）记成 ~；终端上照常显示原样。
 """
 import json
 import os
@@ -46,6 +47,17 @@ def numbered(title, log):
     return title if TITLE_STEP_RE.match(title) else f"Step {next_step(log)} — {title}"
 
 
+def mask_home(text):
+    """日志可能随论文公开：把用户目录（如 /Users/alice、C:\\Users\\alice）换成 ~。
+    只替换完整的目录名（/home/alice2 不算），Windows 上不分大小写。"""
+    home = Path.home()
+    flags = re.IGNORECASE if os.name == "nt" else 0
+    for h in sorted({str(home), home.as_posix()}, key=len, reverse=True):
+        if len(h) > 1:
+            text = re.sub(re.escape(h) + r"(?![A-Za-z0-9_.-])", "~", text, flags=flags)
+    return text
+
+
 def command_line(cmd):
     """日志里的命令：POSIX 系统按 shell 引用规则，Windows 按 cmd 规则；两者都附上原始参数列表（JSON），便于在另一系统上复现。"""
     quoted = subprocess.list2cmdline(cmd) if os.name == "nt" else shlex.join(cmd)
@@ -80,8 +92,8 @@ def run_logged(title, cmd, root, display=None, echo=True):
     else:
         head, out = "**命令**", f"**输出**（退出码 {code}）"
     with log.open("a", encoding="utf-8", newline="\n") as f:  # 换行固定为 \n
-        f.write(f"\n---\n\n## [{started}] {title}\n\n{head}\n\n```bash\n{command_line(display or cmd)}\n```\n\n"
-                f"{out}\n\n```\n{''.join(lines).rstrip()}\n```\n")
+        f.write(f"\n---\n\n## [{started}] {title}\n\n{head}\n\n```bash\n{mask_home(command_line(display or cmd))}\n```\n\n"
+                f"{out}\n\n```\n{mask_home(''.join(lines).rstrip())}\n```\n")
     return code, title
 
 

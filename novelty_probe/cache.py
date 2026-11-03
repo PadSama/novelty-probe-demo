@@ -15,6 +15,7 @@
 import base64
 import hashlib
 import json
+import re
 import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
@@ -22,6 +23,30 @@ from pathlib import Path
 
 ENTRY_VERSION = 1
 SECRET_PARAMS = {"api_key", "mailto", "key", "token_secret"}
+# 录制件会公开在仓库里：响应正文里的电子邮件地址（作者单位字符串里常带通讯作者的邮箱）在录制时替换掉
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+EMAIL_PLACEHOLDER = "[email removed]"
+
+
+def redact_emails(text):
+    """正文是 JSON 时只改各字符串值里的地址（直接替换原文会切坏 \\u00a0 这类转义），否则直接替换。"""
+    if not isinstance(text, str) or "@" not in text:
+        return text
+    try:
+        obj = json.loads(text)
+    except ValueError:
+        return EMAIL_RE.sub(EMAIL_PLACEHOLDER, text)
+
+    def walk(o):
+        if isinstance(o, str):
+            return EMAIL_RE.sub(EMAIL_PLACEHOLDER, o)
+        if isinstance(o, list):
+            return [walk(x) for x in o]
+        if isinstance(o, dict):
+            return {k: walk(v) for k, v in o.items()}
+        return o
+    clean = walk(obj)
+    return text if clean == obj else json.dumps(clean, ensure_ascii=False)
 HEADER_ALLOWLIST = ("content-type", "content-length", "date", "vary", "retry-after", "location",
                     "x-api-pool", "x-amzn-errortype")
 HEADER_PREFIXES = ("x-ratelimit-", "x-rate-limit-", "x-concurrency-")
@@ -161,6 +186,9 @@ class Cassette:
         return best
 
     def record(self, entry):
+        resp = entry.get("response") or {}
+        if isinstance(resp.get("body"), str):
+            entry = {**entry, "response": {**resp, "body": redact_emails(resp["body"])}}
         self.interactions.append(entry)
         self._queues.setdefault(entry["key"], []).append(entry)
         self.save()
@@ -168,7 +196,8 @@ class Cassette:
     def save(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         data = {"version": ENTRY_VERSION, "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                "redactions": sorted(SECRET_PARAMS), "interactions": self.interactions}
+                "redactions": sorted(SECRET_PARAMS), "redacted_in_bodies": ["email addresses"],
+                "interactions": self.interactions}
         tmp = self.path.with_suffix(".json.tmp")
         with tmp.open("w", encoding="utf-8", newline="\n") as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=1))

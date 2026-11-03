@@ -49,6 +49,11 @@ class SemanticScholar(Source):
     label = "Semantic Scholar"
     interface = "GET https://api.semanticscholar.org/graph/v1/paper/search/bulk"
     ranking = ("本地重排：满足的组数 → BM25 → 被引次数", "local: include groups matched → BM25 → citations")
+    attribution = ("Semantic Scholar（https://www.semanticscholar.org/?utm_source=api）：数据来自 Semantic Scholar API，"
+                   "按其许可协议用于非商业的研究与教育；公开使用时须注明 Semantic Scholar 并链接回它。",
+                   "Semantic Scholar (https://www.semanticscholar.org/?utm_source=api): data from the Semantic Scholar API, "
+                   "used under its license agreement for non-commercial research and education; public use must credit "
+                   "Semantic Scholar and link back to it.")
     url = URL
 
     def serialize(self, query, truncation):

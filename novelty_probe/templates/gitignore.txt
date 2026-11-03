@@ -1,2 +1,10 @@
+# HTTP 缓存：原始的 API 响应，不进仓库 / HTTP cache: raw API responses, kept out of version control
 .cache/
 __pycache__/
+# 若把项目放到公开的仓库：results/ 与 evidence/enrichment*.json 里是从 OpenAlex、Semantic Scholar、Crossref 取得的
+# 数据（含摘要），按各数据源的条款不宜公开转载；取消下面两行的注释即可不提交它们（见 HOWTO.md 第 1 节）。
+# If this project goes into a public repository: results/ and evidence/enrichment*.json hold data from OpenAlex,
+# Semantic Scholar and Crossref (abstracts included) whose terms do not allow republishing them; uncomment the two
+# lines below to keep them out (see HOWTO.md section 1).
+# results/
+# evidence/enrichment*.json

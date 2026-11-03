@@ -110,6 +110,10 @@ $env:S2_API_KEY = "你的 key / your key"
 
 Use one project folder per idea. Your idea and the search results stay in this folder, under your control; keep it outside the tool repository (the command refuses to create a project inside it). If you keep the folder in git, make the repository private.
 
+**公开项目之前**：`results/`、`evidence/enrichment*.json` 与 `.cache/` 里是从 OpenAlex、Semantic Scholar、Crossref 取得的数据（含摘要）。摘要的版权属于出版方或作者；Semantic Scholar 的 API 许可协议只允许非商业的研究与教育用途，并限制把它的数据转给第三方，公开使用时须注明 Semantic Scholar 并链接回它（检索报告里已写好各来源的署名）。所以公开项目时，只放你自己的文件（想法、拆面、检索式、证据表、差异陈述、运行日志、检索报告），按 `.gitignore` 里的说明不提交第三方数据。运行日志里，你的用户目录记成 `~`，不会写进用户名。
+
+**Before you publish a project**: `results/`, `evidence/enrichment*.json` and `.cache/` hold data from OpenAlex, Semantic Scholar and Crossref, abstracts included. Abstracts remain the copyright of their publishers or authors; the Semantic Scholar API license allows only non-commercial research and educational use, restricts passing its data to third parties, and requires public uses to credit Semantic Scholar and link back to it (the search report already credits each source). So publish only your own files (idea, facets, queries, evidence table, difference statement, run log, search report), and follow the note in `.gitignore` to keep the third-party data out. In the run log, your home folder is written as `~`, so your user name does not appear.
+
 ```bash
 novelty-probe init my-idea
 ```

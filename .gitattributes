@@ -3,3 +3,16 @@
 *.png binary
 *.zip binary
 *.ris -text
+
+# 发布的压缩包（GitHub 的 Release 与 Download ZIP、git archive）只含工具本身：教程示例的数据、测试件与运行日志
+# 不打进压缩包。其中有从 OpenAlex、Semantic Scholar、Crossref 取得的数据与摘要（条款见 README），也有研究者的运行记录。
+# 这些文件仍在仓库里，可以浏览与克隆。
+/idea export-ignore
+/facets export-ignore
+/queries export-ignore
+/results export-ignore
+/evidence export-ignore
+/logs export-ignore
+/examples export-ignore
+/tests export-ignore
+/novelty-probe.json export-ignore

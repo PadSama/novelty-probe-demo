@@ -1,4 +1,4 @@
-# 离线测试：Python 3.9–3.13 × Ubuntu / Windows / macOS。
+# 离线测试：Python 3.9–3.13 × Ubuntu / Windows（不在 macOS 上测试：研究者决定，2026-11-03，macOS 节点排队常卡住、额度消耗快）。
 # 测试不联网（tests/netguard.py 拦截一切非本机连接）；联网的接口契约检查（tests/test_live_contract.py）
 # 只在本地设置 NP_LIVE=1 时运行，这里不跑。
 # 测试之后安装本包（pip install .），在仓库之外新建一个项目，用安装后的 novelty-probe 命令走一遍不联网的步骤；
@@ -14,6 +14,11 @@ on:
 permissions:
   contents: read
 
+# 同一分支或 PR 有新的推送时，取消还在运行的旧一轮，节省额度
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   offline:
     name: py${{ matrix.python }} · ${{ matrix.os }}
@@ -22,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v5

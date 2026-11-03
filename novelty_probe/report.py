@@ -165,6 +165,12 @@ def render_report(m, suffix=""):
                    "it; the share that local matching judged non-conforming: {x}. This bounds the false-negative rate of local "
                    "matching (Porter stemming as an approximation), which feeds BM25, n_conform and the evidence check.",
                    x=t("verify.sep").join(parts))]
+    credited = [REGISTRY[n] for n in sources if n in REGISTRY and REGISTRY[n].attribution[0]]
+    if credited:
+        out += ["", "## " + tr("数据来源与条款", "Data sources and terms"), ""]
+        out += ["- " + tr(*src.attribution) for src in credited]
+        out.append("- " + tr("摘要的版权属于出版方或作者；本报告不含摘要。",
+                             "Abstracts remain the copyright of their publishers or authors; this report contains none."))
     out += ["", "## " + tr("文件", "Files"), ""]
     out.append("- " + tr("检索结果：{n} 个文件（哈希见 run_manifest{s}.json 的 searches）",
                          "Search results: {n} files (hashes under searches in run_manifest{s}.json)", n=len(searches), s=suffix))

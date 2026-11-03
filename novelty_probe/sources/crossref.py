@@ -80,6 +80,8 @@ class Crossref(Source):
     label = "Crossref"
     interface = "GET https://api.crossref.org/works?query.bibliographic=…"
     ranking = ("词袋检索后本地按检索式筛选，本地重排", "bag of words, filtered and ranked locally")
+    attribution = ("Crossref（https://www.crossref.org）：元数据为事实信息，不受版权限制。",
+                   "Crossref (https://www.crossref.org): metadata are facts and not subject to copyright.")
     url = URL
     lossy = [
         "Crossref has no Boolean operators, phrase search, truncation or exclusion: all include terms are sent as one bag of words",

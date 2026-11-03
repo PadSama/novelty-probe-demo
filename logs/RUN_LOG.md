@@ -4231,3 +4231,67 @@ novelty-probe init "$RUNNER_TEMP/np-project" … novelty-probe run --dry-run --r
 - 新增：`pyproject.toml`、`CHANGELOG.md`、`novelty_probe/cli.py`、`novelty_probe/__main__.py`、`novelty_probe/commands/`（`__init__.py`、`init.py`、`run.py` 与移入的 13 个命令）、`novelty_probe/templates/`、`scripts/init.py`、`scripts/run.py`、`tests/test_cli.py`、`tests/fixtures/cassettes/enrich_q3q4.json`（Step 89）
 - 修改：`scripts/*.py`（改为转发入口）、`novelty_probe/`（paths、runtime、config、report、evidence、defaults、verification、`__init__` 的说明与版本号）、`tests/`（test_offline、test_core）、`.github/workflows/tests.yml`、`.gitignore`、`novelty-probe.json`（注释里的命令）、`CITATION.cff`
 - 文档：`PROJECT.md`、`AGENTS.md`、`HOWTO.md`、`README.md`、`HANDOFF.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`
+
+---
+
+## [2026-11-03 16:46 UTC] Step 91 — CI 不再测试 macOS；发布前的隐私与数据条款检查
+
+**研究者的决定**（概括）：CI 不再在 macOS 上运行（节点排队常卡住、额度消耗快）；发布 v2.0.0 前仔细检查隐私问题与法律风险。
+
+**CI**：矩阵改为 Python 3.9–3.13 × Ubuntu / Windows，共 10 个组合；同一分支有新的推送时取消旧的一轮。
+
+**检查的范围与结果**：
+
+- **密钥**：当前文件与全部提交历史里都没有 API key 或令牌，只有测试里的占位值。录制件只存请求的方法、地址与正文哈希，不存请求头；地址里的 `api_key`、`mailto` 在录制时已去掉。
+- **个人信息**：
+  - 仓库文件里没有研究者的邮箱、账号或会话链接。
+  - 录制件里有作者邮箱，出自出版方提供的作者单位字符串：4 个文件、11 个地址。
+  - 运行日志 Step 74–78、82–86、89 记有本沙箱临时目录的路径，其中含一个本地会话编号，不是登录凭据或会话链接。日志只追加，不改原条目；之后记录命令时不再写这类路径。
+- **第三方数据的条款**：
+  - OpenAlex：元数据以 CC0 发布；摘要只以倒排索引提供（出于版权原因），本工具还原为文本。
+  - Semantic Scholar 的 API 许可协议（api.semanticscholar.org/license）：
+    - 只用于非商业的研究与教育；
+    - 公开使用须链接回 Semantic Scholar（带 `utm_source=api`），并注明其名称与标志；
+    - 限制把数据转给第三方；
+    - 数据的定义包括摘要。
+  - Crossref：元数据是事实信息，不受版权限制；部分摘要的版权属于出版方或作者。
+  - 仓库里的分布：`results/`、`examples/tutorial/results/`、`evidence/enrichment*.json` 与 `tests/fixtures/cassettes/` 里有这些数据，约 9.4 MB，其中 Semantic Scholar 的结果文件 36 个、录制件 2 个。
+- **第三方代码**：Porter 词干还原是按 1980 年的算法独立实现的；测试用的对照表只含本项目用到的词，不含 Snowball 的词表文件。
+- **许可证与引用**：代码以 MIT 发布（版权人 Quan Yuan）；`CITATION.cff` 里的作者与 ORCID 是研究者本人公开的信息。
+
+**已做的处理**：
+
+1. **录制件**：去掉作者邮箱。录制时也会自动去掉响应正文里的邮箱；JSON 正文只改字符串值，转义字符不受影响。
+2. **运行日志**：
+   - 写进日志的命令与输出里，用户目录记成 `~`（只替换完整的目录名）。
+   - `AGENTS.md` 增加两条：不公开第三方数据；日志概括研究者的决定，不逐字引用对话原文，不写个人信息。
+3. **检索报告**：新增"数据来源与条款"一节，各来源的署名由数据源适配器提供；Semantic Scholar 一条带 `utm_source=api` 的链接。
+4. **文档**：
+   - README 新增 "Data sources, terms and takedown"：数据来源、条款与撤除渠道。
+   - HOWTO 第 1 节新增"公开项目之前"。
+   - `init` 写的 `.gitignore` 说明如何不提交第三方数据。
+5. **发布的压缩包只含工具**：教程示例的数据、测试件与运行日志在 `.gitattributes` 里标为 `export-ignore`，仍在仓库里。用工作区快照打包（约 0.3 MB）后，在 Python 3.9 虚拟环境里离线安装，`novelty-probe --version` 与 `init` 都正常。
+6. **测试**：新增 `tests/test_privacy.py`，检查：
+   - 录制件去掉邮箱；
+   - 仓库的数据、录制件与文档里没有邮件地址；
+   - 日志不写用户目录；
+   - 报告注明来源与条款；
+   - `.gitignore` 带有提示。
+
+**待研究者决定**：仓库里已有的第三方数据是否从当前版本移除。建议与理由见 `docs/ROADMAP.md` 第 6 节。
+
+**命令与结果**
+
+```bash
+curl -sSL https://api.semanticscholar.org/license          # 读许可协议原文（www.semanticscholar.org 不在本沙箱放行的域名内）
+python3 -W error::ResourceWarning -m unittest discover -s tests            # Python 3.13.18：171 项通过（6 项联网检查跳过）
+<Python 3.9.25> -W error::ResourceWarning -m unittest discover -s tests   # Python 3.9.25：171 项通过
+git archive --worktree-attributes --format=zip <工作区快照>                 # 只含工具；安装与 init 正常
+```
+
+**产出文件**：
+- 修改：`.github/workflows/tests.yml`、`.gitattributes`
+- 修改：`novelty_probe/cache.py`、`novelty_probe/commands/logrun.py`、`novelty_probe/report.py`、`novelty_probe/sources/`（base、openalex、semanticscholar、crossref）
+- 修改：`novelty_probe/templates/`（AGENTS.md、HOWTO.md、gitignore.txt）、`tests/fixtures/cassettes/`（4 个录制件去掉邮箱）
+- 修改：`AGENTS.md`、`HOWTO.md`、`README.md`、`HANDOFF.md`、`CHANGELOG.md`、`docs/ROADMAP.md`、`docs/ARCHITECTURE_REVIEW.md`
+- 新增：`tests/test_privacy.py`
