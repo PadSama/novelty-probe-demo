@@ -14,7 +14,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
-from novelty_probe.io import configure_console, load_json_lenient
+from novelty_probe import i18n, runtime
+from novelty_probe.i18n import t
+from novelty_probe.io import load_json_lenient
 
 import merge
 from search import parse_query
@@ -36,13 +38,16 @@ def check_file(path):
 
 
 def main():
-    configure_console()
+    i18n.prepare()
     ap = argparse.ArgumentParser(description="Check how many retrieved records satisfy the original Boolean query.")
-    ap.add_argument("--suffix", default="", help="只检查这个后缀的结果文件，如 _v2（默认无后缀，即 v1）")
+    ap.add_argument("--suffix", default="", help=t("arg.suffix_only"))
+    runtime.add_common_args(ap)
     args = ap.parse_args()
+    rt = runtime.init(args)
+    runtime.bind_root(vars(merge), rt.root, {"RAW_DIR": "results/raw", "OUT_DIR": "results/merged"})
     files = merge.raw_files(args.suffix)
     if not files:
-        sys.exit(f"results/raw/ 中没有后缀为 '{args.suffix}' 的结果文件")
+        sys.exit(t("qa.no_files", suffix=args.suffix))
     rows = [check_file(p) for p in files]
     print(f"{'file':<34} {'n':>4} {'abstract':>8} {'conform (all)':>14} {'conform (with abstract)':>24}")
     for r in rows:

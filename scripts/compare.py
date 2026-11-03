@@ -9,7 +9,8 @@ chase_*{suffix}.csv 与 results/raw 中的原检索式，输出：
   前 K 篇（K = 10 与 --top）：
     conform   按词干还原判断，至少满足一条检索式的篇数（排除组与 --ignore-phrases 中的短语所覆盖的位置不计）
     noise     只有把 --ignore-phrases 中的短语也算作匹配时才满足检索式的篇数（例如只因 "narrow AI" 命中 narrowing）
-    genai     标题或摘要含生成式 AI 关键词的篇数（默认取研究者确定的筛选词：LLM、ChatGPT、Gemini、Claude、OpenAI、
+    <标记词组> 标题或摘要含标记词的篇数。词组在配置 compare.marker_terms 中定义，用 --markers 选择，
+              默认 compare.default_markers（genai：研究者确定的筛选词 LLM、ChatGPT、Gemini、Claude、OpenAI、
               Anthropic，另加 generative AI、large language model、GPT）
     abstract  有摘要的篇数
     year      年份中位数；2015 年以前的篇数
@@ -28,15 +29,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
-from novelty_probe.io import configure_console, load_json_lenient, write_json
+from novelty_probe import config as np_config, i18n, runtime
+from novelty_probe.i18n import t
+from novelty_probe.io import load_json_lenient, write_json
 
 import merge
 from textmatch import Doc, norm_doi, query_match, term_in
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "results" / "merged"
-GENAI_TERMS = ["LLM", "LLMs", "ChatGPT", "GPT", "Gemini", "Claude", "OpenAI", "Anthropic", '"generative AI"',
-               '"generative artificial intelligence"', '"large language model"']
+GENAI_TERMS = list(np_config.DEFAULTS["compare"]["marker_terms"]["genai"])   # 默认标记词组（兼容旧名）
 
 
 def ranked_records(suffix):
@@ -72,15 +74,15 @@ def known_key(item):
     return ("doi", norm_doi(item))
 
 
-def topk_stats(recs, k, queries, ignore):
+def topk_stats(recs, k, queries, ignore, markers=None, marker_name="genai"):
     top = recs[:k]
     docs = [Doc(x["title"], x["abstract"]) for x in top]
-    exclude_terms = [t for _, exc in queries.values() for g in exc for t in g]
+    exclude_terms = [w for _, exc in queries.values() for g in exc for w in g]
     strict = [any(query_match(inc, d, exc, ignore + exclude_terms) for inc, exc in queries.values()) for d in docs]
     loose = [any(query_match(inc, d, exc) for inc, exc in queries.values()) for d in docs]
     years = [x["year"] for x in top if x.get("year")]
     return {"n": len(top), "conform": sum(strict), "noise": sum(l and not s for l, s in zip(loose, strict)),
-            "genai": sum(any(term_in(t, d) for t in GENAI_TERMS) for d in docs),
+            marker_name: sum(any(term_in(w, d) for w in (GENAI_TERMS if markers is None else markers)) for d in docs),
             "abstract": sum(bool(x["abstract"]) for x in top),
             "year_median": statistics.median(years) if years else None, "before_2015": sum(y < 2015 for y in years)}
 
@@ -102,14 +104,29 @@ def chase_ranks(suffix, expanded):
 
 
 def main():
-    configure_console()
+    i18n.prepare()
     ap = argparse.ArgumentParser(description="Compare runs: known-item ranks, top-k composition, ties.")
-    ap.add_argument("--runs", required=True, help='逗号分隔的后缀，v1 写空字符串，如 ",_v1b"')
-    ap.add_argument("--known", default="", help="逗号分隔的已知文献 DOI 或 arXiv:<ID>")
-    ap.add_argument("--ignore-phrases", nargs="*", default=[], help='判断 noise 时不计入匹配的短语，如 \'"narrow AI"\'')
-    ap.add_argument("--top", type=int, default=merge.TOP_K)
-    ap.add_argument("--out", type=Path, help="把结果另存为 JSON")
+    ap.add_argument("--runs", required=True, help=t("compare.arg.runs"))
+    ap.add_argument("--known", default="", help=t("compare.arg.known"))
+    ap.add_argument("--ignore-phrases", nargs="*", default=[], help=t("compare.arg.ignore"))
+    ap.add_argument("--markers", default=None, help=t("compare.arg.markers"))
+    ap.add_argument("--top", type=int, default=None)
+    ap.add_argument("--out", type=Path, help=t("compare.arg.out"))
+    runtime.add_common_args(ap)
     args = ap.parse_args()
+    rt = runtime.init(args)
+    layout = {"RAW_DIR": "results/raw", "OUT_DIR": "results/merged"}
+    runtime.bind_root(globals(), rt.root, {"OUT_DIR": "results/merged"})
+    runtime.bind_root(vars(merge), rt.root, layout)
+    cfg = rt.cfg
+    merge.configure(cfg)
+    top = merge.TOP_K if args.top is None else args.top
+    args.top = top
+    marker_sets = cfg["compare"]["marker_terms"]
+    marker_name = args.markers or cfg["compare"]["default_markers"]
+    if marker_name not in marker_sets:
+        ap.error(t("compare.unknown_markers", name=marker_name, names=", ".join(sorted(marker_sets))))
+    markers = marker_sets[marker_name]
     runs = args.runs.split(",")
     keys = [known_key(k) for k in args.known.split(",") if k.strip()]
     report = {}
@@ -118,7 +135,7 @@ def main():
         try:
             recs, ties, method = ranked_records(suffix)
         except FileNotFoundError as e:
-            sys.exit(f"{name}: 找不到合并结果：{e.filename}")
+            sys.exit(t("compare.missing_merged", name=name, file=e.filename))
         queries = merge.load_queries_from_raw(suffix)
         known, expanded = {}, {}
         for k in keys:
@@ -129,8 +146,9 @@ def main():
         for k in keys:
             known[f"{k[0]}:{k[1]}"]["chase"] = chased.get(k, [])
         report[name] = {"method": method, "merged": len(recs), "ties_at_cutoff": ties, "known": known,
-                        "top10": topk_stats(recs, 10, queries, args.ignore_phrases),
-                        f"top{args.top}": topk_stats(recs, args.top, queries, args.ignore_phrases)}
+                        "markers": {"name": marker_name, "terms": markers},
+                        "top10": topk_stats(recs, 10, queries, args.ignore_phrases, markers, marker_name),
+                        f"top{args.top}": topk_stats(recs, args.top, queries, args.ignore_phrases, markers, marker_name)}
 
     cols = list(report)
     print(f"{'':<34}" + "".join(f"{c:>22}" for c in cols))
@@ -142,7 +160,7 @@ def main():
         print(f"{'  in chase lists':<34}" + "".join(f"{'; '.join(report[c]['known'][k]['chase']) or '-':>22}"
                                                     for c in cols))
     for block in ("top10", f"top{args.top}"):
-        for m in ("conform", "noise", "genai", "abstract", "year_median", "before_2015"):
+        for m in ("conform", "noise", marker_name, "abstract", "year_median", "before_2015"):
             print(f"{block + ' ' + m:<34}" + "".join(f"{str(report[c][block][m]):>22}" for c in cols))
     if args.out:
         write_json(args.out, report)

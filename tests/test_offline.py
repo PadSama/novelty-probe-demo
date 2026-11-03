@@ -34,14 +34,21 @@ ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
 EXAMPLE = ROOT / "examples" / "tutorial"   # 教程示例的产出副本：测试件从这里读，不依赖项目目录里的实时数据
 sys.dont_write_bytecode = True     # 不在 scripts/ 下生成 __pycache__
+sys.path.insert(0, str(Path(__file__).resolve().parent))   # tests/netguard.py
 sys.path.insert(0, str(SCRIPTS))   # authors.py 里有 `from search import get_json`
 sys.path.insert(0, str(ROOT))      # novelty_probe 包
+import netguard  # noqa: E402  离线测试不许联网（NP_LIVE=1 时不装）；同时去掉代理变量，模拟服务器在本机直连
+netguard.install()
 for _var in ("NO_PROXY", "no_proxy"):  # 模拟服务器在本机，不走代理
     os.environ[_var] = "127.0.0.1,localhost"
 _HTTP_CACHE = tempfile.mkdtemp(prefix="np-http-cache-")   # 测试中的 HTTP 缓存写到临时目录，不碰仓库的 .cache/
 os.environ["NP_HTTP_CACHE"] = _HTTP_CACHE
-os.environ.pop("NP_HTTP_MODE", None)
+for _var in ("NP_HTTP_MODE", "NP_HTTP_CASSETTE", "NP_LANG", "NOVELTY_PROBE_ROOT", "NOVELTY_PROBE_CONFIG"):
+    os.environ.pop(_var, None)   # 测试不受开发者本机环境变量影响：默认中文界面、仓库根目录、内置默认配置
 CHILD_ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
+if not netguard.live():   # 子进程也装上护栏（tests/childguard/sitecustomize.py）
+    CHILD_ENV["PYTHONPATH"] = os.pathsep.join(filter(None, [str(Path(__file__).resolve().parent / "childguard"),
+                                                            os.environ.get("PYTHONPATH")]))
 
 
 def load(name):
@@ -91,9 +98,9 @@ def dead_port():
     return port
 
 
-def run_script(*args):
+def run_script(*args, cwd=None, env=None):
     return subprocess.run([sys.executable, *map(str, args)], capture_output=True, text=True,
-                          encoding="utf-8", env=CHILD_ENV)
+                          encoding="utf-8", env={**CHILD_ENV, **(env or {})}, cwd=cwd)
 
 
 # ---------- 检索式 ----------
@@ -475,6 +482,41 @@ class TestVerify(unittest.TestCase):
         self.assertTrue(cells["1"].startswith("Crossref HTTP 200 · 题目一致 · An English Test Paper"))
         self.assertEqual(rc, 0)
 
+    def test_english_interface(self):
+        """--lang en：verified 列用英文写出；结构化结果相同，只是展示文字不同。"""
+        from novelty_probe import i18n
+        try:
+            rc, cells = self.run_table("| rank | Title | DOI/arXiv | verified |", [
+                "| 1 | Test Paper One | doi:10.0000/ok | pending |",
+                "| 2 | DataCite Paper | doi:10.0000/datacite | pending |",
+                "| 3 | Missing | doi:10.0000/missing | pending |",
+                "| 4 | Only arXiv | arXiv:0000.00006 | pending |"], "--lang", "en")
+        finally:
+            i18n.set_language("zh")
+        self.assertEqual(cells["1"], "Crossref HTTP 200 · title matches · Test Paper One; "
+                                     "Landing page HTTP 200 (127.0.0.1) · Test Paper One \\| Journal X")
+        self.assertEqual(cells["2"], "Crossref has no record (Datacite-registered DOI); OpenAlex · title matches · "
+                                     "DataCite Paper; Landing page HTTP 200 (127.0.0.1) · Test Paper One \\| Journal X")
+        self.assertEqual(cells["3"], "Crossref HTTP 404 (127.0.0.1); OpenAlex HTTP 404 (DOI not indexed); "
+                                     "Landing page HTTP 404 (127.0.0.1) · Not found")
+        self.assertEqual(cells["4"], "UNVERIFIED")
+        self.assertEqual(rc, 1)
+
+    def test_structured_result_renders_in_both_languages(self):
+        from novelty_probe import i18n
+        v = {"doi": "10.1/x", "crossref": {"outcome": "failed", "failure": {"kind": "blocked", "host": "data.crosscite.org"}},
+             "openalex": {"outcome": "found", "title": "T", "title_match": False},
+             "landing": {"outcome": "failed", "failure": {"kind": "error", "host": "http://x.org", "error": "timed out " * 20}}}
+        zh = verify.render_verified(v)
+        self.assertEqual(zh, "Crossref BLOCKED at data.crosscite.org (network policy, proxy 403)；OpenAlex · 题目不一致 · T；"
+                             "落地页 ERROR at http://x.org: " + ("timed out " * 20)[:80])
+        try:
+            i18n.set_language("en")
+            self.assertEqual(verify.render_verified(v), zh.replace("；", "; ").replace("题目不一致", "title differs")
+                             .replace("落地页", "Landing page"))
+        finally:
+            i18n.set_language("zh")
+
 
 # ---------- logrun ----------
 
@@ -483,15 +525,29 @@ class TestLogrun(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "scripts").mkdir()
             (Path(d) / "logs").mkdir()
+            (Path(d) / "PROJECT.md").write_text("marker\n", encoding="utf-8")
             logrun = Path(d) / "scripts" / "logrun.py"
             shutil.copy(SCRIPTS / "logrun.py", logrun)   # 在临时副本里运行，不写仓库的 RUN_LOG
-            r = run_script(logrun, "T9 test", "--", sys.executable, "-c", "import sys; print('hello 你好'); sys.exit(3)")
+            code = "import os, sys; print('hello 你好', os.environ['NOVELTY_PROBE_ROOT']); sys.exit(3)"
+            r = run_script(logrun, "T9 test", "--", sys.executable, "-c", code, cwd=d)
             self.assertEqual(r.returncode, 3)
             self.assertIn("hello 你好", r.stdout)
+            self.assertIn(str(Path(d).resolve()), r.stdout)           # 子进程拿到同一个项目根目录
             log = (Path(d) / "logs" / "RUN_LOG.md").read_text(encoding="utf-8")
             for part in ("] T9 test", "退出码 3", "hello 你好"):
                 self.assertIn(part, log)
-            self.assertEqual(run_script(logrun, "no command", "--").returncode, 1)
+            self.assertEqual(run_script(logrun, "no command", "--", cwd=d).returncode, 1)
+
+    def test_root_option_and_english_log(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as other:
+            logrun = Path(d) / "logrun.py"
+            shutil.copy(SCRIPTS / "logrun.py", logrun)
+            r = run_script(logrun, "--root", other, "T9 en", "--", sys.executable, "-c", "print('ok')",
+                           cwd=d, env={"NP_LANG": "en"})
+            self.assertEqual(r.returncode, 0)
+            log = (Path(other) / "logs" / "RUN_LOG.md").read_text(encoding="utf-8")
+            self.assertIn("**Output** (exit code 0)", log)
+            self.assertFalse((Path(d) / "logs").exists())
 
 
 # ---------- 仓库数据文件 ----------

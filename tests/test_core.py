@@ -98,6 +98,45 @@ class TestFacetAliases(unittest.TestCase):
                 self.assertEqual(snowball.seeds_from_evidence(p, 2), [("rank 2", "10.1126/sciadv.adn5290", "2312.00506")])
 
 
+@unittest.skipIf(os.environ.get("NP_LIVE") == "1", "NP_LIVE=1：护栏未安装")
+class TestNetworkGuard(unittest.TestCase):
+    """离线测试里任何访问外网的尝试都直接报错，不会被脚本的 except Exception 吞掉，也不会被 HTTP 客户端重试。"""
+
+    def test_dns_and_connect_are_blocked(self):
+        import socket
+        import netguard
+        with self.assertRaises(netguard.NetworkBlocked):
+            socket.getaddrinfo("api.openalex.org", 443)
+        with self.assertRaises(netguard.NetworkBlocked):
+            socket.create_connection(("api.openalex.org", 443), timeout=1)
+        s = socket.socket()
+        try:
+            with self.assertRaises(netguard.NetworkBlocked):
+                s.connect(("192.0.2.1", 443))      # TEST-NET-1，不会真的连出去
+        finally:
+            s.close()
+        self.assertTrue(issubclass(netguard.NetworkBlocked, BaseException))
+        self.assertFalse(issubclass(netguard.NetworkBlocked, Exception))
+        self.assertEqual(socket.getaddrinfo("127.0.0.1", 80)[0][4][0], "127.0.0.1")   # 本机回环照常可用
+        for var in netguard.PROXY_VARS:
+            self.assertNotIn(var, os.environ)
+
+    def test_http_client_does_not_swallow_it(self):
+        import netguard
+        from novelty_probe.http import Client
+        client = Client("live", cache_dir=tempfile.mkdtemp(), sleep=lambda s: None)
+        with self.assertRaises(netguard.NetworkBlocked):
+            client.get_json("https://api.openalex.org/works?per-page=1")
+
+    def test_child_processes_are_guarded(self):
+        import subprocess
+        from test_offline import CHILD_ENV
+        r = subprocess.run([sys.executable, "-c", "import socket; socket.getaddrinfo('api.crossref.org', 443)"],
+                           capture_output=True, text=True, encoding="utf-8", env=CHILD_ENV)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("NetworkBlocked", r.stderr)
+
+
 class TestCompatibility(unittest.TestCase):
     """静态检查：不使用 Python 3.9 没有的接口（本项目支持 3.9+；CI 以外的环境里只能这样把关）。"""
     PATTERNS = [

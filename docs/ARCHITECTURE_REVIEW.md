@@ -144,3 +144,31 @@ tests/                         test_*.py：纯函数、假传输层、录制件�
 - 实测记录：`scratchpad/research_robust/live/*.jsonl`（OpenAlex 14、S2 31、Crossref/doi.org 28 个请求，含完整 URL、状态、头、响应摘录）。
 - 主会话复核：OpenAlex 未配对引号的静默改写（count 21,344）；`x_query.oqo` 存在；OpenAlex 404 为 HTML；额度头 `X-Ratelimit-Limit: 10000`；英文表头零种子；BOM 读失败；Python 3.9–3.13 测试通过。
 - 文献：PRISMA-S（Rethlefsen 等 2021，Systematic Reviews，doi:10.1186/s13643-020-01542-z）。注：主会话给子任务的提示里凭记忆写了错误的 DOI（…01542-5），子任务按规则 2 核对后纠正。
+
+## 9. 实施进度
+
+| 阶段 | 状态 | 说明 |
+|---|---|---|
+| 0 卫生 | 完成（Step 67） | |
+| 1 HTTP 层 | 完成（Step 68） | `--offline` 未单独实现：`--http-mode replay` 即不联网 |
+| 2 配置与国际化 | 完成（Step 69–72） | 见下 |
+| 3 查询与数据源 | 未开始 | 含 Crossref 适配器（默认关闭，决策点 2） |
+| 4 记录、去重、导出、报告 | 未开始 | |
+| 5 打包与文档 | 部分提前完成 | GitHub Actions 矩阵已在阶段 2 加入（决策点 4） |
+
+阶段 2 的实现与计划的出入：
+
+- **检索式 id 的格式不进配置**：`Q<数字>` 是 search / merge / qa / compare 之间的文件名约定，不是研究参数；放进配置只会让一处改了、别处读不到文件。
+- **`config_hash` 不含 `language` 与 `contact_email`**：两者不影响检索与排序结果，同一配置换语言运行，指纹不变。
+- **`--legacy` 不读配置**：它的用途是复现教程 v1、v2，参数固定为前 20 篇、标题至少 5 个词。
+- **verify 的结构化结果与展示文字分开**（`novelty_probe/verification.py`）：中文文字与改造前逐字相同（测试与录制件依赖）；英文由同一份结构化结果生成。
+- **证据检查接受"注明来源的其他版本"**：本篇无摘要时，判定依据里写明 DOI、且在检索结果中的其他版本的摘要与题目也可作为引文来源（对应 AGENTS.md 的规定）；教程 v2 证据表 rank 3 即属此类。
+- **网络护栏**：测试进程与其启动的子进程都拦截非本机连接（`tests/netguard.py`）；护栏的异常继承 BaseException，脚本的 `except Exception` 与 HTTP 客户端的重试都拦不住它。
+
+验收：
+
+- `--lang en` 下帮助、报错、dry-run 汇总、verified 列为英文（`tests/test_config.py`、`tests/test_offline.py`）；
+- 英文证据表：导入、检查、生成、核验写回、引文追踪取种子全流程可用（`tests/test_evidence.py`）；
+- `evidence check` 抓出非逐字引文、不在检索结果中的 DOI、错误的年份与取值（负对照测试）；两张教程证据表全部通过（Step 70–71）；
+- 合并的默认方法在另一个项目目录（`--root`）下重跑，v1b、v2b 的记录与候选表与已提交文件逐字节相同；
+- 6 项联网接口检查通过（Step 72）。

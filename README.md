@@ -104,14 +104,30 @@ To run another round without overwriting the first, use version suffixes, for ex
 - **`snowball.py`** chases citations from seed papers via OpenAlex: one hop (papers citing or cited by the seeds, ordered by the number of seeds they are linked to and by text similarity to the seeds), or two-hop co-citation (papers that cite the seeds and match a term group you choose, then the works they cite in common, ordered by that count). Versions of one work are counted once; letters and corrections are not counted.
 - **`compare.py`** compares rounds: ranks of known papers in the merged results and chase lists, ties at the cutoff, and the make-up of the top 10 and top 20.
 - **`textmatch.py`** holds the shared, standard-library text matching: a Porter stemmer (identical to Snowball's "porter" on its 42,603-word test vocabulary), Boolean matching, BM25, TF-IDF similarity and the version-linking rule.
+- **`evidence.py`** checks an evidence table against the retrieval results: labels are valid, every DOI and arXiv ID comes from the search results, titles, years and authors match them, and quoted English text in the rationale is verbatim from an abstract. It also converts the Markdown table to JSON (`import-md`) and back (`render`, in Chinese or English). The JSON can serve as the source of truth: `verify.py --table <json>` stores structured results there and regenerates the Markdown, and refuses to overwrite a Markdown file that was edited by hand.
+- **`config.py`** shows or checks the project configuration (`show`, `show --diff`, `check`, `init`).
 - **`logrun.py`** runs any command and appends the command and its output to `logs/RUN_LOG.md`.
+
+All scripts share the standard-library package `novelty_probe/`: one HTTP client (per-host throttling, retries with jittered backoff, a circuit breaker, a cache, and record/replay of real responses), response-shape checks, the configuration, the interface language and the evidence JSON. Every script accepts `--root` (project folder), `--config` and `--lang zh|en`.
+
+## Configuration and language
+
+`novelty-probe.json` in the project root holds only the settings that differ from the built-in defaults: facets and their labels, label values, column names, query purposes and their start years, the truncation table, records per source, the RRF and BM25 parameters, the version-linking prefixes and year window, stopwords, and per-host HTTP policies. Methods themselves (stemming, the BM25 and RRF formulas, the order of the version-linking rules) are not configurable, because changing them would make results incomparable. Each output file records a `config_hash` of the effective configuration. `python3 scripts/config.py show` prints every setting.
+
+Help, error messages and the verified column are in Chinese by default; `--lang en`, `NP_LANG=en` or `"language": "en"` in the configuration switches them to English.
 
 ## Tests
 
-An offline self-test (45 tests) checks the scripts without network access, using local mock servers. It also re-runs the merge with `--legacy` on the committed raw results and confirms that the output matches the committed files byte for byte:
+The offline self-test checks the scripts without network access, using local mock servers and recorded real responses. A guard makes any attempt to reach the network fail the test, in child processes too. The suite re-runs the merge with `--legacy` on the committed raw results and confirms that the output matches the committed files byte for byte. GitHub Actions runs it on Python 3.9–3.13 on Ubuntu, Windows and macOS.
 
 ```bash
 python3 -m unittest discover -s tests -v
+```
+
+Six optional live checks (one request each) confirm that OpenAlex, Semantic Scholar and Crossref still behave as the scripts assume. Run them before a new search round:
+
+```bash
+NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 ```
 
 ## Worked example
@@ -169,9 +185,13 @@ results/merged/  deduplicated works, top-20 candidates, chase lists, comparisons
 evidence/        evidence tables, authors, abstracts from other versions, difference statement
 logs/RUN_LOG.md  append-only log of every step
 scripts/         search.py, qa.py, merge.py, authors.py, enrich.py, verify.py, snowball.py, compare.py,
-                 textmatch.py (shared), logrun.py
-tests/           offline self-test
-docs/            IMPROVEMENT_PLAN.md: research, plan and evaluation for the known issues (Chinese)
+                 evidence.py, config.py, textmatch.py (shared), logrun.py
+novelty_probe/   shared package: HTTP client and cache, response checks, configuration, i18n, evidence JSON
+novelty-probe.json  project configuration (only what differs from the defaults)
+examples/        frozen copy of the tutorial outputs, used as test fixtures
+tests/           offline self-test, recorded responses, optional live checks
+docs/            IMPROVEMENT_PLAN.md (known issues) and ARCHITECTURE_REVIEW.md (tool-layer review and phases), in Chinese
+.github/         GitHub Actions workflow for the offline tests
 PROJECT.md       the assistant's role and rules (Chinese)
 AGENTS.md        instructions for AI coding assistants (Chinese)
 HANDOFF.md       handoff notes: status, data contracts, design decisions, known issues (Chinese)

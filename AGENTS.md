@@ -30,7 +30,10 @@
 
 - **你自己完成的步骤**（写 facets、queries、证据表、差异陈述）结束后，在 `logs/RUN_LOG.md` 末尾手动追加一条：时间（UTC）、步骤名、做了什么、产出文件。格式照已有条目：以 `---` 分隔，标题写成 `## [YYYY-MM-DD HH:MM UTC] Step N — 标题`，编号接着日志里最后一个。
 - **检索前**先跑 `python3 scripts/search.py --dry-run`，有 INVALID 就修改 `queries/queries.json`。
-- **改了 `scripts/` 下任何代码后**，运行 `python3 -m unittest discover -s tests -v`，全部通过才算完成。
+- **写完证据表后**，运行 `python3 scripts/evidence.py check evidence/evidence_table.md`，按报告修改，直到没有问题（检查取值、标识符是否来自检索结果、题目 / 年份 / 作者是否与检索结果一致、引号内的英文是否为摘要原文）。
+- **改了 `scripts/` 或 `novelty_probe/` 下任何代码后**，运行 `python3 -m unittest discover -s tests -v`，全部通过才算完成（测试不许联网，访问外网会直接报错）。
+- **参数与词表**在 `novelty-probe.json`，只写与默认值不同的设置；`python3 scripts/config.py show` 查看全部，`check` 检查写法。改参数属于有判断空间的地方，由研究者决定。
+- **界面语言**：命令加 `--lang en` 或设环境变量 `NP_LANG=en`，帮助、报错与 verified 列改为英文。
 - **有判断空间的地方**（研究范围、检索词取舍、NOT 排除哪些短语、标注标准、引文追踪的种子与过滤词组、追踪结果中哪些补入证据表），把选项和理由告诉研究者，由研究者决定。
 - **结果比较**：要说明改动的效果时，用 `scripts/compare.py` 比较几轮结果，已知文献用研究者给出的 DOI；不要用同一批已知文献既调整做法又检验效果。
 
@@ -41,6 +44,7 @@
   - `facets_used`；
   - `query`：用 AND 连接若干个括号组，括号内只用 OR；短语加英文双引号；运算符一律大写；不用嵌套括号和逗号；截断符 `*` 只能用 `search.py` 的 `TRUNCATION` 表里登记过的。需要排除时在最后加 `AND NOT ("a" OR "b")`（小写 not 在 OpenAlex 中会把排除变成包含，`search.py` 会拒绝）；
   - `purpose`：`component` / `application` / `method` / `concurrent` 之一。`concurrent` 只检索 2023 年起的文献。
+- `novelty-probe.json`：对象逐层合并，列表整体替换，`<键>_extend` 在默认列表后追加，以 `_` 开头的键是注释。`contact_email` 由研究者自己决定是否填写，不要代填；也不要把 API key 写进去。
 - `results/raw/`、`results/merged/`：只能由脚本生成，不要手工编辑。其中 `chase_*` 是 `snowball.py` 的引文追踪结果，`compare_*` 是 `compare.py` 的比较结果；`merge.py` 只读取 `{来源}_Q<数字>{后缀}.json`。
 - `merge.py` 默认用改进后的方法（版本识别、正式发表年份、RRF 排序）；`--legacy` 只用于复现教程 v1、v2 当时的结果。
 - `evidence/enrichment*.json`：`enrich.py` 从同一研究的其他版本补到的摘要与 arXiv ID，带来源；不要手工编辑。
@@ -51,7 +55,9 @@
   - verified 列由 `verify.py` 写入，不要手填；
   - 判定依据里引号内的文字必须逐字复制自摘要。候选没有摘要时，可以用 `evidence/enrichment*.json` 中补到的摘要，并注明来源 DOI；仍没有摘要的条目，只在题目足以判断的面上标注，其余标 `unknown`；
   - 年份取候选文件的 `year`（正式发表版本的年份）；
+  - 判定依据每篇以 `**rank · merged_id**` 开头，`evidence.py` 据此把依据与表格行对应；
   - "研究问题"面按研究者的标准：去掉研究情境后问题相同（个人使用 AI，集体是否趋同）即记 overlap，对象与学科的不同记在"研究情境"面（见证据表末尾的修订记录）。
+- `evidence/evidence_table*.json`：证据表的 JSON 形式（`evidence.py import-md` 生成）。以它为数据源时，`verify.py --table <json>` 把结构化核验结果写进 JSON 并重新生成 Markdown；不要手工编辑 `verification`。手工改了 Markdown 之后先 `import-md` 再核验，脚本不会覆盖手工改过的 Markdown。
 - 作者用 `scripts/authors.py` 按 DOI 查询，不要自己写。
 - 换一个面再跑一轮时，用版本后缀：`idea_v2.md`、`facets_v2.md`、`queries_v2.json`，脚本加 `--suffix _v2`（见 `HOWTO.md` 第 8 节）。
 

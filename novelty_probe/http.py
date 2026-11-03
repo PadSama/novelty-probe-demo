@@ -30,6 +30,7 @@ from pathlib import Path
 
 from . import __version__
 from .cache import Cassette, ResponseStore, cache_key, decode_body, make_entry
+from .i18n import t
 from .paths import PACKAGE_ROOT
 
 MODES = ("live", "cache", "record", "replay")
@@ -142,7 +143,7 @@ class Response:
         try:
             return json.loads(self.body.decode("utf-8"))
         except (UnicodeDecodeError, ValueError):
-            raise ContentError(f"响应不是 JSON（Content-Type: {ctype or '?'}）：{summarize_body(self.body, ctype)}",
+            raise ContentError(t("http.not_json", ctype=ctype or "?", summary=summarize_body(self.body, ctype)),
                                status=self.status, url=self.final_url) from None
 
 
@@ -210,13 +211,13 @@ class Client:
         self.env = os.environ if env is None else env
         self.mode = mode or self.env.get("NP_HTTP_MODE", "live")
         if self.mode not in MODES:
-            raise ValueError(f"NP_HTTP_MODE 应为 {'/'.join(MODES)} 之一，不是 {self.mode!r}")
+            raise ValueError(t("http.bad_mode", modes="/".join(MODES), mode=repr(self.mode)))
         cache_dir = cache_dir or self.env.get("NP_HTTP_CACHE") or (PACKAGE_ROOT / ".cache" / "http")
         self.store = ResponseStore(cache_dir)
         cassette = cassette or self.env.get("NP_HTTP_CASSETTE")
         self.cassette = Cassette(cassette) if cassette else None
         if self.mode == "replay" and self.cassette is None:
-            raise ValueError("replay 模式需要指定录制件（NP_HTTP_CASSETTE 或 cassette=）")
+            raise ValueError(t("http.replay_needs_cassette"))
         self.policies = dict(POLICIES, **(policies or {}))
         self.user_agent = user_agent or self.env.get("NP_USER_AGENT") or DEFAULT_USER_AGENT
         self.clock = clock or (lambda: time.monotonic())        # 延迟绑定，测试可以 patch time.sleep / time.monotonic
@@ -275,7 +276,8 @@ class Client:
             entry = self.cassette.play(key)
             if entry is None:
                 near = self.cassette.nearest(url)
-                raise ReplayMiss(f"录制件中没有这个请求：{method} {url}" + (f"（最接近的已录 URL：{near}）" if near else ""), url=url)
+                raise ReplayMiss(t("http.replay_miss", method=method, url=url) + (t("http.replay_nearest", near=near) if near else ""),
+                                 url=url)
             st["cache_hits"] += 1
             return self._from_entry(entry, url, cached=True, errors_as_result=errors_as_result)
         if self.mode == "cache" and not (refresh or self.refresh):
@@ -328,7 +330,7 @@ class Client:
             st = self._stat(host)
             hdrs = {"User-Agent": self.user_agent, "Accept": accept, **self._auth_headers(host), **headers}
             if self._consecutive_429.get(host, 0) >= pol.breaker_consecutive:
-                raise CircuitOpen(f"{host} 连续 {self._consecutive_429[host]} 次 429，熔断；稍后再试", status=429, url=url,
+                raise CircuitOpen(t("http.circuit_open", host=host, n=self._consecutive_429[host]), status=429, url=url,
                                   attempts=attempt)
             self._throttle(host)
             st["requests"] += 1
@@ -531,11 +533,10 @@ def set_default_client(client):
 def add_http_args(ap):
     """各联网脚本共用的命令行参数。"""
     g = ap.add_argument_group("HTTP")
-    g.add_argument("--http-mode", choices=MODES, default=None,
-                   help="live（默认）每次请求网络；cache 先查缓存；record 边请求边录制；replay 只从录制件回放、不联网。也可用环境变量 NP_HTTP_MODE")
-    g.add_argument("--cache-dir", default=None, help="缓存目录（默认 .cache/http，或环境变量 NP_HTTP_CACHE）")
-    g.add_argument("--cassette", default=None, help="录制件路径（record / replay 模式；或环境变量 NP_HTTP_CASSETTE）")
-    g.add_argument("--refresh", action="store_true", help="cache 模式下忽略已有缓存，重新请求")
+    g.add_argument("--http-mode", choices=MODES, default=None, help=t("arg.http_mode"))
+    g.add_argument("--cache-dir", default=None, help=t("arg.cache_dir"))
+    g.add_argument("--cassette", default=None, help=t("arg.cassette"))
+    g.add_argument("--refresh", action="store_true", help=t("arg.refresh"))
     return g
 
 

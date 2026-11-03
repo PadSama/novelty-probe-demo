@@ -17,9 +17,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe import i18n, runtime
 from novelty_probe.paths import rel as _rel
-from novelty_probe.http import add_http_args, configure_from_args
-from novelty_probe.io import configure_console, write_json
+from novelty_probe.io import write_json
 
 from search import get_json  # 复用 search.py 的请求与重试逻辑（OpenAlex key 由环境注入）
 
@@ -38,15 +38,18 @@ def norm(t):
 
 
 def main():
-    configure_console()
+    i18n.prepare()
     ap = argparse.ArgumentParser(description="Fetch authors from OpenAlex for the top candidates.")
     ap.add_argument("--top", type=int, default=10)
-    ap.add_argument("--candidates", type=Path, default=CANDIDATES_FILE)
-    ap.add_argument("--out", type=Path, default=OUT_FILE)
-    add_http_args(ap)
+    ap.add_argument("--candidates", type=Path, default=None)
+    ap.add_argument("--out", type=Path, default=None)
+    runtime.add_common_args(ap, network=True)
     args = ap.parse_args()
-    client = configure_from_args(args)
-    cand_file, out_file = args.candidates.resolve(), args.out.resolve()
+    rt = runtime.init(args)
+    runtime.bind_root(globals(), rt.root, {"CANDIDATES_FILE": "results/merged/candidates.csv",
+                                           "OUT_FILE": "evidence/authors.json"})
+    client = rt.client
+    cand_file, out_file = (args.candidates or CANDIDATES_FILE).resolve(), (args.out or OUT_FILE).resolve()
     with cand_file.open(encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))[:args.top]
     out = []

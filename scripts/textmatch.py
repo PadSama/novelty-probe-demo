@@ -11,8 +11,13 @@
 import html
 import math
 import re
+import sys
 import unicodedata
 from difflib import SequenceMatcher
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
+from novelty_probe import defaults as _D  # noqa: E402
 
 # ---------- Porter 词干还原 ----------
 
@@ -226,22 +231,13 @@ class BM25:
 
 # ---------- 与种子文献的相似度（TF-IDF 余弦） ----------
 
-STOPWORDS = frozenset("""
-a about above after again against all also am an and any are as at be because been before being below between
-both but by can could did do does doing down during each few for from further had has have having he her here
-hers herself him himself his how i if in into is it its itself just me more most my myself no nor not now of
-off on once only or other our ours ourselves out over own same she should so some such than that the their
-theirs them themselves then there these they this those through to too under until up very was we were what
-when where which while who whom why will with would you your yours yourself yourselves via within without
-however thus whether among across upon may might must shall us one two three new using use used based
-study studies paper research results result findings show shows shown find found suggest suggests provide
-provides propose proposes approach approaches analysis analyze examine examines investigate investigates
-""".split())
+STOPWORDS = frozenset(_D.STOPWORDS)   # 默认停用词；配置 textmatch.stopwords 可替换或追加
 
 
-def content_terms(doc):
-    """用于相似度的词干：去掉停用词、单字符词和纯数字。"""
-    return [s for w, s in zip(doc.raw, doc.stems) if w not in STOPWORDS and len(w) > 1 and not w.isdigit()]
+def content_terms(doc, stopwords=None):
+    """用于相似度的词干：去掉停用词（默认 STOPWORDS）、单字符词和纯数字。"""
+    sw = STOPWORDS if stopwords is None else stopwords
+    return [s for w, s in zip(doc.raw, doc.stems) if w not in sw and len(w) > 1 and not w.isdigit()]
 
 
 def tfidf_vectors(term_lists):
@@ -300,14 +296,52 @@ _NOTICE_ANY_RE = re.compile(r"[\(\[]\s*(?:retracted|retraction|withdrawn)\b", re
 # 内容不同的变体：扩展摘要、短文、补充材料、第 N 部分
 _VARIANT_RE = re.compile(r"\b(?:extended (?:abstract|version)|full version|short paper|supplement\w*|part [ivx\d]+|"
                          r"abstract no)\b", re.I)
-PREPRINT_DOI_RE = re.compile(
-    r"^10\.(?:48550/arxiv\.|1101/|21203/rs\.|2139/ssrn\.|31219/|31234/|31235/|31222/|31224/|31237/|36227/techrxiv|"
-    r"20944/preprints|26434/chemrxiv|22541/au\.|1002/essoar\.)", re.I)
-PREPRINT_VENUE_RE = re.compile(r"arxiv|biorxiv|medrxiv|ssrn|research square|preprints?\.org|osf preprints|psyarxiv|"
-                               r"socarxiv|techrxiv|chemrxiv|authorea|essoar", re.I)
-DATA_DOI_RE = re.compile(r"^10\.(?:5281|6084|21227|5061|17632|7910|3886)/", re.I)  # Zenodo、figshare、IEEE DataPort 等
 _NUM_RE = re.compile(r"\b(?:\d+|[ivx]+)\b")
-YEAR_WINDOW = 3
+
+
+def _prefix_re(prefixes):
+    """DOI 前缀列表 → 从开头匹配的正则（不区分大小写）；空列表 → 永不匹配。"""
+    if not prefixes:
+        return re.compile(r"(?!)")
+    return re.compile("^(?:" + "|".join(re.escape(p.lower()) for p in prefixes) + ")", re.I)
+
+
+def _substring_re(words):
+    """词列表 → 匹配其中任一子串的正则（不区分大小写）；空列表 → 永不匹配。"""
+    if not words:
+        return re.compile(r"(?!)")
+    return re.compile("|".join(re.escape(w.lower()) for w in words), re.I)
+
+
+class VersionRules:
+    """版本识别用到的词表与阈值（配置 versions.*；默认值见 novelty_probe/defaults.py）。
+    判定规则本身与顺序（version_decision）、摘要 Jaccard 0.5、标题相似度 0.9 / 0.8 不在配置里：它们变了结果就不可比。"""
+
+    def __init__(self, preprint_doi_prefixes=None, preprint_venues=None, data_doi_prefixes=None,
+                 year_window=None, min_title_words=None):
+        self.preprint_doi = _prefix_re(_D.PREPRINT_DOI_PREFIXES if preprint_doi_prefixes is None else preprint_doi_prefixes)
+        self.preprint_venue = _substring_re(_D.PREPRINT_VENUES if preprint_venues is None else preprint_venues)
+        self.data_doi = _prefix_re(_D.DATA_DOI_PREFIXES if data_doi_prefixes is None else data_doi_prefixes)
+        self.year_window = _D.YEAR_WINDOW if year_window is None else int(year_window)
+        self.min_title_words = _D.MIN_TITLE_WORDS if min_title_words is None else int(min_title_words)
+
+    @classmethod
+    def from_config(cls, cfg):
+        """cfg 是完整配置或其中的 versions 部分。"""
+        v = cfg.get("versions", cfg)
+        return cls(v["preprint_doi_prefixes"], v["preprint_venues"], v["data_doi_prefixes"],
+                   v["year_window"], v["min_title_words"])
+
+    def is_preprint_doi(self, doi):
+        return bool(doi) and bool(self.preprint_doi.match(doi))
+
+
+DEFAULT_RULES = VersionRules()
+# 兼容旧名（默认规则）
+PREPRINT_DOI_RE = DEFAULT_RULES.preprint_doi
+PREPRINT_VENUE_RE = DEFAULT_RULES.preprint_venue
+DATA_DOI_RE = DEFAULT_RULES.data_doi
+YEAR_WINDOW = DEFAULT_RULES.year_window
 
 
 def norm_doi(doi):
@@ -372,19 +406,22 @@ def title_search_words(title, n=12):
     return [w for w in _WORD_RE.findall(t) if len(w) > 1][:n]
 
 
-def version_summary(records, min_words=5):
-    """一组记录（同一 DOI / arXiv ID 已并在一起）用于版本比较的摘要信息。"""
+def version_summary(records, min_words=None, rules=None):
+    """一组记录（同一 DOI / arXiv ID 已并在一起）用于版本比较的摘要信息。min_words 默认取 rules.min_title_words。"""
+    rules = rules or DEFAULT_RULES
+    min_words = rules.min_title_words if min_words is None else min_words
     titles = [r.get("title") for r in records if r.get("title")]
     dois = [norm_doi(r.get("doi")) for r in records if r.get("doi")]
     return {
         "keys": {k for k in (title_key(t) for t in titles) if len(k.split()) >= min_words},
+        "min_words": min_words,
         "notice": any(is_notice(t) for t in titles),
         "variant": any(is_variant(t) for t in titles),
         "years": sorted({r["year"] for r in records if r.get("year")}),
         "dois": sorted(set(dois)),
-        "pub_dois": sorted({d for d in dois if not PREPRINT_DOI_RE.match(d)}),
-        "preprint": any(r.get("arxiv_id") or (r.get("venue") and PREPRINT_VENUE_RE.search(r["venue"])) for r in records)
-                    or any(PREPRINT_DOI_RE.match(d) for d in dois),
+        "pub_dois": sorted({d for d in dois if not rules.preprint_doi.match(d)}),
+        "preprint": any(r.get("arxiv_id") or (r.get("venue") and rules.preprint_venue.search(r["venue"])) for r in records)
+                    or any(rules.preprint_doi.match(d) for d in dois),
         "abstract": max((r.get("abstract") or "" for r in records), key=len),
     }
 
@@ -394,14 +431,17 @@ def _jaccard(a, b):
     return len(a & b) / len(a | b) if a | b else 0.0
 
 
-def version_decision(a, b):
+def version_decision(a, b, rules=None):
     """比较两组记录（version_summary 的结果），返回 (merge / review / no, 原因)。
     merge：规范化标题相同，且没有来信或变体标记只在一侧、没有两个不同的正式发表 DOI、都不是数据集 DOI、
            年份相差不超过 3 年、两边都有摘要时摘要词集合的 Jaccard ≥ 0.5；
     review：标题相同但不满足上述条件，或标题几乎相同（difflib ≥ 0.90 且词 Jaccard ≥ 0.80，或较短标题完整包含在较长标题中）；
-    no：其余情况（含 "Re: <标题>" 这类关于另一篇文献的条目）。"""
+    no：其余情况（含 "Re: <标题>" 这类关于另一篇文献的条目）。
+    年份窗口（3）与数据仓储 DOI 前缀来自 rules（默认 DEFAULT_RULES）。"""
+    rules = rules or DEFAULT_RULES
+    window = rules.year_window
     if not a["keys"] or not b["keys"]:
-        return "no", "title shorter than 5 words"
+        return "no", f"title shorter than {a.get('min_words', rules.min_title_words)} words"
     gap = min((abs(x - y) for x in a["years"] for y in b["years"]), default=0)
     one_sided_notice = a["notice"] != b["notice"]
     one_sided_variant = a["variant"] != b["variant"]
@@ -410,13 +450,13 @@ def version_decision(a, b):
             return "review", "same title, but a notice/variant word appears on one side only"
         if a["pub_dois"] and b["pub_dois"] and not set(a["pub_dois"]) & set(b["pub_dois"]):
             return "review", "same title, but two different non-preprint DOIs"
-        if any(DATA_DOI_RE.match(d) for d in a["dois"] + b["dois"]):
+        if any(rules.data_doi.match(d) for d in a["dois"] + b["dois"]):
             return "review", "same title, but one record has a data-repository DOI"
-        if gap > YEAR_WINDOW:
-            return "review", f"same title, but years differ by more than {YEAR_WINDOW}"
+        if gap > window:
+            return "review", f"same title, but years differ by more than {window}"
         if a["abstract"] and b["abstract"] and _jaccard(tokenize(a["abstract"]), tokenize(b["abstract"])) < 0.5:
             return "review", "same title, but abstracts differ (word Jaccard < 0.5)"
-        return "merge", "same normalized title; no DOI conflict; year gap <= 3"
+        return "merge", f"same normalized title; no DOI conflict; year gap <= {window}"
     ka, kb = min(a["keys"]), min(b["keys"])
     wa, wb = ka.split(), kb.split()
     jac = _jaccard(wa, wb)
@@ -429,6 +469,6 @@ def version_decision(a, b):
     na, nb = set(_NUM_RE.findall(ka)), set(_NUM_RE.findall(kb))
     if na and nb and na != nb:
         return "no", "different numbers (e.g. Part I vs Part II)"
-    if ((ratio >= 0.9 and jac >= 0.8) or contained) and gap <= YEAR_WINDOW:
+    if ((ratio >= 0.9 and jac >= 0.8) or contained) and gap <= window:
         return "review", f"near-identical titles (ratio {ratio:.2f}, word Jaccard {jac:.2f})"
     return "no", "titles differ"

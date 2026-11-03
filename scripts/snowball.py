@@ -22,6 +22,9 @@ query_blocks / conform 对照检索式文件给出满足的 AND 组比例与是�
   results/merged/chase_<标签>{suffix}.csv    每条路径各取前 --top 篇（默认 20），标出已在检索结果（merged{suffix}.json）中的
 不判断相关性或新颖性；所有题目、DOI、摘要都取自 OpenAlex 的返回。
 
+参数默认值来自配置 novelty-probe.json：snowball.min_overlap / max_forward / top / keep；证据表的面与列名取 facets / columns；
+相似度的停用词取 textmatch.stopwords；截断词表取 queries.truncation（与 search.py 相同）。
+
 用法：
   python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b
   python3 scripts/snowball.py --from-evidence evidence/evidence_table.md --suffix _v1b --cocite --citer-filter 'scientist*'
@@ -38,11 +41,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # 让 novelty_probe 可导入（阶段 5 改为薄壳后去掉）
-from novelty_probe import schemas
-from novelty_probe.defaults import facet_columns
-from novelty_probe.http import Cursor, add_http_args, configure_from_args, default_client
+from novelty_probe import config as np_config, defaults as D, evidence, i18n, runtime, schemas
+from novelty_probe.http import Cursor, default_client
+from novelty_probe.i18n import t
 from novelty_probe.paths import rel as _rel
-from novelty_probe.io import configure_console, load_json_lenient, read_text, write_json
+from novelty_probe.io import load_json_lenient, read_text, write_json
 
 import search
 from search import openalex_record
@@ -55,12 +58,10 @@ OUT_DIR = ROOT / "results" / "merged"
 OPENALEX_URL = "https://api.openalex.org/works"
 FIELDS = ("id,doi,title,display_name,publication_year,type,primary_location,locations,abstract_inverted_index,"
           "cited_by_count")
-MAX_FORWARD = 2000
-TOP = 20
-KEEP = 200
+_S = np_config.DEFAULTS["snowball"]   # 命令行参数的默认值（main() 里改用配置中的值）
+MAX_FORWARD, TOP, KEEP = _S["max_forward"], _S["top"], _S["keep"]
 BATCH = 50
-DOI_IN_CELL = re.compile(r"doi:(10\.\d{4,9}/[^\s·|]+)", re.I)
-ARXIV_IN_CELL = re.compile(r"arxiv:\s*([\w./-]+?\d)(?=\s|·|$)", re.I)
+OVERLAP = "overlap"   # 证据表中表示"重叠"的标注（配置 labels 中必须有它）
 CSV_COLUMNS = ["path", "rank", "openalex_id", "links", "support", "norm_support", "seeds", "similarity",
                "query_blocks", "conform", "in_search", "doi", "arxiv_id", "title", "year", "venue", "cited_by_count",
                "abstract"]
@@ -96,26 +97,15 @@ def short_id(openalex_id):
 
 # ---------- 种子 ----------
 
-def seeds_from_evidence(path, min_overlap):
-    """证据表中至少 min_overlap 个面标为 overlap 的行：返回 [(标签, DOI, arXiv ID)]。"""
-    lines = read_text(path).splitlines()
-    split = lambda l: [c.strip() for c in re.split(r"(?<!\\)\|", l.strip()[1:-1])]  # noqa: E731
-    h = next((i for i, l in enumerate(lines) if l.startswith("|") and "DOI/arXiv" in split(l)), None)
-    if h is None:
-        sys.exit(f"{path} 中找不到含 DOI/arXiv 列的表头")
-    cols = split(lines[h])
-    out = []
-    for l in lines[h + 2:]:
-        if not l.startswith("|"):
-            break
-        cells = split(l)
-        n = sum(cells[i] == "overlap" for i in facet_columns(cols).values())  # 接受中文或英文的面标签
-        if n >= min_overlap:
-            cell = cells[cols.index("DOI/arXiv")]
-            doi, arx = DOI_IN_CELL.search(cell), ARXIV_IN_CELL.search(cell)
-            label = f"rank {cells[cols.index('rank')]}" if "rank" in cols else cell
-            out.append((label, doi.group(1) if doi else None, arx.group(1) if arx else None))
-    return out
+def seeds_from_evidence(path, min_overlap, facets=None, columns=None):
+    """证据表（.md 或 .json）中至少 min_overlap 个面标为 overlap 的行：返回 [(标签, DOI, arXiv ID)]。
+    Markdown 与 JSON 用同一个解析器（novelty_probe/evidence.py）；facets / columns 默认取内置定义，main() 传入配置中的定义。"""
+    cfg = {"facets": facets or D.FACETS, "columns": columns or D.COLUMNS, "labels": D.LABELS}
+    try:
+        doc = evidence.load(path, cfg)
+    except evidence.EvidenceError:
+        sys.exit(t("snowball.no_header", path=path))
+    return evidence.seeds(doc, min_overlap, overlap=OVERLAP)
 
 
 def parse_seed_list(text):
@@ -302,32 +292,43 @@ def collect_cocite(args, seeds_resolved):
 
 
 def main():
-    configure_console()
+    i18n.prepare()
     ap = argparse.ArgumentParser(description="Citation chasing from seed papers via OpenAlex: one hop, or two-hop co-citation.")
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--seeds", help="逗号分隔的 DOI 或 arXiv:<ID>")
-    g.add_argument("--from-evidence", type=Path, help="证据表路径：取至少 --min-overlap 个面为 overlap 的行作种子")
-    ap.add_argument("--min-overlap", type=int, default=2)
-    ap.add_argument("--queries", type=Path, default=search.QUERIES_FILE, help="用于计算 query_blocks 的检索式文件")
-    ap.add_argument("--suffix", default="", help="输出文件后缀，与对应检索结果一致，如 _v2")
-    ap.add_argument("--cocite", action="store_true", help="两步共被引：引用种子的文献（可按 --citer-filter 过滤）共同引用了什么")
-    ap.add_argument("--citer-filter", help='共被引模式下过滤引用者的布尔式（标题 + 摘要），如 \'scientist*\'；写法同检索式')
-    ap.add_argument("--min-support", type=int, default=2, help="共被引模式：至少被几篇引用者共同引用")
-    ap.add_argument("--direction", choices=["both", "backward", "forward"], default="both", help="一步模式的方向")
-    ap.add_argument("--max-forward", type=int, default=MAX_FORWARD, help="最多取多少条前向引用（一步模式按每个种子计）")
-    ap.add_argument("--label", help="输出文件标签，默认一步模式 C1、共被引模式 C2")
-    ap.add_argument("--top", type=int, default=TOP)
-    ap.add_argument("--keep", type=int, default=KEEP, help="原始结果文件保存排序后的前多少条（默认 200；全部条数记在 meta）")
-    add_http_args(ap)
+    g.add_argument("--seeds", help=t("snowball.arg.seeds"))
+    g.add_argument("--from-evidence", type=Path, help=t("snowball.arg.from_evidence"))
+    ap.add_argument("--min-overlap", type=int, default=None, help=t("snowball.arg.min_overlap"))
+    ap.add_argument("--queries", type=Path, default=None, help=t("snowball.arg.queries"))
+    ap.add_argument("--suffix", default="", help=t("snowball.arg.suffix"))
+    ap.add_argument("--cocite", action="store_true", help=t("snowball.arg.cocite"))
+    ap.add_argument("--citer-filter", help=t("snowball.arg.citer_filter"))
+    ap.add_argument("--min-support", type=int, default=2, help=t("snowball.arg.min_support"))
+    ap.add_argument("--direction", choices=["both", "backward", "forward"], default="both", help=t("snowball.arg.direction"))
+    ap.add_argument("--max-forward", type=int, default=None, help=t("snowball.arg.max_forward"))
+    ap.add_argument("--label", help=t("snowball.arg.label"))
+    ap.add_argument("--top", type=int, default=None, help=t("snowball.arg.top"))
+    ap.add_argument("--keep", type=int, default=None, help=t("snowball.arg.keep"))
+    runtime.add_common_args(ap, network=True)
     args = ap.parse_args()
-    client = configure_from_args(args)
+    rt = runtime.init(args)
+    layout = {"RAW_DIR": "results/raw", "OUT_DIR": "results/merged"}
+    runtime.bind_root(globals(), rt.root, layout)
+    runtime.bind_root(vars(search), rt.root, {"QUERIES_FILE": "queries/queries.json", **layout})
+    cfg, client = rt.cfg, rt.client
+    search.configure(cfg)
+    for name in ("min_overlap", "max_forward", "top", "keep"):   # 命令行没给的取配置
+        if getattr(args, name) is None:
+            setattr(args, name, cfg["snowball"][name])
+    args.queries = args.queries or search.QUERIES_FILE
+    stopwords = frozenset(cfg["textmatch"]["stopwords"])
     label = args.label or ("C2" if args.cocite else "C1")
     if args.citer_filter:
         search.parse_query(args.citer_filter)  # 语法检查，写法与检索式相同
 
-    seeds = parse_seed_list(args.seeds) if args.seeds else seeds_from_evidence(args.from_evidence, args.min_overlap)
+    seeds = (parse_seed_list(args.seeds) if args.seeds
+             else seeds_from_evidence(args.from_evidence, args.min_overlap, cfg["facets"], cfg["columns"]))
     if not seeds:
-        sys.exit("没有种子文献")
+        sys.exit(t("snowball.no_seeds"))
     parsed = [search.parse_query(q["query"]) for q in search.load_queries(args.queries)]
 
     print(f"seeds ({len(seeds)}):")
@@ -356,7 +357,7 @@ def main():
             continue  # 种子的其他版本（如题目相同的预印本）
         records.append((r, {"openalex_id": short_id(w["id"]), "cited_by_count": w.get("cited_by_count"), **chase}))
     docs = [Doc(r["title"], r["abstract"]) for r, _ in records]
-    vecs = tfidf_vectors([content_terms(d) for d in seed_docs + docs])
+    vecs = tfidf_vectors([content_terms(d, stopwords) for d in seed_docs + docs])
     seed_centroid = centroid(vecs[:len(seed_docs)]) if seed_docs else {}
     search_file, index = search_index(args.suffix)
     out = []
@@ -381,7 +382,9 @@ def main():
             "seeds": [info for _, _, info in seeds_resolved], **stats, "queries_file": rel(args.queries),
             "sort": ("cocited: support desc, support/sqrt(cited_by_count) desc; citers: similarity to seeds desc"
                      if args.cocite else "links desc, similarity to seeds desc"),
-            "total_hits": len(out), "returned": min(len(out), args.keep), "http": client.stats_summary(),
+            "total_hits": len(out), "returned": min(len(out), args.keep),
+            "parameters": {k: getattr(args, k) for k in ("min_overlap", "max_forward", "top", "keep", "min_support", "direction")},
+            **np_config.meta(cfg, rel), "http": client.stats_summary(),
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     raw_path = RAW_DIR / f"chase_{label}{args.suffix}.json"
     write_json(raw_path, {"meta": meta, "records": [{k: v for k, v in x.items() if k != "in_search"} for x in out[:args.keep]]})

@@ -32,7 +32,8 @@ def load_json_lenient(path):
     try:
         return json.loads(text)
     except json.JSONDecodeError as e:
-        raise ValueError(f"{path} 不是合法的 JSON（第 {e.lineno} 行）：{e.msg}") from None
+        from .i18n import t
+        raise ValueError(t("io.bad_json", path=path, line=e.lineno, msg=e.msg)) from None
 
 
 def write_text(path, text):

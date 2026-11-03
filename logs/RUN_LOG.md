@@ -3619,3 +3619,96 @@ python3 -W error::ResourceWarning -m unittest discover -s tests   # 3.13: Ran 76
 新增 `tests/test_http.py`（假传输层：退避序列、Retry-After、预算、403/404 不重试、BlockedByPolicy、S2 间隔含重试、熔断、密钥只发给对应主机、跳转链与 https 升级、缓存命中与过期回退、录制 → 回放、键规范化、分页断点与令牌失效、形状校验）、`tests/test_replay.py`（录制件回放与契约）；`tests/test_core.py` 加 3.9 兼容性的静态检查（本轮即抓到 Path.write_text(newline=) 需 3.10+ 的问题）。
 
 **产出文件**：`novelty_probe/{http,cache,schemas}.py`、`tests/{test_http,test_replay}.py`、`tests/fixtures/cassettes/*.json`、`tests/fixtures/verify_table_recorded.md`（新增）；`scripts/{search,verify,snowball,enrich,authors}.py`、`tests/{test_offline,test_pipeline,test_core}.py`、`HOWTO.md`、`HANDOFF.md`（修改）
+
+---
+
+## [2026-11-03 08:24 UTC] Step 69 — 工具层迭代阶段 2：配置文件、中英文界面、证据 JSON、CI 与网络护栏
+
+**研究者的要求**：决策点全部按建议执行，继续阶段 2（研究者已在 GitHub 中开启 Actions）。六个决策：证据表以 JSON 为数据源并保留 Markdown 入口；Crossref 适配器实现但默认关闭（阶段 3）；单元测试禁网、另设 NP_LIVE=1 的联网检查（≤6 个请求）；GitHub Actions 矩阵 Python 3.9–3.13 × Ubuntu/Windows/macOS；阶段结束由助手开 PR 并订阅；退避带抖动（阶段 1 已实现）。
+
+**2a 配置**：`novelty-probe.json`（项目根目录，只写与默认值不同的设置；仓库里的文件不改变任何参数，config_hash 与内置默认值相同）。`novelty_probe/config.py`：对象逐层合并、列表整体替换、`<键>_extend` 追加、`_` 开头为注释、未知键警告、取值不合法时一次列出所有问题；默认值的唯一定义处是 `novelty_probe/defaults.py`（面、取值、列名、版本识别前缀、停用词），`scripts/textmatch.py` 也从这里取。各脚本接入：search（各来源 top_n / enabled、S2 max_records、purpose 起始年份、截断词表）、merge 默认方法（top_k、rrf_k、BM25 k1/b、版本识别规则 `VersionRules`；`--legacy` 不读配置）、snowball（面、列名、停用词、默认参数）、verify（列名、落地页开关）、compare（标记词组 `--markers`）、enrich（年份窗口、top）。所有脚本新增 `--root / --config / --lang`；在另一个项目目录下运行时路径随之切换；logrun 用同样的规则找项目根目录并传给子进程。输出 meta 带 `config_file`、`config_hash`、所用参数。新增 `scripts/config.py`（show / show --diff / check / init）。检索式 id 的 `Q<数字>` 格式是脚本之间的文件名约定，不进配置；config_hash 不含 language 与 contact_email（不影响结果）。User-Agent 默认是通用的客户端名，contact_email 默认为空、助手不代填。
+
+**2b 中英文界面**：`novelty_probe/i18n.py` 消息表；语言优先级 `--lang` > `NP_LANG` > 配置 language > zh，在构建参数解析器之前确定，帮助文本也随之切换。检索式语法错误、检索式文件问题、OpenAlex 解析核对、配置问题、HTTP 层错误、verify 的 verified 列都有中英文；中文文字与改造前逐字相同（已有测试与录制件依赖）。
+
+**2c 证据 JSON**：`novelty_probe/evidence.py`（schema `novelty-probe/evidence@1`）与 `scripts/evidence.py`：
+- `import-md`：表外文字原样保留；两张教程证据表导入后重新生成，与原文件逐字相同；
+- `render`：可换语言（只有表头与有结构化结果的 verified 列变化）；Markdown 在上次导入或生成后被手工改过时不覆盖；
+- `check`：取值合法、DOI / arXiv ID 来自检索结果、题目 / 年份 / 作者与检索结果一致、判定依据里引号内的英文是摘要（或检索记录题目）原文。本篇无摘要时，判定依据里注明 DOI、且在检索结果中的其他版本的摘要也算，对应 AGENTS.md 的规定。
+verify 拆成结构化结果与展示文字（`novelty_probe/verification.py`）；`--table <json>` 时结构化结果写进 JSON，再重新生成 Markdown。snowball 的 `--from-evidence` 与证据 JSON 共用同一个解析器。
+
+**2d CI 与测试**：`.github/workflows/tests.yml`（3.9–3.13 × 三个系统，离线测试 + 示例检索式 dry-run + 示例证据表检查）；`tests/netguard.py`：测试进程及其子进程中，除本机回环外的 DNS 与连接一律抛 NetworkBlocked（继承 BaseException，脚本的 except Exception 与 HTTP 重试都拦不住）；`tests/test_live_contract.py`：NP_LIVE=1 时的 6 项接口检查。
+
+**回归核对**：把 v1b、v2b 的原始结果复制到临时项目目录，用 `merge.py --root <临时目录>` 重跑默认方法，合并记录与候选表和已提交的 `results/merged/merged_v1b.json`、`merged_v2b.json`、`candidates_v1b.csv`、`candidates_v2b.csv` 逐字节相同（meta 只多了 config_hash 与 parameters）；`--legacy` 的逐字节复现测试照常通过。
+
+**命令：自检**
+
+```bash
+python3 -W error::ResourceWarning -m unittest discover -s tests   # 3.13: Ran 121 tests … OK (skipped=6)；3.9: 同
+```
+
+新增 `tests/test_config.py`（合并规则、校验、指纹、查找顺序、HTTP 策略覆盖、User-Agent、路径切换、语言探测、消息表完整性、配置到达各脚本、--root + --config 的合并端到端、英文命令行、config 命令）、`tests/test_evidence.py`（逐字还原、字段、英文生成、转义与原文单元格、直接写 JSON 的文档、检查的正反例、作者、注明来源的其他版本、引文比对、种子、命令行与手改保护、英文表全流程、verify 写回 JSON）；`tests/test_offline.py` 加英文 verified 列与结构化结果的测试、logrun 的项目目录测试；`tests/test_core.py` 加网络护栏测试。
+
+**产出文件**：`novelty-probe.json`、`novelty_probe/{config,i18n,runtime,evidence,verification}.py`、`scripts/{config,evidence}.py`、`tests/{netguard,test_config,test_evidence,test_live_contract}.py`、`tests/childguard/sitecustomize.py`、`.github/workflows/tests.yml`（新增）；`novelty_probe/{defaults,http,io}.py`、`scripts/*.py`、`tests/{test_offline,test_core}.py`、`HOWTO.md`、`HANDOFF.md`、`AGENTS.md`、`README.md`、`docs/ARCHITECTURE_REVIEW.md`（修改）。后面三步用 logrun 记录检查结果。
+
+---
+
+## [2026-11-03 08:25 UTC] Step 70 — 证据表机器检查：v1 证据表（evidence.py check）
+
+**命令**
+
+```bash
+python3 scripts/evidence.py check evidence/evidence_table.md
+# argv: ["python3", "scripts/evidence.py", "check", "evidence/evidence_table.md"]
+```
+
+**输出**（退出码 0）
+
+```
+检索结果：results/merged/merged.json；补充摘要：evidence/enrichment_v1b.json, evidence/enrichment_v2b.json；作者：evidence/authors.json
+检查通过：10 行，没有发现问题
+```
+
+---
+
+## [2026-11-03 08:25 UTC] Step 71 — 证据表机器检查：v2 证据表（evidence.py check）
+
+**命令**
+
+```bash
+python3 scripts/evidence.py check evidence/evidence_table_v2.md
+# argv: ["python3", "scripts/evidence.py", "check", "evidence/evidence_table_v2.md"]
+```
+
+**输出**（退出码 0）
+
+```
+检索结果：results/merged/merged_v2.json；补充摘要：evidence/enrichment_v1b.json, evidence/enrichment_v2b.json；作者：evidence/authors_v2.json
+检查通过：10 行，没有发现问题
+```
+
+---
+
+## [2026-11-03 08:25 UTC] Step 72 — 联网接口检查（NP_LIVE=1，6 个请求）
+
+**命令**
+
+```bash
+env NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
+# argv: ["env", "NP_LIVE=1", "python3", "-m", "unittest", "tests.test_live_contract", "-v"]
+```
+
+**输出**（退出码 0）
+
+```
+test_1_openalex_boolean_list (tests.test_live_contract.TestLiveContracts.test_1_openalex_boolean_list) ... ok
+test_2_openalex_rejects_wildcards (tests.test_live_contract.TestLiveContracts.test_2_openalex_rejects_wildcards) ... ok
+test_3_semantic_scholar_bulk (tests.test_live_contract.TestLiveContracts.test_3_semantic_scholar_bulk) ... ok
+test_4_semantic_scholar_batch (tests.test_live_contract.TestLiveContracts.test_4_semantic_scholar_batch) ... ok
+test_5_crossref_work (tests.test_live_contract.TestLiveContracts.test_5_crossref_work) ... ok
+test_6_crossref_agency_for_arxiv_doi (tests.test_live_contract.TestLiveContracts.test_6_crossref_agency_for_arxiv_doi) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.150s
+
+OK
+```
