@@ -1,12 +1,16 @@
 # novelty-probe
 
-A fully logged, AI-assisted workflow for collecting literature evidence around a research idea. Version 2 installs as one command, `novelty-probe`, and works in a project folder of your own.
+[![tests](https://github.com/PadSama/novelty-probe-demo/actions/workflows/tests.yml/badge.svg)](https://github.com/PadSama/novelty-probe-demo/actions/workflows/tests.yml)
+
+novelty-probe is a command-line tool for collecting literature evidence around a research idea. An AI coding assistant does the steps that need judgment, following fixed rules; commands do the rest, and every step is written to a run log. Since version 2.0 it installs as one command, `novelty-probe`, needs only Python 3.9 or later, and keeps each idea in a project folder of your own.
 
 You describe an idea in one or two sentences. An AI coding assistant breaks it into facets and Boolean queries; `novelty-probe run` then searches OpenAlex and Semantic Scholar, merges and deduplicates the results (linking preprints to their published versions with traceable rules), ranks the candidates, and writes them as CSV and RIS together with a run manifest and a PRISMA-S style search report. The assistant maps the top candidates to each facet of the idea, and every DOI is checked against Crossref (or OpenAlex). Optional citation chasing from the relevant papers finds work that keyword search misses because it uses different wording.
 
-The workflow **does not judge novelty**. It collects evidence with verifiable identifiers so that the researcher can make that judgment.
+novelty-probe **does not judge novelty**. It collects evidence with verifiable identifiers so that the researcher can make that judgment.
 
 > The step-by-step guide (`HOWTO.md`) is bilingual, Chinese and English paragraph by paragraph, with every prompt in both languages. The assistant's rules (`PROJECT.md`) are in Chinese and summarized below.
+>
+> The repository is named `novelty-probe-demo` because it began as a tutorial demo (version 1.0). It now holds the tool, and its root folder also holds the worked example.
 
 ## Ground rules
 
@@ -20,7 +24,7 @@ From `PROJECT.md`:
 
 **Requirements**
 
-- Python 3.9 or later. novelty-probe uses only the standard library.
+- Python 3.9 or later. novelty-probe uses only the standard library. It is not published on PyPI: install it from this repository as shown below, not with `pip install novelty-probe`.
 - Network access to `api.openalex.org`, `api.semanticscholar.org`, `doi.org` and `api.crossref.org`.
 - API keys, read from environment variables (`HOWTO.md` §0 shows the macOS / Linux and Windows PowerShell forms):
   - `OPENALEX_API_KEY`: strongly recommended. The free key avoids OpenAlex's shared daily budget.
@@ -83,6 +87,43 @@ The five facets are research question, mechanism, context, data and methods, and
 
 Steps that need judgment are done by an AI coding assistant run in the project folder, from paste-ready prompts in `HOWTO.md`, and are meant to be reviewed by the researcher. The worked example used Claude Code; any assistant that follows `AGENTS.md` can do these steps, for example ZCode with GLM. These are T2, the facet labels in T5, and choosing the closest papers in T6. Everything else is a command, and the middle of the pipeline needs no manual review.
 
+## Limitations
+
+- Only the top 25 records per query and source are kept, and the ranking reflects how well the text matches the queries, not relevance to the idea. Broad or very narrow queries limit what any ranking can do.
+- Matching uses titles and abstracts only. A record without an abstract can only be found through its title, unless another version of the same work has one.
+- Version linking relies mainly on titles, with authors as evidence; versions whose titles changed substantially are not merged.
+- Citation chasing depends on the seeds and on the term group used to filter citing papers; results can change completely with a different group.
+- Results depend on OpenAlex and Semantic Scholar, whose coverage, quotas and terms change over time, so the same queries can return different results later. Each run's manifest records the dates and the queries as sent, and the live checks (see Tests) show whether the interfaces still behave as the commands assume.
+- Facet labels are produced by an AI assistant from abstracts and need human review.
+- In the cloud environment used for the worked example, publisher landing pages were not reachable, so verification relies on Crossref and OpenAlex metadata.
+
+## Worked example
+
+The repository holds a complete run on one idea (original in Chinese): *Does researchers' use of AI tools narrow the range of research topics in a discipline? To be tested with large-scale publication data.*
+
+**Round 1 (v1, no field specified).**
+- 6 queries × 2 sources returned 217 records, which merged into 161 works.
+- The top-10 evidence table and the difference statement are in `evidence/`.
+- Crossref confirmed all 10 DOIs in the table.
+
+**What round 1 missed.** The researcher's reference paper was not among the 217 records: Hao, Xu, Li & Evans, *Artificial intelligence tools expand scientists' impact but contract science's focus*, Nature 649, 1237–1243 (2026), doi:10.1038/s41586-025-09922-y. The diagnosis is in RUN_LOG Step 11:
+- The Nature version has no abstract in OpenAlex or Semantic Scholar, so only its title could match.
+- Its arXiv preprint (arXiv:2412.07727) calls AI "Artificial Intelligence (AI)" and "AI tools", and calls the outcome a "narrowing of scientific focus". None of the v1 queries match that wording.
+
+**Round 2 (v2, management and economics).**
+- **Changes:** the context was narrowed to management and economics research. The vocabulary was broadened (`AI tools`, `artificial intelligence`, `narrowing`), and one query was added for the same relation in other sciences.
+- **Results:** 235 records merged into 191 works. The reference paper ranks 3rd among the candidates. It overlaps with the idea on four of the five facets and differs on context: its preprint abstract describes 41.3 million papers across the natural sciences.
+- **Caveat:** the v2 vocabulary was adjusted after the miss was known, so finding the paper confirms the fix but is not an independent test of recall.
+- **Side effect:** broadening to `narrowing` also pulled in papers about "narrow AI", 4 of the top 10.
+
+**Improvements and evaluation (v1b, v2b).** The known issues of rounds 1 and 2 were researched (similar open-source tools, methods literature, live API tests) and addressed; the plan, references and results are in `docs/IMPROVEMENT_PLAN.md`. Both rounds were re-run with the improved pipeline:
+- **Ties:** works tied at the top-20 cutoff fell from 42 to 1 (v1) and from 32 to 1 (v2).
+- **Noise:** with `AND NOT ("narrow AI" OR "narrow artificial intelligence")` added to the queries using *narrowing*, "narrow AI"-type papers in the v2 top 10 fell from 4 to 0 (one remains in the top 20).
+- **Versions:** the Nature paper and its arXiv preprint are now one work, dated 2026 (preprint 2024), and the merged record carries the preprint's abstract.
+- **Recall:** the v1 queries still cannot retrieve the reference paper. Two-hop co-citation from the v1 evidence-table papers, through citing papers that mention *scientists*, ranks it first. With a different term group it does not appear at all, and that filter was found while the target was known, so this is one positive case, not a validation.
+
+Every decision, command and output is in `logs/RUN_LOG.md`, including mistakes and how they were fixed.
+
 ## How the commands work
 
 - **`search`** parses each generic Boolean query once into a syntax tree (malformed queries are rejected with an error code and position) and runs it against every enabled source from the source registry (`novelty_probe/sources/`). Adding a source takes one module and one recorded test fixture. The per-source conversion:
@@ -133,42 +174,6 @@ Six optional live checks (one request each) confirm that OpenAlex, Semantic Scho
 NP_LIVE=1 python3 -m unittest tests.test_live_contract -v
 ```
 
-## Worked example
-
-The repository holds a complete run on one idea (original in Chinese): *Does researchers' use of AI tools narrow the range of research topics in a discipline? To be tested with large-scale publication data.*
-
-**Round 1 (v1, no field specified).**
-- 6 queries × 2 sources returned 217 records, which merged into 161 works.
-- The top-10 evidence table and the difference statement are in `evidence/`.
-- Crossref confirmed all 10 DOIs in the table.
-
-**What round 1 missed.** The researcher's reference paper was not among the 217 records: Hao, Xu, Li & Evans, *Artificial intelligence tools expand scientists' impact but contract science's focus*, Nature 649, 1237–1243 (2026), doi:10.1038/s41586-025-09922-y. The diagnosis is in RUN_LOG Step 11:
-- The Nature version has no abstract in OpenAlex or Semantic Scholar, so only its title could match.
-- Its arXiv preprint (arXiv:2412.07727) calls AI "Artificial Intelligence (AI)" and "AI tools", and calls the outcome a "narrowing of scientific focus". None of the v1 queries match that wording.
-
-**Round 2 (v2, management and economics).**
-- **Changes:** the context was narrowed to management and economics research. The vocabulary was broadened (`AI tools`, `artificial intelligence`, `narrowing`), and one query was added for the same relation in other sciences.
-- **Results:** 235 records merged into 191 works. The reference paper ranks 3rd among the candidates. It overlaps with the idea on four of the five facets and differs on context: its preprint abstract describes 41.3 million papers across the natural sciences.
-- **Caveat:** the v2 vocabulary was adjusted after the miss was known, so finding the paper confirms the fix but is not an independent test of recall.
-- **Side effect:** broadening to `narrowing` also pulled in papers about "narrow AI", 4 of the top 10.
-
-**Improvements and evaluation (v1b, v2b).** The known issues of rounds 1 and 2 were researched (similar open-source tools, methods literature, live API tests) and addressed; the plan, references and results are in `docs/IMPROVEMENT_PLAN.md`. Both rounds were re-run with the improved pipeline:
-- **Ties:** works tied at the top-20 cutoff fell from 42 to 1 (v1) and from 32 to 1 (v2).
-- **Noise:** with `AND NOT ("narrow AI" OR "narrow artificial intelligence")` added to the queries using *narrowing*, "narrow AI"-type papers in the v2 top 10 fell from 4 to 0 (one remains in the top 20).
-- **Versions:** the Nature paper and its arXiv preprint are now one work, dated 2026 (preprint 2024), and the merged record carries the preprint's abstract.
-- **Recall:** the v1 queries still cannot retrieve the reference paper. Two-hop co-citation from the v1 evidence-table papers, through citing papers that mention *scientists*, ranks it first. With a different term group it does not appear at all, and that filter was found while the target was known, so this is one positive case, not a validation.
-
-Every decision, command and output is in `logs/RUN_LOG.md`, including mistakes and how they were fixed.
-
-## Limitations
-
-- Only the top 25 records per query and source are kept, and the ranking reflects how well the text matches the queries, not relevance to the idea. Broad or very narrow queries limit what any ranking can do.
-- Matching uses titles and abstracts only. A record without an abstract can only be found through its title, unless another version of the same work has one.
-- Version linking relies mainly on titles, with authors as evidence; versions whose titles changed substantially are not merged.
-- Citation chasing depends on the seeds and on the term group used to filter citing papers; results can change completely with a different group.
-- Facet labels are produced by an AI assistant from abstracts and need human review.
-- In the cloud environment used for the worked example, publisher landing pages were not reachable, so verification relies on Crossref and OpenAlex metadata.
-
 ## Upgrading from 1.x
 
 - The scripts became one installable command: `python3 scripts/search.py …` is now `novelty-probe search …`, and so on for every script. The old `scripts/*.py` entry points still work and forward to the new commands, so earlier commands in logs and notes can be re-run as they are.
@@ -218,6 +223,7 @@ tests/           offline self-test, recorded responses, optional live checks
 docs/            IMPROVEMENT_PLAN.md (known issues), ARCHITECTURE_REVIEW.md (tool-layer review) and ROADMAP.md
                  (plan and progress of the tool-layer iteration), in Chinese
 .github/         GitHub Actions workflow for the offline tests and the installed command
+.gitattributes   keeps the worked example's data, the test fixtures and the run log out of release archives
 PROJECT.md       the assistant's role and rules (Chinese)
 AGENTS.md        instructions for AI coding assistants (Chinese)
 HOWTO.md         step-by-step guide with commands and prompts (Chinese / English)
