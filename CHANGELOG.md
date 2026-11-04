@@ -2,6 +2,10 @@
 
 All notable changes, by version. Details and the reasons behind each change are in `logs/RUN_LOG.md` (the step numbers below), `docs/IMPROVEMENT_PLAN.md` and `docs/ROADMAP.md`.
 
+## Unreleased
+
+- Docs only: `HANDOFF.md` §3–4 is now a tested local setup guide for v2.0.0. It covers three install routes (from a clone, from the release archive, or without installing), a virtual environment with current pip and setuptools, a package mirror for restricted networks, how to check that the API keys are set without showing them, offline checks, and a first message for an AI assistant in ZCode. The roadmap and handoff record the decisions made after the release.
+
 ## 2.0.0 — 2026-11-03
 
 From a tutorial demo to a tool for real research use: install it once, keep one project folder per idea, and run the scripted steps with one command. Everything since 1.0.0 is included.

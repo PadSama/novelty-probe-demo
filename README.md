@@ -28,7 +28,7 @@ From `PROJECT.md`:
 
 **Steps**
 
-1. Install (on Windows, use `py -3` instead of `python3`; if pip reports `externally-managed-environment`, use `pipx install` with the same address):
+1. Install (on Windows, use `py -3` instead of `python3`; if pip reports `externally-managed-environment`, use `pipx install` with the same address). A step-by-step local setup (virtual environment, a package mirror for restricted networks, running without installing, and a first message for an AI assistant such as GLM in ZCode) is in `HANDOFF.md` §3–4, in Chinese:
 
 ```bash
 python3 -m pip install "https://github.com/PadSama/novelty-probe-demo/archive/refs/tags/v2.0.0.zip"
