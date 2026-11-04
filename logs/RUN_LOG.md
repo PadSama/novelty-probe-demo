@@ -4341,3 +4341,41 @@ python3 <解压目录>/scripts/init.py proj && python3 <解压目录>/scripts/ru
 ```
 
 **产出文件**：`HANDOFF.md`、`docs/ROADMAP.md`、`README.md`、`CHANGELOG.md`（修改）
+
+---
+
+## [2026-11-04 02:46 UTC] Step 93 — README 与仓库首页简介按 v2.0 更新
+
+**研究者的要求**（概括）：按 v2.0 的现状更新仓库首页的 About 与 README 等文档。
+
+**现状核对**：
+- GitHub 上 v2.0.0 仍标为 pre-release，所以首页的 "Latest" 显示 v1.0.0，与 README 的安装地址（v2.0.0）不一致。
+- 首页 About 的简介仍是 1.0 教程的写法（workflow），没有提到可安装的命令、新建项目、RIS 与检索报告。
+- PyPI 上没有名为 `novelty-probe`（或 `novelty_probe`）的包。
+
+**做了什么**：
+- `README.md`：
+  - 开头改为命令行工具的定位：AI 编程助手做需要判断的步骤，命令做其余步骤，每一步写进运行日志；2.0 起是一条命令，只需 Python 3.9+，每个想法一个项目目录；
+  - 加 CI 状态徽章（GitHub Actions 自带的图片，不用第三方服务）；
+  - 说明仓库名带 `-demo` 的原因：起于 1.0 的教程演示（仓库不改名，研究者决定，Step 92）；
+  - Requirements 说明没有发布到 PyPI，不要用 `pip install novelty-probe` 安装（以免装到别人以后注册的同名包）；
+  - Limitations 与 Worked example 移到 How the commands work 之前，各节原有内容不变；Limitations 加一条：结果依赖 OpenAlex 与 Semantic Scholar，它们的覆盖、配额与条款会变，同样的检索式以后可能得到不同结果；运行清单记下检索日期与实际发出的检索式，联网检查可发现接口变化；
+  - Repository layout 加 `.gitattributes`。
+- `CHANGELOG.md`：Unreleased 一节加一条（只改文档）。
+- `docs/ROADMAP.md` 第 6 节：待决策改为 v2.0.0 是否改为正式版、首页 About 由研究者设置，均附建议。
+
+**首页 About 的建议文字**（仓库首页右侧 About 旁的齿轮里设置；助手的工具改不了仓库设置）：
+- Description（290 个字符，上限 350）：`Command-line tool that collects literature evidence for a research idea: Boolean queries → OpenAlex & Semantic Scholar → traceable dedup → RIS + PRISMA-S-style report → facet-by-facet evidence table → verified DOIs. AI-assisted, every step logged, no novelty verdicts. | 研究想法的文献证据检索工具（中英双语）`
+- Topics：`literature-search`、`literature-review`、`systematic-review`、`research-tool`、`openalex`、`semantic-scholar`、`crossref`、`deduplication`、`reproducible-research`、`science-of-science`、`ai-agents`、`cli`、`python`。不用 `prisma`：GitHub 上这个标签几乎都是同名的数据库工具。
+- Website：留空（没有单独的网站；以后若在 Zenodo 取得 DOI，可填 DOI 链接）。
+- "Include in the home page"：保留 Releases，取消 Packages 与 Deployments（两者都为空）。
+
+**命令与结果**
+
+```bash
+curl -sS -o /dev/null -w "%{http_code}" https://pypi.org/pypi/novelty-probe/json   # 404
+curl -sS -o /dev/null -w "%{http_code}" https://pypi.org/pypi/novelty_probe/json   # 404
+python3 -m unittest discover -s tests   # Ran 171 tests, OK (skipped=6)
+```
+
+**产出文件**：`README.md`、`CHANGELOG.md`、`docs/ROADMAP.md`、`logs/RUN_LOG.md`（修改）

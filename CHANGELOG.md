@@ -5,6 +5,7 @@ All notable changes, by version. Details and the reasons behind each change are 
 ## Unreleased
 
 - Docs only: `HANDOFF.md` §3–4 is now a tested local setup guide for v2.0.0. It covers three install routes (from a clone, from the release archive, or without installing), a virtual environment with current pip and setuptools, a package mirror for restricted networks, how to check that the API keys are set without showing them, offline checks, and a first message for an AI assistant in ZCode. The roadmap and handoff record the decisions made after the release.
+- Docs only: the README now opens with what the tool is, says that it is not on PyPI, explains the repository name and shows the test status. The limitations and the worked example come before the technical details, and the limitations add that results depend on the sources, which change over time (Step 93).
 
 ## 2.0.0 — 2026-11-03
 
